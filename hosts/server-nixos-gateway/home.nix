@@ -1,6 +1,6 @@
 { config, pkgs, ... }:
 let
-  users = import ../../config/users.nix;
+  hosts = import ../../config/hosts.nix;
   home_info = import ../home-share-info.nix;
 in
 {
@@ -12,7 +12,7 @@ in
 
   home = {
     username = users.default;
-    homeDirectory = "/home/${users.default}";
+    homeDirectory = "/home/${hosts.gateway.user}";
     stateVersion = home_info.stateVersion;
   };
 }

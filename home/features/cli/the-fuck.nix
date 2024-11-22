@@ -1,6 +1,7 @@
 {
   packages.thefuck = {
     enable = true;
+    enableZshIntegration = true;
   };
 
   programs.zsh.shellAliases = {

@@ -6,8 +6,6 @@
     # 기본 설정
     enableAutosuggestions = true; # 명령어 자동 제안
     enableCompletion = true; # 향상된 자동 완성
-    autocd = true; # 디렉토리 이름만으로 cd 가능
-    defaultKeymap = "emacs"; # 키맵 설정
 
     # 히스토리 설정
     history = {
@@ -19,33 +17,6 @@
       size = 10000; # 메모리상 히스토리 크기
     };
 
-    # oh-my-zsh 설정
-    oh-my-zsh = {
-      enable = true;
-      theme = "robbyrussell"; # 깔끔하고 정보가 충분한 테마
-      plugins = [
-        "git" # git 관련 단축어 및 정보 표시
-        "docker" # docker 명령어 자동완성
-        "fzf" # fuzzy finder 통합
-        "z" # 디렉토리 빠른 이동
-        "history-substring-search" # 히스토리 부분 문자열 검색
-        "colored-man-pages" # man 페이지 색상 강조
-        "command-not-found" # 명령어 찾을 수 없을 때 제안
-      ];
-    };
-
-    # 추가 플러그인 (oh-my-zsh 외부)
-    plugins = [
-      {
-        name = "zsh-syntax-highlighting";
-        src = pkgs.fetchFromGitHub {
-          owner = "zsh-users";
-          repo = "zsh-syntax-highlighting";
-          rev = "0.7.1";
-          sha256 = "gJZjxRz3gmxFlf2fGzqBB5R4gL/Ci15+Ivw3zDRm6Vg=";
-        };
-      }
-    ];
 
     # 환경 변수 설정
     sessionVariables = {
@@ -57,19 +28,7 @@
 
     # 별칭 설정
     shellAliases = {
-      # 기본 명령어 개선
-      ls = "eza --icons --git"; # eza로 ls 대체
-      l = "eza -lah --git"; # 자세한 목록
-      cat = "bat --style=plain"; # bat으로 cat 대체
-      top = "btop"; # btop으로 top 대체
-
-      # 개발 도구
-      d = "docker";
-      dc = "docker-compose";
-
-      # 시스템 관리
       update = "sudo nixos-rebuild switch";
-      hm = "home-manager switch";
     };
 
     # 추가 zsh 설정

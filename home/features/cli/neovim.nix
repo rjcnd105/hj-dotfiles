@@ -4,13 +4,19 @@
     enable = true;
     vimAlias = true;
     defaultEditor = true;
+    # vimdiff를 기본 diff 도구로 설정
+    vimdiffAlias = true;
     extraConfig = (builtins.readFile ../../../config/vim/vimrc);
     plugins = [
+
+      # LSP 지원
+      pkgs.vimPlugins.nvim-lspconfig
+      # 구문 향상
+      pkgs.vimPlugins.nvim-treesitter
+
       #####START########
       # plugin for file tree
       ##################
-      pkgs.vimPlugins.nerdtree
-      #####END##########
 
       #####START########
       # plugin for editing
@@ -37,7 +43,13 @@
       ##################
       {
         plugin = pkgs.vimPlugins.fzf-vim;
-        config = "nnoremap <C-p> :Files<CR>";
+        config = ''
+            let $FZF_DEFAULT_COMMAND = 'rg --files'
+            let $FZF_DEFAULT_COMMAND = 'fd --type f'
+
+            nnoremap <C-p> :Files<CR>
+            nnoremap <C-f> :Rg<CR>
+          '';
       }
       #####END##########
 
@@ -50,11 +62,19 @@
         config = "let g:startify_change_to_vcs_root = 0";
       }
       {
-        plugin = pkgs.vimPlugins.vim-floaterm;
-        config = ''
-          let g:floaterm_keymap_toggle = '<C-/>'
-          cnoreabbrev Term FloatermToggle
-        '';
+          plugin = pkgs.vimPlugins.vim-floaterm;
+          config = ''
+            let g:floaterm_keymap_toggle = '<C-/>'
+            let g:floaterm_width = 0.9
+            let g:floaterm_height = 0.9
+
+            " lazygit 설정
+            let g:floaterm_keymap_new = '<Leader>lg'
+            command! Lazygit FloatermNew --autoclose=2 --height=0.9 --width=0.9 lazygit
+            nnoremap <silent> <leader>lg :Lazygit<CR>
+
+            cnoreabbrev Term FloatermToggle
+          '';
       }
 
       #####END##########
@@ -63,25 +83,21 @@
       # plugin for git
       ##################
       # show status line
-      pkgs.vimPlugins.vim-airline
+
+      pkgs.vimPlugins.lualine-nvim
 
       # show git branch info
       pkgs.vimPlugins.vim-fugitive
 
-      # show git info in file tree
-      {
-        plugin = pkgs.vimPlugins.nerdtree-git-plugin;
-        # autocmd bufenter is to close nerdtree when close a file
-        config = ''
-          let NERDTreeShowHidden=1
-          map <C-n> :NERDTreeToggle<CR>
-          autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-        '';
-      }
 
+      pkgs.vimPlugins.catppuccin-nvim
+      # git file 탐색
+      pkgs.vimPlugins.nvim-tree-lua
       # show git diff info
       pkgs.vimPlugins.vim-gitgutter
+
       #####END##########
+
 
       #####START########
       # plugin for markdown

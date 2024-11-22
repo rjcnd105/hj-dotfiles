@@ -3,8 +3,8 @@ let
 in
 {
   workspace = {
-    hostname = "hj";
-    dir = "hj";
+    hostname = "workspace";
+    dir = "workspace";
     arch = "aarch64-darwin";
     user = users.default;
   };

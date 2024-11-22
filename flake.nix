@@ -27,7 +27,7 @@
 
     let
       hosts = import ./config/hosts.nix;
-      mkHomeConfigurations =
+      mkMyWorkspaceConfigurations =
         host:
         home-manager.lib.homeManagerConfiguration {
           pkgs = import nixpkgs {
@@ -56,33 +56,9 @@
             }
           ];
         };
-
-      supportedSystems = [
-        "x86_64-linux"
-        "x86_64-darwin"
-        "aarch64-linux"
-        "aarch64-darwin"
-      ];
-      forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
     in
     {
       nixosConfigurations."${hosts.gateway.hostname}" = mkNixOSConfigurations hosts.gateway;
-      homeConfigurations."${hosts.my_workspace.user}@${hosts.my_workspace.hostname}" = mkHomeConfigurations hosts.work;
-
-      devShells = forAllSystems (
-        system:
-        let
-          nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
-          pkgs = nixpkgsFor.${system};
-        in
-        {
-            default = pkgs.mkShell {
-                nativeBuildInputs = with pkgs; [
-                    nixd
-                    nixfmt-rfc-style
-                ];
-            };
-        }
-      );
+      homeConfigurations."${hosts.workspace.user}@${hosts.workspace.hostname}" = mkMyWorkspaceConfigurations hosts.work;
     };
 }
