@@ -72,7 +72,6 @@
     in
     {
       nixosConfigurations."${hosts.gateway.hostname}" = mkNixOSConfigurations hosts.gateway;
-
       homeConfigurations."${hosts.my_workspace.user}@${hosts.my_workspace.hostname}" = mkHomeConfigurations hosts.work;
 
       devShells = forAllSystems (
@@ -84,8 +83,8 @@
         {
             default = pkgs.mkShell {
                 nativeBuildInputs = with pkgs; [
-                nixd
-                nixfmt-rfc-style
+                    nixd
+                    nixfmt-rfc-style
                 ];
             };
         }
