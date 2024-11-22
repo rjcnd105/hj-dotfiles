@@ -71,12 +71,9 @@
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
     in
     {
-      nixosConfigurations."${hosts.workstation.hostname}" = mkNixOSConfigurations hosts.workstation;
-      nixosConfigurations."${hosts.aha.hostname}" = mkNixOSConfigurations hosts.aha;
       nixosConfigurations."${hosts.gateway.hostname}" = mkNixOSConfigurations hosts.gateway;
 
-      homeConfigurations."${hosts.work.user}@${hosts.work.hostname}" = mkHomeConfigurations hosts.work;
-      homeConfigurations."${hosts.wsl.hostname}" = mkHomeConfigurations hosts.wsl;
+      homeConfigurations."${hosts.my_workspace.user}@${hosts.my_workspace.hostname}" = mkHomeConfigurations hosts.work;
 
       devShells = forAllSystems (
         system:

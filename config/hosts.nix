@@ -2,9 +2,9 @@ let
   users = import ./users.nix;
 in
 {
-  hj = {
+  workspace = {
     hostname = "hj";
-    dir = "hj_mac";
+    dir = "hj";
     arch = "aarch64-darwin";
     user = users.default;
   };
