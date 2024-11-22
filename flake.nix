@@ -81,8 +81,8 @@
       devShells = forAllSystems (
         system:
         let
-            nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
-            pkgs = nixpkgsFor.${system};
+          nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
+          pkgs = nixpkgsFor.${system};
         in
         {
             default = pkgs.mkShell {
