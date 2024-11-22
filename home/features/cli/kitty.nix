@@ -71,4 +71,9 @@
     # Catppuccin-mocha 테마 (Zellij 테마와 동일)
     theme = "Catppuccin-Mocha";
   };
+
+  home.sessionVariables = {
+    TERMINAL = "kitty";
+    DEFAULT_TERMINAL = "kitty";
+  };
 }
