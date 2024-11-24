@@ -3,6 +3,7 @@
   home.packages =
     with pkgs;
     [
+      direnv     # folder 기반 env 설정
       ripgrep    # grep 대체 (rg)
       sd         # sed 대체 (더 직관적)
       procs      # ps 대체
@@ -11,6 +12,7 @@
       bandwhich # 실시간 네트워크 사용량을 프로세스별로 표시
       mtr-gui     # traceroute 대체, 더 상호작용적
       jq          # json 파싱
+      tlrc        # 문서 보기
     ];
 
 

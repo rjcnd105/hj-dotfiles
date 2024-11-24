@@ -1,5 +1,0 @@
-{
-  programs.zstd = {
-    enable = true;
-  };
-}

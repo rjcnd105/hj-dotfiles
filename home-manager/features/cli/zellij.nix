@@ -3,7 +3,6 @@
     enable = true;
     settings = {
       theme = "catppuccin-mocha"; # 인기있는 테마
-      enableZshIntegration = true;  # 자동 연결
 
       mouse_mode = true;
       default_layout = "compact"; # 기본 레이아웃

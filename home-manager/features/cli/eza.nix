@@ -34,5 +34,5 @@
      ldot = "eza -ld --icons .*";         # 숨김 파일만
      ldir = "eza -lD --icons";            # 디렉토리만
      lfile = "eza -lf --icons";           # 파일만
-  }
+  };
 }

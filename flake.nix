@@ -14,7 +14,6 @@
       url = "github:lnl7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
   };
 
   outputs =
@@ -22,26 +21,58 @@
       self,
       nixpkgs,
       home-manager,
+      darwin,
       ...
     }@inputs:
     let
       hosts = import ./config/hosts.nix;
-      MkMyConfigurations =
-        host:
-        home-manager.lib.homeManagerConfiguration {
-          pkgs = import nixpkgs {
-            system = host.arch;
-            config = {
-              allowUnfree = true;
-            };
+
+      mkCommonConfigurations = { username ? (import ./config/users.nix).default }@inputs: {
+        nix = {
+          settings = {
+            trusted-users = [ "root" username ];
+            auto-optimise-store = true;
+            keep-derivations = true;
+            keep-outputs = true;
+            auto-allocate-uids = true;
+            experimental-features = [
+              "nix-command"
+              "flakes"
+            ];
           };
+          # garbage collection
+          gc = {
+            automatic = true;
+            dates = "weekly";
+            options = "--delete-older-than 45d";
+          };
+        };
+      };
+
+      mkDarwinConfigurations = host:
+        darwin.lib.darwinSystem {
+          system = host.arch;
           modules = [
-            ./hosts/${host.dir}/home.nix
-            ./overlays
+            home-manager.darwinModules.home-manager
+            {
+                # nix 설정 포함
+                imports = [
+                    (mkCommonConfigurations {
+                        username = host.user;
+                    })
+                ];
+            }
+            ({ pkgs, ... }: {
+              home-manager.users.${host.user} = {
+                imports = [
+                  ./hosts/${host.dir}/home.nix
+                ];
+              };
+            })
           ];
         };
     in
     {
-      darwinConfigurations."${hosts.workspace.user}@${hosts.workspace.hostname}" = MkMyConfigurations hosts.workspace;
+      darwinConfigurations."${hosts.workspace.user}@${hosts.workspace.hostname}" = mkDarwinConfigurations hosts.workspace;
     };
 }

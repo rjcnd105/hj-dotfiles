@@ -6,6 +6,7 @@
     # 기본 설정
     enableAutosuggestions = true; # 명령어 자동 제안
     enableCompletion = true; # 향상된 자동 완성
+    enableSyntaxHighlighting = true;
 
     # 히스토리 설정
     history = {

@@ -53,4 +53,7 @@
       ];
     };
   };
+  programs.zsh.shellAliases = {
+    lzg = "lazygit";
+  };
 }

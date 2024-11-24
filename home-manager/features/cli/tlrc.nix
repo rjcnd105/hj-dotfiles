@@ -1,5 +1,0 @@
-{
-  packages.tlrc = {
-    enable = true;
-  };
-}

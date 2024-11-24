@@ -15,6 +15,8 @@
       gping     # ping 대체, 그래프 표시 기능
       dua       # 디스크 사용량
       vim
+      p7zip
+      zstd
     ];
 
     programs.zsh.shellAliases = {

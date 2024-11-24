@@ -13,14 +13,11 @@
     ./delta.nix
     ./bat.nix
     ./neovim.nix
-    ./p7zip.nix
     ./ssh.nix
     ./podman.nix
     ./the-fuck.nix
-    ./tlrc.nix
     ./zellij.nix
     ./zoxide.nix
-    ./zstd.nix
     ./btop.nix
     ./eza.nix
     ./fzf.nix
