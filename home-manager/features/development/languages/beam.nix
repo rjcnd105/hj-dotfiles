@@ -59,5 +59,5 @@
           "#{IO.ANSI.bright_black}|>#{IO.ANSI.reset}"
       )
     '';
-  }
+  };
 }
