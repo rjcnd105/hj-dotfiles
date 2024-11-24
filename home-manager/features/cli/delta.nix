@@ -1,16 +1,17 @@
 # https://github.com/dandavison/delta
+{ pkgs, ... }:
 {
-  programs.delta = {
-    enable = true;
-  };
+  home.packages = with pkgs; [
+    delta  # delta 패키지 설치
+  ];
 
   programs.git = {
     delta = {  # git diff 강화
         enable = true;
         options = {
-            navigate = true;
-            light = false;
-            side-by-side = true;
+            hyperlinks = true;
+            line-numbers = true;
+            hunk-header-style = "syntax";
         };
     };
   };

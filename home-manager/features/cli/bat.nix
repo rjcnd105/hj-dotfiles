@@ -5,8 +5,8 @@
       theme = "Catppuccin Mocha";
     };
     extraPackages = [ ];
-    aliases = {
-      cat = "bat --style=plain --paging=never";
-    };
+  };
+  programs.zsh.shellAliases = {
+    cat = "bat --style=plain --paging=never";
   };
 }

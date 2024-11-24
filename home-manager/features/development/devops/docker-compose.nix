@@ -1,8 +1,10 @@
+
 # docker-compose.nix
+{ pkgs, ... }:
 {
-  packages.docker-compose = {
-    enable = true;
-  };
+  home.packages = with pkgs; [
+    docker-compose
+  ];
 
   programs.zsh.shellAliases = {
     dc = "docker-compose";

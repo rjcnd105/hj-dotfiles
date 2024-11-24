@@ -1,5 +1,5 @@
 {
-  packages.thefuck = {
+  programs.thefuck = {
     enable = true;
   };
 

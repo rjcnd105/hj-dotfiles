@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 let
   hosts = import ../../config/hosts.nix;
   info = import ../../config/info.nix;
@@ -9,17 +9,11 @@ in
     ../../home-manager/presets/workspace.nix
   ];
 
-  home-manager = {
-     useGlobalPkgs = true;
-     useUserPackages = true;
-   };
-
 
   home = {
     username = hosts.user;
-    homeDirectory = "/Users/${hosts.user}";
+    homeDirectory = "/Users/${hosts.workspace.user}";
     stateVersion = info.home-manager.stateVersion;
-    verbose = true;
       # 환경 변수 설정
     sessionVariables = {
         EDITOR = "zed";
@@ -27,8 +21,6 @@ in
     };
   };
 
-
     # home-manager 자체 설정
     programs.home-manager.enable = true;
-
 }

@@ -62,7 +62,9 @@
                     })
                 ];
             }
-            ({ pkgs, ... }: {
+            ({ pkgs, config, ... }: {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
               home-manager.users.${host.user} = {
                 imports = [
                   ./hosts/${host.dir}/home.nix
