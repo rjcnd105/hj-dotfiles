@@ -15,9 +15,6 @@
       gping     # ping 대체, 그래프 표시 기능
       dua       # 디스크 사용량
       vim
-    ]
-    ++ mkLinuxOnly [
-      parted
     ];
 
     programs.zsh.shellAliases = {

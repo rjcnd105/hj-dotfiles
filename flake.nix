@@ -24,10 +24,9 @@
       home-manager,
       ...
     }@inputs:
-
     let
       hosts = import ./config/hosts.nix;
-      mkMyWorkspaceConfigurations =
+      MkMyConfigurations =
         host:
         home-manager.lib.homeManagerConfiguration {
           pkgs = import nixpkgs {
@@ -41,24 +40,8 @@
             ./overlays
           ];
         };
-
-      mkNixOSConfigurations =
-        host:
-        nixpkgs.lib.nixosSystem {
-          system = host.arch;
-          modules = [
-            ./hosts/${host.dir}/configuration.nix
-            ./overlays
-            home-manager.nixosModules.home-manager
-            {
-              home-manager.useGlobalPkgs = true;
-              home-manager.users."${host.user}" = import ./hosts/${host.dir}/home.nix;
-            }
-          ];
-        };
     in
     {
-      nixosConfigurations."${hosts.gateway.hostname}" = mkNixOSConfigurations hosts.gateway;
-      homeConfigurations."${hosts.workspace.user}@${hosts.workspace.hostname}" = mkMyWorkspaceConfigurations hosts.work;
+      darwinConfigurations."${hosts.workspace.user}@${hosts.workspace.hostname}" = MkMyConfigurations hosts.workspace;
     };
 }

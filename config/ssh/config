@@ -1,3 +1,0 @@
-PubkeyAcceptedAlgorithms +ssh-rsa-cert-v01@openssh.com
-ControlMaster auto
-ServerAliveInterval 30

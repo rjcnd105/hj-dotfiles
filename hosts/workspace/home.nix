@@ -1,16 +1,16 @@
 { config, pkgs, ... }:
 let
   hosts = import ../../config/hosts.nix;
-  home_info = import ../home-share-info.nix;
+  info = import ../../config/info.nix;
 in
 {
   imports = [
-    ../../home/flavors/
+    ../../home-manager/presets/workspace.nix
   ];
 
   home = {
     username = hosts.user;
     homeDirectory = "/Users/${hosts.user}";
-    stateVersion = home_info;
+    stateVersion = info.home-manager.stateVersion;
   };
 }

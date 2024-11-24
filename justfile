@@ -2,5 +2,6 @@
 nix_instll:
     curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 
-step1_setup:
-    source ./install.sh
+setup_hj-workspace:
+    nix build .#darwinConfigurations.hj@workspace
+    ./result/sw/bin/darwin-rebuild switch
