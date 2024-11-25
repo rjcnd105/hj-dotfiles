@@ -16,7 +16,6 @@ in
     stateVersion = info.home-manager.stateVersion;
       # 환경 변수 설정
     sessionVariables = {
-        EDITOR = "zed";
         LANG = "ko_KR.UTF-8";
     };
   };

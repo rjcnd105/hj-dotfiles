@@ -4,11 +4,11 @@
     enable = true;
 
     # 기본 설정
-    enableAutosuggestions = {
+    autosuggestion = {
       enable = true;
     };
     enableCompletion = true; # 향상된 자동 완성
-    enableSyntaxHighlighting = {
+    syntaxHighlighting = {
       enable = true;
     };
 

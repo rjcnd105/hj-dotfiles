@@ -4,7 +4,7 @@
 
     settings = {
       # 폰트 설정 - oh-my-zsh 테마와 아이콘을 위해
-      font_family = "JetBrainsMono Nerd Font";
+      font_family = "JetBrainsMono";
       font_size = 13;
       adjust_line_height = 115;  # oh-my-zsh 프롬프트가 더 잘 보이도록
       modify_font = "cell_height 2px";
@@ -68,8 +68,6 @@
       "cmd+v" = "paste_from_clipboard";
     };
 
-    # Catppuccin-mocha 테마 (Zellij 테마와 동일)
-    theme = "Catppuccin-Mocha";
   };
 
   home.sessionVariables = {

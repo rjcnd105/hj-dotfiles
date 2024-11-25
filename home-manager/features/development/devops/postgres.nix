@@ -1,5 +1,6 @@
 { config, pkgs, ... }:
 {
+
   # PostgreSQL 관련 도구들 설치
   home.packages = with pkgs; [
     # CLI 도구

@@ -27,6 +27,7 @@
     let
       hosts = import ./config/hosts.nix;
 
+
       mkCommonConfigurations = { username ? (import ./config/users.nix).default }@inputs: {
         nix = {
           settings = {
@@ -49,9 +50,17 @@
         };
       };
 
-      mkDarwinConfigurations = host:
+      mkDarwinConfigurations = host: let
+
+        system = host.arch;
+        pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+        };
+      in
         darwin.lib.darwinSystem {
-          system = host.arch;
+          inherit system;
+          specialArgs = { inherit inputs pkgs; };  # specialArgs 추가
           modules = [
             home-manager.darwinModules.home-manager
             {
@@ -62,16 +71,22 @@
                     })
                 ];
             }
-            ({ pkgs, config, ... }: {
+            {
               system.stateVersion = 5;
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.users.${host.user} = {
-                imports = [
-                  ./hosts/${host.dir}/home.nix
-                ];
+              home-manager = {
+
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                extraSpecialArgs = {
+                    inherit inputs pkgs;
+                };
+                users.${host.user} = {
+                  imports = [
+                    ./hosts/${host.dir}/home.nix
+                  ];
+                };
               };
-            })
+            }
           ];
         };
     in

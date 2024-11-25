@@ -39,7 +39,4 @@
     gp = "git push";
   };
 
-  home.packages = [
-    (pkgs.callPackage ../../../pkgs/gm.nix { })
-  ];
 }
