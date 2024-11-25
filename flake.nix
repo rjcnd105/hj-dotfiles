@@ -31,7 +31,6 @@
         nix = {
           settings = {
             trusted-users = [ "root" username ];
-            auto-optimise-store = true;
             keep-derivations = true;
             keep-outputs = true;
             auto-allocate-uids = true;
@@ -40,10 +39,11 @@
               "flakes"
             ];
           };
+          configureBuildUsers = true;
+          optimise.automatic = true;
           # garbage collection
           gc = {
             automatic = true;
-            dates = "weekly";
             options = "--delete-older-than 45d";
           };
         };
@@ -63,6 +63,7 @@
                 ];
             }
             ({ pkgs, config, ... }: {
+              system.stateVersion = 5;
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.users.${host.user} = {

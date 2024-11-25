@@ -6,7 +6,7 @@
     defaultEditor = true;
     # vimdiff를 기본 diff 도구로 설정
     vimdiffAlias = true;
-    extraConfig = (builtins.readFile ../../../config/vim/vimrc);
+    # extraConfig = (builtins.readFile ../../../config/vim/vimrc);
     plugins = [
 
       # LSP 지원

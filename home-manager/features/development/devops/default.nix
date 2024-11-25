@@ -1,7 +1,6 @@
 { pkgs, config, ... }:
 {
   imports = [
-    ./docker.nix
     ./docker-compose.nix
     ./postgres.nix
   ];
