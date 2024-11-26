@@ -13,6 +13,7 @@ build_hj-workspace:
 darwin-switch:
     ./result/sw/bin/darwin-rebuild switch --flake .#hj@workspace
 
+
 _flake_update:
     @nix flake update
 

@@ -5,7 +5,6 @@
     computerName = host.user;
     localHostName = host.user;
   };
-
   nix = {
     settings = {
       trusted-users = [

@@ -18,7 +18,7 @@
     ./ssh.nix
     ./podman.nix
     ./the-fuck.nix
-    ./zellij.nix
+    ./fish.nix
     ./zoxide.nix
     ./btop.nix
     ./eza.nix

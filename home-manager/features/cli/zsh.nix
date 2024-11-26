@@ -37,6 +37,9 @@
 
     # 추가 zsh 설정
     initExtra = ''
+
+      export PATH="$HOME/.local/bin:$PATH"
+
       # 기존 설정 파일을 source
       if [ -f ~/.zshrc.local ]; then
         source ~/.zshrc.local

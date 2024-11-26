@@ -14,6 +14,8 @@
     just # script 태스크 관리
   ];
 
+  programs.nix-index.enable = true;
+
   # 완전 대체 목록
   programs.zsh.shellAliases = {
     grep = "rg";

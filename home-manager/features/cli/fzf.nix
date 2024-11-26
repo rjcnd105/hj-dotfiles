@@ -2,6 +2,7 @@
   # https://github.com/junegunn/fzf
   programs.fzf = {
     enable = true;
+    enableFishIntegration = true;
   };
 
   # https://github.com/junegunn/fzf-git.sh?tab=readme-ov-file

@@ -1,22 +1,20 @@
 {
   programs.kitty = {
     enable = true;
-
+    enableFishIntegration = true;
     settings = {
       # 폰트 설정 - oh-my-zsh 테마와 아이콘을 위해
-      font_family = "JetBrainsMono";
-      font_size = 13;
-      adjust_line_height = 115;  # oh-my-zsh 프롬프트가 더 잘 보이도록
-      modify_font = "cell_height 2px";
+      font_family = "JetBrainsMono Nerd Font";
+      font_size = 12;
+      adjust_line_height = 13;  # oh-my-zsh 프롬프트가 더 잘 보이도록
+      bold_font = "JetBrainsMono Nerd Font Medium";
 
-      # Zellij 통합을 위한 설정
-      shell = "zsh";  # zsh 기본 실행
       allow_remote_control = "yes";  # Zellij 제어 허용
       listen_on = "unix:/tmp/kitty";
-      enabled_layouts = "tall,stack,grid";  # Zellij 레이아웃과 호환되는 레이아웃
 
       # 성능 설정
       repaint_delay = 8;
+      scroll_delay = 8;
       input_delay = 2;
       sync_to_monitor = true;
 
@@ -45,7 +43,7 @@
       url_prefixes = "http https file ftp git";
 
       # Catppuccin 테마와 어울리는 설정
-      background_opacity = 1.0;
+      background_opacity = 0.95;
       dynamic_background_opacity = "yes";
 
       # 탭바 설정 (Zellij가 주로 관리하므로 최소화)
