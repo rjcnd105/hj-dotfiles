@@ -1,9 +1,9 @@
-{ pkgs, ... }:
+{ pkgs, host, ... }:
 {
   programs.git = {
     enable = true;
     userEmail = "rjcnd123@gmail.com";
-    userName = "hj";
+    userName = host.user;
 
     aliases = {
       co = "checkout";

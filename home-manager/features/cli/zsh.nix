@@ -22,7 +22,6 @@
       size = 10000; # 메모리상 히스토리 크기
     };
 
-
     # 환경 변수 설정
     sessionVariables = {
       EDITOR = "zed";
@@ -38,6 +37,11 @@
 
     # 추가 zsh 설정
     initExtra = ''
+      # 기존 설정 파일을 source
+      if [ -f ~/.zshrc.local ]; then
+        source ~/.zshrc.local
+      fi
+
       # fzf 키바인딩 설정
       bindkey '^P' up-line-or-search
       bindkey '^N' down-line-or-search
@@ -58,6 +62,12 @@
       # 필요한 경우 특정 경로 추가
       path+=("$HOME/.local/bin")
       export PATH
+
+      # utils
+      timestamp() {
+          date '+%y%m%d_%H%M%S'
+      }
+
     '';
 
     # 로케일 설정
