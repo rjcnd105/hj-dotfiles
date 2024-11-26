@@ -1,6 +1,4 @@
 home_dir := env_var('HOME')
-timestamp := `date '+%y%m%d_%H%M%S'`
-backup_folder := home_dir + "/nix_backup/" + timestamp
 
 default:
   @just --choose
@@ -17,13 +15,6 @@ darwin-switch:
 _flake_update:
     @nix flake update
 
-# 기존 설정 백업
-_before-conf:
-    mkdir -p "{{backup_folder}}/nix"
-    mkdir -p "{{backup_folder}}/bash"
-
-    cp -r /etc/nix/nix.conf "{{backup_folder}}/nix/nix.conf.backup"
-    cp -r /etc/bash.bashrc "{{backup_folder}}/bash/bashrc.backup"
 
 _remove_before_conf:
     rm -rf /etc/nix/nix.conf

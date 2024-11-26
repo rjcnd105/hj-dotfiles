@@ -4,6 +4,7 @@
     ./common.nix
     ./additional.nix
 
+    ./catppuccin.nix
     ./zsh.nix
     ./nixos.nix
     ./home-manager.nix
