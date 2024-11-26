@@ -1,4 +1,5 @@
 home_dir := env_var('HOME')
+timestamp := `date '+%y%m%d_%H%M%S'`
 
 default:
   @just --choose

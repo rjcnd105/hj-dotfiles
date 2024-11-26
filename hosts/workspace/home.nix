@@ -12,6 +12,7 @@ in
 {
   imports = [
     ../../home-manager/presets/workspace.nix
+    ./ssh.nix
   ];
 
 
