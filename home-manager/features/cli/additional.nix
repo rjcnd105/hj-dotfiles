@@ -1,8 +1,5 @@
 { pkgs, lib, ... }:
 {
-  imports = [
-    ./nix-search.nix
-  ];
   home.packages = with pkgs; [
     direnv # folder 기반 env 설정
     ripgrep # grep 대체 (rg)
