@@ -1,4 +1,7 @@
-{ pkgs, ... }: {
+{ pkgs, inputs, ... }: {
+  imports = [
+    inputs.nixvim.homeManagerModules.nixvim
+  ];
   programs.nixvim = {
 
     plugins = {
@@ -6,7 +9,6 @@
       bufferline.enable = true;
       web-devicons.enable = true;
       nvim-treesitter.enable = true;
-      lsp.enable = true;
     };
   };
 }
