@@ -29,7 +29,7 @@
     lfs.enable = true;
   };
 
-  programs.bash.shellAliases = {
+  programs.zsh.shellAliases = {
     g = "git";
     gc = "git commit";
     gs = "git status";

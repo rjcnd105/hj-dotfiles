@@ -39,6 +39,7 @@
     initExtra = ''
 
       export PATH="$HOME/.local/bin:$PATH"
+      PROMPT='%1~ > '
 
       # 기존 설정 파일을 source
       if [ -f ~/.zshrc.local ]; then

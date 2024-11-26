@@ -10,15 +10,13 @@
     ./home-manager.nix
     ./git.nix
     ./gh.nix
-    ./neovim.nix
+    ./nixvim.nix
     ./kitty.nix
     ./delta.nix
     ./bat.nix
-    ./neovim.nix
     ./ssh.nix
     ./podman.nix
     ./the-fuck.nix
-    ./fish.nix
     ./zoxide.nix
     ./btop.nix
     ./eza.nix
