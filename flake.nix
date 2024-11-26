@@ -53,6 +53,7 @@
                 useGlobalPkgs = true;
                 useUserPackages = true;
 
+                backupFileExtension = "backup";  # 백업 파일 확장자 설정
                 # extraSpecialArgs
                 # home-manager 시스템 레벨 모듈에 전달되는 인자
                 # 각 모듈의 인자로 넘겨줌
