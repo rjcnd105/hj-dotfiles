@@ -9,6 +9,7 @@
     ./nixos.nix
     ./home-manager.nix
     ./git.nix
+    ./gh.nix
     ./neovim.nix
     ./kitty.nix
     ./delta.nix
