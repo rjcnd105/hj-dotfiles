@@ -3,7 +3,6 @@
     inputs.nixvim.homeManagerModules.nixvim
   ];
   programs.nixvim = {
-
     plugins = {
       lualine.enable = true;
       bufferline.enable = true;
