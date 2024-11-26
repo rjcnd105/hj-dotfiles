@@ -2,8 +2,6 @@
   programs.zellij = {
     enable = true;
     settings = {
-      theme = "catppuccin-mocha"; # 인기있는 테마
-
       mouse_mode = true;
       default_layout = "compact"; # 기본 레이아웃
       default_shell = "zsh"; # 기본 쉘

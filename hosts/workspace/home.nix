@@ -24,21 +24,10 @@ in
     sessionVariables = {
       LANG = "ko_KR.UTF-8";
     };
-    backupFileExtension = lib.mkDefault (
-      let
-        timestamp = builtins.substring 0 12 (
-          builtins.replaceStrings ["-" ":"] ["" ""] (builtins.toString builtins.currentTime)
-        );
-        year = builtins.substring 2 4 timestamp;
-        month = builtins.substring 4 6 timestamp;
-        day = builtins.substring 6 8 timestamp;
-        hour = builtins.substring 8 10 timestamp;
-        minute = builtins.substring 10 12 timestamp;
-      in
-        "${year}${month}${day}_${hour}${minute}"
-    );
   };
 
   # home-manager 자체 설정
-  programs.home-manager.enable = true;
+  programs.home-manager = {
+    enable = true;
+  };
 }
