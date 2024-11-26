@@ -40,7 +40,7 @@
       dynamic_background_opacity = "yes";
 
       tab_bar_style = "powerline";
-      tab_title_template = " {index}: {title} ";
+      tab_title_template = " {index}:{fmt.fg.tab}{$(basename $tab.active_wd)} ";
     };
 
     # 키바인딩 (Zellij와 충돌 방지)

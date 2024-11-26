@@ -21,5 +21,5 @@
   home.sessionVariables = {
     FZF_CTRL_T_OPTS = "--preview 'bat -n --color=always --line-range :500 {}'";
     FZF_ALT_C_OPTS = "--preview 'eza --tree --color=always {} | head -200'";
-  }
+  };
 }
