@@ -16,8 +16,3 @@ darwin-switch:
 
 _flake_update:
     @nix flake update
-
-
-_remove_before_conf:
-    rm -rf /etc/nix/nix.conf
-    rm -rf /etc/bash.bashrc
