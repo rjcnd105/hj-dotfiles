@@ -7,8 +7,8 @@
       set fish_greeting
     '';
     # use abbreviations instead of aliases
-    preferAbbrs = true;
+    # preferAbbrs = true;
     # seems like shell abbreviations take precedence over aliases
-    shellAbbrs = config.home.shellAliases;
+    # shellAbbrs = config.home.shellAliases;
   };
 }

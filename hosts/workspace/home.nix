@@ -20,10 +20,10 @@ in
     username = host.user;
     homeDirectory = lib.mkForce (builtins.toPath "/Users/${host.user}");
     stateVersion = info.home-manager.stateVersion;
-    sessionPath = [ "${config.home.homeDirectory}/.nix-profile/bin" ];
+    # rio에서 제대로 설정 안되어서 수동으로 set
+    sessionPath = [ "${config.home.profileDirectory}/bin" ];
     # 환경 변수 설정
     sessionVariables = envVars // {
-      HOME = config.home.homeDirectory;
       XDG_CONFIG_HOME = "${config.home.homeDirectory}/.config";
       XDG_DATA_HOME = "${config.home.homeDirectory}/.local/share";
       XDG_CACHE_HOME = "${config.home.homeDirectory}/.cache";
