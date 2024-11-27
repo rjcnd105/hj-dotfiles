@@ -11,7 +11,7 @@
 
       shell = {
         program = "${config.home.profileDirectory}/bin/fish";
-        args = [ ];
+        args = [ "--login" ];
       };
       fonts = {
         family = "JetBrainsMono Nerd Font Mono";

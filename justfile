@@ -11,7 +11,7 @@ build_hj-workspace:
     nix build .#darwinConfigurations.hj@workspace.system --show-trace
 
 darwin-switch:
-    ./result/sw/bin/darwin-rebuild switch --flake .#hj@workspace
+    ./result/sw/bin/darwin-rebuild switch --flake .#hj@workspace --show-trace
 
 switch-from-github:
     nix run nix-darwin -- switch --flake github:rjcnd105/hj-dotfiles#hj@workspace
