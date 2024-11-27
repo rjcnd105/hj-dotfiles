@@ -2,7 +2,7 @@
   programs.lazygit = {
     enable = true;
   };
-  programs.zsh.shellAliases = {
+  home.shellAliases = {
     lzg = "lazygit";
   };
 }

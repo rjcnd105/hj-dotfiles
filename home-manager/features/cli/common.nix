@@ -19,7 +19,7 @@
       zstd
     ];
 
-    programs.zsh.shellAliases = {
+  home.shellAliases = {
       ping = "gping";        # 그래픽 ping
-    };
+  };
 }

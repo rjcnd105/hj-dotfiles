@@ -14,8 +14,10 @@
     just # script 태스크 관리
   ];
 
+  programs.z.enable = true;
+
   # 완전 대체 목록
-  programs.zsh.shellAliases = {
+  home.shellAliases = {
     grep = "rg";
     find = "fd";
     ps = "procs";

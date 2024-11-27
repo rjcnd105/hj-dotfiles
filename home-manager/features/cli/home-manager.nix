@@ -7,7 +7,8 @@
     home-manager
   ];
 
-  programs.zsh.shellAliases = {
+
+  home.shellAliases = {
     hm = "home-manager switch";
   };
 

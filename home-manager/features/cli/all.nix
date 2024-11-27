@@ -5,7 +5,8 @@
     ./additional.nix
 
     ./catppuccin.nix
-    ./zsh.nix
+    ./fish.nix
+    ./rio.nix
     ./nixos.nix
     ./home-manager.nix
     ./git.nix

@@ -20,11 +20,13 @@
 
   };
 
-  programs.zsh = {
-    initExtra = ''
-      function local_psql() {
-         usql "postgres://$PGHOST:$PGPORT/$1"
-      }
-    '';
+  programs.fish = {
+   functions = {
+     local_psql = ''
+       function local_psql
+         usql "postgres://$PGHOST:$PGPORT/$argv[1]"
+       end
+     '';
+   };
   };
 }

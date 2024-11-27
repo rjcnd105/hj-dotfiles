@@ -5,11 +5,6 @@
     userEmail = "rjcnd123@gmail.com";
     userName = host.user;
 
-    aliases = {
-      co = "checkout";
-      br = "branch";
-    };
-
     extraConfig = {
       core = {
         quotePath = false;
@@ -29,7 +24,8 @@
     lfs.enable = true;
   };
 
-  programs.zsh.shellAliases = {
+
+  home.shellAliases = {
     g = "git";
     gc = "git commit";
     gs = "git status";

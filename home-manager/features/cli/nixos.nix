@@ -1,5 +1,5 @@
 {
-  programs.zsh.shellAliases  = {
+  home.shellAliases  = {
     update = "sudo nixos-rebuild switch";
   };
 }

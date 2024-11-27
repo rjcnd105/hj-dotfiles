@@ -1,15 +1,10 @@
 {
   programs.thefuck = {
     enable = true;
+    enableFishIntegration = true;
   };
 
-  programs.zsh.shellAliases = {
-    f = "fuck";  # thefuck의 짧은 단축어
-  };
-
-  programs.zsh = {
-    initExtra = ''
-      eval $(thefuck --alias)
-    '';
+  home.shellAliases = {
+    f = "thefuck";
   };
 }
