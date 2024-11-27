@@ -77,7 +77,6 @@
                 };
               };
             }
-            ./hosts/${host.dir}/last.conf.nix
           ];
         };
     in

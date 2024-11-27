@@ -7,6 +7,10 @@
     computerName = host.user;
     localHostName = host.user;
   };
+
+  environment.systemPath = [
+    "/etc/profiles/per-user/${host.user}/bin"
+  ];
   nix = {
     settings = {
       trusted-users = [
