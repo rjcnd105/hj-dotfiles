@@ -14,8 +14,8 @@
         args = [ "--login" ];
       };
       fonts = {
-        family = "D2CodingLigature Nerd Font";
-        size = 12;
+        family = "D2CodingLigature Nerd Font Mono";
+        size = 13;
 
         extras = [
           { family ="JetBrainsMono Nerd Font Mono"; }
