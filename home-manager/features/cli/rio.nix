@@ -14,25 +14,12 @@
         args = [ "--login" ];
       };
       fonts = {
-        family = "JetBrainsMono Nerd Font Mono";
+        family = "D2CodingLigature Nerd Font";
         size = 12;
 
-        regular = {
-          style = "Normal";
-          weight = 400;
-        };
-        bold = {
-          style = "Normal";
-          weight = 600;
-        };
-        italic = {
-          style = "Italic";
-          weight = 400;
-        };
-        bold-italic = {
-          style = "Italic";
-          weight = 600;
-        };
+        extras = [
+          { family ="JetBrainsMono Nerd Font Mono"; }
+        ];
       };
     };
   };

@@ -4,7 +4,7 @@
   home.packages = with pkgs; [
     (nerdfonts.override {
       fonts = [
-        "Iosevka"
+        "D2Coding"
         "JetBrainsMono"
       ];
     })
