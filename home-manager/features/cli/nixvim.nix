@@ -7,7 +7,6 @@
       lualine.enable = true;
       bufferline.enable = true;
       web-devicons.enable = true;
-      nvim-treesitter.enable = true;
     };
   };
 }
