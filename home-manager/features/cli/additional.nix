@@ -14,6 +14,7 @@
     just # script 태스크 관리
   ];
 
+
   # 완전 대체 목록
   home.shellAliases = {
     grep = "rg";

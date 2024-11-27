@@ -31,6 +31,8 @@
       self,
       nixpkgs,
       home-manager,
+      nixvim,
+      catppuccin,
       darwin,
       ...
     }@inputs:
@@ -52,31 +54,39 @@
           # specialArgs
           # nix-darwin 시스템 레벨 모듈에 전달되는 인자
           # 각 모듈의 인자로 넘겨줌
-          specialArgs = { inherit inputs pkgs host; };
+          specialArgs = { inherit inputs pkgs host catppuccin nixvim; };
           modules = [
-            home-manager.darwinModules.home-manager
-            ./hosts/${host.dir}/nix.conf.nix
-            {
-              system.stateVersion = 5;
-              home-manager = {
-                useGlobalPkgs = true;
-                useUserPackages = true;
+             home-manager.darwinModules.home-manager
+             ({ pkgs, host, config, inputs, catppuccin, nixvim, ... }: {
 
-                backupFileExtension = "backup";  # 백업 파일 확장자 설정
-                # extraSpecialArgs
-                # home-manager 시스템 레벨 모듈에 전달되는 인자
-                # 각 모듈의 인자로 넘겨줌
-                extraSpecialArgs = {
-                  inherit inputs pkgs host;
-                };
+               warnings = [
+                   "Config keys: ${toString (builtins.attrNames config)}"
+                 ];
+             })
+              ./hosts/${host.dir}/nix.conf.nix
 
-                users.${host.user} = {
-                  imports = [
-                    ./hosts/${host.dir}/home.nix
+              ({ specialArgs, ... }@inputs: {
+                warnings = [
+                    "specialArgs keys: ${toString (builtins.attrNames specialArgs)}"
                   ];
-                };
-              };
-            }
+              })
+              {
+                home-manager = {
+                    useGlobalPkgs = true;
+                    useUserPackages = true;
+
+                    backupFileExtension = "backup";  # 백업 파일 확장자 설정
+                    # extraSpecialArgs
+                    # home-manager 시스템 레벨 모듈에 전달되는 인자
+                    # 각 모듈의 인자로 넘겨줌
+                    extraSpecialArgs = {
+                        inherit inputs pkgs host catppuccin nixvim;
+                    };
+                    users.${host.user}.imports = [
+                      ./hosts/${host.dir}/home.nix
+                    ];
+                  };
+              }
           ];
         };
     in

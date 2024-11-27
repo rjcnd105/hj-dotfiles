@@ -4,6 +4,7 @@
   lib,
   inputs,
   host,
+  envVars,
   ...
 }:
 let
@@ -11,16 +12,18 @@ let
 in
 {
 
-  warnings = [ "fish path: ${toString pkgs.fish}" "profile path: ${toString config.home.profileDirectory}" ];
+  warnings = [
+      "envVars keys: ${(builtins.toJSON envVars)}"
+    ];
+
   home = {
     username = host.user;
     homeDirectory = lib.mkForce (builtins.toPath "/Users/${host.user}");
     stateVersion = info.home-manager.stateVersion;
+    sessionPath = [ "${config.home.homeDirectory}/.nix-profile/bin" ];
     # 환경 변수 설정
-    sessionVariables = {
-      LANG = "ko_KR.UTF-8";
+    sessionVariables = envVars // {
       HOME = config.home.homeDirectory;
-      PATH = "${config.home.profileDirectory}/bin:$PATH";
       XDG_CONFIG_HOME = "${config.home.homeDirectory}/.config";
       XDG_DATA_HOME = "${config.home.homeDirectory}/.local/share";
       XDG_CACHE_HOME = "${config.home.homeDirectory}/.cache";
@@ -30,7 +33,6 @@ in
     };
   };
 
-  fonts.fontconfig.enable = true;
 
   # home-manager 자체 설정
   programs.home-manager = {

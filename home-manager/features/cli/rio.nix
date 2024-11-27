@@ -4,10 +4,6 @@
 
     settings = {
       confirm-before-quit = false;
-      editor = {
-        program = "zed";
-        args = [ ];
-      };
 
       shell = {
         program = "${config.home.profileDirectory}/bin/fish";
@@ -20,9 +16,9 @@
         extras = [
           { family ="JetBrainsMono Nerd Font Mono"; }
         ];
+
       };
     };
   };
 
-  home.sessionVariables.TERMINAL = "${config.programs.rio.package}/bin/rio";
 }

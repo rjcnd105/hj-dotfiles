@@ -1,12 +1,37 @@
-{ pkgs, host, config, ... }:
+{  pkgs, host, config, inputs, catppuccin, nixvim, ... }:
 {
 
+
   system.stateVersion = 5;
+
+
   networking = {
     hostName = host.user;
     computerName = host.user;
     localHostName = host.user;
   };
+
+
+
+  environment = {
+    shells = [ pkgs.bash pkgs.fish ];
+    variables = {
+      EDITOR = "nvim";
+      VISUAL = "zed";
+      PAGER = "less";
+      LESS = "-R";
+      LANG = "ko_KR.UTF-8";
+    };
+  };
+
+  home-manager = {
+    extraSpecialArgs = {
+      envVars = config.environment.variables;
+    };
+  };
+
+
+
   nix = {
     settings = {
       trusted-users = [

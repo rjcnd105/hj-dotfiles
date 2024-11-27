@@ -1,6 +1,6 @@
-{ pkgs, inputs, ... }: {
+{ nixvim, ... }: {
   imports = [
-    inputs.nixvim.homeManagerModules.nixvim
+    nixvim.homeManagerModules.nixvim
   ];
   programs.nixvim = {
     plugins = {
