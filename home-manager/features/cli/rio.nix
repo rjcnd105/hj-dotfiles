@@ -1,4 +1,4 @@
-{
+{ pkgs, config, ... }:{
   programs.rio = {
     enable = true;
 
@@ -8,31 +8,34 @@
         program = "zed";
         args = [ ];
       };
+
       shell = {
-          program = "${pkgs.fish}";
-          args = [ ];
+        program = "${config.home.profileDirectory}/bin/fish";
+        args = [ ];
       };
       fonts = {
-        family = "JetBrainsMono Nerd Font";
-        size = 11;
+        family = "JetBrainsMono Nerd Font Mono";
+        size = 12;
 
         regular = {
-          style = "normal";
-          weight = 300;
+          style = "Normal";
+          weight = 400;
         };
         bold = {
-          style = "normal";
-          weight = 500;
+          style = "Normal";
+          weight = 600;
         };
         italic = {
-          style = "italic";
-          weight = 300;
+          style = "Italic";
+          weight = 400;
         };
         bold-italic = {
-          style = "italic";
-          weight = 500;
+          style = "Italic";
+          weight = 600;
         };
-      }
+      };
     };
   };
+
+  home.sessionVariables.TERMINAL = "${config.programs.rio.package}/bin/rio";
 }

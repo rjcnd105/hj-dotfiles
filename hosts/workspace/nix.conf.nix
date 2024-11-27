@@ -1,5 +1,7 @@
-{ host, config, ... }:
+{ pkgs, host, config, ... }:
 {
+
+  system.stateVersion = 5;
   networking = {
     hostName = host.user;
     computerName = host.user;

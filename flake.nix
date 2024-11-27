@@ -69,6 +69,7 @@
                 extraSpecialArgs = {
                   inherit inputs pkgs host;
                 };
+
                 users.${host.user} = {
                   imports = [
                     ./hosts/${host.dir}/home.nix
@@ -76,6 +77,7 @@
                 };
               };
             }
+            ./hosts/${host.dir}/last.conf.nix
           ];
         };
     in

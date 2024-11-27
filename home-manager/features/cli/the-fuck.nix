@@ -5,6 +5,6 @@
   };
 
   home.shellAliases = {
-    f = "thefuck";
+    f = "fuck";
   };
 }
