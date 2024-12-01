@@ -4,9 +4,8 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    snowfall-lib = {
-      url = "github:snowfallorg/lib";
-      inputs.nixpkgs.follows = "nixpkgs";
+    flake-utils-plus = {
+      url = "github:gytis-ivaskevicius/flake-utils-plus";
     };
 
     home-manager = {
@@ -37,48 +36,64 @@
   };
 
   outputs =
-    inputs:
-    let
-      lib = inputs.snowfall-lib.mkLib {
-        inherit inputs;
-        src = ./.;
+    inputs@{
+      self,
+      nixpkgs,
+      nix-darwin,
+      home-manager,
+      flake-utils-plus,
+      agenix,
+      disko,
+      impermanence,
+      nix-index-database,
+      flake-parts,
+      git-hooks,
+      terranix,
+      ...
+    }:
+    {
+      darwinConfigurations = {
+        hj =
+          nix-darwin.lib.darwinSystem
+            {
+              system = "aarch64-darwin";
+              modules = [
+                home-manager.darwinModules.home-manager
+                {
+                  home-manager.useGlobalPkgs = true;
+                  home-manager.useUserPackages = true;
 
-        snowfall = {
-          meta = {
-            name = "hj-flake";
-            title = "hj flake";
-          };
+                  home-manager.users.${user}.imports = home;
+                  home-manager.extraSpecialArgs = extraHomeManagerArgs;
+                }
+              ];
+            }
+            lib.mkFlake
+            {
 
-          namespace = "hj";
-        };
+              debug = true;
+              channels-config = {
+                allowUnfree = true;
+              };
+
+              system.modules.nixos = with inputs; [
+                determinate.nixosModules.default
+                # determinate.nixosModules.default
+              ];
+              # Add modules to all Darwin systems.
+              systems.modules.darwin = with inputs; [
+                determinate.darwinModules.default
+              ];
+
+              # Add modules to all homes.
+              homes.modules = with inputs; [
+
+                # my-input.homeModules.my-module
+              ];
+
+              outputs-builder = channels: { formatter = channels.nixpkgs.nixfmt-rfc-style; };
+            };
       };
-    in
-    lib.mkFlake {
-
-      channels-config = {
-        allowUnfree = true;
-      };
-
-      system.modules.nixos = with inputs; [
-        determinate.nixosModules.default
-        # determinate.nixosModules.default
-      ];
-      # Add modules to all Darwin systems.
-      systems.modules.darwin = with inputs; [
-        determinate.darwinModules.default
-      ];
-
-      # Add modules to all homes.
-      homes.modules = with inputs; [
-        nix-index-database.hmModules.nix-index
-        catppuccin.homeManagerModules.catppuccin
-        # my-input.homeModules.my-module
-      ];
-
-      outputs-builder = channels: { formatter = channels.nixpkgs.nixfmt-rfc-style; };
-    }
-    // {
-      self = inputs.self;
     };
 
 }
