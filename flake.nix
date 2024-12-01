@@ -1,12 +1,8 @@
 {
-  description = "Nix Dotsfiles with flake";
+  description = "A highly awesome system configuration.";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-
-    flake-utils-plus = {
-      url = "github:gytis-ivaskevicius/flake-utils-plus";
-    };
 
     home-manager = {
       url = "github:nix-community/home-manager/master";
@@ -14,18 +10,12 @@
     };
 
     catppuccin.url = "github:catppuccin/nix";
-    nix-index-database.url = "github:nix-community/nix-index-database";
     darwin = {
       url = "github:lnl7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # In order to build system images and artifacts supported by nixos-generators.
-    nixos-generators = {
-      url = "github:nix-community/nixos-generators";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
+    nix-index-database.url = "github:nix-community/nix-index-database";
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/0.1";
 
     # Comma
@@ -39,61 +29,65 @@
     inputs@{
       self,
       nixpkgs,
-      nix-darwin,
       home-manager,
-      flake-utils-plus,
-      agenix,
-      disko,
-      impermanence,
-      nix-index-database,
-      flake-parts,
-      git-hooks,
-      terranix,
-      ...
+      comma,
+      darwin,
     }:
-    {
-      darwinConfigurations = {
-        hj =
-          nix-darwin.lib.darwinSystem
-            {
-              system = "aarch64-darwin";
-              modules = [
-                home-manager.darwinModules.home-manager
-                {
-                  home-manager.useGlobalPkgs = true;
-                  home-manager.useUserPackages = true;
-
-                  home-manager.users.${user}.imports = home;
-                  home-manager.extraSpecialArgs = extraHomeManagerArgs;
-                }
-              ];
-            }
-            lib.mkFlake
-            {
-
-              debug = true;
-              channels-config = {
-                allowUnfree = true;
-              };
-
-              system.modules.nixos = with inputs; [
-                determinate.nixosModules.default
-                # determinate.nixosModules.default
-              ];
-              # Add modules to all Darwin systems.
-              systems.modules.darwin = with inputs; [
-                determinate.darwinModules.default
-              ];
-
-              # Add modules to all homes.
-              homes.modules = with inputs; [
-
-                # my-input.homeModules.my-module
-              ];
-
-              outputs-builder = channels: { formatter = channels.nixpkgs.nixfmt-rfc-style; };
-            };
+    let
+      # 형태는 ${host}_${username}
+      hosts = {
+        workspace_hj = {
+          system = "aarch64-darwin";
+        };
       };
-    };
+      lib = nixpkgs.lib;
 
+      getModulePaths =
+        prefix: system: host: user:
+        builtins.filter builtins.pathExists [
+          ./${prefix}
+          ./${prefix}/${system}
+          ./${prefix}/${system}/${host}
+          ./${prefix}/${system}/${host}/${user}
+          ./${prefix}/${host}
+          ./${prefix}/${host}/${user}
+        ];
+    in
+    {
+      darwinConfigurations = lib.mapAttrs (
+        key: config:
+        let
+          split = builtins.split "_" key;
+          hostName = builtins.elemAt split 0;
+          userName = builtins.elemAt split 2;
+          customConfig = {
+            inherit hostName userName;
+            host_userName = key;
+          };
+          systemModulePaths = getModulePaths "systems" config.system hostName userName;
+          moduleMoudlePaths = getModulePaths "modules" config.system hostName userName;
+          homeModulePaths = getModulePaths "homes" config.system hostName userName;
+        in
+        {
+          "${key}" = darwin.lib.darwinSystem {
+            system = config.system;
+            specialArgs = {
+              inherit inputs customConfig;
+            };
+            extraSpecialArgs = {
+              inherit inputs customConfig;
+            };
+            allowUnfree = true;
+            modules = [
+              {
+                home-manager.users.${userName}.modules = homeModulePaths;
+                home-manager.extraSpecialArgs = {
+                  inherit inputs customConfig;
+                };
+              }
+            ] ++ systemModulePaths ++ moduleMoudlePaths;
+          };
+        }
+      ) hosts;
+    };
 }
