@@ -21,6 +21,12 @@
 }:
 {
 
+  imports = [
+    ../../../shared/cli
+    ../../../shared/development
+    ./ssh-conf.nix
+  ];
+
   home.sessionVariables = {
     EDITOR = "zed";
   };
@@ -61,9 +67,8 @@
     ping = "gping"; # 그래픽 ping
   };
 
-  imports = [
-    ../../shared/cli
-    ../../shared/development
-    ./ssh-conf.nix
+  home.sessionPath = [
+    "$HOME/bin"
+    "$HOME/.local/bin"
   ];
 }

@@ -15,7 +15,7 @@
     };
 
     catppuccin.url = "github:catppuccin/nix";
-
+    nix-index-database.url = "github:nix-community/nix-index-database";
     darwin = {
       url = "github:lnl7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -38,22 +38,22 @@
 
   outputs =
     inputs:
-    inputs.snowfall-lib.mkFlake {
-      # You must provide our flake inputs to Snowfall Lib.
-      inherit inputs;
+    let
+      lib = inputs.snowfall-lib.mkLib {
+        inherit inputs;
+        src = ./.;
 
-      # The `src` must be the root of the flake. See configuration
-      # in the next section for information on how you can move your
-      # Nix files to a separate directory.
-      src = ./.;
-      overlays = [ ];
-      snowfall = {
-        # namespace = "hj-namespace";
-        meta = {
-          name = "hj-flake";
-          title = "hj flake";
+        snowfall = {
+          meta = {
+            name = "hj-flake";
+            title = "hj flake";
+          };
+
+          namespace = "hj";
         };
       };
+    in
+    lib.mkFlake {
 
       channels-config = {
         allowUnfree = true;
@@ -68,7 +68,16 @@
         determinate.darwinModules.default
       ];
 
+      # Add modules to all homes.
+      homes.modules = with inputs; [
+        nix-index-database.hmModules.nix-index
+        # my-input.homeModules.my-module
+      ];
+
       outputs-builder = channels: { formatter = channels.nixpkgs.nixfmt-rfc-style; };
+    }
+    // {
+      self = inputs.self;
     };
 
 }
