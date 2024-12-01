@@ -11,16 +11,15 @@ let
   info = import ../../config/info.nix;
 in
 {
-
   warnings = [
-      "envVars keys: ${(builtins.toJSON envVars)}"
-    ];
+    "envVars keys: ${(builtins.toJSON envVars)}"
+  ];
 
   home = {
     username = host.user;
     homeDirectory = lib.mkForce (builtins.toPath "/Users/${host.user}");
     stateVersion = info.home-manager.stateVersion;
-    # rio에서 제대로 설정 안되어서 수동으로 set
+    # rio에서 제대로 설정 안되어서 수동으로
     sessionPath = [ "${config.home.profileDirectory}/bin" ];
     # 환경 변수 설정
     sessionVariables = envVars // {
@@ -33,12 +32,10 @@ in
     };
   };
 
-
   # home-manager 자체 설정
   programs.home-manager = {
     enable = true;
   };
-
 
   imports = [
     ../../home-manager/presets/workspace.nix

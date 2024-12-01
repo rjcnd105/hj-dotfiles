@@ -1,9 +1,15 @@
-{  pkgs, host, config, inputs, catppuccin, nixvim, ... }:
+{
+  pkgs,
+  host,
+  config,
+  inputs,
+  catppuccin,
+  nixvim,
+  ...
+}:
 {
 
-
   system.stateVersion = 5;
-
 
   networking = {
     hostName = host.user;
@@ -11,10 +17,15 @@
     localHostName = host.user;
   };
 
-
-
   environment = {
-    shells = [ pkgs.bash pkgs.fish ];
+    shells = [
+      pkgs.bash
+      pkgs.fish
+    ];
+    systemPackages = [
+      pkgs.nixfmt-rfc-style
+      pkgs.nixd
+    ];
     variables = {
       EDITOR = "nvim";
       VISUAL = "zed";
@@ -30,9 +41,8 @@
     };
   };
 
-
-
   nix = {
+    nixPath = [ "nixpkgs=${inputs.nixpkgs}" ];
     settings = {
       trusted-users = [
         "root"
@@ -45,6 +55,7 @@
         "flakes"
       ];
     };
+
     configureBuildUsers = true;
     optimise.automatic = true;
 

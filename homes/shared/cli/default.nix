@@ -1,10 +1,8 @@
-{ pkgs, lib, ... }:
 {
   imports = [
     ./fish.nix
     ./common.nix
     ./additional.nix
-
     ./catppuccin.nix
     ./rio.nix
     ./nixos.nix

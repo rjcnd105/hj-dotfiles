@@ -4,9 +4,10 @@
   home.packages = with pkgs; [
     (nerdfonts.override {
       fonts = [
-        "D2Coding"
+        "D2Coding" 
         "JetBrainsMono"
       ];
     })
   ];
 }
+ 

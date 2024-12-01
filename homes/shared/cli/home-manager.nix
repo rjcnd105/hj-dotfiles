@@ -1,6 +1,5 @@
 { pkgs, ...}:
 {
-  manual.manpages.enable = true;
   news.display = "show";
 
   home.packages = with pkgs; [
