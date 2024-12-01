@@ -9,6 +9,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    inputs.nixvim = {
+      url = "github:nix-community/nixvim";
+      # If you are not running an unstable channel of nixpkgs, select the corresponding branch of nixvim.
+      # url = "github:nix-community/nixvim/nixos-24.11";
+
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     catppuccin.url = "github:catppuccin/nix";
     darwin = {
       url = "github:lnl7/nix-darwin/master";
@@ -28,9 +36,13 @@
   outputs =
     inputs@{
       self,
+      catppuccin,
+      nix-index-database,
+      nixvim,
+      comma,
+      determinate,
       nixpkgs,
       home-manager,
-      comma,
       darwin,
     }:
     let
@@ -45,12 +57,12 @@
       getModulePaths =
         prefix: system: host: user:
         builtins.filter builtins.pathExists [
-          ./${prefix}
-          ./${prefix}/${system}
-          ./${prefix}/${system}/${host}
-          ./${prefix}/${system}/${host}/${user}
-          ./${prefix}/${host}
-          ./${prefix}/${host}/${user}
+          ./${prefix}/default.nix
+          ./${prefix}/${system}/default.nix
+          ./${prefix}/${system}/${host}/default.nix
+          ./${prefix}/${system}/${host}/${user}/default.nix
+          ./${prefix}/${host}/default.nix
+          ./${prefix}/${host}/${user}/default.nix
         ];
     in
     {
@@ -65,28 +77,25 @@
             host_userName = key;
           };
           systemModulePaths = getModulePaths "systems" config.system hostName userName;
-          moduleMoudlePaths = getModulePaths "modules" config.system hostName userName;
           homeModulePaths = getModulePaths "homes" config.system hostName userName;
         in
-        {
-          "${key}" = darwin.lib.darwinSystem {
-            system = config.system;
-            specialArgs = {
-              inherit inputs customConfig;
-            };
-            extraSpecialArgs = {
-              inherit inputs customConfig;
-            };
-            allowUnfree = true;
-            modules = [
-              {
-                home-manager.users.${userName}.modules = homeModulePaths;
-                home-manager.extraSpecialArgs = {
+        darwin.lib.darwinSystem {
+          system = config.system;
+          specialArgs = {
+            inherit inputs customConfig;
+          };
+          modules = [
+            home-manager.darwinModules.home-manager
+            {
+              home-manager = {
+                users.${userName}.imports = homeModulePaths;
+                extraSpecialArgs = {
                   inherit inputs customConfig;
                 };
-              }
-            ] ++ systemModulePaths ++ moduleMoudlePaths;
-          };
+
+              };
+            }
+          ] ++ systemModulePaths;
         }
       ) hosts;
     };

@@ -1,22 +1,22 @@
+{ ... }:
 {
   imports = [
-    ./fish.nix
-    ./catppuccin.nix
-    ./rio.nix
-    ./nixos.nix
-    ./home-manager.nix
-    ./git.nix
-    ./gh.nix
-    ./nixvim.nix
-    ./delta.nix
+    ./bash.nix
+    ./fzf.nix
     ./bat.nix
+    ./fish.nix
+    ./gh.nix
+    ./git.nix
+    ./home-manager.nix
     ./ssh.nix
     ./podman.nix
+    ./ssh.nix
     ./the-fuck.nix
+    ./eza.nix
+    ./lazygit.nix
+    ./nixvim.nix
+    ./rio.nix
     ./zoxide.nix
     ./btop.nix
-    ./eza.nix
-    ./fzf.nix
-    ./lazygit.nix
   ];
 }
