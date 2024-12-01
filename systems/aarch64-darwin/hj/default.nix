@@ -1,5 +1,4 @@
 { lib, namespace, ... }:
-with lib.${namespace};
 {
 
   system.stateVersion = 5;

@@ -71,6 +71,7 @@
       # Add modules to all homes.
       homes.modules = with inputs; [
         nix-index-database.hmModules.nix-index
+        catppuccin.homeManagerModules.catppuccin
         # my-input.homeModules.my-module
       ];
 

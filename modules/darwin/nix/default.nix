@@ -12,12 +12,8 @@ let
   cfg = config.${namespace}.nix;
 in
 {
-  options.${namespace}.nix = with types; {
-    enable = mkBoolOpt true "Whether or not to manage nix configuration.";
-    package = mkOpt package pkgs.lix "Which nix package to use.";
-  };
 
-  config = mkIf cfg.enable {
+  config = {
     environment.systemPackages = with pkgs; [
       deploy-rs
       nixfmt-rfc-style

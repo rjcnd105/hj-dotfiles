@@ -32,6 +32,7 @@
   };
 
   home.packages = with pkgs; [
+    nix
     direnv # folder 기반 env 설정
     ripgrep # grep 대체 (rg)
     sd # sed 대체 (더 직관적)
