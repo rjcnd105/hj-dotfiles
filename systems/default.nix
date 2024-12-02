@@ -30,15 +30,12 @@
       backupFileExtension = "backup"; # 백업 파일 확장자 설정
     };
 
-    fonts = {
-      packages = with pkgs; [
-        (nerdfonts.override {
-          fonts = [
-            "D2Coding"
-            "JetBrainsMono"
-          ] ++ cfg.fonts;
-        })
-      ];
-    };
+    # nerd-fonts list
+    # https://github.com/NixOS/nixpkgs/blob/master/pkgs/data/fonts/nerd-fonts/manifests/fonts.json
+    fonts.packages = [
+      pkgs.nerd-fonts.d2coding
+      pkgs.nerd-fonts.jetbrains-mono
+      # 필요한 다른 폰트들...
+    ];
   };
 }
