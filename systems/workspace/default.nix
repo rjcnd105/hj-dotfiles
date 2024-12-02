@@ -1,11 +1,10 @@
 { config, inputs, ... }:
 {
+  imports = [
+    inputs.nix-index-database.darwinModules.nix-index
+    inputs.determinate.darwinModules.default
+  ];
   config = {
-    imports = [
-      inputs.nix-index-database.darwinModules.nix-index
-      inputs.determinate.darwinModules.default
-    ];
-
     environment.systemPackages = [ inputs.comma ];
   };
 }

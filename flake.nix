@@ -9,7 +9,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    inputs.nixvim = {
+    nixvim = {
       url = "github:nix-community/nixvim";
       # If you are not running an unstable channel of nixpkgs, select the corresponding branch of nixvim.
       # url = "github:nix-community/nixvim/nixos-24.11";
@@ -50,6 +50,7 @@
       hosts = {
         workspace_hj = {
           system = "aarch64-darwin";
+          email = "rjcnd123@gmail.com";
         };
       };
       lib = nixpkgs.lib;
@@ -73,6 +74,7 @@
           hostName = builtins.elemAt split 0;
           userName = builtins.elemAt split 2;
           customConfig = {
+            inherit (config) system email;
             inherit hostName userName;
             host_userName = key;
           };
@@ -92,7 +94,6 @@
                 extraSpecialArgs = {
                   inherit inputs customConfig;
                 };
-
               };
             }
           ] ++ systemModulePaths;

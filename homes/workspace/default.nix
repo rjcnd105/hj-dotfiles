@@ -1,5 +1,8 @@
 {
   config,
+  inputs,
+  pkgs,
+  customConfig,
   ...
 }:
 {
@@ -11,10 +14,9 @@
         flavor = "macchiato";
       };
     }
-    ../../shared/cli
-    ../../shared/development
-    ../../shared/core
-    ./ssh-conf.nix
+    ./ssh-config.nix
+    ../../sharedHome/cli
+    ../../sharedHome/development
   ];
 
   home.sessionVariables = {
@@ -24,6 +26,8 @@
     "$HOME/bin"
     "$HOME/.local/bin"
   ];
+
+  home.stateVersion = inputs.nixpkgs.lib.trivial.release;
 
   home.packages = with pkgs; [
     nix

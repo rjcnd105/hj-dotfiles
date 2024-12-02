@@ -2,6 +2,7 @@
 {
   imports = [
     ./docker-compose.nix
+    ./nixpkgs.nix
     ./postgres.nix
   ];
 

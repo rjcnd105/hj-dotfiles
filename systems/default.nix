@@ -6,13 +6,22 @@
 }:
 {
 
+  imports = [
+    ../shared/core/nixos.nix
+  ];
   config = {
     system.stateVersion = 5;
 
     networking = {
-      hostName = customConfig.host_userName;
-      computerName = customConfig.host_userName;
-      localHostName = customConfig.host_userName;
+      hostName = customConfig.userName;
+      computerName = customConfig.userName;
+      localHostName = customConfig.userName;
+    };
+
+    users.users.${customConfig.userName} = {
+      name = customConfig.userName;
+      home = "/Users/${customConfig.userName}";
+
     };
 
     home-manager = {
@@ -22,8 +31,7 @@
     };
 
     fonts = {
-      fontDir.enable = true;
-      fonts = with pkgs; [
+      packages = with pkgs; [
         (nerdfonts.override {
           fonts = [
             "D2Coding"
