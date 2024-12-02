@@ -1,9 +1,9 @@
-{ pkgs, host, ... }:
+{ pkgs, customConfig, ... }:
 {
   programs.git = {
     enable = true;
-    userEmail = "rjcnd123@gmail.com";
-    userName = host.user;
+    userEmail = customConfig.email;
+    userName = customConfig.userName;
 
     extraConfig = {
       core = {
@@ -23,7 +23,6 @@
     delta.enable = true;
     lfs.enable = true;
   };
-
 
   home.shellAliases = {
     g = "git";

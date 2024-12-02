@@ -1,96 +1,117 @@
 {
-  description = "Nix Dotsfiles with flake";
+  description = "A highly awesome system configuration.";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
-    nixos-hardware.url = "github:nixos/nixos-hardware";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-24.11";
+      url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
     darwin = {
       url = "github:lnl7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nixvim.url = "github:nix-community/nixvim";
+    nixvim_dc-tec = {
+      url = "github:dc-tec/nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixvim.follows = "nixvim";
+    };
+
     catppuccin.url = "github:catppuccin/nix";
 
+    nix-index-database.url = "github:nix-community/nix-index-database";
+    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/0.1";
 
-    nixvim = {
-      url = "github:nix-community/nixvim";
-      # url = "/home/gaetan/perso/nix/nixvim/nixvim";
+    # Comma
+    comma = {
+      url = "github:nix-community/comma";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.home-manager.follows = "home-manager";
     };
   };
 
   outputs =
-    {
+    inputs@{
       self,
+      catppuccin,
+      nix-index-database,
+      nixvim,
+      nixvim_dc-tec,
+      comma,
+      determinate,
       nixpkgs,
       home-manager,
-      nixvim,
-      catppuccin,
       darwin,
-      ...
-    }@inputs:
+    }:
     let
-      hosts = import ./config/hosts.nix;
+      # 형태는 ${host}_${username}
+      hosts = {
+        workspace_hj = {
+          system = "aarch64-darwin";
+          email = "rjcnd123@gmail.com";
+        };
+      };
+      lib = nixpkgs.lib;
 
-      mkDarwinConfigurations =
-        host:
+      getModulePaths =
+        prefix: system: host: user:
+        builtins.filter builtins.pathExists [
+          ./${prefix}/default.nix
+          ./${prefix}/${system}/default.nix
+          ./${prefix}/${system}/${host}/default.nix
+          ./${prefix}/${system}/${host}/${user}/default.nix
+          ./${prefix}/${host}/default.nix
+          ./${prefix}/${host}/${user}/default.nix
+        ];
+    in
+    {
+      darwinConfigurations = lib.mapAttrs (
+        key: config:
         let
-          pkgs = import nixpkgs {
-            system = host.arch;
-            config.allowUnfree = true;
+          split = builtins.split "_" key;
+          hostName = builtins.elemAt split 0;
+          userName = builtins.elemAt split 2;
+          customConfig = {
+            inherit (config) system email;
+            inherit hostName userName;
+            host_userName = key;
+          };
+          systemModulePaths = getModulePaths "systems" config.system hostName userName;
+          homeModulePaths = getModulePaths "homes" config.system hostName userName;
+
+          nixpkgsConfig = system: {
+            inherit system;
+            config = {
+              allowUnfreePredicate =
+                pkg:
+                builtins.elem (lib.getName pkg) [
+                  "vault"
+                ];
+            };
           };
         in
         darwin.lib.darwinSystem {
-          system = host.arch;
-
-
-          # specialArgs
-          # nix-darwin 시스템 레벨 모듈에 전달되는 인자
-          # 각 모듈의 인자로 넘겨줌
-          specialArgs = { inherit inputs pkgs host catppuccin nixvim; };
+          system = config.system;
+          specialArgs = {
+            inherit inputs customConfig;
+          };
           modules = [
-             home-manager.darwinModules.home-manager
-             ({ pkgs, host, config, inputs, catppuccin, nixvim, ... }: {
-
-               warnings = [
-                   "Config keys: ${toString (builtins.attrNames config)}"
-                 ];
-             })
-              ./hosts/${host.dir}/nix.conf.nix
-
-              ({ specialArgs, ... }@inputs: {
-                warnings = [
-                    "specialArgs keys: ${toString (builtins.attrNames specialArgs)}"
-                  ];
-              })
-              {
-                home-manager = {
-                    useGlobalPkgs = true;
-                    useUserPackages = true;
-
-                    backupFileExtension = "backup";  # 백업 파일 확장자 설정
-                    # extraSpecialArgs
-                    # home-manager 시스템 레벨 모듈에 전달되는 인자
-                    # 각 모듈의 인자로 넘겨줌
-                    extraSpecialArgs = {
-                        inherit inputs pkgs host catppuccin nixvim;
-                    };
-                    users.${host.user}.imports = [
-                      ./hosts/${host.dir}/home.nix
-                    ];
-                  };
-              }
-          ];
-        };
-    in
-    {
-      darwinConfigurations."${hosts.workspace.user}@${hosts.workspace.hostname}" = mkDarwinConfigurations hosts.workspace;
+            {
+              nixpkgs = nixpkgsConfig config.system;
+            }
+            home-manager.darwinModules.home-manager
+            {
+              home-manager = {
+                users.${userName}.imports = homeModulePaths;
+                extraSpecialArgs = {
+                  inherit inputs customConfig;
+                };
+              };
+            }
+          ] ++ systemModulePaths;
+        }
+      ) hosts;
     };
 }
