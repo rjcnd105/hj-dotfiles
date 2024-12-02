@@ -1,10 +1,12 @@
-{ config, pkgs, ... }: {
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+{
   programs.fish = {
     enable = true;
-    # setup vi mode
-    shellInit = ''
-      # shut up welcome message
-      set fish_greeting
-    '';
   };
+
 }

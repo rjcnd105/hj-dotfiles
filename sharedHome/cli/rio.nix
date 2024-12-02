@@ -1,4 +1,5 @@
-{ pkgs, config, ... }:{
+{ pkgs, config, ... }:
+{
   programs.rio = {
     enable = true;
 
@@ -6,7 +7,7 @@
       confirm-before-quit = false;
 
       shell = {
-        program = "${config.home.profileDirectory}/bin/fish";
+        program = "${pkgs.fish}/bin/fish";
         args = [ "--login" ];
       };
       fonts = {
@@ -14,7 +15,7 @@
         size = 13;
 
         extras = [
-          { family ="JetBrainsMono Nerd Font Mono"; }
+          { family = "JetBrainsMono Nerd Font Mono"; }
         ];
 
       };

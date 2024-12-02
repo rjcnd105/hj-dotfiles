@@ -9,6 +9,7 @@
   imports = [
     ../shared/core/nixos.nix
   ];
+
   config = {
     system.stateVersion = 5;
 
@@ -21,7 +22,6 @@
     users.users.${customConfig.userName} = {
       name = customConfig.userName;
       home = "/Users/${customConfig.userName}";
-
     };
 
     home-manager = {

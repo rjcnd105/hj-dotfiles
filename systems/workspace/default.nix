@@ -1,4 +1,9 @@
-{ config, inputs, ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
 {
   imports = [
     inputs.nix-index-database.darwinModules.nix-index
@@ -7,4 +12,5 @@
   config = {
     environment.systemPackages = [ inputs.comma ];
   };
+
 }

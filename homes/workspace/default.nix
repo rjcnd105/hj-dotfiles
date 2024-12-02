@@ -25,6 +25,8 @@
   home.sessionPath = [
     "$HOME/bin"
     "$HOME/.local/bin"
+    "$HOME/.nix-profile/bin"
+    "/etc/profiles/per-user/${customConfig.userName}/bin"
   ];
 
   home.stateVersion = inputs.nixpkgs.lib.trivial.release;
