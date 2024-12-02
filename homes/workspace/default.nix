@@ -7,13 +7,6 @@
 }:
 {
   imports = [
-    inputs.catppuccin.homeManagerModules.catppuccin
-    {
-      catppuccin = {
-        enable = true;
-        flavor = "macchiato";
-      };
-    }
     ./ssh-config.nix
     ../../sharedHome/cli
     ../../sharedHome/development
@@ -23,6 +16,7 @@
     EDITOR = "zed";
   };
   home.sessionPath = [
+    "/usr/bin"
     "$HOME/bin"
     "$HOME/.local/bin"
     "$HOME/.nix-profile/bin"
@@ -65,6 +59,10 @@
     ps = "procs";
     sd = "sed";
     ping = "gping"; # 그래픽 ping
+  };
+
+  xdg = {
+    enable = true;
   };
 
 }

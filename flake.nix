@@ -13,11 +13,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixvim.url = "github:nix-community/nixvim";
-    nixvim_dc-tec = {
-      url = "github:dc-tec/nixvim";
+    nixvim = {
+      url = "github:nix-community/nixvim";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.nixvim.follows = "nixvim";
+    };
+
+    Neve = {
+      url = "github:redyf/Neve";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     catppuccin.url = "github:catppuccin/nix";
@@ -38,7 +41,7 @@
       catppuccin,
       nix-index-database,
       nixvim,
-      nixvim_dc-tec,
+      Neve,
       comma,
       determinate,
       nixpkgs,
@@ -74,7 +77,7 @@
           hostName = builtins.elemAt split 0;
           userName = builtins.elemAt split 2;
           customConfig = {
-            inherit (config) system email;
+            inherit (config) email;
             inherit hostName userName;
             host_userName = key;
           };
