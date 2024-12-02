@@ -8,20 +8,19 @@
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    nixvim = {
-      url = "github:nix-community/nixvim";
-      # If you are not running an unstable channel of nixpkgs, select the corresponding branch of nixvim.
-      # url = "github:nix-community/nixvim/nixos-24.11";
-
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    catppuccin.url = "github:catppuccin/nix";
     darwin = {
       url = "github:lnl7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nixvim.url = "github:nix-community/nixvim";
+    nixvim_dc-tec = {
+      url = "github:dc-tec/nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixvim.follows = "nixvim";
+    };
+
+    catppuccin.url = "github:catppuccin/nix";
 
     nix-index-database.url = "github:nix-community/nix-index-database";
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/0.1";
@@ -39,6 +38,7 @@
       catppuccin,
       nix-index-database,
       nixvim,
+      nixvim_dc-tec,
       comma,
       determinate,
       nixpkgs,
@@ -80,6 +80,17 @@
           };
           systemModulePaths = getModulePaths "systems" config.system hostName userName;
           homeModulePaths = getModulePaths "homes" config.system hostName userName;
+
+          nixpkgsConfig = system: {
+            inherit system;
+            config = {
+              allowUnfreePredicate =
+                pkg:
+                builtins.elem (lib.getName pkg) [
+                  "vault"
+                ];
+            };
+          };
         in
         darwin.lib.darwinSystem {
           system = config.system;
@@ -87,6 +98,9 @@
             inherit inputs customConfig;
           };
           modules = [
+            {
+              nixpkgs = nixpkgsConfig config.system;
+            }
             home-manager.darwinModules.home-manager
             {
               home-manager = {

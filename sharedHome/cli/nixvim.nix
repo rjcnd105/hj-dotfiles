@@ -1,13 +1,6 @@
-{ inputs, ... }:
+{ inputs, customConfig, ... }:
 {
-  imports = [
-    inputs.nixvim.homeManagerModules.nixvim
+  home.packages = [
+    inputs.nixvim_dc-tec.packages.${customConfig.system}.default
   ];
-  programs.nixvim = {
-    plugins = {
-      lualine.enable = true;
-      bufferline.enable = true;
-      web-devicons.enable = true;
-    };
-  };
 }

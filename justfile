@@ -8,13 +8,13 @@ nix_instll:
     curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 
 build_hj-workspace:
-    NIXPKGS_ALLOW_UNFREE=1 nix build .#darwinConfigurations.workspace_hj.system --show-trace -L --impure
+    nix build .#darwinConfigurations.workspace_hj.system --show-trace -L --impure
 
 darwin-switch:
     ./result/sw/bin/darwin-rebuild switch --flake .#workspace_hj --show-trace
 
 switch-from-github:
-    nix run nix-darwin -- switch --flake github:rjcnd105/hj-dotfiles#hj
+    nix run nix-darwin -- switch --flake github:rjcnd105/hj-dotfiles#workspace_hj
 
 _flake_update:
     @nix flake update
