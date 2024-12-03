@@ -14,20 +14,27 @@
 
   home.sessionVariables = {
     EDITOR = "zed";
+    SHELL = "nu";
   };
+
   home.sessionPath = [
     "/usr/bin"
-    "$HOME/bin"
-    "$HOME/.local/bin"
-    "$HOME/.nix-profile/bin"
-    "/etc/profiles/per-user/${customConfig.userName}/bin"
+    "${config.home.homeDirectory}/bin"
+    "${config.home.homeDirectory}/.nix-profile/bin"
+    "${config.home.profileDirectory}/bin"
   ];
+
+  services = {
+    gpg-agent = {
+      enable = true;
+    };
+
+  };
 
   home.stateVersion = inputs.nixpkgs.lib.trivial.release;
 
   home.packages = with pkgs; [
     nix
-    direnv # folder 기반 env 설정
     ripgrep # grep 대체 (rg)
     sd # sed 대체 (더 직관적)
     procs # ps 대체
@@ -49,10 +56,14 @@
     procs # ps 대체 - 실시간 프로세스 정보
     gping # ping 대체, 그래프 표시 기능
     dua # 디스크 사용량
-    vim
     p7zip
     zstd
   ];
+
+  programs.mise = {
+    enable = true;
+  };
+
   home.shellAliases = {
     grep = "rg";
     find = "fd";

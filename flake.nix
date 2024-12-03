@@ -18,6 +18,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    Neve = {
+      url = "github:redyf/Neve";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixvim.follows = "nixvim";
+    };
+
     catppuccin.url = "github:catppuccin/nix";
 
     nix-index-database.url = "github:nix-community/nix-index-database";
@@ -36,6 +42,7 @@
       catppuccin,
       nix-index-database,
       nixvim,
+      Neve,
       comma,
       determinate,
       nixpkgs,

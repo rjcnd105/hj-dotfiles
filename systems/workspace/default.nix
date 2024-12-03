@@ -14,10 +14,10 @@
     environment.systemPackages = [
       inputs.comma
     ];
+
     environment.shells = [
-      pkgs.fish
-      pkgs.zsh
-      pkgs.bash
+      pkgs.bashInteractive
+      pkgs.nushell
     ];
 
     home-manager = {

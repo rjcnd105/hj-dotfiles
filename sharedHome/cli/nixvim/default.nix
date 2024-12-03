@@ -13,6 +13,6 @@
       inputs.Neve.nixvimModule
     ];
 
-    filetrees = true;
+    filetrees.enable = true;
   };
 }

@@ -1,6 +1,7 @@
 {
   inputs,
   pkgs,
+  config,
   customConfig,
   ...
 }:
@@ -14,6 +15,10 @@
     system.stateVersion = 5;
 
     documentation.enable = true;
+
+    environment.variables =
+      {
+      };
 
     networking = {
       hostName = customConfig.userName;

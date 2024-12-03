@@ -1,6 +1,6 @@
 {
   programs.zoxide = {
     enable = true;
-    options = ["--cmd cd"];  # cd 명령어 대체
+    options = [ "--cmd cd" ]; # cd 명령어 대체
   };
 }

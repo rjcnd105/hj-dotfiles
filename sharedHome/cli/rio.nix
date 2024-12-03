@@ -7,8 +7,11 @@
       confirm-before-quit = false;
 
       shell = {
-        program = "${pkgs.fish}/bin/fish";
-        args = [ "--login" ];
+        # program = "${config.home.profileDirectory}/bin/nu";
+        program = "${config.home.profileDirectory}/bin/nu";
+        args = [
+          "--login"
+        ];
       };
       fonts = {
         family = "D2CodingLigature Nerd Font Mono";
