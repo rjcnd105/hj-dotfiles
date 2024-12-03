@@ -13,6 +13,8 @@
   config = {
     system.stateVersion = 5;
 
+    documentation.enable = true;
+
     networking = {
       hostName = customConfig.userName;
       computerName = customConfig.userName;
