@@ -13,7 +13,7 @@
     ./the-fuck.nix
     ./eza.nix
     ./lazygit.nix
-    ./nixvim.nix
+    ./nixvim
     ./rio.nix
     ./zoxide.nix
     ./btop.nix

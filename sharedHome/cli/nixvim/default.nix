@@ -10,19 +10,9 @@
     enable = true;
 
     imports = [
-      ./settings.nix
-      ./plugins/lazygit.nix
-      ./plugins/lsp.nix
-      ./plugins/schema.nix
-      ./plugins/treesitter.nix
+      inputs.Neve.nixvimModule
     ];
 
-    colorschemes.catppuccin = {
-      enable = true;
-      flavor = "macchiato";
-    };
-
-    plugins.lualine.enable = true;
-
+    filetrees = true;
   };
 }
