@@ -49,10 +49,10 @@
 
     nushell = {
       enable = true;
-      # shellAliases = config.home.shellAliases;
-      # environmentVariables = config.home.environmentVariables;
-      configFile.source = config.xdg.configHome + "/nushell/config.nu";
-      envFile.source = config.xdg.configHome + "/nushell/env.nu";
+      shellAliases = config.home.shellAliases;
+      environmentVariables = config.home.sessionVariables;
+      # configFile.source = config.xdg.configHome + "/nushell/config.nu";
+      # envFile.source = config.xdg.configHome + "/nushell/env.nu";
       # # auto start zellij in nushell
       # extraConfig = ''
       #   # auto start zellij
