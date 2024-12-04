@@ -11,10 +11,6 @@
         program = "${config.home.profileDirectory}/bin/nu";
         args = [
           "--login"
-          "--config"
-          "${config.home.sessionVariables.XDG_CONFIG_HOME}/nushell/config.nu"
-          "--env-config"
-          "${config.home.sessionVariables.XDG_CONFIG_HOME}/nushell/env.nu"
         ];
       };
       fonts = {

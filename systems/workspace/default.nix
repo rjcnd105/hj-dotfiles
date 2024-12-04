@@ -14,6 +14,11 @@
     environment.systemPackages = [
       inputs.comma
     ];
+    environment.variables = {
+      EDITOR = "zed";
+      SHELL = "nu";
+      LANG = "ko_KR.UTF-8";
+    };
 
     environment.shells = [
       pkgs.bashInteractive

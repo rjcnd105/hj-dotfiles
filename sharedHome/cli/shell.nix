@@ -49,7 +49,9 @@
 
     nushell = {
       enable = true;
-
+      shellAliases = config.home.shellAliases;
+      environmentVariables = config.home.environmentVariables;
+      configFile = config.home.sessionVariables.
       # # auto start zellij in nushell
       # extraConfig = ''
       #   # auto start zellij

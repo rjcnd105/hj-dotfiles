@@ -6,27 +6,12 @@
   ...
 }:
 {
+
   imports = [
+    ./session.nix
     ./ssh-config.nix
     ../../sharedHome/cli
     ../../sharedHome/development
-  ];
-
-  home.sessionVariables = {
-    EDITOR = "zed";
-    SHELL = "nu";
-
-    XDG_CONFIG_HOME = "${config.home.homeDirectory}/.config";
-    XDG_CACHE_HOME = "${config.home.homeDirectory}/.cache";
-    XDG_DATA_HOME = "${config.home.homeDirectory}/.local/share";
-    XDG_STATE_HOME = "${config.home.homeDirectory}/.local/state";
-  };
-
-  home.sessionPath = [
-    "/usr/bin"
-    "${config.home.homeDirectory}/bin"
-    "${config.home.homeDirectory}/.nix-profile/bin"
-    "${config.home.profileDirectory}/bin"
   ];
 
   services = {
@@ -34,6 +19,14 @@
       enable = true;
     };
 
+  };
+
+  home.shellAliases = {
+    grep = "rg";
+    find = "fd";
+    ps = "procs";
+    sd = "sed";
+    ping = "gping"; # 그래픽 ping
   };
 
   home.stateVersion = inputs.nixpkgs.lib.trivial.release;
@@ -66,18 +59,6 @@
   ];
 
   programs.mise = {
-    enable = true;
-  };
-
-  home.shellAliases = {
-    grep = "rg";
-    find = "fd";
-    ps = "procs";
-    sd = "sed";
-    ping = "gping"; # 그래픽 ping
-  };
-
-  xdg = {
     enable = true;
   };
 
