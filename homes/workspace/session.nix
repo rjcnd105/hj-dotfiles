@@ -5,18 +5,26 @@
   ...
 }:
 let
+  inherit (config) home
+
+  sessionPath = [
+    "/usr/bin"
+    "${config.home.homeDirectory}/bin"
+    "${config.home.homeDirectory}/.nix-profile/bin"
+    "${config.home.profileDirectory}/bin"
+  ];
   xdgConfigs = {
     # XDG_CONFIG_HOME
-    configHome = ${config.home.homeDirectory}/.config;
+    configHome = ${home.homeDirectory}/.config;
 
     # XDG_CACHE_HOME
-    cacheHome = ${config.home.homeDirectory}/.cache;
+    cacheHome = ${home.homeDirectory}/.cache;
 
     # XDG_DATA_HOME
-    dataHome = ${config.home.homeDirectory}/.local/share;
+    dataHome = ${home.homeDirectory}/.local/share;
 
     # XDG_STATE_HOME
-    stateHome = ${config.home.homeDirectory}/.local/state;
+    stateHome = ${home.homeDirectory}/.local/state;
   };
 in
 {
@@ -25,6 +33,7 @@ in
     enable = true;
   } // xdgConfigs;
 
+  home.sessionPaths = sessionPath;
 
 
   home.sessionVariables = {

@@ -8,24 +8,16 @@
 {
 
   imports = [
-    ./variables.nix
+    ./sessions.nix
     ./ssh-config.nix
     ../../sharedHome/cli
     ../../sharedHome/development
-  ];
-
-  home.sessionPath = [
-    "/usr/bin"
-    "${config.home.homeDirectory}/bin"
-    "${config.home.homeDirectory}/.nix-profile/bin"
-    "${config.home.profileDirectory}/bin"
   ];
 
   services = {
     gpg-agent = {
       enable = true;
     };
-
   };
 
   home.shellAliases = {
