@@ -36,12 +36,10 @@ in
   home.sessionPath = sessionPath;
 
   home.sessionVariables = {
-    EDITOR = config.environment.editor;
-    SHELL = config.environment.shell;
 
     XDG_CONFIG_HOME = toString xdgConfigs.configHome;
     XDG_CACHE_HOME = toString xdgConfigs.cacheHome;
     XDG_DATA_HOME = toString xdgConfigs.dataHome;
     XDG_STATE_HOME = toString xdgConfigs.stateHome;
-  };
+  } // customConfig.environment.variables;
 }

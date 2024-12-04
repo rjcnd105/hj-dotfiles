@@ -2,8 +2,16 @@
   config,
   pkgs,
   inputs,
+  customConfig,
   ...
 }:
+let
+  variables = {
+    EDITOR = "zed";
+    SHELL = "nu";
+    LANG = "ko_KR.UTF-8";
+  };
+in
 {
   imports = [
     inputs.nix-index-database.darwinModules.nix-index
@@ -14,11 +22,7 @@
     environment.systemPackages = [
       inputs.comma
     ];
-    environment.variables = {
-      EDITOR = "zed";
-      SHELL = "nu";
-      LANG = "ko_KR.UTF-8";
-    };
+    environment.variables = variables;
 
     environment.shells = [
       pkgs.bashInteractive
@@ -36,6 +40,13 @@
           };
         }
       ];
+      extraSpecialArgs = {
+
+        inherit inputs;
+        customConfig = {
+          environment.variables = variables;
+        } // customConfig;
+      };
     };
   };
 

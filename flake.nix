@@ -102,6 +102,7 @@
             inherit inputs customConfig;
           };
           modules = [
+            ./config/options.nix
             {
               nixpkgs = nixpkgsConfig config.system;
             }
@@ -109,9 +110,7 @@
             {
               home-manager = {
                 users.${userName}.imports = homeModulePaths;
-                extraSpecialArgs = {
-                  inherit inputs customConfig;
-                };
+
               };
             }
           ] ++ systemModulePaths;
