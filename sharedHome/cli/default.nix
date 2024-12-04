@@ -1,12 +1,10 @@
 {
   imports = [
     ./ssh.nix
-    ./shell.nix
     ./fzf.nix
     ./bat.nix
     ./gh.nix
     ./git.nix
-    ./home-manager.nix
     ./podman.nix
     ./ssh.nix
     ./the-fuck.nix
@@ -17,6 +15,7 @@
     ./wezterm.nix
     ./rio.nix
 
+    ./shell
     ./nixvim
   ];
 }

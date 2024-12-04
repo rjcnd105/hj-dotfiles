@@ -19,6 +19,10 @@ in
   ];
 
   config = {
+
+    users.users.${customConfig.userName} = {
+      shell = pkgs.nushell;
+    };
     environment.systemPackages = [
       inputs.comma
     ];
@@ -26,6 +30,7 @@ in
 
     environment.shells = [
       pkgs.bashInteractive
+      pkgs.zsh
       pkgs.nushell
     ];
 

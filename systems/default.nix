@@ -16,9 +16,10 @@
 
     documentation.enable = true;
 
-    environment.variables =
-      {
-      };
+    environment.variables = {
+      USER = customConfig.userName;
+      HOME = "/Users/${customConfig.userName}";
+    };
 
     networking = {
       hostName = customConfig.userName;

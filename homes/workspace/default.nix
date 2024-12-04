@@ -14,6 +14,8 @@
     ../../sharedHome/development
   ];
 
+  home.username = customConfig.userName;
+
   services = {
     gpg-agent = {
       enable = true;

@@ -49,6 +49,7 @@
 
     nushell = {
       enable = true;
+      package = pkgs.nushell;
       shellAliases = config.home.shellAliases;
       environmentVariables = config.home.sessionVariables;
       # configFile.source = config.xdg.configHome + "/nushell/config.nu";

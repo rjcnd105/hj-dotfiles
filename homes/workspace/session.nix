@@ -9,9 +9,10 @@ let
 
   sessionPath = [
     "/usr/bin"
-    "${homeDirectory}/bin"
-    "${homeDirectory}/.nix-profile/bin"
-    "${profileDirectory}/bin"
+    "$HOME/bin"
+    "$HOME/.nix-profile/bin"
+    "$HOME/.local/bin"
+    "/etc/profiles/per-user/${customConfig.userName}/bin"
   ];
   xdgConfigs = {
     # XDG_CONFIG_HOME
@@ -36,7 +37,6 @@ in
   home.sessionPath = sessionPath;
 
   home.sessionVariables = {
-
     XDG_CONFIG_HOME = toString xdgConfigs.configHome;
     XDG_CACHE_HOME = toString xdgConfigs.cacheHome;
     XDG_DATA_HOME = toString xdgConfigs.dataHome;
