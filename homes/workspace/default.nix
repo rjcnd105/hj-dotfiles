@@ -8,7 +8,7 @@
 {
 
   imports = [
-    ./sessions.nix
+    ./session.nix
     ./ssh-config.nix
     ../../sharedHome/cli
     ../../sharedHome/development

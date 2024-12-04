@@ -1,5 +1,6 @@
 { config, pkgs, ... }:
 {
+  inherit (config) home;
   programs = {
 
     bash = {
@@ -49,9 +50,10 @@
 
     nushell = {
       enable = true;
-      shellAliases = config.home.shellAliases;
-      environmentVariables = config.home.environmentVariables;
-      configFile = config.home.sessionVariables.
+      shellAliases = home.shellAliases;
+      environmentVariables = home.environmentVariables;
+      configFile = home.xdg.configHome / "/nushell/config.nu";
+      envFile = home.xdg.configHome / "/nushell/env.nu";
       # # auto start zellij in nushell
       # extraConfig = ''
       #   # auto start zellij

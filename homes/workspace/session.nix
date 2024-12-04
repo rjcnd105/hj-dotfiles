@@ -5,26 +5,26 @@
   ...
 }:
 let
-  inherit (config) home
+  inherit (config.home) homeDirectory profileDirectory;
 
   sessionPath = [
     "/usr/bin"
-    "${config.home.homeDirectory}/bin"
-    "${config.home.homeDirectory}/.nix-profile/bin"
-    "${config.home.profileDirectory}/bin"
+    "${homeDirectory}/bin"
+    "${homeDirectory}/.nix-profile/bin"
+    "${profileDirectory}/bin"
   ];
   xdgConfigs = {
     # XDG_CONFIG_HOME
-    configHome = ${home.homeDirectory}/.config;
+    configHome = homeDirectory / ".config";
 
     # XDG_CACHE_HOME
-    cacheHome = ${home.homeDirectory}/.cache;
+    cacheHome = homeDirectory / ".cache";
 
     # XDG_DATA_HOME
-    dataHome = ${home.homeDirectory}/.local/share;
+    dataHome = homeDirectory / ".local/share";
 
     # XDG_STATE_HOME
-    stateHome = ${home.homeDirectory}/.local/state;
+    stateHome = homeDirectory / ".local/state";
   };
 in
 {
@@ -34,7 +34,6 @@ in
   } // xdgConfigs;
 
   home.sessionPaths = sessionPath;
-
 
   home.sessionVariables = {
     EDITOR = config.environment.editor;
