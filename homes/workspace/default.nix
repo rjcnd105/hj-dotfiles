@@ -13,9 +13,6 @@
     ../../sharedHome/development
   ];
 
-  xdg = {
-    enable = true;
-  };
 
 
   home.username = customConfig.userName;
@@ -33,6 +30,10 @@
     sd = "sed";
     ping = "gping"; # 그래픽 ping
   };
+
+  programs.nushell.shellAliases = let
+    alias = config.home.shellAliases;
+  in alias;
 
   home.stateVersion = inputs.nixpkgs.lib.trivial.release;
 
