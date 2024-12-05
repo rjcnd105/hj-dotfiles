@@ -9,7 +9,6 @@ let
   variables = {
     EDITOR = "zed";
     LANG = "ko_KR.UTF-8";
-    SHELL = "/etc/profiles/per-user/${customConfig.userName}/bin/nu";
   };
 in
 {
@@ -22,6 +21,7 @@ in
   config = {
     environment.systemPackages = [
       inputs.comma
+      pkgs.devenv
     ];
 
     environment.variables = variables;
