@@ -10,3 +10,4 @@ def --env load_zsh_env [] {
 }
 
 load_zsh_env
+echo "get env from zsh"

@@ -2,21 +2,9 @@
 {
   programs = {
 
-    bash = {
-      # load the alias file for work
-      bashrcExtra = ''
-        alias_for_work=/etc/agenix/alias-for-work.bash
-        if [ -f $alias_for_work ]; then
-          . $alias_for_work
-        else
-          echo "No alias file found for work"
-        fi
-      '';
-    };
     # shell customize
     starship = {
       enable = true;
-      enableBashIntegration = true;
       enableZshIntegration = true;
       enableNushellIntegration = true;
     };
@@ -50,16 +38,22 @@
     nushell =
       {
         enable = true;
-        package = pkgs.nushell;
-      }
-      // (
-        if pkgs.stdenv.isDarwin then
-          {
-            loginFile.source = ./login.nu;
-          }
-        else
-          { }
-      );
+        extraConfig = ''
+            def --env load_zsh_env [] {
+                let zsh_env = (^/bin/zsh -ic 'env' | lines | split column "=" --collapse-empty)
+                let restricted_vars = ["PWD" "OLDPWD" "LAST_EXIT_CODE" "CMD_DURATION_MS" "SHELL"]
+
+                for item in $zsh_env {
+                    if ($item.column1 not-in $restricted_vars) {
+                        load-env { $item.column1: $item.column2 }
+                    }
+                }
+            }
+
+            load_zsh_env
+            echo "get env from zsh"
+        '';
+      };
 
   };
   home.shellAliases = {

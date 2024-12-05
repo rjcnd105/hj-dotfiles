@@ -8,11 +8,15 @@
 {
 
   imports = [
-    ./session.nix
     ./ssh-config.nix
     ../../sharedHome/cli
     ../../sharedHome/development
   ];
+
+  xdg = {
+    enable = true;
+  };
+
 
   home.username = customConfig.userName;
 
@@ -56,8 +60,16 @@
     gping # ping 대체, 그래프 표시 기능
     dua # 디스크 사용량
     p7zip
+    fontconfig
     zstd
+  ] ++ [
+    pkgs.nerd-fonts.d2coding
+    pkgs.nerd-fonts.jetbrains-mono
+    pkgs.nerd-fonts.lilex
+    # 필요한 다른 폰트들...
   ];
+
+  fonts.fontconfig.enable = true;
 
   programs.mise = {
     enable = true;

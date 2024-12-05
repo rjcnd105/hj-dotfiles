@@ -8,29 +8,38 @@
 let
   variables = {
     EDITOR = "zed";
-    SHELL = "/etc/profiles/per-user/${customConfig.userName}/bin/zsh";
     LANG = "ko_KR.UTF-8";
+    SHELL = "/etc/profiles/per-user/${customConfig.userName}/bin/nu";
   };
 in
 {
+
+
   imports = [
     inputs.nix-index-database.darwinModules.nix-index
   ];
 
   config = {
-
-    users.users.${customConfig.userName} = {
-      shell = pkgs.nushell;
-    };
     environment.systemPackages = [
       inputs.comma
-      pkgs.devenv
     ];
+
     environment.variables = variables;
 
-    environment.shells = [
-      pkgs.nushell
-    ];
+    # system.activationScripts.postActivation.text = ''
+    #   # 현재 셸의 모든 환경변수를 launchctl에 설정
+    #   for var in $(env | cut -d= -f1); do
+    #     /bin/launchctl setenv "$var" "''${!var}"
+    #   done
+    # '';
+
+    # system.activationScripts.postActivation.text = ''
+    #    ${pkgs.nushell}/bin/nu -c '
+    #      if (ls /etc/agenix/ | length) > 0 {
+    #        sudo chown ${myvars.username} /etc/agenix/*
+    #      }
+    #    '
+    #  '';
 
     home-manager = {
       sharedModules = [
