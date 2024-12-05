@@ -20,14 +20,11 @@
 
     Neve = {
       url = "github:redyf/Neve";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.nixvim.follows = "nixvim";
     };
 
     catppuccin.url = "github:catppuccin/nix";
 
     nix-index-database.url = "github:nix-community/nix-index-database";
-    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/0.1";
 
     # Comma
     comma = {
@@ -44,7 +41,6 @@
       nixvim,
       Neve,
       comma,
-      determinate,
       nixpkgs,
       home-manager,
       darwin,

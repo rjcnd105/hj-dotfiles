@@ -37,6 +37,7 @@ in
   home.sessionPath = sessionPath;
 
   home.sessionVariables = {
+    IS_HOME_MANAGED = "1";
     XDG_CONFIG_HOME = toString xdgConfigs.configHome;
     XDG_CACHE_HOME = toString xdgConfigs.cacheHome;
     XDG_DATA_HOME = toString xdgConfigs.dataHome;

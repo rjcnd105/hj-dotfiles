@@ -8,14 +8,13 @@
 let
   variables = {
     EDITOR = "zed";
-    SHELL = "nu";
+    SHELL = "/etc/profiles/per-user/${customConfig.userName}/bin/zsh";
     LANG = "ko_KR.UTF-8";
   };
 in
 {
   imports = [
     inputs.nix-index-database.darwinModules.nix-index
-    inputs.determinate.darwinModules.default
   ];
 
   config = {
@@ -25,12 +24,11 @@ in
     };
     environment.systemPackages = [
       inputs.comma
+      pkgs.devenv
     ];
     environment.variables = variables;
 
     environment.shells = [
-      pkgs.bashInteractive
-      pkgs.zsh
       pkgs.nushell
     ];
 

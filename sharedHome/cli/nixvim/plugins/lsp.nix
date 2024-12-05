@@ -22,7 +22,7 @@
         };
         erlangls = {
           enable = true;
-        };s
+        };
         html = {
           enable = true;
         };
