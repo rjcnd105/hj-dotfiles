@@ -14,5 +14,6 @@
     ];
 
     filetrees.enable = true;
+    copilot.enable = false;
   };
 }

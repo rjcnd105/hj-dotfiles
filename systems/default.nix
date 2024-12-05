@@ -7,10 +7,6 @@
 }:
 {
 
-  imports = [
-    ../shared/core/nixos.nix
-  ];
-
   config = {
     system.stateVersion = 5;
 

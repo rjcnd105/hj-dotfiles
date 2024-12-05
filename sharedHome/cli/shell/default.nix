@@ -16,18 +16,26 @@
       enableNushellIntegration = true;
     };
 
-    zellij = {
-      enable = true;
-    };
     # folder viewer
     yazi = {
       enable = true;
       enableNushellIntegration = true;
+      settings = {
+        manager = {
+            show_hidden = true;
+            sort_by = "modified";
+            sort_dir_first = true;
+            tab_size = 2;
+          };
+      };
     };
     # db base cli history
     atuin = {
       enable = true;
       enableNushellIntegration = true;
+      flags = [
+        "--disable-up-arrow"
+      ];
     };
     # command complication
     carapace = {
