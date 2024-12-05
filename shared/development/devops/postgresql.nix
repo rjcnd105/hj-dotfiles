@@ -1,7 +1,7 @@
-{... }: let
+{ pkgs, customConfig, ... }: let
     PGHOST = "localhost";
-    PGPORT = "5432";
-    PGDATA = "$HOME/.local/share/postgresql";
+    PGPORT = 5432;
+
 in
 {
 
@@ -14,19 +14,28 @@ in
   services.postgresql = {
     enable = true;
     package = pkgs.postgresql_17;
-    dataDir = PGDATA;
+    enableTCPIP = true;
+    port = PGPORT;
+    ensureUsers = [
+      {
+        name = customConfig.userName;
+        # superuser
+        ensurePermissions = {
+          "ALL TABLES IN SCHEMA public" = "ALL PRIVILEGES";
+        };
+      }
+    ];
+    authentication = ''
+      local all all trust
+      host all all 127.0.0.1/32 trust
+    '';
   };
 
   environment.variables = {
-    inherit PGHOST PGPORT PGDATA;
+    inherit PGHOST;
+    PGPORT = toString PGPORT;
 
     # 히스토리 설정
     USQL_HISTORY_FILE = "$HOME/.usql_history";
   };
-
-  users.users.${user}.programs.nushell.extraConfig = ''
-    def local_psql [db: string] {
-      usql $"postgres://${PGHOST}:${PGPORT}/($db)"
-    }
-  '';
 }

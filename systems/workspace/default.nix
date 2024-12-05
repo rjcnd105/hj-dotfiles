@@ -24,16 +24,7 @@ in
       inputs.comma
       pkgs.nix-search-cli
       pkgs.devenv
-      pkgs.postgresql_17
-      pkgs.usql
     ];
-
-
-    services.postgresql = {
-      enable = true;
-      package = pkgs.postgresql_17;
-    };
-
 
     environment.variables = variables;
 

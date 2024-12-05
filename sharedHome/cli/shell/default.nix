@@ -58,6 +58,10 @@
                 }
             }
 
+            def local_psql [db: string] {
+                usql $"postgres://($env.PGHOST):($env.PGPORT)/($db)"
+            }
+
             load_zsh_env
             echo "get env from zsh"
         '';
