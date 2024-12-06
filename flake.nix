@@ -10,12 +10,12 @@
     };
 
 
-
     darwin = {
       url = "github:lnl7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/0.1";
     nixvim = {
       url = "github:nix-community/nixvim";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -42,6 +42,7 @@
       catppuccin,
       nix-index-database,
       nixvim,
+      determinate,
       Neve,
       comma,
       nixpkgs,
@@ -101,6 +102,7 @@
             inherit inputs customConfig;
           };
           modules = [
+            determinate.darwinModules.default
             ./config/options.nix
             {
               nixpkgs = nixpkgsConfig config.system;
