@@ -8,14 +8,11 @@
       confirm-before-quit = false;
       option-as-alt = "left";
 
-      padding-x = 4;
-      padding-y = [4 4];
-
       window = {
-        width = 1200;
-        height = 700;
+        width = 1400;
+        height = 800;
         decorations = "Disabled";
-        opacity = 0.95;
+        opacity = 0.9;
         blur = true;
       };
 

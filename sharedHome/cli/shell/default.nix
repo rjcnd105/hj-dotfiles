@@ -20,7 +20,8 @@
       enable = true;
       settings = {
         default_shell = "nu";
-        pane_frames = false;
+        ## 추후 focus된 background color를 바꿀 수 있게 되면 적용
+        # pane_frames = false;
         simplified_ui = true;
         # copy_command = "pbcopy";
         # copy_on_select=false
