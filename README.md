@@ -16,7 +16,7 @@ nix build github:rjcnd105/hj-dotfiles#darwinConfigurations.workspace_hj.system -
 ```
 
 ## System
-use catppuccin theme
+Uses catppuccin theme
 
 ### Support
 - aarch46-darwin
