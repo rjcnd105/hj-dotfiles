@@ -1,7 +1,7 @@
-{ pkgs, customConfig, ... }: let
+{ config, pkgs, customConfig, ... }: let
     PGHOST = "localhost";
     PGPORT = 5432;
-    PGDATA = /var/lib/postgresql_17/data;
+    PGDATA =  "/var/lib/postgresql/${config.services.postgresql.package.psqlSchema}";
 in
 {
 
@@ -16,6 +16,11 @@ in
     package = pkgs.postgresql_17;
     enableTCPIP = true;
     port = PGPORT;
+    dataDir = PGDATA;
+
+    authentication = ''
+      host all all all scram-sha-256
+    '';
   };
 
   environment.variables = {

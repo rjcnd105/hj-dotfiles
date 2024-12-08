@@ -117,5 +117,12 @@
           ] ++ systemModulePaths;
         }
       ) hosts;
+
+      templates = {
+        phoenix = {
+            path = ./templates/phoenix;
+            description = "my phoenix template";
+        };
+      };
     };
 }
