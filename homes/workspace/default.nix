@@ -38,7 +38,6 @@
   home.stateVersion = inputs.nixpkgs.lib.trivial.release;
 
   home.packages = with pkgs; [
-    nix
     ripgrep # grep 대체 (rg)
     sd # sed 대체 (더 직관적)
     procs # ps 대체

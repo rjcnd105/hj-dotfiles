@@ -61,6 +61,7 @@
             sort_dir_first = true;
             tab_size = 2;
             sort_reverse = true;
+            ratio = [2 3 3];
           };
       };
     };
