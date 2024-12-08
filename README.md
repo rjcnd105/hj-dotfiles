@@ -50,6 +50,7 @@ SQLite database shell history
 - docker, docker-compose
 - lazydocker
 - devenv
+- mise
 
 #### Fonts
 d2 coding nerd, jetbrains-mono nerd, lilex nerd
