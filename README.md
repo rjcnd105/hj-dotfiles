@@ -25,6 +25,7 @@ nix build github:rjcnd105/hj-dotfiles#darwinConfigurations.workspace_hj.system -
 
 
 ### Features
+use catppuccin theme
 
 #### Shell
 - [rio](https://github.com/raphamorim/rio)<br/>
