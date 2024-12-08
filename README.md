@@ -22,7 +22,7 @@ Uses catppuccin theme
 - aarch46-darwin
 
 ### Preview
-![CleanShot 2024-12-08 at 17 18 06@2x](https://github.com/user-attachments/assets/0cc24de1-5116-4f6a-bf4a-1598fa92e647)
+![CleanShot 2024-12-08 at 18 46 53@2x](https://github.com/user-attachments/assets/fb76c014-0b20-42bd-8401-37af9287f856)
 
 
 ### Features
