@@ -43,8 +43,6 @@
       # 필요한 다른 폰트들...
     ];
 
-
-
     system.defaults.NSGlobalDomain.AppleFontSmoothing = 2;
   };
 }

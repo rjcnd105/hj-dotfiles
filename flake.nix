@@ -9,7 +9,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-
     darwin = {
       url = "github:lnl7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -58,6 +57,7 @@
         };
       };
       lib = nixpkgs.lib;
+      projectRoot = builtins.toString (builtins.getEnv "PWD");
 
       getModulePaths =
         prefix: system: host: user:
@@ -78,9 +78,10 @@
           hostName = builtins.elemAt split 0;
           userName = builtins.elemAt split 2;
           customConfig = {
+            inherit key;
             inherit (config) email;
-            inherit hostName userName;
-            host_userName = key;
+            inherit hostName userName projectRoot;
+            dotEnv = "${projectRoot}/hosts/${hostName}/dotEnv";
           };
           systemModulePaths = getModulePaths "systems" config.system hostName userName;
           homeModulePaths = getModulePaths "homes" config.system hostName userName;
@@ -120,8 +121,8 @@
 
       templates = {
         phoenix = {
-            path = ./templates/phoenix;
-            description = "my phoenix template";
+          path = ./templates/phoenix;
+          description = "my phoenix template";
         };
       };
     };
