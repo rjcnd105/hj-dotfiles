@@ -2,16 +2,16 @@
   config,
   inputs,
   pkgs,
-  customConfig,
+  myOptions,
   ...
 }:
 let
 
   xdgPaths = {
-    cacheHome = "/Users/${customConfig.userName}/.cache";
-    configHome = "/Users/${customConfig.userName}/.config";
-    dataHome = "/Users/${customConfig.userName}/.local/share";
-    stateHome = "/Users/${customConfig.userName}/.local/state";
+    cacheHome = "/Users/${myOptions.userName}/.cache";
+    configHome = "/Users/${myOptions.userName}/.config";
+    dataHome = "/Users/${myOptions.userName}/.local/share";
+    stateHome = "/Users/${myOptions.userName}/.local/state";
   };
 in
 {
@@ -33,7 +33,7 @@ in
     ../../sharedHome/development
   ];
 
-  home.username = customConfig.userName;
+  home.username = myOptions.userName;
 
   services = {
     gpg-agent = {

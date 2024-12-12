@@ -1,13 +1,12 @@
 {
-  config,
   pkgs,
   inputs,
-  customConfig,
+  myOptions,
   ...
 }:
 let
   variables = {
-    USER = customConfig.userName;
+    USER = myOptions.userName;
     EDITOR = "zed";
     LANG = "ko_KR.UTF-8";
   };
@@ -38,7 +37,7 @@ in
     # system.activationScripts.postActivation.text = ''
     #   # Terminal.app의 기본 shell을 nushell로 설정
     #   /usr/libexec/PlistBuddy -c "Set :Window\ Settings:Basic:Shell '${
-    #     config.home-manager.users.${customConfig.userName}.programs.nushell.package
+    #     config.home-manager.users.${myOptions.userName}.programs.nushell.package
     #   }/bin/nu'" ~/Library/Preferences/com.apple.Terminal.plist
 
     #   # 현재 셸의 모든 환경변수를 launchctl에 설정
@@ -67,13 +66,8 @@ in
         }
       ];
       extraSpecialArgs = {
-
-        inherit inputs;
-        customConfig = {
-          environment.variables = variables;
-        } // customConfig;
+        inherit inputs myOptions;
       };
     };
   };
-
 }

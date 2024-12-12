@@ -1,9 +1,13 @@
-{ pkgs, customConfig, ... }:
+{
+  inputs,
+  myOptions,
+  ...
+}:
 {
   programs.git = {
     enable = true;
-    userEmail = customConfig.email;
-    userName = customConfig.userName;
+    userEmail = myOptions.email;
+    userName = myOptions.userName;
 
     extraConfig = {
       core = {

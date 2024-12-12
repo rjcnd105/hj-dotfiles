@@ -1,18 +1,24 @@
 {
   config,
+  inputs,
+  myOptions,
   pkgs,
-  customConfig,
   ...
 }:
 {
+  myOptions._debug.shell = {
+    xdg = builtins.toJSON config.xdg;
+    # nushell = config.programs.nushell;
+  };
+
   xdg.configFile = {
     zellij = {
       recursive = true;
-      source = config.lib.file.mkOutOfStoreSymlink "${customConfig.dotEnv}/zellij";
+      source = config.lib.file.mkOutOfStoreSymlink "${myOptions.dotEnv}/zellij";
     };
     nushell = {
       recursive = true;
-      source = config.lib.file.mkOutOfStoreSymlink "${customConfig.dotEnv}/nushell";
+      source = config.lib.file.mkOutOfStoreSymlink "${myOptions.dotEnv}/nushell";
     };
   };
 
