@@ -1,8 +1,7 @@
 # config/options.nix
 { lib, ... }:
 let
-  projectRoot = toString ./..;
-  getHostEnvPath = hostName: "${projectRoot}/hosts/${hostName}";
+  projectRoot = ./..;
 in
 {
   options = lib.mkOption {
@@ -11,11 +10,11 @@ in
     description = "Global custom configuration";
   };
   config = {
-    fn = {
-      getHostEnvPath = hostName: "${projectRoot}/hosts/${hostName}";
-    };
+    readOnlyDir =
+      dir: builtins.attrNames (lib.filterAttrs (name: type: type == "directory") (builtins.readDir dir));
     paths = {
       root = projectRoot;
+      files = projectRoot + "/files";
       homes = projectRoot + "/homes";
       sharedHome = projectRoot + "/sharedHome";
       hosts = projectRoot + "/hosts";

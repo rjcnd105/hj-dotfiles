@@ -82,7 +82,6 @@
             inherit key;
             inherit (config) email;
             inherit hostName userName;
-            dotEnv = "${myLib.config.paths.root}/hosts/${hostName}/dotEnv";
             _debug = { };
           };
           systemModulePaths = getModulePaths "systems" config.system hostName userName;
@@ -102,7 +101,7 @@
         darwin.lib.darwinSystem {
           system = config.system;
           specialArgs = {
-            inherit inputs myOptions;
+            inherit inputs myOptions config;
           };
           modules = [
             determinate.darwinModules.default
