@@ -66,11 +66,4 @@
     enable = true;
   };
 
-  programs.zsh.initExtra = ''
-    export XDG_CONFIG_HOME="${xdgPaths.configHome}"
-    export XDG_CACHE_HOME="${xdgPaths.cacheHome}"
-    export XDG_DATA_HOME="${xdgPaths.dataHome}"
-    export XDG_STATE_HOME="${xdgPaths.stateHome}"
-  '';
-
 }
