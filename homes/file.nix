@@ -8,32 +8,27 @@
 let
   # hostfolder = myOptions.paths.files + "/${myOptions.hostName}";
 
-  folder = myOptions.paths.files + "/${myOptions.hostName}";
-  hostfolder = builtins.readDir ./../files/workspace;
-in
-# foldeAttrs = builtins.readDir ./../files/${myOptions.hostName};
-# # files/${hosts}내의 각 폴더를 home.file 형식으로 매핑
-# homeFolders = lib.foldlAttrs (
-#   acc: name: value:
-#   if value == "directory" then
-#     acc
-#     // {
-#       "${name}" = {
-#         enable = true;
-#         recursive = true;
-#         source = myOptions.paths.files + "/${myOptions.hostName}/${name}";
-#       };
-#     }
-#   else
-#     acc
-# ) { } (builtins.readDir foldeAttrs);
-{
+  getFolderAttrs = host: builtins.readDir (myOptions.paths.files + "/${host}");
 
-  myOptions._debug = {
-    n = folder;
-    # d = foldeAttrs;
-    ff = hostfolder;
-  };
+  # files/${hosts}내의 각 폴더를 home.file 형식으로 매핑
+  getHomeFolders =
+    host:
+    (lib.foldlAttrs (
+      acc: name: value:
+      if value == "directory" then
+        acc
+        // {
+          "${name}" = {
+            enable = true;
+            recursive = true;
+            source = myOptions.paths.files + "/${host}/${name}";
+          };
+        }
+      else
+        acc
+    ) { } (getFolderAttrs host));
+in
+{
 
   # home.file = {
   # cache = {
@@ -66,7 +61,9 @@ in
   #   # SECRETS_DIR = "${homedir}/.local/secrets";
   #   # AUTOSTART_DIR = "${dataHome}/autostart";
   # };
+  #
+  #
 
-  # home.file = homeFolders;
+  home.file = (getHomeFolders myOptions.hostName);
 
 }
