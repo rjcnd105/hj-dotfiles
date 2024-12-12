@@ -10,8 +10,6 @@ in
     description = "Global custom configuration";
   };
   config = {
-    readOnlyDir =
-      dir: builtins.attrNames (lib.filterAttrs (name: type: type == "directory") (builtins.readDir dir));
     paths = {
       root = projectRoot;
       files = projectRoot + "/files";

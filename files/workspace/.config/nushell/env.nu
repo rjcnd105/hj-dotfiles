@@ -18,13 +18,6 @@ def load-env-file [
 
 load-env-file /etc/profiles/per-user/$env.USER/etc/profile.d/hm-session-vars.sh
 
-let-env ENV_CONVERSIONS = {
-  "PATH": {
-    from_string: { |s| $s | split row (char esep) }
-    to_string: { |v| $v | str join (char esep) }
-  }
-}
-
 
 
 # zsh에서 환경변수를 가져와서 nushell에 적용

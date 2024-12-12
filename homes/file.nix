@@ -6,25 +6,35 @@
   ...
 }:
 let
+  # hostfolder = myOptions.paths.files + "/${myOptions.hostName}";
 
-  # files/${hosts}내의 각 폴더를 home.file 형식으로 매핑
-  homeFolders = lib.foldlAttrs (
-    acc: name: value:
-    if value == "directory" then
-      {
-        ${name} = {
-          enable = true;
-          recursive = true;
-          source = myOptions.config.paths.files + "/${myOptions.hostName}/${name}";
-        };
-      }
-      // acc
-    else
-      acc
-  ) { } (builtins.readDir ./.);
-
+  folder = myOptions.paths.files + "/${myOptions.hostName}";
+  hostfolder = builtins.readDir ./../files/workspace;
 in
+# foldeAttrs = builtins.readDir ./../files/${myOptions.hostName};
+# # files/${hosts}내의 각 폴더를 home.file 형식으로 매핑
+# homeFolders = lib.foldlAttrs (
+#   acc: name: value:
+#   if value == "directory" then
+#     acc
+#     // {
+#       "${name}" = {
+#         enable = true;
+#         recursive = true;
+#         source = myOptions.paths.files + "/${myOptions.hostName}/${name}";
+#       };
+#     }
+#   else
+#     acc
+# ) { } (builtins.readDir foldeAttrs);
 {
+
+  myOptions._debug = {
+    n = folder;
+    # d = foldeAttrs;
+    ff = hostfolder;
+  };
+
   # home.file = {
   # cache = {
   #   enable = true;
@@ -45,18 +55,18 @@ in
   # };
   # };
 
-  home.sessionVariables = {
+  # home.sessionVariables = {
 
-    # APPS_DIR = "${homedir}/.local/apps";
-    # SYNC_DIR = "${homedir}/.local/sync";
-    # LAUNCHERS_DIR = "${dataHome}/applications";
-    # UNITS_DIR = "${configHome}/systemd";
-    # BIN_DIR = "${homedir}/.local/bin";
-    # SCRIPTS_DIR = "${homedir}/.local/scripts";
-    # SECRETS_DIR = "${homedir}/.local/secrets";
-    # AUTOSTART_DIR = "${dataHome}/autostart";
-  };
+  #   # APPS_DIR = "${homedir}/.local/apps";
+  #   # SYNC_DIR = "${homedir}/.local/sync";
+  #   # LAUNCHERS_DIR = "${dataHome}/applications";
+  #   # UNITS_DIR = "${configHome}/systemd";
+  #   # BIN_DIR = "${homedir}/.local/bin";
+  #   # SCRIPTS_DIR = "${homedir}/.local/scripts";
+  #   # SECRETS_DIR = "${homedir}/.local/secrets";
+  #   # AUTOSTART_DIR = "${dataHome}/autostart";
+  # };
 
-  home.file = homeFolders
+  # home.file = homeFolders;
 
 }

@@ -82,6 +82,7 @@
             inherit key;
             inherit (config) email;
             inherit hostName userName;
+            paths = myLib.config.paths;
             _debug = { };
           };
           systemModulePaths = getModulePaths "systems" config.system hostName userName;
@@ -101,7 +102,7 @@
         darwin.lib.darwinSystem {
           system = config.system;
           specialArgs = {
-            inherit inputs myOptions config;
+            inherit inputs myOptions;
           };
           modules = [
             determinate.darwinModules.default

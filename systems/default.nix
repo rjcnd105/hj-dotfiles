@@ -8,7 +8,7 @@
   config = {
     system.stateVersion = 5;
 
-    documentation.enable = true;
+    # documentation.enable = true;
 
     environment.variables = {
       USER = myOptions.userName;
