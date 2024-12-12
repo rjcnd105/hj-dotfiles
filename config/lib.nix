@@ -1,7 +1,7 @@
 # config/options.nix
 { lib, ... }:
 let
-  projectRoot = toString ./..; # 상위 디렉토리 참조
+  projectRoot = toString ./..;
   getHostEnvPath = hostName: "${projectRoot}/hosts/${hostName}";
 in
 {
@@ -16,7 +16,9 @@ in
     };
     paths = {
       root = projectRoot;
-      custom = projectRoot + "/config/options.nix";
+      homes = projectRoot + "/homes";
+      sharedHome = projectRoot + "/sharedHome";
+      hosts = projectRoot + "/hosts";
     };
   };
 }

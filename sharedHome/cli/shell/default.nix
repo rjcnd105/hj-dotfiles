@@ -6,21 +6,6 @@
   ...
 }:
 {
-  myOptions._debug.shell = {
-    xdg = builtins.toJSON config.xdg;
-    # nushell = config.programs.nushell;
-  };
-
-  xdg.configFile = {
-    zellij = {
-      recursive = true;
-      source = config.lib.file.mkOutOfStoreSymlink "${myOptions.dotEnv}/zellij";
-    };
-    nushell = {
-      recursive = true;
-      source = config.lib.file.mkOutOfStoreSymlink "${myOptions.dotEnv}/nushell";
-    };
-  };
 
   programs = {
 
@@ -78,6 +63,8 @@
     nushell = {
       enable = true;
       package = pkgs.nushell;
+
+      shellAliases = config.home.shellAliases;
     };
 
   };
