@@ -1,0 +1,4 @@
+/Users/hj/dot/nix-dots/templates/phoenix/.env
+/Users/hj/dot/nix-dots/templates/phoenix/devenv.lock
+/Users/hj/dot/nix-dots/templates/phoenix/devenv.nix
+/Users/hj/dot/nix-dots/templates/phoenix/devenv.yaml
