@@ -54,6 +54,18 @@ in
     #      }
     #    '
     #  '';
+    #
+
+    users.groups = {
+      while = {
+        description = "시스템 관리자 권한";
+        members = [ "hj" ];
+      };
+    };
+    nix.settings.trusted-users = [
+      "root"
+      "@wheel"
+    ];
 
     home-manager = {
       sharedModules = [

@@ -1,7 +1,15 @@
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
+let
 
-# Install Phoenix dependencies:
+  pkgs-unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
+  # Install Phoenix dependencies:
 
+in
 # mix local.hex
 # mix local.rebar
 # mix archive.install hex phx_new
@@ -13,7 +21,6 @@
     pkgs.git
   ] ++ lib.optionals pkgs.stdenv.isLinux [ pkgs.inotify-tools ];
 
-
   languages.elixir.enable = true;
   dotenv.enable = true;
 
@@ -22,7 +29,8 @@
     initialScript = ''
       CREATE ROLE postgres WITH LOGIN PASSWORD 'postgres' SUPERUSER;
     '';
-    initialDatabases = [{ name = "mypg"; }];
+    initialDatabases = [ { name = "mypg"; } ];
+    package = pkgs-unstable.postgresql_17;
   };
 
   processes.phoenix.exec = "cd hello && mix phx.server";
