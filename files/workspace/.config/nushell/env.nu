@@ -16,11 +16,7 @@ def load-env-file [
     )
 }
 
-
-load-env-file /etc/profiles/per-user/$env.USER/etc/profile.d/hm-session-vars.sh
-
-$env.IS_ENV_NU_LOADED = true
-
+$env.ZELLIJ_CONFIG_DIR = "$HOME/.config/zellij"
 
 # zsh에서 환경변수를 가져와서 nushell에 적용
 load-env (^$"/etc/profiles/per-user/($env.USER)/bin/zsh" -ic 'env'
@@ -28,7 +24,7 @@ load-env (^$"/etc/profiles/per-user/($env.USER)/bin/zsh" -ic 'env'
   | split column "="
   | where column1 != "PWD"
   | reduce -f {} {|it, acc| $acc | upsert $it.column1 $it.column2})
-# PATH는 따로 처리가 필요할 수 있음
-$env.PATH = ($env.PATH | append [$"/etc/profiles/per-user/($env.USER)/bin"])
+
+load-env-file $"/etc/profiles/per-user/($env.USER)/etc/profile.d/hm-session-vars.sh"
 
 $env.IS_LOAD_ENV_NU = "true"
