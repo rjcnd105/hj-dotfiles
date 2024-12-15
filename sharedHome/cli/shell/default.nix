@@ -71,8 +71,13 @@
         SHELL = "${config.home.profileDirectory}/bin/nu";
       };
 
-      extraConfig = ''
+      extraEnv = ''
         source "~/.config/nushell/env.nu";
+      '';
+      extraLogin = ''
+        source "~/.config/nushell/login.nu";
+      '';
+      extraConfig = ''
         source "~/.config/nushell/config.nu";
       '';
     };
