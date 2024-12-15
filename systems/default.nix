@@ -1,8 +1,6 @@
 {
-  inputs,
   pkgs,
-  config,
-  customConfig,
+  myOptions,
   ...
 }:
 {
@@ -10,22 +8,22 @@
   config = {
     system.stateVersion = 5;
 
-    documentation.enable = true;
+    # documentation.enable = true;
 
     environment.variables = {
-      USER = customConfig.userName;
-      HOME = "/Users/${customConfig.userName}";
+      USER = myOptions.userName;
+      HOME = "/Users/${myOptions.userName}";
     };
 
     networking = {
-      hostName = customConfig.userName;
-      computerName = customConfig.userName;
-      localHostName = customConfig.userName;
+      hostName = myOptions.userName;
+      computerName = myOptions.userName;
+      localHostName = myOptions.userName;
     };
 
-    users.users.${customConfig.userName} = {
-      name = customConfig.userName;
-      home = "/Users/${customConfig.userName}";
+    users.users.${myOptions.userName} = {
+      name = myOptions.userName;
+      home = "/Users/${myOptions.userName}";
     };
 
     home-manager = {

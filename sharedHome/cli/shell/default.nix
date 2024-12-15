@@ -1,20 +1,11 @@
 {
   config,
+  inputs,
+  myOptions,
   pkgs,
-  customConfig,
   ...
 }:
 {
-  xdg.configFile = {
-    zellij = {
-      recursive = true;
-      source = config.lib.file.mkOutOfStoreSymlink "${customConfig.dotEnv}/zellij";
-    };
-    nushell = {
-      recursive = true;
-      source = config.lib.file.mkOutOfStoreSymlink "${customConfig.dotEnv}/nushell";
-    };
-  };
 
   programs = {
 
@@ -72,6 +63,18 @@
     nushell = {
       enable = true;
       package = pkgs.nushell;
+
+      shellAliases = config.home.shellAliases;
+
+      environmentVariables = {
+        USER_PROFILE_DIR = toString config.home.profileDirectory;
+        SHELL = "${config.home.profileDirectory}/bin/nu";
+      };
+
+      extraConfig = ''
+        source "~/.config/nushell/env.nu";
+        source "~/.config/nushell/config.nu";
+      '';
     };
 
   };

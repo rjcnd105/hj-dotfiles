@@ -33,6 +33,7 @@
       url = "github:nix-community/comma";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
   };
 
   outputs =
@@ -57,7 +58,7 @@
         };
       };
       lib = nixpkgs.lib;
-      projectRoot = builtins.toString (builtins.getEnv "PWD");
+      myLib = import ./config/lib.nix { inherit lib; };
 
       getModulePaths =
         prefix: system: host: user:
@@ -77,11 +78,12 @@
           split = builtins.split "_" key;
           hostName = builtins.elemAt split 0;
           userName = builtins.elemAt split 2;
-          customConfig = {
+          myOptions = {
             inherit key;
             inherit (config) email;
-            inherit hostName userName projectRoot;
-            dotEnv = "${projectRoot}/hosts/${hostName}/dotEnv";
+            inherit hostName userName;
+            paths = myLib.config.paths;
+            _debug = { };
           };
           systemModulePaths = getModulePaths "systems" config.system hostName userName;
           homeModulePaths = getModulePaths "homes" config.system hostName userName;
@@ -100,11 +102,10 @@
         darwin.lib.darwinSystem {
           system = config.system;
           specialArgs = {
-            inherit inputs customConfig;
+            inherit inputs myOptions;
           };
           modules = [
             determinate.darwinModules.default
-            ./config/options.nix
             {
               nixpkgs = nixpkgsConfig config.system;
             }

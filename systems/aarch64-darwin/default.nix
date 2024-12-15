@@ -1,5 +1,5 @@
 { lib, config, ... }:
 {
-  environment.systemPath = [ "/opt/homebrew/bin" ];
+  environment.systemPath = [ "/opt/homebraw/bin" ];
   services.nix-daemon.enable = true;
 }

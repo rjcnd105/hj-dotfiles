@@ -1,7 +1,13 @@
-{ config, pkgs, customConfig, ... }: let
-    PGHOST = "localhost";
-    PGPORT = 5432;
-    PGDATA =  "/var/lib/postgresql/${config.services.postgresql.package.psqlSchema}";
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
+let
+  PGHOST = "localhost";
+  PGPORT = 5432;
+  PGDATA = "/var/lib/postgresql/${config.services.postgresql.package.psqlSchema}";
 in
 {
 
@@ -9,7 +15,6 @@ in
     pkgs.postgresql_17
     pkgs.usql
   ];
-
 
   services.postgresql = {
     enable = true;
