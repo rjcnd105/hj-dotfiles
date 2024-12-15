@@ -1,30 +1,15 @@
-# 환경변수 파일을 로드하는 함수
-def load-env-file [
-    file: path  # 로드할 환경변수 파일 경로
-] {
-    if not ($file | path exists) {
-        error make {
-            msg: $"File not found: ($file)"
-        }
-    }
+let zsh = $"/etc/profiles/per-user/($env.USER)/bin/zsh"
 
-    load-env (^zsh -c $"source ($file) && env"
-        | lines
-        | split column "="
-        | where column1 not-in ["PWD", "SHLVL", "OLDPWD", "_"]
-        | reduce -f {} {|it, acc| $acc | upsert $it.column1 $it.column2}
-    )
+def zsh-env-to-nu-table [ env_content: string ] {
+    $env_content
+    | lines
+    | split column "="
+    | where column1 not-in ["PWD", "SHLVL", "OLDPWD", "_", "FILE_PWD", "CURRENT_FILE"]
+    | reduce -f {} {|it, acc| $acc | upsert $it.column1 $it.column2}
 }
 
-$env.ZELLIJ_CONFIG_DIR = "$HOME/.config/zellij"
-
 # zsh에서 환경변수를 가져와서 nushell에 적용
-load-env (^$"/etc/profiles/per-user/($env.USER)/bin/zsh" -ic 'env'
-  | lines
-  | split column "="
-  | where column1 != "PWD"
-  | reduce -f {} {|it, acc| $acc | upsert $it.column1 $it.column2})
-
-load-env-file $"/etc/profiles/per-user/($env.USER)/etc/profile.d/hm-session-vars.sh"
+zsh-env-to-nu-table (^$zsh -c "env") | load-env
+zsh-env-to-nu-table (^$zsh -c $"source /etc/profiles/per-user/($env.USER)/etc/profile.d/hm-session-vars.sh && env") | load-env
 
 $env.IS_LOAD_ENV_NU = "true"

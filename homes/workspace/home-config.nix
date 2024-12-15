@@ -22,6 +22,11 @@
     ping = "gping"; # 그래픽 ping
   };
 
+  home.sessionVariables = {
+    ZELLIJ_CONFIG_DIR = "$HOME/.config/zellij";
+    HOME_VERSION = inputs.nixpkgs.lib.trivial.release;
+  };
+
   home.stateVersion = inputs.nixpkgs.lib.trivial.release;
 
   home.packages =
