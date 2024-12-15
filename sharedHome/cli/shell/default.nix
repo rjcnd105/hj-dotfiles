@@ -65,6 +65,16 @@
       package = pkgs.nushell;
 
       shellAliases = config.home.shellAliases;
+
+      environmentVariables = {
+        USER_PROFILE_DIR = toString config.home.profileDirectory;
+        SHELL = "${config.home.profileDirectory}/bin/nu";
+      };
+
+      extraConfig = ''
+        source "~/.config/nushell/env.nu";
+        source "~/.config/nushell/config.nu";
+      '';
     };
 
   };

@@ -16,8 +16,10 @@ def load-env-file [
     )
 }
 
+
 load-env-file /etc/profiles/per-user/$env.USER/etc/profile.d/hm-session-vars.sh
 
+$env.IS_ENV_NU_LOADED = true
 
 
 # zsh에서 환경변수를 가져와서 nushell에 적용
