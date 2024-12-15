@@ -1,12 +1,7 @@
 result
 
 
-# Devenv
-.devenv*
-devenv.local.nix
-
-# direnv
-.direnv
-
-# pre-commit
-.pre-commit-config.yaml
+templates/**/.devenv*
+templates/**/devenv.local.nix
+templates/**/.direnv
+templates/**/.pre-commit-config.yaml
