@@ -1,0 +1,36 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      // "shift shift": "file_finder::Toggle"
+      //
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      // "j k": ["workspace::SendKeystrokes", "escape"]
+      //
+      // "alt-h": "pane::MoveBufferToPanÒInDirection",
+      // "alt-l": "pane::SplitRight",
+      // "alt-j": "pane::SplitUp",
+      // "alt-k": "pane::SplitDown"
+    }
+  },
+  {
+    "context": "Pane",
+    "bindings": {
+      "alt-shift-h": "pane::SplitLeft",
+      "alt-shirt-l": "pane::SplitRight",
+      "alt-shirt-k": "pane::SplitDown",
+      "alt-shirt-j": "pane::SplitUp"
+    }
+  }
+]
