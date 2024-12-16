@@ -14,8 +14,8 @@
     ./btop.nix
     ./wezterm.nix
     ./rio.nix
+    ./helix.nix
 
     ./shell
-    ./nixvim
   ];
 }

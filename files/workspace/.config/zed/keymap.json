@@ -11,6 +11,8 @@
     "bindings": {
       // "shift shift": "file_finder::Toggle"
       //
+
+      "cmd-r": ["task::Spawn", { "task_name": "run file" }]
     }
   },
   {
@@ -22,15 +24,11 @@
       // "alt-l": "pane::SplitRight",
       // "alt-j": "pane::SplitUp",
       // "alt-k": "pane::SplitDown"
-    }
-  },
-  {
-    "context": "Pane",
-    "bindings": {
+      //
       "alt-shift-h": "pane::SplitLeft",
-      "alt-shirt-l": "pane::SplitRight",
-      "alt-shirt-k": "pane::SplitDown",
-      "alt-shirt-j": "pane::SplitUp"
+      "alt-shift-l": "pane::SplitRight",
+      "alt-shift-k": "pane::SplitDown",
+      "alt-shift-j": "pane::SplitUp"
     }
   }
 ]
