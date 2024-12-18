@@ -51,7 +51,24 @@
     "html": true,
     "dockerfile": true,
     "docker-compose": true,
-    "catppuccin": true
+    "catppuccin": true,
+    "nix": true,
+    "toml": true,
+    "sql": true,
+    "elixir": true,
+    "emmet": true,
+    "biome": true,
+    "env": true,
+    "gleam": true,
+    "justfile": true,
+    "haskell": true,
+    "kdl": true,
+    "nu": true,
+    "git-firefly": true,
+    "xml": true,
+    "make": true,
+    "Luau": true,
+    "tailwind-syntax": true
   },
 
   "buffer_font_features": {
@@ -63,11 +80,38 @@
   "lsp": {
     "nixd": {
       "settings": {}
+    },
+    "elixir-ls": {},
+    "luau-lsp": {
+      "settings": {
+        "luau-lsp": {
+          "inlayHints": {
+            "parameterNames": "all"
+          }
+        }
+      }
     }
   },
   "languages": {
+    "Luau": {
+      "formatter": {
+        "external": {
+          "command": "stylua",
+          "arguments": ["--stdin-filepath", "{buffer_path}", "-"]
+        }
+      }
+    },
     "Elixir": {
-      "language_servers": ["next-ls", "!elixir-ls", "..."]
+      "language_servers": ["elixir-ls"],
+      "format_on_save": {
+        "external": {
+          "command": "mix",
+          "arguments": ["format", "--stdin-filename", "{buffer_path}", "-"]
+        }
+      }
+    },
+    "HEEX": {
+      "language_servers": ["elixir-ls"]
     },
     "Nix": {
       "language_servers": ["nixd", "!nil"],

@@ -1,0 +1,5 @@
+
+
+reload:
+    #!/usr/bin/env sh
+    @nix-direnv-reload

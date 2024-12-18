@@ -186,6 +186,7 @@ keybinds clear-defaults=true {
     }
     shared_except "tab" "locked" {
         bind "Alt t" { SwitchToMode "Tab"; }
+        bind "Alt T" { NewTab; SwitchToMode "Normal"; }
     }
     shared_except "move" "locked" {
         bind "Alt m" { SwitchToMode "Move"; }

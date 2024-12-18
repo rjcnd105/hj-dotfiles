@@ -11,7 +11,12 @@
         inputs.devenv.flakeModule
         inputs.flake-parts.flakeModules.easyOverlay
       ];
-      systems = nixpkgs.lib.systems.flakeExposed;
+      systems = [
+        "aarch64-darwin"
+        "aarch64-linux"
+        "x86_64-linux"
+      ];
+      debug = true;
 
       perSystem =
         {
