@@ -59,6 +59,7 @@ in
     users.groups = {
       while = {
         description = "시스템 관리자 권한";
+        # 이것과는 별개로 dseditgroup를 사용해서 수동으로 그룹으로 추가해줘야함.
         members = [ "hj" ];
       };
     };
@@ -69,7 +70,6 @@ in
 
     home-manager = {
       sharedModules = [
-        inputs.nixvim.homeManagerModules.nixvim
         inputs.catppuccin.homeManagerModules.catppuccin
         {
           catppuccin = {

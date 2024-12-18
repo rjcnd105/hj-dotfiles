@@ -15,14 +15,6 @@
     };
 
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/0.1";
-    nixvim = {
-      url = "github:nix-community/nixvim";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    Neve = {
-      url = "github:redyf/Neve";
-    };
 
     catppuccin.url = "github:catppuccin/nix";
 
@@ -41,9 +33,7 @@
       self,
       catppuccin,
       nix-index-database,
-      nixvim,
       determinate,
-      Neve,
       comma,
       nixpkgs,
       home-manager,

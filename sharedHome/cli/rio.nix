@@ -23,13 +23,14 @@
         ];
       };
       fonts = {
-        family = "D2CodingLigature Nerd Font";
         size = 13;
+        family = "Lilex Nerd Font";
 
         extras = [
-          { family = "Lilex Nerd Font"; }
+          {
+            family = "D2CodingLigature Nerd Font";
+          }
         ];
-
       };
     };
   };
