@@ -67,6 +67,9 @@ in
       "root"
       "@wheel"
     ];
+    nix.nixPath = [
+      "nixpkgs=${pkgs.path}"
+    ];
 
     home-manager = {
       sharedModules = [

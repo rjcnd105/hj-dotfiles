@@ -1,5 +1,27 @@
 
+# 기본 변수 설정
+gh_org := "your-organization"
+default_env := "development"
+default := "Hello, World!"
 
-reload:
+
+# 사용 가능한 모든 명령어 표시
+default:
+    @just --list
+
+_repl:
     #!/usr/bin/env sh
-    @nix-direnv-reload
+    @echo "👋 Hello, World!"
+# reload:
+#     #!/usr/bin/env sh
+#     @nix-direnv-reload
+
+
+# clean:
+#     #!/usr/bin/env bash
+#     rm -f .env .env.* !.env.template
+#     echo "🧹 환경 파일 정리 완료"
+
+# # Comment
+# echo msg=default:
+#     @echo {{msg}}

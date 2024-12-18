@@ -23,12 +23,15 @@
         ];
       };
       fonts = {
-        size = 13;
-        family = "Lilex Nerd Font";
+        size = 12;
+        family = "Lilex Nerd Font Mono";
+
+        regular.weight = 500;
+        italic.weight = 500;
 
         extras = [
           {
-            family = "D2CodingLigature Nerd Font";
+            family = "D2CodingLigature Nerd Font Mono";
           }
         ];
       };

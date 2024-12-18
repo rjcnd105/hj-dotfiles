@@ -19,13 +19,17 @@ let
         acc
         // {
           "${name}" = {
-            enable = true;
             recursive = true;
             source = myOptions.paths.files + "/${host}/${name}";
           };
         }
       else
         acc
+        // {
+          "${name}" = {
+            source = myOptions.paths.files + "/${host}/${name}";
+          };
+        }
     ) { } (getFolderAttrs host));
 in
 {

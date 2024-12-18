@@ -2,6 +2,7 @@
   pkgs,
   lib,
   inputs,
+  self',
   ...
 }:
 let
@@ -17,7 +18,13 @@ let
   });
 in
 {
-  dotenv.enable = true;
+  dotenv = {
+    enable = true;
+    filename = [
+      "./.env.dev"
+      "./.env.flake"
+    ];
+  };
 
   packages = [ ] ++ lib.optionals pkgs.stdenv.isLinux [ pkgs.inotify-tools ];
 
@@ -33,6 +40,12 @@ in
     '';
     initialDatabases = [ { name = "mypg"; } ];
     package = pkgs.postgresql_17;
+  };
+
+  services.caddy = {
+    enable = true;
+    package = pkgs.caddy;
+
   };
 
   processes.phoenix.exec = "cd hello && mix phx.server";

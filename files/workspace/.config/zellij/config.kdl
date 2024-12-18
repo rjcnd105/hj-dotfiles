@@ -166,6 +166,7 @@ keybinds clear-defaults=true {
         bind "Alt J" { NewPane "Down"; }
         bind "Alt K" { NewPane "Up"; }
         bind "Alt L" { NewPane "Right"; }
+        bind "Alt T" { NewTab; }
 
         bind "Alt w" { CloseFocus; SwitchToMode "Normal"; }
     }
@@ -186,7 +187,6 @@ keybinds clear-defaults=true {
     }
     shared_except "tab" "locked" {
         bind "Alt t" { SwitchToMode "Tab"; }
-        bind "Alt T" { NewTab; SwitchToMode "Normal"; }
     }
     shared_except "move" "locked" {
         bind "Alt m" { SwitchToMode "Move"; }
