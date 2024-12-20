@@ -9,7 +9,6 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
         inputs.devenv.flakeModule
-        inputs.flake-parts.flakeModules.easyOverlay
       ];
       systems = [
         "aarch64-darwin"
@@ -28,17 +27,17 @@
           ...
         }:
         {
-
-          # Equivalent to  inputs'.nixpkgs.legacyPackages.hello;
           packages.default = [
             pkgs.gh
             pkgs.hello
+            pkgs.mise
           ];
 
           devenv.shells.default = {
             # https://devenv.sh/reference/options/
             packages = [ config.packages.default ];
             imports = [ ./devenv.nix ];
+
           };
         };
     };

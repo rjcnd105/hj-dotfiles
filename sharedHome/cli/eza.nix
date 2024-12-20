@@ -2,7 +2,7 @@
   programs.eza = {
     enable = true;
     icons = "always";
-    enableNushellIntegration = true;
+    enableFishIntegration = true;
 
     extraOptions = [
       "--group-directories-first"

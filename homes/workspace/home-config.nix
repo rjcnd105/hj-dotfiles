@@ -25,6 +25,7 @@
   home.sessionVariables = {
     ZELLIJ_CONFIG_DIR = "$HOME/.config/zellij";
     HOME_VERSION = inputs.nixpkgs.lib.trivial.release;
+    XDG_CONFIG_HOME = "$HOME/.config";
   };
 
   home.stateVersion = inputs.nixpkgs.lib.trivial.release;
@@ -66,9 +67,5 @@
     ];
 
   fonts.fontconfig.enable = true;
-
-  programs.mise = {
-    enable = true;
-  };
 
 }

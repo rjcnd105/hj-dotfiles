@@ -17,7 +17,7 @@
       };
 
       shell = {
-        program = "${config.home.profileDirectory}/bin/nu";
+        program = "${config.home.profileDirectory}/bin/fish";
         args = [
           "--login"
         ];

@@ -7,12 +7,10 @@
     ./git.nix
     ./podman.nix
     ./ssh.nix
-    ./the-fuck.nix
     ./eza.nix
     ./lazygit.nix
     ./zoxide.nix
     ./btop.nix
-    ./wezterm.nix
     ./rio.nix
     ./helix.nix
 

@@ -16,7 +16,7 @@
   },
   {
     "label": "$ZED_SYMBOL",
-    "command": "env | grep ZED_ && echo \"Current directory: $PWD\"",
+    "command": "(cd \"$ZED_DIRNAME\" && just \"$ZED_SYMBOL\")",
     "tags": ["just-recipe"]
   }
 ]

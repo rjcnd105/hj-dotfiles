@@ -1,5 +1,5 @@
 # hj-dotfiles
-my mac flake, template, dev configs 
+my mac flake, template, dev configs
 
 ## Install
 1. nix install (recomended determinate.systems)
@@ -30,7 +30,7 @@ Uses catppuccin theme
 #### Shell
 - [rio](https://github.com/raphamorim/rio)<br/>
 gui
-- [nushell](https://github.com/nushell/nushell)<br/>
+- [fish](https://github.com/fish-shell/fish-shell)<br/>
 better shell
 - [sharship](https://github.com/starship/starship)<br/>
 Shell customize, look pretty
@@ -68,4 +68,3 @@ devenv base.
 
 ### phoenix
 TODO.
-

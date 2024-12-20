@@ -6,35 +6,55 @@
   ...
 }:
 {
+  imports = [
+    ./mise.nix
+  ];
 
   programs = {
+
+    fish = {
+      enable = true;
+      package = pkgs.fish;
+      shellAliases = config.home.shellAliases;
+
+      loginShellInit = ''
+        source "~/.config/fish/login.fish";
+
+        set -gx USER_PROFILE_DIR ${config.home.profileDirectory}
+        set -gx SHELL ${config.home.profileDirectory}/bin/fish
+      '';
+
+      shellInit = ''
+        source "~/.config/fish/config.fish";
+      '';
+    };
 
     # shell customize
     starship = {
       enable = true;
       enableZshIntegration = true;
-      enableNushellIntegration = true;
+      enableFishIntegration = true;
     };
 
     direnv = {
       enable = true;
       mise.enable = true;
       nix-direnv.enable = true;
-      enableNushellIntegration = true;
+      enableFishIntegration = true;
     };
 
     zellij = {
       enable = true;
+      enableFishIntegration = true;
     };
 
     # folder viewer
     yazi = {
       enable = true;
-      enableNushellIntegration = true;
       settings = {
         manager = {
           show_hidden = true;
-          sort_by = "modified";
+          sort_by = "mtime";
           sort_dir_first = true;
           tab_size = 2;
           sort_reverse = true;
@@ -49,7 +69,6 @@
     # db base cli history
     atuin = {
       enable = true;
-      enableNushellIntegration = true;
       flags = [
         "--disable-up-arrow"
       ];
@@ -57,29 +76,6 @@
     # command complication
     carapace = {
       enable = true;
-      enableNushellIntegration = true;
-    };
-
-    nushell = {
-      enable = true;
-      package = pkgs.nushell;
-
-      shellAliases = config.home.shellAliases;
-
-      environmentVariables = {
-        USER_PROFILE_DIR = toString config.home.profileDirectory;
-        SHELL = "${config.home.profileDirectory}/bin/nu";
-      };
-
-      extraEnv = ''
-        source "~/.config/nushell/env.nu";
-      '';
-      extraLogin = ''
-        source "~/.config/nushell/login.nu";
-      '';
-      extraConfig = ''
-        source "~/.config/nushell/config.nu";
-      '';
     };
 
   };
