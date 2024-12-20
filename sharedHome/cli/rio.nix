@@ -1,4 +1,7 @@
 { pkgs, config, ... }:
+let
+  defaultPATH = builtins.getEnv "PATH";
+in
 {
   programs.rio = {
     enable = true;
@@ -16,6 +19,12 @@
         blur = true;
       };
 
+      developer = {
+        log-level = "Debug";
+      };
+      env-vars = [
+        "PATH=${defaultPATH}"
+      ];
       shell = {
         program = "${config.home.profileDirectory}/bin/fish";
         args = [
@@ -24,16 +33,11 @@
       };
       fonts = {
         size = 12;
-        family = "Lilex Nerd Font Mono";
+        family = "D2CodingLigature Nerd Font";
 
         regular.weight = 500;
         italic.weight = 500;
 
-        extras = [
-          {
-            family = "D2CodingLigature Nerd Font Mono";
-          }
-        ];
       };
     };
   };

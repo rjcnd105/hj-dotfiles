@@ -28,6 +28,7 @@
 
     zellij = {
       enable = true;
+      enableFishIntegration = true;
     };
 
     # folder viewer
@@ -50,7 +51,10 @@
     };
     # db base cli history
     atuin = {
+      package = pkgs.atuin;
       enable = true;
+      daemon.enable = true;
+      enableFishIntegration = true;
       flags = [
         "--disable-up-arrow"
       ];

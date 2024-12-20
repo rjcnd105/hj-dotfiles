@@ -16,7 +16,7 @@ in
 
   imports = [
     inputs.nix-index-database.darwinModules.nix-index
-    ../../shared/development/devops/postgresql.nix
+    # ../../shared/development/devops/postgresql.nix
   ];
 
   config = {
@@ -26,7 +26,11 @@ in
       pkgs.devenv
     ];
 
+    # 여기에 추가해야지만 기본 쉘 설정 가능
+    # ex) chsh -s /nix/var/nix/profiles/default/bin/zsh
+    # ex) chsh -s $(which fish)
     environment.shells = [
+      pkgs.zsh
       pkgs.fish
     ];
 
@@ -45,9 +49,7 @@ in
       "root"
       "@wheel"
     ];
-    nix.nixPath = [
-      "nixpkgs=${pkgs.path}"
-    ];
+    nix.nixPath = [ "nixpkgs=flake:nixpkgs" ];
 
     home-manager = {
       sharedModules = [

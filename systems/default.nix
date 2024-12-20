@@ -37,7 +37,6 @@
     fonts.packages = [
       pkgs.nerd-fonts.d2coding
       pkgs.nerd-fonts.jetbrains-mono
-      pkgs.nerd-fonts.lilex
       # 필요한 다른 폰트들...
     ];
 

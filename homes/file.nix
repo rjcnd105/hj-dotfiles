@@ -68,6 +68,7 @@ in
   #
   #
 
-  home.file = (getHomeFolders myOptions.hostName);
+  home.file = {
+  } // (getHomeFolders myOptions.hostName);
 
 }
