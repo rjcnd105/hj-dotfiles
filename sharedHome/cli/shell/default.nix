@@ -7,27 +7,11 @@
 }:
 {
   imports = [
+    ./fish.nix
     ./mise.nix
   ];
 
   programs = {
-
-    fish = {
-      enable = true;
-      package = pkgs.fish;
-      shellAliases = config.home.shellAliases;
-
-      loginShellInit = ''
-        source "~/.config/fish/login.fish";
-
-        set -gx USER_PROFILE_DIR ${config.home.profileDirectory}
-        set -gx SHELL ${config.home.profileDirectory}/bin/fish
-      '';
-
-      shellInit = ''
-        source "~/.config/fish/config.fish";
-      '';
-    };
 
     # shell customize
     starship = {
@@ -40,12 +24,10 @@
       enable = true;
       mise.enable = true;
       nix-direnv.enable = true;
-      enableFishIntegration = true;
     };
 
     zellij = {
       enable = true;
-      enableFishIntegration = true;
     };
 
     # folder viewer
@@ -76,6 +58,7 @@
     # command complication
     carapace = {
       enable = true;
+
     };
 
   };
