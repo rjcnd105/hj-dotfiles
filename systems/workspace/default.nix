@@ -58,6 +58,7 @@ in
           catppuccin = {
             enable = true;
             flavor = "macchiato";
+            zellij.enable = false;
           };
         }
       ];

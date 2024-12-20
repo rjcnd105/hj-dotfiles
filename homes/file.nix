@@ -28,6 +28,7 @@ let
         // {
           "${name}" = {
             source = myOptions.paths.files + "/${host}/${name}";
+            force = true;
           };
         }
     ) { } (getFolderAttrs host));

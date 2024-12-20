@@ -30,7 +30,6 @@
       enable = true;
       enableFishIntegration = true;
     };
-
     # folder viewer
     yazi = {
       enable = true;
@@ -53,7 +52,6 @@
     atuin = {
       package = pkgs.atuin;
       enable = true;
-      daemon.enable = true;
       enableFishIntegration = true;
       flags = [
         "--disable-up-arrow"

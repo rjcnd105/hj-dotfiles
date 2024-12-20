@@ -28,7 +28,7 @@ Uses catppuccin theme
 ### Features
 
 #### Shell
-- [rio](https://github.com/raphamorim/rio)<br/>
+- [alacritty](https://github.com/alacritty/alacritty)<br/>
 gui
 - [fish](https://github.com/fish-shell/fish-shell)<br/>
 better shell

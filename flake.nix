@@ -14,10 +14,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    determinate = {
-      url = "https://flakehub.com/f/DeterminateSystems/determinate/0.1";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     catppuccin.url = "github:catppuccin/nix";
 
@@ -36,7 +32,6 @@
       self,
       catppuccin,
       nix-index-database,
-      determinate,
       comma,
       nixpkgs,
       home-manager,
@@ -98,7 +93,6 @@
             inherit inputs myOptions;
           };
           modules = [
-            determinate.darwinModules.default
             {
               nixpkgs = nixpkgsConfig config.system;
             }

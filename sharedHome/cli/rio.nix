@@ -33,7 +33,7 @@ in
       };
       fonts = {
         size = 12;
-        family = "D2CodingLigature Nerd Font";
+        font = "JetBrainsMono Nerd Font";
 
         regular.weight = 500;
         italic.weight = 500;

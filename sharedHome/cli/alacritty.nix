@@ -1,10 +1,34 @@
+{ config, ... }:
+let
+  defaultPATH = builtins.getEnv "PATH";
+in
 {
   programs.alacritty = {
     enable = true;
     settings = {
-      import = [
-        "~/.config/alacritty/alacritty.toml"
-      ];
+      env = {
+        TERM = "xterm-256color";
+        PATH = defaultPATH;
+      };
+      terminal.shell = {
+        program = "${config.home.profileDirectory}/bin/fish";
+        args = [
+          "--login"
+        ];
+      };
+      window = {
+        decorations = "Buttonless";
+        option_as_alt = "OnlyLeft";
+        blur = true;
+        opacity = 0.92;
+      };
+      font = {
+        size = 12;
+        normal.family = "JetBrainsMono Nerd Font";
+        bold.family = "JetBrainsMono Nerd Font";
+        italic.family = "JetBrainsMono Nerd Font";
+        bold_italic.family = "JetBrainsMono Nerd Font";
+      };
     };
   };
 }

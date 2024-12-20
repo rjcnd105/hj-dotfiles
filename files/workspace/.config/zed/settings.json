@@ -52,7 +52,6 @@
     "justfile": true,
     "haskell": true,
     "kdl": true,
-    "nu": true,
     "fish": true,
     "git-firefly": true,
     "xml": true,
