@@ -1,0 +1,21 @@
+custom_cursor_colors = true
+
+[env]
+TERM_PROGRAM = "alacritty"
+
+[window]
+decorations = "Buttonless"
+option_as_alt = "OnlyLeft"
+blur = true
+opacity = 0.92
+
+[font]
+size = 12
+normal.family = "D2Coding Nerd Font"
+bold.family = "D2Coding Nerd Font"
+italic.family = "D2Coding Nerd Font"
+bold_italic.family = "D2Coding Nerd Font"
+
+
+[shell]
+args = ["-l"]
