@@ -46,7 +46,7 @@ in
         members = [ "hj" ];
       };
     };
-
+    nix.package = pkgs.nix;
     nix.nixPath = [ "nixpkgs=flake:nixpkgs" ];
     nix.settings = {
 
@@ -64,6 +64,25 @@ in
 
       experimental-features = "nix-command flakes";
       always-allow-substitutes = "true";
+    };
+
+    homebrew = {
+      enable = true;
+
+      onActivation = {
+        upgrade = true;
+        autoUpdate = true;
+        cleanup = "zap"; # 사용하지 않는 패키지 정리
+      };
+      global = {
+        brewfile = true;
+      };
+      taps = [
+        "aquaproj/aqua"
+      ];
+      brews = [
+        "aquaproj/aqua/aqua"
+      ];
     };
 
     home-manager = {

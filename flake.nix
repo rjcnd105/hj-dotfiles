@@ -72,6 +72,7 @@
             paths = myLib.config.paths;
             _debug = { };
           };
+
           systemModulePaths = getModulePaths "systems" config.system hostName userName;
           homeModulePaths = getModulePaths "homes" config.system hostName userName;
 
