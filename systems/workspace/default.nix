@@ -66,25 +66,6 @@ in
       always-allow-substitutes = "true";
     };
 
-    homebrew = {
-      enable = true;
-
-      onActivation = {
-        upgrade = true;
-        autoUpdate = true;
-        cleanup = "zap"; # 사용하지 않는 패키지 정리
-      };
-      global = {
-        brewfile = true;
-      };
-      taps = [
-        "aquaproj/aqua"
-      ];
-      brews = [
-        "aquaproj/aqua/aqua"
-      ];
-    };
-
     home-manager = {
       sharedModules = [
         inputs.catppuccin.homeManagerModules.catppuccin

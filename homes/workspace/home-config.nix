@@ -28,6 +28,7 @@
   xdg = {
     enable = true;
   };
+
   home.sessionVariables = {
     ZELLIJ_CONFIG_DIR = "$HOME/.config/zellij";
     HOME_VERSION = inputs.nixpkgs.lib.trivial.release;
@@ -70,10 +71,14 @@
       pkgs.nerd-fonts.jetbrains-mono
       # 필요한 다른 폰트들...
       #
-      # { pkgs }:
+      import
+      (myOptions.pkgs + "./aqua.nix")
+      {
+        inherit pkgs;
+        version = "2.40.0";
+        sha256 = "sha256-aFyxwl1QmCgacOfWhKca5vjOT1SayLwLnW1FUyQssX8=";
+      }
 
-      pkgs.stdenv.mkDerivation
-      (pkgs.callPackage ./aqua.nix { })
     ];
 
   home.shellAliases = {

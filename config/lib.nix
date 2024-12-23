@@ -12,6 +12,7 @@ in
   config = {
     paths = {
       root = projectRoot;
+      pkgs = projectRoot + "/pkgs";
       files = projectRoot + "/files";
       homes = projectRoot + "/homes";
       sharedHome = projectRoot + "/sharedHome";
