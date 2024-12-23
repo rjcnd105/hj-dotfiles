@@ -1,10 +1,12 @@
 {
   pkgs,
-  version,
-  sha256,
 }:
+let
+  version = "2.40.0";
+  sha256 = "sha256-aFyxwl1QmCgacOfWhKca5vjOT1SayLwLnW1FUyQssX8=";
+in
 # aqua
-(pkgs.stdenv.mkDerivation {
+pkgs.stdenv.mkDerivation {
   version = version;
 
   name = "aqua";
@@ -26,4 +28,4 @@
     homepage = "https://github.com/aquaproj/aqua";
     license = pkgs.lib.licenses.mit;
   };
-})
+}

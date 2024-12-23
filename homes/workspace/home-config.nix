@@ -6,6 +6,11 @@
   myOptions,
   ...
 }:
+let
+  aqua = import (myOptions.paths.pkgs + "/aqua.nix") {
+    inherit pkgs;
+  };
+in
 {
   home.username = myOptions.userName;
 
@@ -71,14 +76,7 @@
       pkgs.nerd-fonts.jetbrains-mono
       # 필요한 다른 폰트들...
       #
-      import
-      (myOptions.pkgs + "./aqua.nix")
-      {
-        inherit pkgs;
-        version = "2.40.0";
-        sha256 = "sha256-aFyxwl1QmCgacOfWhKca5vjOT1SayLwLnW1FUyQssX8=";
-      }
-
+      aqua
     ];
 
   home.shellAliases = {
