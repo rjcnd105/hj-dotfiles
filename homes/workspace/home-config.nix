@@ -2,6 +2,7 @@
   config,
   inputs,
   pkgs,
+  lib,
   myOptions,
   ...
 }:
@@ -11,6 +12,8 @@
   services = {
     gpg-agent = {
       enable = true;
+      defaultCacheTtl = 1800;
+      enableSshSupport = true;
     };
   };
 
@@ -22,10 +25,13 @@
     ping = "gping"; # 그래픽 ping
   };
 
+  xdg = {
+    enable = true;
+  };
   home.sessionVariables = {
     ZELLIJ_CONFIG_DIR = "$HOME/.config/zellij";
     HOME_VERSION = inputs.nixpkgs.lib.trivial.release;
-    XDG_CONFIG_HOME = "$HOME/.config";
+    # XDG_CONFIG_HOME = "$HOME/.config";
   };
 
   home.stateVersion = inputs.nixpkgs.lib.trivial.release;
@@ -65,6 +71,14 @@
       # 필요한 다른 폰트들...
     ];
 
-  fonts.fontconfig.enable = true;
+  home.shellAliases = {
+    lzg = "lazygit";
+  };
+  # home.activation = {
+  #   miseComplecation = lib.hm.dag.entryBefore [ "writeBoundary" ] ''
 
+  #   '';
+  # };
+
+  fonts.fontconfig.enable = true;
 }

@@ -1,0 +1,20 @@
+[tools.node]
+version = "latest"
+postinstall = "corepack enable"
+
+
+[tools.usage]
+version = "latest"
+postinstall = """
+  mise completion fish > ~/.config/fish/completions/mise.fish \
+  chmod +x ~/.config/fish/completions/mise.fish
+"""
+
+[tools.erlang]
+version = "latest"
+
+[tools.elixir]
+version = "latest"
+
+[tools.lazygit]
+version = "latest"

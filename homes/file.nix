@@ -32,6 +32,8 @@ let
           };
         }
     ) { } (getFolderAttrs host));
+
+  hostFiles = getHomeFolders myOptions.hostName;
 in
 {
 
@@ -69,7 +71,6 @@ in
   #
   #
 
-  home.file = {
-  } // (getHomeFolders myOptions.hostName);
-
+  home.file = hostFiles;
+  # xdg.configFile = hostFiles.".config";
 }
