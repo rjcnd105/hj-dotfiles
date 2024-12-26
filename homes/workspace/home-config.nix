@@ -37,7 +37,7 @@ in
   home.sessionVariables = {
     ZELLIJ_CONFIG_DIR = "$HOME/.config/zellij";
     HOME_VERSION = inputs.nixpkgs.lib.trivial.release;
-    # XDG_CONFIG_HOME = "$HOME/.config";
+    AQUA_GLOBAL_CONFIG = "$HOME/.config/aqua/aqua.toml";
   };
 
   home.stateVersion = inputs.nixpkgs.lib.trivial.release;
