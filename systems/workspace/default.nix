@@ -8,7 +8,6 @@
 let
   variables = {
     USER = myOptions.userName;
-    FUCK = myOptions.absoluteProjectPath;
     EDITOR = "zed";
     LANG = "ko_KR.UTF-8";
   };
