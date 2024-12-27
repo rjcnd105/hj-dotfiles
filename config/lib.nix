@@ -1,9 +1,10 @@
 # config/options.nix
-{ lib, ... }:
+{ lib, pkgs, ... }:
 let
   projectRoot = ./..;
+  pwd = builtins.getEnv "PWD";
 in
-{
+rec {
   options = lib.mkOption {
     type = lib.types.attrsOf lib.types.anything;
     default = { };

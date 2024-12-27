@@ -45,7 +45,12 @@
         };
       };
       lib = nixpkgs.lib;
-      myLib = import ./config/lib.nix { inherit lib; };
+      myLib = import ./config/lib.nix {
+        inherit lib;
+        pkgs = nixpkgs;
+      };
+
+      envVars = import ./env.nix;
 
       getModulePaths =
         prefix: system: host: user:
@@ -70,6 +75,7 @@
             inherit (config) email;
             inherit hostName userName;
             paths = myLib.config.paths;
+            absoluteProjectPath = envVars.PWD;
             _debug = { };
           };
 

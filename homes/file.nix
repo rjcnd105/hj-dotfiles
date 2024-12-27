@@ -50,12 +50,6 @@ let
           "${namePrefix}${childPath}" = {
             source = config.lib.file.mkOutOfStoreSymlink currentFile;
             force = true;
-            onChange = ''
-              if [[ -f "${matchUserFile}" ]]; then
-                run rm -f "${matchUserFile}"
-              fi
-              run ln -s "${currentFile}" "${matchUserFile}"
-            '';
           };
         }
     ) { } (builtins.readDir currentPath));
@@ -63,11 +57,17 @@ let
 in
 {
 
-  xdg.configFile =
-    (mkAddFileAttrIfExists ".editorconfig")
-    // (mkLinkFolders {
-      basePath = myOptions.paths.files + "/${myOptions.hostName}/.config";
+  home.sessionVariables._FLAKE_PWD = myOptions.absoluteProjectPath;
+  home.sessionVariables._FLAKE_PWD_ENV = builtins.getEnv "PWD";
+  home.preferXdgDirectories = true;
+  xdg.enable = true;
+  xdg.configFile = (
+    mkLinkFolders {
+      basePath = myOptions.absoluteProjectPath + "/files/${myOptions.hostName}/.config";
       userPath = config.home.homeDirectory + "/.config";
-    });
+    }
+  );
+
+  home.file = (mkAddFileAttrIfExists ".editorconfig");
 
 }
