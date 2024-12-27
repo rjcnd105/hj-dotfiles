@@ -57,8 +57,6 @@ let
 in
 {
 
-  home.sessionVariables._FLAKE_PWD = myOptions.absoluteProjectPath;
-  home.sessionVariables._FLAKE_PWD_ENV = builtins.getEnv "PWD";
   home.preferXdgDirectories = true;
   xdg.enable = true;
   xdg.configFile = (
@@ -67,7 +65,6 @@ in
       userPath = config.home.homeDirectory + "/.config";
     }
   );
-
   home.file = (mkAddFileAttrIfExists ".editorconfig");
 
 }

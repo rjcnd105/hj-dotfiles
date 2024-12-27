@@ -34,6 +34,7 @@ in
     ZELLIJ_CONFIG_DIR = "$HOME/.config/zellij";
     HOME_VERSION = inputs.nixpkgs.lib.trivial.release;
     AQUA_GLOBAL_CONFIG = "$HOME/.config/aqua/aqua.toml";
+    PROJECT_PATH = "${myOptions.absoluteProjectPath}";
   };
 
   home.stateVersion = inputs.nixpkgs.lib.trivial.release;

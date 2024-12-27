@@ -64,6 +64,10 @@
         ];
     in
     {
+      _debug = {
+        inherit envVars;
+      };
+
       darwinConfigurations = lib.mapAttrs (
         key: config:
         let

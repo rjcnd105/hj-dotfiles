@@ -30,7 +30,7 @@ build_hj-workspace:
 darwin-switch:
     set -euo pipefail
     source {{root_dir}}/createEnv.sh
-    ./result/sw/bin/darwin-rebuild switch --argstr PWD {{root_dir}} --flake .#workspace_hj --show-trace --impure --fallback
+    ./result/sw/bin/darwin-rebuild switch --flake .#workspace_hj --show-trace --impure --fallback
 
 switch-from-github:
     nix run nix-darwin -- switch --flake github:rjcnd105/hj-dotfiles#workspace_hj
@@ -45,4 +45,4 @@ _repl:
     @nix repl . --debugger
 
 _repl-flake:
-    @nix repl --expr "builtins.getFlake \"$PWD\"" --debugger
+    @nix repl --expr "builtins.getFlake \"{{root_dir}}\"" --debugger
