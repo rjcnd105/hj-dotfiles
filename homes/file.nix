@@ -6,71 +6,68 @@
   ...
 }:
 let
-  # hostfolder = myOptions.paths.files + "/${myOptions.hostName}";
 
-  getFolderAttrs = host: builtins.readDir (myOptions.paths.files + "/${host}");
+  mkAddFileAttrIfExists =
+    name:
+    let
+      filePath = myOptions.paths.files + "/${myOptions.hostName}/${name}";
+    in
+    lib.optionalAttrs (builtins.pathExists filePath) {
+      "${name}" = {
+        source = filePath;
+        force = true;
+      };
+    };
 
   # files/${hosts}내의 각 폴더를 home.file 형식으로 매핑
-  getHomeFolders =
-    host:
+  mkLinkFolders =
+    {
+      basePath,
+      namePrefix ? "",
+      namePath ? null,
+      userPath ? config.home.homeDirectory,
+    }:
+    let
+      currentPath = (if namePath == null then basePath else (basePath + "/${namePath}"));
+    in
     (lib.foldlAttrs (
-      acc: name: value:
+      acc: currentName: value:
+      let
+        childPath = (if namePath == null then currentName else (namePath + "/${currentName}"));
+        currentFile = basePath + "/${childPath}";
+        matchUserFile = userPath + "${userPath}/${childPath}";
+      in
+
       if value == "directory" then
         acc
-        // {
-          "${name}" = {
-            recursive = true;
-            source = myOptions.paths.files + "/${host}/${name}";
-          };
-        }
+        // (mkLinkFolders {
+          inherit basePath userPath;
+          namePath = childPath;
+        })
       else
         acc
         // {
-          "${name}" = {
-            source = myOptions.paths.files + "/${host}/${name}";
+          "${namePrefix}${childPath}" = {
+            source = config.lib.file.mkOutOfStoreSymlink currentFile;
             force = true;
+            onChange = ''
+              if [[ -f "${matchUserFile}" ]]; then
+                run rm -f "${matchUserFile}"
+              fi
+              run ln -s "${currentFile}" "${matchUserFile}"
+            '';
           };
         }
-    ) { } (getFolderAttrs host));
+    ) { } (builtins.readDir currentPath));
 
-  hostFiles = getHomeFolders myOptions.hostName;
 in
 {
 
-  # home.file = {
-  # cache = {
-  #   enable = true;
-  #   recursive = true;
-  # };
-  # config = {
-  #   enable = true;
-  #   recursive = true;
-  # };
-  # data = {
-  #   enable = true;
-  #   recursive = true;
-  #   userOnly = true;
-  # };
-  # state = {
-  #   enable = true;
-  #   recursive = true;
-  # };
-  # };
+  xdg.configFile =
+    (mkAddFileAttrIfExists ".editorconfig")
+    // (mkLinkFolders {
+      basePath = myOptions.paths.files + "/${myOptions.hostName}/.config";
+      userPath = config.home.homeDirectory + "/.config";
+    });
 
-  # home.sessionVariables = {
-
-  #   # APPS_DIR = "${homedir}/.local/apps";
-  #   # SYNC_DIR = "${homedir}/.local/sync";
-  #   # LAUNCHERS_DIR = "${dataHome}/applications";
-  #   # UNITS_DIR = "${configHome}/systemd";
-  #   # BIN_DIR = "${homedir}/.local/bin";
-  #   # SCRIPTS_DIR = "${homedir}/.local/scripts";
-  #   # SECRETS_DIR = "${homedir}/.local/secrets";
-  #   # AUTOSTART_DIR = "${dataHome}/autostart";
-  # };
-  #
-  #
-
-  home.file = hostFiles;
-  # xdg.configFile = hostFiles.".config";
 }

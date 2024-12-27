@@ -18,3 +18,9 @@ version = "latest"
 
 [tools.lazygit]
 version = "latest"
+
+[tools.aws-cli]
+version = "latest"
+
+[tools.aws-vault]
+version = "latest"
