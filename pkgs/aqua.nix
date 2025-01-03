@@ -2,7 +2,7 @@
   pkgs,
 }:
 let
-  version = "2.40.0";
+  version = "2.41.0";
   sha256 = "sha256-aFyxwl1QmCgacOfWhKca5vjOT1SayLwLnW1FUyQssX8=";
 in
 # aqua
