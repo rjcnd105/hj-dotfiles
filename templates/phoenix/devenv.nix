@@ -28,10 +28,9 @@
   services.caddy = {
     enable = true;
     package = pkgs.caddy;
-
   };
 
-  processes.phoenix.exec = "cd hello && mix phx.server";
+  # processes.phoenix.exec = "cd hello && mix phx.server";
 
   entherShell = ''
     mise activate

@@ -33,7 +33,7 @@ darwin-switch:
     ./result/sw/bin/darwin-rebuild switch --flake .#workspace_hj --show-trace --impure --fallback
 
 switch-from-github:
-    nix run nix-darwin -- switch --flake github:rjcnd105/hj-dotfiles#workspace_hj
+    nix run nix-darwin -- switch --flake github:rjcnd105/hj-dotfiles#workspace_hj --impure
 
 mkEnv:
     source ./mkEnv.sh

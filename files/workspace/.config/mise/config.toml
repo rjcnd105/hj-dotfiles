@@ -52,6 +52,3 @@ version = "latest"
 
 # [tools.redis]
 # version = "latest"
-
-[tools.docker-compose]
-version = "latest"
