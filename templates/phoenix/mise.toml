@@ -1,11 +1,8 @@
 [env]
-USE_MISE = "true"
+USE_MISE = "true2"
 
 [tools.erlang]
-version = "26.2.5"
+version = "26.2"
 
 [tools.elixir]
-version = "1.18.1-opt26"
-
-[tools.rebar3]
-version = "latest"
+version = "1.18.1-otp-26"

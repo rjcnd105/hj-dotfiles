@@ -38,9 +38,9 @@
             packages = [ config.packages.default ];
             imports = [ ./devenv.nix ];
 
-            enterShell = ''
-              ${config.packages.default}/bin/mise enter
-            '';
+            # enterShell = ''
+            #   ${config.packages.default}/bin/mise enter
+            # '';
           };
         };
     };

@@ -32,7 +32,7 @@
 
   # processes.phoenix.exec = "cd hello && mix phx.server";
 
-  entherShell = ''
-    mise activate
-  '';
+  # entherShell = ''
+  #   mise activate
+  # '';
 }
