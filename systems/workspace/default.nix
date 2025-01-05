@@ -8,7 +8,6 @@
 let
   variables = {
     USER = myOptions.userName;
-    FUCK = myOptions.absoluteProjectPath;
     EDITOR = "zed";
     LANG = "ko_KR.UTF-8";
   };
@@ -17,12 +16,12 @@ in
 
   imports = [
     inputs.nix-index-database.darwinModules.nix-index
+    { programs.nix-index-database.comma.enable = true; }
     # ../../shared/development/devops/postgresql.nix
   ];
 
   config = {
     environment.systemPackages = [
-      inputs.comma
       pkgs.nix
       pkgs.nix-search-cli
       pkgs.devenv

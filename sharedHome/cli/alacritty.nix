@@ -36,6 +36,10 @@ in
         bold_italic.family = "JetBrainsMono Nerd Font";
         bold_italic.style = "SemiBold Italic";
       };
+      window.dimensions = {
+        columns = 160;
+        lines = 50;
+      };
     };
   };
 }

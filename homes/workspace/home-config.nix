@@ -52,7 +52,6 @@ in
       mtr-gui # traceroute 대체, 더 상호작용적
       jq # json 파싱
       tlrc # 문서 보기
-      just # script 태스크 관리
       coreutils # 기본 유틸리티
       file # 파일 타입 확인
       fd # find 대체

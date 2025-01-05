@@ -19,11 +19,10 @@ let
       };
     };
 
-  # files/${hosts}내의 각 폴더를 home.file 형식으로 매핑
+  # files/${hosts}내의 각 폴더를 home.file 형식으로 outOfStore Symlink로 매핑
   mkLinkFolders =
     {
       basePath,
-      namePrefix ? "",
       namePath ? null,
       userPath ? config.home.homeDirectory,
     }:
@@ -47,7 +46,7 @@ let
       else
         acc
         // {
-          "${namePrefix}${childPath}" = {
+          "${childPath}" = {
             source = config.lib.file.mkOutOfStoreSymlink currentFile;
             force = true;
           };

@@ -1,7 +1,29 @@
+[tools]
+"aqua:hashicorp/vault" = "latest"
+"aqua:jesseduffield/lazydocker" = "latest"
+"aqua:docker/compose" = "latest"
+
+[alias]
+"prw" = "pr view --web"
+
+[tools.github-cli]
+version = "latest"
+postinstall = """
+  gh auth login
+"""
+
 [tools.node]
 version = "latest"
 postinstall = "corepack enable"
 
+[tools.lua]
+version = "latest"
+
+[tools.python]
+version = "latest"
+
+[tools.poetry]
+version = "latest"
 
 [tools.usage]
 version = "latest"
@@ -24,3 +46,9 @@ version = "latest"
 
 [tools.aws-vault]
 version = "latest"
+
+[tools.just]
+version = "latest"
+
+# [tools.redis]
+# version = "latest"
