@@ -50,5 +50,8 @@ version = "latest"
 [tools.just]
 version = "latest"
 
+[tools.ruby]
+version = "latest"
+
 # [tools.redis]
 # version = "latest"
