@@ -1,2 +1,11 @@
 [env]
 USE_MISE = "true"
+
+[tools.erlang]
+version = "26.2.5"
+
+[tools.elixir]
+version = "1.18.1-opt26"
+
+[tools.rebar3]
+version = "latest"
