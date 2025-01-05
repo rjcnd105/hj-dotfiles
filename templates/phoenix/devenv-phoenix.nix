@@ -9,11 +9,9 @@
   dotenv = {
     enable = true;
     filename = [
-      "./.env.flake"
+      ".env.flake"
     ];
   };
-
-  packages = [ ] ++ lib.optionals pkgs.stdenv.isLinux [ pkgs.inotify-tools ];
 
   # services
   services.postgres = {
@@ -29,10 +27,6 @@
     enable = true;
     package = pkgs.caddy;
   };
-
   # processes.phoenix.exec = "cd hello && mix phx.server";
 
-  # entherShell = ''
-  #   mise activate
-  # '';
 }

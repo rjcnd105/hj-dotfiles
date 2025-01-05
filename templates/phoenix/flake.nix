@@ -7,7 +7,6 @@
       url = "github:jdx/mise/release";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
   };
   outputs =
     inputs@{
@@ -18,6 +17,7 @@
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
+        inputs.flake-parts.flakeModules.easyOverlay
         inputs.devenv.flakeModule
       ];
       systems = [
@@ -34,17 +34,21 @@
           inputs',
           pkgs,
           system,
+
           ...
         }:
-        {
-          _module.args.pkgs = import inputs.nixpkgs {
-            inherit system;
+        let
+          pkgs = import nixpkgs {
+            system = system;
             overlays = [
               (final: prev: {
                 mise = prev.callPackage (mise + "/default.nix") { };
               })
             ];
           };
+        in
+        {
+
           packages.default = [
             pkgs.gh
             pkgs.hello
@@ -52,9 +56,13 @@
           ];
 
           devenv.shells.default = {
+            imports = [ ./devenv-phoenix.nix ];
             # https://devenv.sh/reference/options/
             packages = [ config.packages.default ];
-            imports = [ ./devenv.nix ];
+
+            enterShell = ''
+              echo hello
+            '';
 
           };
         };
