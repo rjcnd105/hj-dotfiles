@@ -3,9 +3,19 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
     devenv.url = "github:cachix/devenv";
+    mise = {
+      url = "github:jdx/mise/release";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
   };
   outputs =
-    inputs@{ flake-parts, nixpkgs, ... }:
+    inputs@{
+      flake-parts,
+      nixpkgs,
+      mise,
+      ...
+    }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
         inputs.devenv.flakeModule
@@ -27,6 +37,14 @@
           ...
         }:
         {
+          _module.args.pkgs = import inputs.nixpkgs {
+            inherit system;
+            overlays = [
+              (final: prev: {
+                mise = prev.callPackage (mise + "/default.nix") { };
+              })
+            ];
+          };
           packages.default = [
             pkgs.gh
             pkgs.hello
@@ -38,9 +56,6 @@
             packages = [ config.packages.default ];
             imports = [ ./devenv.nix ];
 
-            # enterShell = ''
-            #   ${config.packages.default}/bin/mise enter
-            # '';
           };
         };
     };

@@ -37,8 +37,8 @@ in
         bold_italic.style = "SemiBold Italic";
       };
       window.dimensions = {
-        columns = 160;
-        lines = 50;
+        columns = 200;
+        lines = 52;
       };
     };
   };
