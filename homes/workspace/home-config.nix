@@ -78,11 +78,11 @@ in
   home.shellAliases = {
     lzg = "lazygit";
   };
-  # home.activation = {
-  #   miseComplecation = lib.hm.dag.entryBefore [ "writeBoundary" ] ''
-
-  #   '';
-  # };
+  home.activation = {
+    miseInstall = lib.hm.dag.entryAfter [ "installPackages" ] ''
+      run ${pkgs.mise}/bin/mise install
+    '';
+  };
 
   fonts.fontconfig.enable = true;
 }

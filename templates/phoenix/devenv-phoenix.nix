@@ -20,6 +20,11 @@
       CREATE ROLE postgres WITH LOGIN PASSWORD 'postgres' SUPERUSER;
     '';
     initialDatabases = [ { name = "mypg"; } ];
+
+    initdbArgs = [
+      "--locale=ko_KR.UTF-8"
+      "--encoding=UTF8"
+    ];
     package = pkgs.postgresql_17;
   };
 
@@ -27,6 +32,6 @@
     enable = true;
     package = pkgs.caddy;
   };
-  # processes.phoenix.exec = "cd hello && mix phx.server";
+  processes.phoenix.exec = "cd hello && mix phx.server";
 
 }

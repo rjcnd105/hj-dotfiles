@@ -48,20 +48,19 @@
           };
         in
         {
-
-          packages.default = [
-            pkgs.gh
-            pkgs.hello
-            pkgs.mise
-          ];
-
           devenv.shells.default = {
-            imports = [ ./devenv-phoenix.nix ];
-            # https://devenv.sh/reference/options/
-            packages = [ config.packages.default ];
+            imports = [
+              ./devenv-phoenix.nix
+            ];
+
+            packages = [
+              # https://devenv.sh/reference/options/
+              pkgs.mise
+            ];
 
             enterShell = ''
-              echo hello
+              echo your system: ${system}
+              mise activate
             '';
 
           };
