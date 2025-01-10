@@ -7,6 +7,8 @@
       enable = true;
       package = pkgs.fish;
       loginShellInit = ''
+        set -Ua fish_features remove-percent-self test-require-arg
+
         for line in (bash -c "source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh && env")
             set arr (echo $line | string split "=")
             if test (count $arr) -eq 2
@@ -16,8 +18,8 @@
             end
         end
 
-        set -gx USER_PROFILE_DIR ${config.home.profileDirectory}
-        set -gx SHELL ${config.home.profileDirectory}/bin/fish
+        fish_add_path --move --prepend  ${config.home.sessionVariables.CURRENT} ${config.home.sessionVariables.USER_PROFILE}
+        set -gx SHELL ${pkgs.fish}/bin/fish
 
         zellij
       '';

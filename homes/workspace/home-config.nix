@@ -33,8 +33,12 @@ in
   home.sessionVariables = {
     ZELLIJ_CONFIG_DIR = "$HOME/.config/zellij";
     HOME_VERSION = inputs.nixpkgs.lib.trivial.release;
-    AQUA_GLOBAL_CONFIG = "$HOME/.config/aqua/aqua.toml";
+    AQUA_GLOBAL_CONFIG = config.xdg.configHome + "/aqua/aqua.toml";
     PROJECT_PATH = "${myOptions.absoluteProjectPath}";
+    VISUAL = pkgs.zed + "/bin/zed";
+    EDITOR = pkgs.helix + "/bin/hx";
+    USER_PROFILE = config.home.profileDirectory;
+    CURRENT = "/run/current-system/sw/bin";
   };
 
   home.stateVersion = inputs.nixpkgs.lib.trivial.release;

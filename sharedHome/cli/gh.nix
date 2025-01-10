@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 {
   # GitHub CLI 설정
   programs.gh = {
@@ -13,4 +18,5 @@
   home.shellAliases = {
     prw = "pr view --web";
   };
+
 }

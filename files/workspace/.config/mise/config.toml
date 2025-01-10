@@ -3,17 +3,9 @@
 "aqua:docker/compose" = "latest"
 "aqua:jesseduffield/lazydocker" = "latest"
 
-[alias]
-"prw" = "pr view --web"
 
 [settings]
 experimental = true
-
-[tools.github-cli]
-version = "latest"
-postinstall = """
-  gh auth login
-"""
 
 [tools.node]
 version = "latest"
