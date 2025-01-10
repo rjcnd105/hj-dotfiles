@@ -30,5 +30,18 @@
       "alt-shift-k": "pane::SplitDown",
       "alt-shift-j": "pane::SplitUp"
     }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "alt-z": ["app_menu::OpenApplicationMenu", "Zed"],
+      "alt-f": ["app_menu::OpenApplicationMenu", "File"],
+      "alt-e": ["app_menu::OpenApplicationMenu", "Edit"],
+      "alt-s": ["app_menu::OpenApplicationMenu", "Selection"],
+      "alt-v": ["app_menu::OpenApplicationMenu", "View"],
+      "alt-g": ["app_menu::OpenApplicationMenu", "Go"],
+      "alt-w": ["app_menu::OpenApplicationMenu", "Window"],
+      "alt-h": ["app_menu::OpenApplicationMenu", "Help"]
+    }
   }
 ]
