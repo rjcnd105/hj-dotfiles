@@ -1,9 +1,11 @@
 # hj-dotfiles
 My mac flake, template, dev configs
 
-Tools that can be managed through mise are managed with mise as much as possible. This enables quick updates and rough management.
-mise always maintains the latest version based on the GitHub release branch. Since it's not cached in cachix, additional time is required during installation.
+I use home manager to install system-based packages, while development tools are managed through mise for quick updates and flexible management.
+mise always maintains the latest commit version based on the GitHub release branch.
+Since it's not cached in cachix, installing the flake requires additional time.
 
+Template uses flake-parts and devenv.
 
 ## Install
 1. nix install (recomended determinate.systems)
