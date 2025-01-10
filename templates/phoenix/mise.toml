@@ -1,11 +1,11 @@
-[env]
-USE_MISE = "true"
-
 [tools.erlang]
 version = "latest"
 
 [tools.elixir]
 version = "latest"
 
-[tools.rebar3]
+[tools.just]
+version = "latest"
+
+[tools.age]
 version = "latest"

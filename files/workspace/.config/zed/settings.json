@@ -7,8 +7,8 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
-  "ui_font_size": 13,
-  "buffer_font_size": 13,
+  "ui_font_size": 12,
+  "buffer_font_size": 12,
 
   "base_keymap": "JetBrains",
   "restore_on_startup": "last_session",

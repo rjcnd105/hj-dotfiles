@@ -1,10 +1,13 @@
 [tools]
 "aqua:hashicorp/vault" = "latest"
-"aqua:jesseduffield/lazydocker" = "latest"
 "aqua:docker/compose" = "latest"
+"aqua:jesseduffield/lazydocker" = "latest"
 
 [alias]
 "prw" = "pr view --web"
+
+[settings]
+experimental = true
 
 [tools.github-cli]
 version = "latest"
@@ -50,8 +53,6 @@ version = "latest"
 [tools.just]
 version = "latest"
 
-[tools.ruby]
-version = "latest"
 
 # [tools.redis]
 # version = "latest"
