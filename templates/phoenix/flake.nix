@@ -17,7 +17,6 @@
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
-        inputs.flake-parts.flakeModules.easyOverlay
         inputs.devenv.flakeModule
       ];
       systems = [
