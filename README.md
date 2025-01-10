@@ -1,5 +1,9 @@
 # hj-dotfiles
-my mac flake, template, dev configs
+My mac flake, template, dev configs
+
+Tools that can be managed through mise are managed with mise as much as possible. This enables quick updates and rough management.
+mise always maintains the latest version based on the GitHub release branch. Since it's not cached in cachix, additional time is required during installation.
+
 
 ## Install
 1. nix install (recomended determinate.systems)

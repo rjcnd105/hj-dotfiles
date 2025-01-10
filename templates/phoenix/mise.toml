@@ -2,7 +2,13 @@
 USE_MISE = "true3"
 
 [tools.erlang]
-version = "26.2"
+version = "latest"
 
 [tools.elixir]
-version = "1.18.1-otp-26"
+version = "latest"
+
+[tools.just]
+version = "latest"
+
+[tools.age]
+version = "latest"

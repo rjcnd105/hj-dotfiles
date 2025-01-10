@@ -79,7 +79,7 @@ in
     lzg = "lazygit";
   };
   home.activation = {
-    miseInstall = lib.hm.dag.entryAfter [ "installPackages" ] ''
+    miseInstall = lib.hm.dag.entryAfter [ "onFilesChange" ] ''
       run ${pkgs.mise}/bin/mise install
     '';
   };

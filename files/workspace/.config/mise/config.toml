@@ -6,6 +6,9 @@
 [alias]
 "prw" = "pr view --web"
 
+[settings]
+experimental = true
+
 [tools.github-cli]
 version = "latest"
 postinstall = """
