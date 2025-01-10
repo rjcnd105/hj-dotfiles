@@ -73,7 +73,6 @@
               };
 
               env.MISE_GLOBAL_CONFIG = false;
-              env.MISE_DEFAULT_TOOL_VERSIONS_FILENAME = ".mise.toml";
 
               # services
               services.postgres = {
