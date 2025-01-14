@@ -79,6 +79,6 @@ cd my-backend
 direnv allow .
 
 mise-init
-app-init
+app-init myProj myApp
 env-info
 ```
