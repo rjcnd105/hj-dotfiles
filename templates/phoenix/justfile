@@ -5,20 +5,14 @@ gh_org := "your-organization"
 default_env := "development"
 default := "Hello, World!"
 
-
-# 사용 가능한 모든 명령어 표시
-[no-cd]
-@aa:
-  pwd
-@bb:
-  pwd
-
 default:
     @just --list
 
-_repl:
+@dev-up:
     #!/usr/bin/env sh
-    @echo "👋 Hello, World!"
+    set -euxo pipefail
+    pwd
+    devenv up
 # reload:
 #     #!/usr/bin/env sh
 #     @nix-direnv-reload

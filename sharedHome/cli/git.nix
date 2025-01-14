@@ -1,5 +1,6 @@
 {
   inputs,
+  pkgs,
   myOptions,
   ...
 }:
@@ -26,6 +27,7 @@
 
     delta.enable = true;
     lfs.enable = true;
+
   };
 
   home.shellAliases = {

@@ -61,7 +61,14 @@
               ...
             }:
             let
-              inherit (config.env) APP_NAME DB_NAME;
+              envJson = builtins.toJSON {
+                inherit (config.env)
+                  DEVENV_ROOT
+                  PGHOST
+                  PGDATA
+                  PGPORT
+                  ;
+              };
             in
             {
 
@@ -134,8 +141,22 @@
                 "env-info" = {
                   exec = ''
                     echo your system: ${system}
-                    echo your app: ${APP_NAME}
-                    echo your DB_NAME: ${DB_NAME}
+                    echo env
+                    echo ${envJson} | tr " " "\n"
+                  '';
+                };
+                # mix archive.install hex phx_new
+                "app-init" = {
+                  exec = ''
+                    PROJECT_NAME=$1
+                    APP_NAME=$2
+
+                    if [ -z "$PROJECT_NAME" ] && [ -z "$APP_NAME" ]; then
+                        echo "Error: ProjectName and AppName is required"
+                        exit 1
+                    fi
+
+                    mix phx.new --umbrella --database=postgres --app=$APP_NAME $PROJECT_NAME
                   '';
                 };
               };

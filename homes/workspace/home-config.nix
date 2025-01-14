@@ -25,9 +25,9 @@ in
   home.shellAliases = {
     grep = "rg";
     find = "fd";
-    ps = "procs";
     sd = "sed";
     ping = "gping"; # 그래픽 ping
+    pskill = "ps -f | fzf | awk '{print $2}' | xargs kill";
   };
 
   home.sessionVariables = {
@@ -38,7 +38,7 @@ in
     VISUAL = pkgs.zed + "/bin/zed";
     EDITOR = pkgs.helix + "/bin/hx";
     USER_PROFILE = config.home.profileDirectory;
-    CURRENT = "/run/current-system/sw/bin";
+    HM_CURRENT = "/run/current-system/sw";
   };
 
   home.stateVersion = inputs.nixpkgs.lib.trivial.release;
@@ -49,7 +49,6 @@ in
       zsh
       ripgrep # grep 대체 (rg)
       sd # sed 대체 (더 직관적)
-      procs # ps 대체
       hyperfine # 벤치마크 도구
       termshark # Wireshark의 TUI 버전
       bandwhich # 실시간 네트워크 사용량을 프로세스별로 표시
@@ -64,7 +63,7 @@ in
       pwgen # 패스워드 생성
       fastfetch # 빠른 fetch
       curl # 다운로드
-      procs # ps 대체 - 실시간 프로세스 정보
+      procs
       gping # ping 대체, 그래프 표시 기능
       dua # 디스크 사용량
       p7zip
