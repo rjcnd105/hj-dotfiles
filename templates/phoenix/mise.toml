@@ -9,3 +9,6 @@ version = "latest"
 
 [tools.age]
 version = "latest"
+
+[tools.elixir-ls]
+version = "latest"

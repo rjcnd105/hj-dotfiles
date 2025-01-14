@@ -33,6 +33,9 @@ version = "latest"
 [tools.elixir]
 version = "latest"
 
+[tools.elixir-ls]
+version = "latest"
+
 [tools.lazygit]
 version = "latest"
 
