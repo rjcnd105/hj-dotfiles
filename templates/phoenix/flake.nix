@@ -4,7 +4,7 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     devenv.url = "github:cachix/devenv";
     mise = {
-      url = "github:jdx/mise/release";
+      url = "github:jdx/mise/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
