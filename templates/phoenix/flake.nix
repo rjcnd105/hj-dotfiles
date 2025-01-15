@@ -67,15 +67,17 @@
                   PGHOST
                   PGDATA
                   PGPORT
+                  PROJECT_NAME
                   ;
               };
+              umbrellaProjectName = "${config.env.PROJECT_NAME}_umbrella";
             in
             {
 
               dotenv = {
                 enable = true;
                 filename = [
-                  ".env.dev"
+                  ".env.root"
                 ];
               };
 
@@ -87,7 +89,6 @@
                 initialScript = ''
                   CREATE ROLE postgres WITH LOGIN PASSWORD 'postgres' SUPERUSER;
                 '';
-                initialDatabases = [ { name = config.env.APP_NAME; } ];
                 extensions = extensions: [
                   extensions.postgis
                   extensions.timescaledb
@@ -109,7 +110,7 @@
               #   package = pkgs.opentelemetry-collector-contrib;
               # };
 
-              processes.phoenix.exec = "cd hello && mix phx.server";
+              processes.phoenix.exec = "cd ${umbrellaProjectName} && mix phx.server";
 
               tasks."myapp:hello" = {
                 exec = ''echo "Hello, world!"'';
@@ -145,6 +146,29 @@
                     echo ${envJson} | tr " " "\n"
                   '';
                 };
+                "update-env" = {
+                  exec = ''
+                    # .env.root 파일 처리
+                    ENV_FILE=".env.root"
+                    NEW_PROJECT_NAME=$1
+
+                    if [ -f $ENV_FILE ]; then
+                      # PROJECT_NAME이 있는지 확인
+                      if awk -F= '/^PROJECT_NAME=/ {found=1; exit} END{exit !found}' $ENV_FILE; then
+                        # PROJECT_NAME이 있으면 교체
+                        awk -i inplace '/^PROJECT_NAME=/{print "PROJECT_NAME='$NEW_PROJECT_NAME'";next}{print}' .env.root
+                        echo "Updated PROJECT_NAME in $ENV_FILE"
+                      else
+                        # PROJECT_NAME이 없으면 추가
+                        echo "PROJECT_NAME=NEW_PROJECT_NAME" >> $ENV_FILE
+                        echo "Added PROJECT_NAME to $ENV_FILE"
+                      fi
+                    else
+                      echo "PROJECT_NAME=$NEW_PROJECT_NAME" > $ENV_FILE
+                      echo "Created .env.root with PROJECT_NAME"
+                    fi
+                  '';
+                };
                 # mix archive.install hex phx_new
                 "app-init" = {
                   exec = ''
@@ -156,7 +180,9 @@
                         exit 1
                     fi
 
+                    update-env $PROJECT_NAME
                     mix phx.new --umbrella --database=postgres --app=$APP_NAME $PROJECT_NAME
+
                   '';
                 };
               };
