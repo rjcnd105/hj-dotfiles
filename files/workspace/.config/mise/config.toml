@@ -7,6 +7,9 @@
 [settings]
 experimental = true
 
+[tools.flyctl]
+version = "latest"
+
 [tools.node]
 version = "latest"
 postinstall = "corepack enable"
@@ -34,6 +37,9 @@ version = "latest"
 version = "latest"
 
 [tools.elixir-ls]
+version = "latest"
+
+[tools.gleam]
 version = "latest"
 
 [tools.lazygit]

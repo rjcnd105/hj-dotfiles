@@ -15,7 +15,7 @@
 
         # echo $PATH | tr ' ' '\n' | grep -v mise
 
-
+        source $HOME/.config/fish/user-functions.fish
       '';
 
       interactiveShellInit = ''

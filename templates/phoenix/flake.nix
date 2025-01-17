@@ -90,6 +90,7 @@
                   CREATE ROLE postgres WITH LOGIN PASSWORD 'postgres' SUPERUSER;
                 '';
                 extensions = extensions: [
+                  extensions.pg_cron
                   extensions.postgis
                   extensions.timescaledb
                 ];
@@ -97,6 +98,8 @@
                   "--locale=ko_KR.UTF-8"
                   "--encoding=UTF8"
                 ];
+                listen_addresses = "*";
+                port = 5432;
                 package = pkgs.postgresql_17;
               };
 

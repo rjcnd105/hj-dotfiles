@@ -71,7 +71,17 @@
     "nixd": {
       "settings": {}
     },
-    "elixir-ls": {},
+    "elixir-ls": {
+      "dialyzerEnabled": false
+    },
+    "tailwindcss-language-server": {
+      "settings": {
+        "includeLanguages": {
+          "heex": "html",
+          "Elixir": "html"
+        }
+      }
+    },
     "luau-lsp": {
       "settings": {
         "luau-lsp": {
@@ -92,7 +102,8 @@
       }
     },
     "Elixir": {
-      "language_servers": ["elixir-ls"],
+      "show_whitespaces": "selection",
+      "language_servers": ["elixir-ls", "tailwindcss-language-server"],
       "format_on_save": {
         "external": {
           "command": "mix",
@@ -101,7 +112,8 @@
       }
     },
     "HEEX": {
-      "language_servers": ["elixir-ls"]
+      "show_whitespaces": "selection",
+      "language_servers": ["elixir-ls", "tailwindcss-language-server"]
     },
     "Nix": {
       "language_servers": ["nixd", "!nil"],
