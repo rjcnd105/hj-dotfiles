@@ -9,6 +9,9 @@
 {
   "ui_font_size": 12,
   "buffer_font_size": 12,
+  "tab_size": 2,
+  "show_completions_on_input": true,
+  "remove_trailing_whitespace_on_save": true,
 
   "base_keymap": "JetBrains",
   "restore_on_startup": "last_session",
@@ -71,9 +74,7 @@
     "nixd": {
       "settings": {}
     },
-    "elixir-ls": {
-      "dialyzerEnabled": false
-    },
+    "elixir-ls": {},
     "tailwindcss-language-server": {
       "settings": {
         "includeLanguages": {
@@ -102,6 +103,7 @@
       }
     },
     "Elixir": {
+      "show_inline_completions": false,
       "show_whitespaces": "selection",
       "language_servers": ["elixir-ls", "tailwindcss-language-server"],
       "format_on_save": {
@@ -113,7 +115,11 @@
     },
     "HEEX": {
       "show_whitespaces": "selection",
-      "language_servers": ["elixir-ls", "tailwindcss-language-server"]
+      "language_servers": [
+        "elixir-ls",
+        "tailwindcss-language-server",
+        "emmet-language-server"
+      ]
     },
     "Nix": {
       "language_servers": ["nixd", "!nil"],
