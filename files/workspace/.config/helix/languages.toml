@@ -1,0 +1,20 @@
+[[language]]
+name = "elixir"
+language-id = "elixir"
+language-servers = ["elixir-ls"]
+auto-format = true
+
+[[language]]
+name = "heex"
+language-id = "phoenix-heex"
+language-servers = [
+  "elixir-ls",
+  "tailwindcss-ls",
+  "vscode-html-language-server",
+]
+auto-format = true
+
+
+[language-server.tailwind-heex]
+command = "tailwindcss-language-server"
+args = ["--stdio"]

@@ -11,7 +11,6 @@
     ./zoxide.nix
     ./btop.nix
     # ./rio.nix
-    ./helix.nix
     ./alacritty.nix
 
     ./shell
