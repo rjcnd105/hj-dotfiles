@@ -2,8 +2,8 @@
   pkgs,
 }:
 let
-  version = "2.41.0";
-  sha256 = "sha256-aFyxwl1QmCgacOfWhKca5vjOT1SayLwLnW1FUyQssX8=";
+  version = "2.43.0";
+  sha256 = "sha256-7BsTzZcs2fLVis9sVEwILeDkSMCqNDMQwwO28LDa/40=";
 in
 # aqua
 pkgs.stdenv.mkDerivation {
