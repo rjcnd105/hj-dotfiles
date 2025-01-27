@@ -2,6 +2,7 @@
 "aqua:hashicorp/vault" = "latest"
 "aqua:docker/compose" = "latest"
 "aqua:jesseduffield/lazydocker" = "latest"
+"aqua:ollama/ollama" = "latest"
 
 [settings]
 experimental = true

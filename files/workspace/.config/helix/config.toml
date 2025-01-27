@@ -1,6 +1,213 @@
-theme = "catppuccin-macchiato"
+################################################################################
+#                                    HELIX                                     #
+################################################################################
+
+###################
+# THEME           #
+###################
+theme = "rose_pine"
+
+###################
+# CONFIG          #
+###################
 
 [editor]
-line-number = "relative"
-cursorline = true
+auto-completion = true
+auto-format = true
+auto-info = true
+auto-save = true
+bufferline = "always"
 color-modes = true
+completion-replace = true
+completion-timeout = 5
+completion-trigger-len = 1
+cursorcolumn = true
+cursorline = true
+default-line-ending = "lf"
+idle-timeout = 5
+indent-heuristic = "hybrid"
+insert-final-newline = true
+jump-label-alphabet = "asdfghjklweruio"
+line-number = "relative"
+middle-click-paste = true
+mouse = true
+preview-completion-insert = true
+rulers = [80]
+scroll-lines = 5
+scrolloff = 5
+text-width = 80
+true-color = true
+undercurl = true
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.file-picker]
+hidden = true
+follow-symlinks = true
+deduplicate-links = true
+parents = true
+ignore = true
+git-ignore = true
+git-global = true
+git-exclude = true
+max-depth = 5
+
+[editor.gutters]
+layout = ["line-numbers", "diagnostics", "diff"]
+
+[editor.indent-guides]
+character = "|"
+render = true
+skip-levels = 0
+
+[editor.lsp]
+auto-signature-help = true
+display-inlay-hints = true
+display-messages = true
+display-signature-help-docs = true
+enable = true
+goto-reference-include-declaration = true
+snippets = true
+
+[editor.search]
+smart-case = false
+
+[editor.smart-tab]
+enable = false
+
+[editor.soft-wrap]
+enable = false
+
+[editor.statusline]
+left = [
+  "mode",
+  "spinner",
+  "version-control",
+  "file-name",
+  "file-modification-indicator",
+]
+center = ["workspace-diagnostics", "spacer"]
+right = [
+  "primary-selection-length",
+  "spacer",
+  "register",
+  "spacer",
+  "position",
+  "separator",
+  "total-line-numbers",
+  "separator",
+  "position-percentage",
+  "file-type",
+  "file-encoding",
+  "file-line-ending",
+]
+separator = ":"
+mode.insert = "INSERT"
+mode.normal = "NORMAL"
+mode.select = "SELECT"
+
+###################
+# KEYBINDINGS     #
+###################
+
+[keys.normal]
+esc = ["collapse_selection", "keep_primary_selection"]
+ret = ["align_view_center", "goto_word"]
+S-tab = [":bp"]
+tab = [":bn"]
+S = ["surround_add"]
+h = ["move_char_left", "align_view_center"]
+j = ["move_line_down", "align_view_center"]
+k = ["move_line_up", "align_view_center"]
+l = ["move_char_right", "align_view_center"]
+C-k = [
+  "extend_to_line_bounds",
+  "delete_selection",
+  "move_line_up",
+  "paste_before",
+]
+C-j = [
+  "extend_to_line_bounds",
+  "delete_selection",
+  "move_line_down",
+  "paste_before",
+]
+C-b = ["goto_line_start"]
+C-e = ["goto_line_end"]
+"*" = ["move_prev_word_start", "move_next_word_end", "search_selection"]
+A-h = ["extend_parent_node_start"]
+A-l = ["extend_parent_node_end"]
+
+[keys.normal.space]
+"," = [
+  "save_selection",
+  "goto_line_end",
+  ":append-output echo ','",
+  "collapse_selection",
+  "delete_selection",
+  "jump_backward",
+]
+";" = [
+  "save_selection",
+  "goto_line_end",
+  ":append-output echo ';'",
+  "collapse_selection",
+  "delete_selection",
+  "jump_backward",
+]
+
+
+[keys.normal.space.t]
+a = ":toggle-option auto-completion"
+s = ":toggle-option auto-save"
+f = ":toggle-option auto-format"
+h = ":toggle-option lsp.display-inlay-hints"
+l = ":toggle-option lsp.enable"
+
+[keys.normal.space.c]
+l = ":o ~/.config/helix/languages.toml"
+o = ":config-open"
+r = [":w", ":config-reload", ":reload-all"]
+
+[keys.insert]
+A-j = [
+  "normal_mode",
+  "extend_to_line_bounds",
+  "delete_selection",
+  "move_line_down",
+  "paste_before",
+  "insert_mode",
+]
+A-k = [
+  "normal_mode",
+  "extend_to_line_bounds",
+  "delete_selection",
+  "move_line_up",
+  "paste_before",
+  "insert_mode",
+]
+C-b = ["insert_at_line_start", "align_view_center"]
+C-e = ["insert_at_line_end", "align_view_center"]
+C-h = ["move_char_left", "align_view_center"]
+C-j = ["move_line_down", "align_view_center"]
+C-k = ["move_line_up", "align_view_center"]
+C-l = ["move_char_right", "align_view_center"]
+
+[keys.select]
+pageup = ["half_page_up"]
+pagedown = ["half_page_down"]
+"C-u" = ["half_page_up"]
+"C-d" = ["half_page_down"]
+esc = ["collapse_selection", "normal_mode"]
+c = ["trim_selections", "change_selection"]
+";" = ["flip_selections"]
+"," = ["repeat_last_motion"]
+
+[keys.select."]"]
+"]" = ["goto_prev_paragraph"]
+
+[keys.select."["]
+"[" = ["goto_next_paragraph"]

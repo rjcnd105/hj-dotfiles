@@ -18,18 +18,11 @@
 
     nix-index-database.url = "github:nix-community/nix-index-database";
 
-    # mise를 항상 github 최신의 release 브랜치 버전으로 사용
-    mise = {
-      url = "github:jdx/mise/main";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
   };
 
   outputs =
     inputs@{
       self,
-      mise,
       catppuccin,
       nix-index-database,
       nixpkgs,
@@ -88,11 +81,6 @@
 
           nixpkgsConfig = system: {
             inherit system;
-            overlays = [
-              (final: prev: {
-                mise = prev.callPackage (mise + "/default.nix") { };
-              })
-            ];
             config = {
               allowUnfreePredicate =
                 pkg:
