@@ -29,7 +29,7 @@ switch-from-github:
     nix run nix-darwin -- switch --flake github:rjcnd105/hj-dotfiles#workspace_hj --impure
 
 mkEnv:
-    source ./mkEnv.sh
+    source ./createEnv.sh
 
 _flake_update:
     @nix flake update

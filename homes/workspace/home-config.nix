@@ -69,6 +69,7 @@ in
       p7zip
       fontconfig
       zstd
+      docker
     ]
     ++ [
       pkgs.nerd-fonts.d2coding

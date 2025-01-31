@@ -7,6 +7,13 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  "assistant": {
+    "default_model": {
+      "provider": "ollama",
+      "model": "deepseek-r1:7b"
+    },
+    "version": "2"
+  },
   "ui_font_size": 12,
   "buffer_font_size": 12,
   "tab_size": 2,
@@ -61,6 +68,23 @@
     "make": true,
     "Luau": true,
     "tailwind-syntax": true
+  },
+  "language_models": {
+    "ollama": {
+      "api_url": "http://localhost:11434",
+      "available_models": [
+        {
+          "name": "deepseek-r1:32b",
+          "display_name": "deepseek-r1:32b",
+          "max_tokens": 32768333
+        },
+        {
+          "name": "deepseek-r1:7b",
+          "display_name": "deepseek-r1:7b",
+          "max_tokens": 32768333
+        }
+      ]
+    }
   },
 
   "buffer_font_features": {

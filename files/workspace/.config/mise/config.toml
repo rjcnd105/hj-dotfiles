@@ -3,11 +3,15 @@
 "aqua:docker/compose" = "latest"
 "aqua:jesseduffield/lazydocker" = "latest"
 "aqua:ollama/ollama" = "latest"
+"ubi:slimtoolkit/slim" = "latest"
 
 [settings]
 experimental = true
 
 [tools.flyctl]
+version = "latest"
+
+[tools.bun]
 version = "latest"
 
 [tools.node]
