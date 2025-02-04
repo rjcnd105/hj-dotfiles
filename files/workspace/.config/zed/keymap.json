@@ -28,7 +28,8 @@
       "alt-shift-h": "pane::SplitLeft",
       "alt-shift-l": "pane::SplitRight",
       "alt-shift-k": "pane::SplitDown",
-      "alt-shift-j": "pane::SplitUp"
+      "alt-shift-j": "pane::SplitUp",
+      "ctrl-q": "editor::Hover"
     }
   },
   {
