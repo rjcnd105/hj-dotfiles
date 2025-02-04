@@ -31,11 +31,11 @@ switch-from-github:
 mkEnv:
     source ./createEnv.sh
 
-_flake_update:
+flake_update:
     @nix flake update
 
-_repl:
+repl:
     @nix repl . --debugger
 
-_repl-flake:
+repl-flake:
     @nix repl --expr "builtins.getFlake \"{{root_dir}}\"" --debugger
