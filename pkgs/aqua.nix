@@ -22,7 +22,7 @@ pkgs.stdenv.mkDerivation {
     cp -r aqua $out/bin
   '';
 
-  meta = {
+  meta = { 
     inherit version;
     description = "Declarative CLI Version manager written in Go. Support Lazy Install, Registry, and continuous update with Renovate. CLI version is switched seamlessly";
     homepage = "https://github.com/aquaproj/aqua";

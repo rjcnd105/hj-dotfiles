@@ -27,9 +27,6 @@ version = "latest"
 [tools.python]
 version = "latest"
 
-[tools.poetry]
-version = "latest"
-
 [tools.usage]
 version = "latest"
 postinstall = """
