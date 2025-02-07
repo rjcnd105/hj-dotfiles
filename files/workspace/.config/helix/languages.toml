@@ -1,17 +1,13 @@
 [[language]]
 name = "elixir"
-language-id = "elixir"
-language-servers = ["elixir-ls"]
+language-id = "phoenix-heex"
+language-servers = ["tailwind-heex", "elixir-ls"]
 auto-format = true
 
 [[language]]
 name = "heex"
 language-id = "phoenix-heex"
-language-servers = [
-  "elixir-ls",
-  "tailwindcss-ls",
-  "vscode-html-language-server",
-]
+language-servers = ["tailwind-heex", "elixir-ls"]
 auto-format = true
 
 

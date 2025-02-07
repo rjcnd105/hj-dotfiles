@@ -45,7 +45,7 @@ normal = "block"
 select = "underline"
 
 [editor.file-picker]
-hidden = true
+hidden = false
 follow-symlinks = true
 deduplicate-links = true
 parents = true
@@ -53,7 +53,7 @@ ignore = true
 git-ignore = true
 git-global = true
 git-exclude = true
-max-depth = 5
+max-depth = 10
 
 [editor.gutters]
 layout = ["line-numbers", "diagnostics", "diff"]

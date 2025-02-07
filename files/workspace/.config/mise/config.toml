@@ -1,9 +1,12 @@
 [tools]
+
+
 "aqua:hashicorp/vault" = "latest"
 "aqua:docker/compose" = "latest"
 "aqua:jesseduffield/lazydocker" = "latest"
 "aqua:ollama/ollama" = "latest"
 "ubi:slimtoolkit/slim" = "latest"
+
 
 [settings]
 experimental = true
@@ -33,6 +36,7 @@ postinstall = """
   mise completion fish > ~/.config/fish/completions/mise.fish \
   chmod +x ~/.config/fish/completions/mise.fish
 """
+
 [tools.erlang]
 version = "latest"
 
@@ -60,7 +64,3 @@ version = "latest"
 
 # [tools.redis]
 # version = "latest"
-
-[tools."ubi:helix-editor/helix"]
-version = "latest"
-extract_all = "true"

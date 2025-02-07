@@ -56,7 +56,6 @@
     "sql": true,
     "elixir": true,
     "emmet": true,
-    "biome": true,
     "env": true,
     "gleam": true,
     "justfile": true,
@@ -98,7 +97,11 @@
     "nixd": {
       "settings": {}
     },
-    "elixir-ls": {},
+    "elixir-ls": {
+      "settings": {
+        "dialyzerEnabled": false
+      }
+    },
     "tailwindcss-language-server": {
       "settings": {
         "includeLanguages": {
@@ -138,7 +141,14 @@
       }
     },
     "HEEX": {
+      "show_inline_completions": true,
       "show_whitespaces": "selection",
+      "format_on_save": {
+        "external": {
+          "command": "mix",
+          "arguments": ["format", "--stdin-filename", "{buffer_path}", "-"]
+        }
+      },
       "language_servers": [
         "elixir-ls",
         "tailwindcss-language-server",

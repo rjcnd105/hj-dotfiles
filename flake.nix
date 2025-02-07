@@ -16,15 +16,12 @@
 
     catppuccin.url = "github:catppuccin/nix";
 
-    nix-index-database.url = "github:nix-community/nix-index-database";
-
   };
 
   outputs =
     inputs@{
       self,
       catppuccin,
-      nix-index-database,
       nixpkgs,
       home-manager,
       darwin,
