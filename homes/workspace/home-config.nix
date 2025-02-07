@@ -47,6 +47,7 @@ in
     with pkgs;
     [
       zsh
+      helix
       ripgrep # grep 대체 (rg)
       sd # sed 대체 (더 직관적)
       hyperfine # 벤치마크 도구

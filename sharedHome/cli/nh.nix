@@ -1,4 +1,4 @@
-{ myOptions }:
+{ myOptions, ... }:
 {
   programs.nh = {
     enable = true;

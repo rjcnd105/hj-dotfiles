@@ -10,7 +10,6 @@
     ./eza.nix
     ./zoxide.nix
     ./btop.nix
-    ./helix.nix
     # ./rio.nix
     ./alacritty.nix
     ./nh.nix
