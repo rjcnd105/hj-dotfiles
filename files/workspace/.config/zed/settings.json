@@ -40,6 +40,11 @@
   // korean support
   "ui_font_fallbacks": ["D2CodingLigature Nerd Font"],
 
+  "file_types": {
+    "Dockerfile": ["Dockerfile", "Dockerfile.*"],
+    "JSON": ["json", "jsonc", "*.code-snippets"]
+  },
+
   "theme": {
     "mode": "system",
     "light": "Catppuccin Frappé",
@@ -85,13 +90,17 @@
       ]
     }
   },
+  "chat_panel": {
+    "dock": "left"
+  },
 
   "buffer_font_features": {
     "calt": false
   },
   "project_panel": {
     "auto_fold_dirs": false,
-    "indent_size": 16
+    "indent_size": 16,
+    "git_status": true
   },
   "lsp": {
     "nixd": {
