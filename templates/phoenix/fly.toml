@@ -1,4 +1,4 @@
-app = "my-backend"
+app = "my-app"
 primary_region = "nrt"
 
 [build]
