@@ -15,5 +15,4 @@ mise install
 ```
 
 ### Commands
-
-@see https://github.com/rjcnd105/hj-dotfiles/blob/main/justfile
+https://github.com/rjcnd105/hj-dotfiles/blob/main/templates/phoenix/justfile
