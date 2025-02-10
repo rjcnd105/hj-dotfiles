@@ -2,7 +2,7 @@ app = "my-backend"
 primary_region = "nrt"
 
 [build]
-image = 'registry.fly.io/my-backend:latest'
+image = 'registry.fly.io/my-app:latest'
 dockerfile = "Dockerfile"
 
 [deploy]
