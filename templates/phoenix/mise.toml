@@ -12,3 +12,6 @@ version = "latest"
 
 [tools.elixir-ls]
 version = "latest"
+
+[tools.flyctl]
+version = "latest"

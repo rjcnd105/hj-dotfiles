@@ -2,22 +2,33 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
-    devenv.url = "github:cachix/devenv";
-    mise = {
-      url = "github:jdx/mise/refs/tags/v2025.1.9";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
+    services-flake.url = "github:juspay/services-flake";
   };
   outputs =
     inputs@{
-      flake-parts,
+      self,
       nixpkgs,
-      mise,
+      flake-parts,
       ...
     }:
+    let
+
+      unquote = s: builtins.replaceStrings [ "\"" ] [ "" ] s;
+      devEnv = {
+        DB_HOST = builtins.getEnv "DB_HOST";
+        DB_PORT = builtins.getEnv "DB_PORT";
+        DB_LISTEN_ADDRESSES = builtins.getEnv "DB_LISTEN_ADDRESSES";
+        DB_NAME = builtins.getEnv "DB_NAME";
+        DB_USER = builtins.getEnv "DB_USER";
+        DB_PASSWORD = builtins.getEnv "DB_PASSWORD";
+      };
+
+    in
+
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
-        inputs.devenv.flakeModule
+        inputs.process-compose-flake.flakeModule
       ];
       systems = [
         "aarch64-darwin"
@@ -28,19 +39,15 @@
 
       perSystem =
         {
+          self',
           system,
           lib,
           config,
           ...
         }:
         let
-          overlayedPkgs = import nixpkgs {
+          pkgs = import nixpkgs {
             system = system;
-            overlays = [
-              (final: prev: {
-                mise = prev.callPackage (mise + "/default.nix") { };
-              })
-            ];
             config = {
               allowUnfreePredicate =
                 pkg:
@@ -49,152 +56,67 @@
                 ];
             };
           };
+          commonPackages =
+            [ ]
+            ++ lib.optionals pkgs.stdenv.isLinux [
+              pkgs.inotify-tools
+            ];
+
         in
+        # str = lib.concatStringsSep "\n" (lib.mapAttrsToList (n: v: "export ${n}=${v}") devEnv);
         {
-          _module.args.pkgs = overlayedPkgs;
+          _module.args.pkgs = pkgs;
 
-          devenv.shells.default =
-            {
-              config,
-              lib,
-              pkgs,
-              ...
-            }:
+          process-compose."app-services" =
             let
-              envJson = builtins.toJSON {
-                inherit (config.env)
-                  DEVENV_ROOT
-                  PGHOST
-                  PGDATA
-                  PGPORT
-                  PROJECT_NAME
-                  ;
-              };
-              umbrellaProjectName = "${config.env.PROJECT_NAME}_umbrella";
+              _DB_HOST = unquote devEnv.DB_HOST;
+              DB_PORT = lib.strings.toIntBase10 (unquote devEnv.DB_PORT);
+              DB_LISTEN_ADDRESSES = unquote devEnv.DB_LISTEN_ADDRESSES;
+              DB_NAME = unquote devEnv.DB_NAME;
+              DB_USER = unquote devEnv.DB_USER;
+              DB_PASSWORD = unquote devEnv.DB_PASSWORD;
             in
+            { config, lib, ... }:
             {
-
-              dotenv = {
-                enable = true;
-                filename = [
-                  ".env.root"
-                ];
-              };
-
-              env.MISE_GLOBAL_CONFIG = false;
-
-              # services
-              services.postgres = {
-                enable = true;
-                initialScript = ''
-                  CREATE ROLE postgres WITH LOGIN PASSWORD 'postgres' SUPERUSER;
-                '';
-                extensions = extensions: [
-                  extensions.pg_cron
-                  extensions.postgis
-                  extensions.timescaledb
-                ];
-                initdbArgs = [
-                  "--locale=ko_KR.UTF-8"
-                  "--encoding=UTF8"
-                ];
-                listen_addresses = "*";
-                port = 5432;
-                package = pkgs.postgresql_17;
-              };
-
-              services.caddy = {
-                enable = true;
-                package = pkgs.caddy;
-              };
-
-              # services.opentelemetry-collector = {
-              #   enable = true;
-              #   package = pkgs.opentelemetry-collector-contrib;
-              # };
-
-              processes.phoenix.exec = "cd ${umbrellaProjectName} && mix phx.server";
-
-              tasks."myapp:hello" = {
-                exec = ''echo "Hello, world!"'';
-                before = [
-                  "devenv:enterShell"
-                  "devenv:enterTest"
-                ];
-              };
-
-              packages =
-                [
-                  # https://devenv.sh/reference/options/
-                  pkgs.mise
-                ]
-                ++ lib.optionals pkgs.stdenv.isLinux [
-                  pkgs.inotify-tools
-                ]
-                ++ lib.optionals (!config.container.isBuilding) [
-                ];
-
-              scripts = {
-                "mise-init" = {
-                  exec = ''
-                    mise trust ./.
-                    mise install
-                    mise activate -q
-                  '';
+              imports = [
+                inputs.services-flake.processComposeModules.default
+              ];
+              services = {
+                postgres."pg" = {
+                  enable = true;
+                  package = pkgs.postgresql_17;
+                  listen_addresses = DB_LISTEN_ADDRESSES;
+                  dataDir = "./data/pg";
+                  port = DB_PORT;
+                  initialScript = {
+                    before = ''
+                       CREATE ROLE ${DB_USER} WITH LOGIN PASSWORD '${DB_PASSWORD}' SUPERUSER;
+                      CREATE DATABASE ${DB_NAME};
+                    '';
+                  };
                 };
-                "env-info" = {
-                  exec = ''
-                    echo your system: ${system}
-                    echo env
-                    echo ${envJson} | tr " " "\n"
-                  '';
-                };
-                "update-env" = {
-                  exec = ''
-                    # .env.root 파일 처리
-                    ENV_FILE=".env.root"
-                    NEW_PROJECT_NAME=$1
 
-                    if [ -f $ENV_FILE ]; then
-                      # PROJECT_NAME이 있는지 확인
-                      if awk -F= '/^PROJECT_NAME=/ {found=1; exit} END{exit !found}' $ENV_FILE; then
-                        # PROJECT_NAME이 있으면 교체
-                        awk -i inplace '/^PROJECT_NAME=/{print "PROJECT_NAME='$NEW_PROJECT_NAME'";next}{print}' .env.root
-                        echo "Updated PROJECT_NAME in $ENV_FILE"
-                      else
-                        # PROJECT_NAME이 없으면 추가
-                        echo "PROJECT_NAME=NEW_PROJECT_NAME" >> $ENV_FILE
-                        echo "Added PROJECT_NAME to $ENV_FILE"
-                      fi
-                    else
-                      echo "PROJECT_NAME=$NEW_PROJECT_NAME" > $ENV_FILE
-                      echo "Created .env.root with PROJECT_NAME"
-                    fi
-                  '';
-                };
-                # mix archive.install hex phx_new
-                "app-init" = {
-                  exec = ''
-                    PROJECT_NAME=$1
-                    APP_NAME=$2
-
-                    if [ -z "$PROJECT_NAME" ] && [ -z "$APP_NAME" ]; then
-                        echo "Error: ProjectName and AppName is required"
-                        exit 1
-                    fi
-
-                    update-env $PROJECT_NAME
-                    mix phx.new --umbrella --database=postgres --app=$APP_NAME $PROJECT_NAME
-
-                  '';
-                };
               };
-
-              enterShell = ''
-                echo hello
-              '';
-
+              settings.processes.pgweb =
+                let
+                  pgcfg = config.services.postgres.pg;
+                in
+                {
+                  command = pkgs.pgweb;
+                  depends_on."pg".condition = "process_healthy";
+                  environment.PGWEB_DATABASE_URL = pgcfg.connectionURI {
+                    dbName = DB_NAME;
+                  };
+                };
             };
+
+          devShells.default = pkgs.mkShell {
+            packages = [ ] ++ commonPackages;
+            inputsFrom = [
+              config.process-compose."app-services".services.outputs.devShell
+            ];
+          };
+
         };
     };
 }
