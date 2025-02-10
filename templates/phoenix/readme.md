@@ -1,11 +1,19 @@
-my phoenix app
+# my phoenix template
 
-### 사전 필요
+### Required
 - [nix](https://determinate.systems/posts/determinate-nix-installer/)
 - [direnv](https://direnv.net/docs/installation.html)
 - [mise](https://mise.jdx.dev/getting-started.html)
 
 
+### Use template
 ```sh
-nix flake new --template github:rjcnd105/hj-dotfiles#phoenix ./my-backend
+nix flake new --template github:rjcnd105/hj-dotfiles#phoenix ./my-app
+cd my-app
+direnv allow .
+mise install
 ```
+
+### Commands
+
+@see https://github.com/rjcnd105/hj-dotfiles/blob/main/justfile

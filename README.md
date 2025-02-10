@@ -67,12 +67,5 @@ https://github.com/rjcnd105/hj-dotfiles/blob/main/homes/workspace/default.nix
 devenv base.
 
 ### phoenix
-```sh
-nix flake new --template github:rjcnd105/hj-dotfiles#phoenix ./my-backend
-cd my-backend
-direnv allow .
 
-mise-init
-app-init myProj myApp
-env-info
-```
+[https://github.com/rjcnd105/hj-dotfiles/tree/main/templates/phoenix](https://github.com/rjcnd105/hj-dotfiles/tree/main/templates/phoenix)
