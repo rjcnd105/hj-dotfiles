@@ -25,6 +25,15 @@ in
       pkgs.devenv
     ];
 
+    homebrew = {
+      enable = true;
+      onActivation = {
+        autoUpdate = true;
+        cleanup = "uninstall";
+        upgrade = true;
+      };
+    };
+
     # 여기에 추가해야지만 기본 쉘 설정 가능
     # ex) chsh -s /nix/var/nix/profiles/default/bin/zsh
     # ex) chsh -s $(which fish)

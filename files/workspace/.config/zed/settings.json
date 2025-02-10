@@ -99,7 +99,8 @@
     },
     "elixir-ls": {
       "settings": {
-        "dialyzerEnabled": false
+        "dialyzerEnabled": true,
+        "incrementalDialyzer": true
       }
     },
     "tailwindcss-language-server": {

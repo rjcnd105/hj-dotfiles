@@ -153,8 +153,8 @@ keybinds clear-defaults=true {
         bind "Alt [" { PreviousSwapLayout; }
         bind "Alt ]" { NextSwapLayout; }
 
-        bind "Alt Tab" { BreakPaneRight; SwitchToMode "Normal"; }
-        bind "Alt Shift Tab" { BreakPaneLeft; SwitchToMode "Normal"; }
+        bind "Ctrl Tab" { BreakPaneRight; SwitchToMode "Normal"; }
+        bind "Ctrl Shift Tab" { BreakPaneLeft; SwitchToMode "Normal"; }
 
         bind "Alt 1" { GoToTab 1; SwitchToMode "Normal"; }
         bind "Alt 2" { GoToTab 2; SwitchToMode "Normal"; }

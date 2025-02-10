@@ -14,11 +14,10 @@
         set -gx SHELL ${pkgs.fish}/bin/fish
 
         # echo $PATH | tr ' ' '\n' | grep -v mise
-
-        source $HOME/.config/fish/user-functions.fish
       '';
 
       interactiveShellInit = ''
+        source $HOME/.config/fish/user-functions.fish
         fish_add_path -maP /usr/bin /usr/sbin /bin /sbin
 
       '';
