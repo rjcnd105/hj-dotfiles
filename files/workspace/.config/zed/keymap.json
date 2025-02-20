@@ -23,9 +23,18 @@
       // "shift shift": "file_finder::Toggle"
       //
 
-      "cmd-r": ["task::Spawn", { "task_name": "run file" }],
+      "cmd-r": ["task::Spawn", { "task_name": "run_file" }],
       "cmd-0": "project_panel::ToggleFocus",
       "cmd-1": ["workspace::ActivatePane", 0]
+    }
+  },
+  {
+    "context": "Editor && showing_completions",
+    "use_key_equivalents": true,
+    "bindings": {
+      // "enter": "editor::Newline"
+
+      "escape": "editor::Cancel"
     }
   },
   {
@@ -43,10 +52,10 @@
       "alt-shift-k": "pane::SplitDown",
       "alt-shift-j": "pane::SplitUp",
 
-      "alt-h": ["workspace::ActivatePaneInDirection", "Left"],
-      "alt-l": ["workspace::ActivatePaneInDirection", "Right"],
-      "alt-k": ["workspace::ActivatePaneInDirection", "Up"],
-      "alt-j": ["workspace::ActivatePaneInDirection", "Down"],
+      "alt-h": "workspace::ActivatePaneLeft",
+      "alt-l": "workspace::ActivatePaneRight",
+      "alt-k": "workspace::ActivatePaneUp",
+      "alt-j": "workspace::ActivatePaneDown",
 
       "ctrl-q": "editor::Hover",
 

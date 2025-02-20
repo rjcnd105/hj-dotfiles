@@ -17,9 +17,9 @@
     catppuccin.url = "github:catppuccin/nix";
 
     mise = {
-      url = "github:jdx/mise/v2025.2.1";
+      url = "github:jdx/mise/v2025.2.7";
       inputs.nixpkgs.follows = "nixpkgs";
-    }; 
+    };
 
   };
 
@@ -30,7 +30,7 @@
       nixpkgs,
       home-manager,
       darwin,
-      mise
+      mise,
     }:
     let
       # 형태는 ${host}_${username}
@@ -84,10 +84,10 @@
 
           nixpkgsConfig = system: {
             inherit system;
-              overlays = [
+            overlays = [
               (final: prev: {
                 mise = prev.callPackage (mise + "/default.nix") { };
-              })  
+              })
             ];
 
             config = {
@@ -97,7 +97,7 @@
                   "vault"
                 ];
             };
-          }; 
+          };
         in
         darwin.lib.darwinSystem {
           system = config.system;

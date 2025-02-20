@@ -9,13 +9,13 @@
 {
   "assistant": {
     "default_model": {
-      "provider": "ollama",
-      "model": "deepseek-r1:7b"
+      "provider": "google",
+      "model": "gemini-2.0-flash"
     },
     "version": "2"
   },
   "ui_font_size": 12,
-  "buffer_font_size": 12,
+  "buffer_font_size": 13.0,
   "tab_size": 2,
   "show_completions_on_input": true,
   "remove_trailing_whitespace_on_save": true,
@@ -35,7 +35,7 @@
   },
 
   "features": {
-    "inline_completion_provider": "supermaven"
+    "edit_prediction_provider": "zed"
   },
   // korean support
   "ui_font_fallbacks": ["D2CodingLigature Nerd Font"],
@@ -70,8 +70,7 @@
     "git-firefly": true,
     "xml": true,
     "make": true,
-    "Luau": true,
-    "tailwind-syntax": true
+    "Luau": true
   },
   "language_models": {
     "ollama": {
@@ -106,15 +105,20 @@
     "nixd": {
       "settings": {}
     },
+
     "elixir-ls": {
       "settings": {
         "dialyzerEnabled": true,
-        "incrementalDialyzer": true
+        "incrementalDialyzer": true,
+        "suggestSpecs": true,
+        "signatureAfterComplete": true
       }
     },
     "tailwindcss-language-server": {
       "settings": {
+        "emmetCompletions": true,
         "includeLanguages": {
+          "plaintext": "html",
           "heex": "html",
           "Elixir": "html"
         }
@@ -140,7 +144,7 @@
       }
     },
     "Elixir": {
-      "show_inline_completions": false,
+      "show_edit_predictions": false,
       "show_whitespaces": "selection",
       "language_servers": ["elixir-ls", "tailwindcss-language-server"],
       "format_on_save": {
@@ -151,7 +155,7 @@
       }
     },
     "HEEX": {
-      "show_inline_completions": true,
+      "show_edit_predictions": true,
       "show_whitespaces": "selection",
       "format_on_save": {
         "external": {

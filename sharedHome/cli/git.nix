@@ -19,6 +19,9 @@
         autoSetupRemote = true;
       };
     };
+    signing = {
+      format = "openpgp";
+    };
 
     ignores = [
       ".DS_Store"

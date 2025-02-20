@@ -18,7 +18,7 @@ nix_instll:
 build_hj-workspace:
     set -euo pipefail
     source {{root_dir}}/createEnv.sh
-    nix build .#darwinConfigurations.workspace_hj.system --show-trace --impure --fallback
+    nix build .#darwinConfigurations.workspace_hj.system --show-trace --impure --fallback --experimental-features "nix-command flakes"
 
 darwin-switch:
     set -euo pipefail
