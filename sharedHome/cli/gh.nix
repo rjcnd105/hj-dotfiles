@@ -13,6 +13,7 @@
     settings = {
       prompt = "enabled";
     };
+
   };
 
   home.shellAliases = {

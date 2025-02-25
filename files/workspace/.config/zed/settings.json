@@ -10,7 +10,7 @@
   "assistant": {
     "default_model": {
       "provider": "google",
-      "model": "gemini-2.0-flash"
+      "model": "gemini-2.0-flash-thinking-exp"
     },
     "version": "2"
   },
@@ -166,7 +166,8 @@
       "language_servers": [
         "elixir-ls",
         "tailwindcss-language-server",
-        "emmet-language-server"
+        "emmet-language-server",
+        "emmet-lsp"
       ]
     },
     "Nix": {
