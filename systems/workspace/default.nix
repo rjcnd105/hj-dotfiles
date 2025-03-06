@@ -26,12 +26,12 @@ in
     ];
 
     homebrew = {
-      enable = true;
-      onActivation = {
-        autoUpdate = true;
-        cleanup = "uninstall";
-        upgrade = true;
-      };
+      enable = false;
+      # onActivation = {
+      #   autoUpdate = true;
+      #   cleanup = "uninstall";
+      #   upgrade = true;
+      # };
     };
 
     # 여기에 추가해야지만 기본 쉘 설정 가능
@@ -44,7 +44,7 @@ in
 
     environment.variables = variables;
 
-    security.pam.enableSudoTouchIdAuth = true;
+    security.pam.services.sudo_local.touchIdAuth = true;
 
     users.groups = {
       while = {

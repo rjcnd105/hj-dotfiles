@@ -9,8 +9,8 @@
 {
   "assistant": {
     "default_model": {
-      "provider": "google",
-      "model": "gemini-2.0-flash-thinking-exp"
+      "provider": "zed.dev",
+      "model": "claude-3-7-sonnet-latest"
     },
     "version": "2"
   },
@@ -42,7 +42,16 @@
 
   "file_types": {
     "Dockerfile": ["Dockerfile", "Dockerfile.*"],
-    "JSON": ["json", "jsonc", "*.code-snippets"]
+    "JSON": ["json", "jsonc", "*.code-snippets"],
+    "HEEX": ["heex"],
+    "Elixir": ["ex", "exs"]
+  },
+  // 이 설정은 파일 확장자와 언어 모드를 연결합니다
+  "associations": {
+    "*.ex": "elixir",
+    "*.exs": "elixir",
+    "*.heex": "heex",
+    "*.eex": "html"
   },
 
   "theme": {
@@ -111,7 +120,38 @@
         "dialyzerEnabled": true,
         "incrementalDialyzer": true,
         "suggestSpecs": true,
-        "signatureAfterComplete": true
+        "signatureHelp": true,
+        "fetchDeps": true,
+        "signatureAfterComplete": true,
+        "enableHEExFormatter": true
+      }
+    },
+    "emmet-language-server": {
+      "settings": {
+        "emmet": {
+          "includeLanguages": {
+            "elixir": "html",
+            "heex": "html",
+            "phoenix-heex": "html"
+          },
+          "showExpandedAbbreviation": "always",
+          "showSuggestionsAsSnippets": true
+        }
+      }
+    },
+    "html-language-server": {
+      "settings": {
+        "html": {
+          "includeLanguages": {
+            "heex": "html",
+            "elixir": "html"
+          },
+          "autoClosingTags": true,
+          "autoCreateQuotes": true,
+          "completion": {
+            "attributeDefaultValue": "doublequotes"
+          }
+        }
       }
     },
     "tailwindcss-language-server": {
@@ -120,7 +160,17 @@
         "includeLanguages": {
           "plaintext": "html",
           "heex": "html",
-          "Elixir": "html"
+          "Elixir": "html",
+          "phoenix-heex": "html"
+        }
+      },
+      "tailwindCSS": {
+        "experimental": {
+          "classRegex": [
+            ["class[:=]\\s*\"([^\"]*)\"", "[\"']([^\"']*)[\"']"],
+            ["class[:=]\\s*'([^']*)'", "[\"']([^\"']*)[\"']"],
+            ["class[:=]\\s*{([^}]*)}", "[\"']([^\"']*)[\"']"]
+          ]
         }
       }
     },
@@ -144,14 +194,24 @@
       }
     },
     "Elixir": {
-      "show_edit_predictions": false,
+      "show_edit_predictions": true,
       "show_whitespaces": "selection",
-      "language_servers": ["elixir-ls", "tailwindcss-language-server"],
+      "language_servers": [
+        "elixir-ls",
+        "html-language-server",
+        "tailwindcss-language-server",
+        "emmet-language-server"
+      ],
       "format_on_save": {
         "external": {
           "command": "mix",
           "arguments": ["format", "--stdin-filename", "{buffer_path}", "-"]
         }
+      },
+      // ~H sigil 내의 HTML 인식을 위한 설정
+      "embedded_languages": {
+        "~H": "html",
+        "heex": "html"
       }
     },
     "HEEX": {
@@ -164,10 +224,10 @@
         }
       },
       "language_servers": [
+        "html-language-server",
         "elixir-ls",
         "tailwindcss-language-server",
-        "emmet-language-server",
-        "emmet-lsp"
+        "emmet-language-server"
       ]
     },
     "Nix": {
@@ -177,6 +237,15 @@
           "command": "nixfmt",
           "arguments": []
         }
+      }
+    }
+  },
+  // 이 설정은 Elixir 파일 내 ~H sigil을 HTML로 인식하게 합니다
+  "grammar": {
+    "embedded": {
+      "heex": {
+        "pattern": "~H\"\"\"(?s)(.*?)\"\"\"|~H\"(?s)(.*?)\"|~H'(?s)(.*?)'|~[hH]\\((?s)(.*?)\\)",
+        "language": "html"
       }
     }
   }

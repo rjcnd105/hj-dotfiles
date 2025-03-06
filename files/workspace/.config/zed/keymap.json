@@ -29,12 +29,18 @@
     }
   },
   {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-shift-tab": "pane::ActivatePrevItem",
+      "ctrl-tab": "pane::ActivateNextItem"
+    }
+  },
+  {
     "context": "Editor && showing_completions",
     "use_key_equivalents": true,
     "bindings": {
       // "enter": "editor::Newline"
-
-      "escape": "editor::Cancel"
+      // "escape": "editor::Cancel"
     }
   },
   {
