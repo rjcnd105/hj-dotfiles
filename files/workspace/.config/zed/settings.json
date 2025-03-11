@@ -23,7 +23,7 @@
   "base_keymap": "JetBrains",
   "restore_on_startup": "last_session",
   "buffer_font_fallbacks": ["D2CodingLigature Nerd Font"],
-  "vim_mode": true,
+  "vim_mode": false,
   "load_direnv": "shell_hook",
 
   "git": {
@@ -147,10 +147,7 @@
             "elixir": "html"
           },
           "autoClosingTags": true,
-          "autoCreateQuotes": true,
-          "completion": {
-            "attributeDefaultValue": "doublequotes"
-          }
+          "autoCreateQuotes": true
         }
       }
     },
@@ -237,15 +234,6 @@
           "command": "nixfmt",
           "arguments": []
         }
-      }
-    }
-  },
-  // 이 설정은 Elixir 파일 내 ~H sigil을 HTML로 인식하게 합니다
-  "grammar": {
-    "embedded": {
-      "heex": {
-        "pattern": "~H\"\"\"(?s)(.*?)\"\"\"|~H\"(?s)(.*?)\"|~H'(?s)(.*?)'|~[hH]\\((?s)(.*?)\\)",
-        "language": "html"
       }
     }
   }

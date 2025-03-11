@@ -1,12 +1,12 @@
 [tools]
-
-
 "aqua:hashicorp/vault" = "latest"
 "aqua:docker/compose" = "latest"
 "aqua:jesseduffield/lazydocker" = "latest"
 "aqua:ollama/ollama" = "latest"
 "ubi:slimtoolkit/slim" = "latest"
 
+[tools.lazyjournal]
+version = "latest"
 
 [settings]
 experimental = true
