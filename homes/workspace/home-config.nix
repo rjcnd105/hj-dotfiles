@@ -14,13 +14,13 @@ in
 {
   home.username = myOptions.userName;
 
-  services = {
-    gpg-agent = {
-      enable = true;
-      defaultCacheTtl = 1800;
-      enableSshSupport = true;
-    };
-  };
+  # services = {
+  #   gpg-agent = {
+  #     enable = true;
+  #     defaultCacheTtl = 1800;
+  #     enableSshSupport = true;
+  #   };
+  # };
 
   home.shellAliases = {
     grep = "rg";

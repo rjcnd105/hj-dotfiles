@@ -20,7 +20,7 @@
   {
     "context": "Workspace",
     "bindings": {
-      // "shift shift": "file_finder::Toggle"
+      "shift shift": null,
       //
 
       "cmd-r": ["task::Spawn", { "task_name": "run_file" }],
@@ -31,7 +31,7 @@
   {
     "context": "Editor",
     "bindings": {
-      "ctrl-shift-tab": "pane::ActivatePrevItem",
+      "ctrl-shift-tab": "pane::ActivatePreviousItem",
       "ctrl-tab": "pane::ActivateNextItem"
     }
   },
