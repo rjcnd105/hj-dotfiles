@@ -14,6 +14,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    mac-app-util.url = "github:hraban/mac-app-util";
     catppuccin.url = "github:catppuccin/nix";
 
     # mise = {
@@ -30,7 +31,8 @@
       nixpkgs,
       home-manager,
       darwin,
-      # mise,
+      mac-app-util,
+    # mise,
     }:
     let
       # 형태는 ${host}_${username}
