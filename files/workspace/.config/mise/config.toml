@@ -1,3 +1,7 @@
+[settings]
+experimental = true
+python.uv_venv_auto = true
+
 [tools]
 "aqua:hashicorp/vault" = "latest"
 "aqua:docker/compose" = "latest"
@@ -5,11 +9,11 @@
 "aqua:ollama/ollama" = "latest"
 "ubi:slimtoolkit/slim" = "latest"
 
-[tools.lazyjournal]
+[tools.uv]
 version = "latest"
 
-[settings]
-experimental = true
+[tools.lazyjournal]
+version = "latest"
 
 [tools.flyctl]
 version = "latest"

@@ -9,8 +9,8 @@
 {
   "assistant": {
     "default_model": {
-      "provider": "anthropic",
-      "model": "claude-3-7-sonnet-latest"
+      "provider": "google",
+      "model": "gemini-2.5-pro-exp-03-25"
     },
     "version": "2"
   },
@@ -236,5 +236,6 @@
         }
       }
     }
-  }
+  },
+  "context_servers": {}
 }

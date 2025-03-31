@@ -470,3 +470,6 @@ copy_on_select true
 env {
   TERM "xterm-256color"
 }
+
+
+show_startup_tips false
