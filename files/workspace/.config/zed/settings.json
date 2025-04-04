@@ -15,7 +15,7 @@
     "version": "2"
   },
   "ui_font_size": 12,
-  "buffer_font_size": 13.0,
+  "buffer_font_size": 12.5,
   "tab_size": 2,
   "show_completions_on_input": true,
   "remove_trailing_whitespace_on_save": true,

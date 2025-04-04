@@ -6,5 +6,10 @@
   "heex if": {
     "prefix": "h_if",
     "body": [" <%= if $1 do %>", "   $2", "<% end %>"]
+  },
+
+  "heex for": {
+    "prefix": "h_if",
+    "body": [" <%= for item <- items do %>", "   $2", "<% end %>"]
   }
 }

@@ -9,6 +9,15 @@ python.uv_venv_auto = true
 "aqua:ollama/ollama" = "latest"
 "ubi:slimtoolkit/slim" = "latest"
 
+[tools.jj]
+version = "latest"
+postinstall = """
+  jj util completion fish
+  jj util completion zsh
+  jj config set --user user.name "hj"
+  jj config set --user user.email "rjcnd123@gmail.com"
+"""
+
 [tools.uv]
 version = "latest"
 
