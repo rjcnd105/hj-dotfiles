@@ -32,7 +32,8 @@
     "context": "Editor",
     "bindings": {
       "ctrl-shift-tab": "pane::ActivatePreviousItem",
-      "ctrl-tab": "pane::ActivateNextItem"
+      "ctrl-tab": "pane::ActivateNextItem",
+      "ctrl-r": ["task::Spawn", { "task_name": "run file" }]
     }
   },
   {

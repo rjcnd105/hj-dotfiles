@@ -1,0 +1,22 @@
+{
+  "typescript": {
+    "jsdoc": {
+      "prefix": "jsdoc",
+      "body": ["/**", " * $1", " */"]
+    },
+    "clog": {
+      "prefix": "clog",
+      "body": ["console.log($1)"]
+    }
+  },
+  "elixir": {
+    "heex if else": {
+      "prefix": "h_ifelse",
+      "body": ["<%= if $1 do %>", "  $2", "<% else %>", "  $3", "<% end %>"]
+    },
+    "heex if": {
+      "prefix": "h_if",
+      "body": [" <%= if $1 do %>", "   $2", "<% end %>"]
+    }
+  }
+}
