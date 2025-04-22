@@ -19,5 +19,5 @@ elif [ "$extension" == "py" ]; then
 elif [ "$extension" == "ts" ]; then
     bunx tsx "$full_path";
 else
-    echo "run file: Not defined."
+    echo "run file: Not defined.."
 fi
