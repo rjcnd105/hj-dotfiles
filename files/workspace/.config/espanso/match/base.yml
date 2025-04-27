@@ -1,0 +1,20 @@
+global_vars:
+  - name: currentdate
+    type: date
+    params:
+      format: "%Y.%m.%d"
+
+  - name: monthday
+    type: date
+    params:
+      format: "%m.%d"
+
+  - name: currenttime
+    type: date
+    params:
+      format: "%H:%M:%S"
+
+
+matches:
+  - trigger: :date
+    replace: "{{currentdate}} {{currenttime}}"

@@ -52,7 +52,9 @@ in
         # 이것과는 별개로 dseditgroup를 사용해서 수동으로 그룹으로 추가해줘야함.
         members = [ "hj" ];
       };
+
     };
+
     nix.enable = false;
     # nix.package = pkgs.nix;
     # nix.nixPath = [ "nixpkgs=flake:nixpkgs" ];

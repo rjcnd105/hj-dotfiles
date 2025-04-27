@@ -64,6 +64,7 @@ in
       userPath = config.home.homeDirectory + "/.config";
     }
   );
+
   home.file = (mkAddFileAttrIfExists ".editorconfig");
 
 }

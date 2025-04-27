@@ -1,0 +1,10 @@
+{
+  "heex if else": {
+    "prefix": "h_ifelse",
+    "body": ["<%= if $1 do %>", "  $2", "<% else %>", "  $3", "<% end %>"]
+  },
+  "heex if": {
+    "prefix": "h_if",
+    "body": [" <%= if $1 do %>", "   $2", "<% end %>"]
+  }
+}

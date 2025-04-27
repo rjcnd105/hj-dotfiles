@@ -1,0 +1,6 @@
+filter_exec: Zed|Cursor|Webstorm
+enable: true
+
+extra_includes:
+  - "../match/_typescript.yml"
+  - "../match/_html_css.yml"

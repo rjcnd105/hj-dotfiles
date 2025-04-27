@@ -5,6 +5,7 @@
     ./ssh-config.nix
     ../../sharedHome/cli
     ../../sharedHome/development
+    # ../../sharedHome/app
   ];
 
 }

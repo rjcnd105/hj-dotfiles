@@ -1,0 +1,10 @@
+{
+  "jsdoc": {
+    "prefix": "jsdoc",
+    "body": ["/**", " * $1", " */"]
+  },
+  "clog": {
+    "prefix": "clog",
+    "body": ["console.log($1)"]
+  }
+}

@@ -1,0 +1,9 @@
+matches:
+  - trigger: :clog
+    replace: console.log($|$);
+
+  - trigger: :tlog
+    replace: console.log($|$ ,"{{monthday}} {{currenttime}}");
+
+  - trigger: :doc
+    replace: "/**\n* \n* @example \n* \n*/\n"
