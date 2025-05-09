@@ -1,8 +1,13 @@
 global_vars:
-  - name: currentdate
+  - name: currentday
     type: date
     params:
       format: "%Y.%m.%d"
+
+  - name: current_short_day
+    type: date
+    params:
+      format: "%y.%m.%d"
 
   - name: monthday
     type: date
@@ -17,4 +22,10 @@ global_vars:
 
 matches:
   - trigger: :date
-    replace: "{{currentdate}} {{currenttime}}"
+    replace: "{{currentday}} {{currenttime}}"
+
+  - trigger: :currday
+    replace: "{{currentday}}"
+
+  - trigger: :currsday
+    replace: "{{current_short_day}}"

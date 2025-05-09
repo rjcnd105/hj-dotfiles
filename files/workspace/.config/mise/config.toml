@@ -9,6 +9,12 @@ python.uv_venv_auto = true
 "aqua:ollama/ollama" = "latest"
 "ubi:slimtoolkit/slim" = "latest"
 
+[tools.docker-compose]
+version = "latest"
+
+[tools.mkcert]
+version = "latest"
+
 [tools.jj]
 version = "latest"
 postinstall = """

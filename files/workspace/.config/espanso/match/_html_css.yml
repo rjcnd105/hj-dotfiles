@@ -1,0 +1,3 @@
+matches:
+  - trigger: :tw_fc
+    replace: flex justify-content items-center
