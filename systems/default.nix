@@ -39,7 +39,7 @@
       pkgs.nerd-fonts.jetbrains-mono
       # 필요한 다른 폰트들...
     ];
-
+    system.primaryUser = myOptions.userName;
     system.defaults.NSGlobalDomain.AppleFontSmoothing = 2;
   };
 }

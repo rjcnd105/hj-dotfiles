@@ -78,7 +78,7 @@ in
 
     home-manager = {
       sharedModules = [
-        inputs.catppuccin.homeManagerModules.catppuccin
+        inputs.catppuccin.homeModules.catppuccin
         inputs.mac-app-util.homeManagerModules.default
         {
           catppuccin = {
