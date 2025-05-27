@@ -22,7 +22,10 @@ in
     environment.systemPackages = [
       # pkgs.nix
       # pkgs.nix-search-cli
+      pkgs.podman-compose
       pkgs.devenv
+      pkgs.podman
+      pkgs.crun
     ];
 
     homebrew = {
@@ -43,6 +46,14 @@ in
     ];
 
     environment.variables = variables;
+
+    virtualisation.podman = {
+      enable = true;
+      dockerCompat = true; # Enables /var/run/docker.sock proxy to Podman
+      defaultNetwork.settings.dns_enabled = true; # Enable DNS for default CNI network
+    };
+    # Use crun as the default OCI runtime for better performance and features
+    virtualisation.oci-containers.runtime = "${pkgs.crun}/bin/crun";
 
     security.pam.services.sudo_local.touchIdAuth = true;
 

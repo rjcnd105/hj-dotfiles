@@ -80,3 +80,6 @@ version = "latest"
 
 [tools.lima]
 version = "latest"
+
+[tools.dive]
+version = "latest"
