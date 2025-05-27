@@ -8,6 +8,8 @@ python.uv_venv_auto = true
 "aqua:jesseduffield/lazydocker" = "latest"
 "aqua:ollama/ollama" = "latest"
 "ubi:slimtoolkit/slim" = "latest"
+erlang= "latest"
+elixir= "latest"
 
 [tools.docker-compose]
 version = "latest"
@@ -53,12 +55,6 @@ postinstall = """
   chmod +x ~/.config/fish/completions/mise.fish
 """
 
-[tools.erlang]
-version = "latest"
-
-[tools.elixir]
-version = "latest"
-
 [tools.elixir-ls]
 version = "latest"
 
@@ -80,3 +76,7 @@ version = "latest"
 
 # [tools.redis]
 # version = "latest"
+
+
+[tools.lima]
+version = "latest"

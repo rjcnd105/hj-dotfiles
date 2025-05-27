@@ -37,21 +37,6 @@
     }
   },
   {
-    "context": "Editor && showing_completions",
-    "use_key_equivalents": true,
-    "bindings": {
-      // "enter": "editor::Newline"
-      // "escape": "editor::Cancel"
-    }
-  },
-  {
-    "context": "Editor || BufferSearchBar || ProjectSearchBar",
-    "bindings": {
-      "cmd-g": "vim::SelectNext",
-      "cmd-shift-g": "vim::SelectNext"
-    }
-  },
-  {
     "context": "Editor && vim_mode != insert",
     "bindings": {
       "alt-shift-h": "pane::SplitLeft",
@@ -74,6 +59,13 @@
       "alt-6": ["pane::ActivateItem", 5],
       "alt-7": ["pane::ActivateItem", 6],
       "alt-8": ["pane::ActivateItem", 7]
+    }
+  },
+  {
+    "context": "Editor || BufferSearchBar || ProjectSearchBar",
+    "bindings": {
+      "cmd-g": "vim::SelectNext",
+      "cmd-shift-g": "vim::SelectNext"
     }
   }
 
