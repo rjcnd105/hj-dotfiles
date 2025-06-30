@@ -18,14 +18,14 @@ in
     # ../../shared/development/devops/postgresql.nix
   ];
 
+
   config = {
     environment.systemPackages = [
       # pkgs.nix
       # pkgs.nix-search-cli
-      pkgs.podman-compose
       pkgs.devenv
       pkgs.podman
-      pkgs.crun
+      pkgs.podman-compose
     ];
 
     homebrew = {
@@ -45,15 +45,9 @@ in
       pkgs.fish
     ];
 
-    environment.variables = variables;
-
-    virtualisation.podman = {
-      enable = true;
-      dockerCompat = true; # Enables /var/run/docker.sock proxy to Podman
-      defaultNetwork.settings.dns_enabled = true; # Enable DNS for default CNI network
+    environment.variables = variables // {
+      DOCKER_HOST = "unix://${config.users.users.${myOptions.userName}.home}/.local/share/containers/podman/machine/podman.sock";
     };
-    # Use crun as the default OCI runtime for better performance and features
-    virtualisation.oci-containers.runtime = "${pkgs.crun}/bin/crun";
 
     security.pam.services.sudo_local.touchIdAuth = true;
 
@@ -102,6 +96,15 @@ in
       extraSpecialArgs = {
         inherit inputs myOptions;
       };
+    };
+
+    # Podman 설정
+    virtualisation.podman = {
+      enable = true;
+      # Docker 호환성을 위한 설정
+      dockerCompat = true;
+      # 자동 시작 설정
+      autoPrune.enable = true;
     };
 
   };

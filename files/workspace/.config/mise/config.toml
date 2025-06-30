@@ -83,3 +83,6 @@ version = "latest"
 
 [tools.dive]
 version = "latest"
+
+[tools.ffmpeg]
+version = "latest"

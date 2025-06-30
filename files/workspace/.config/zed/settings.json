@@ -53,11 +53,11 @@
         "context_servers": {}
       }
     },
-    "default_profile": "ask",
-    "always_allow_tool_actions": false,
+    "default_profile": "write",
+    "always_allow_tool_actions": true,
     "default_model": {
-      "provider": "google",
-      "model": "gemini-2.5-pro-preview-03-25"
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-thinking-latest"
     },
     "version": "2"
   },
@@ -158,6 +158,11 @@
     "git_status": true
   },
   "lsp": {
+    "biome": {
+      "settings": {
+        "require_config_file": true
+      }
+    },
     "nixd": {
       "settings": {}
     },
@@ -238,20 +243,33 @@
   },
   "languages": {
     "JavaScript": {
+      "formatter": { "language_server": { "name": "biome" } },
       "code_actions_on_format": {
-        "source.fixAll.eslint": true
+        "source.fixAll.eslint": true,
+        "source.action.useSortedKeys.biome": true,
+        "source.fixAll.biome": true
       }
     },
     "TypeScript": {
+      "formatter": { "language_server": { "name": "biome" } },
       "code_actions_on_format": {
-        "source.fixAll.eslint": true
+        "source.fixAll.eslint": true,
+        "source.action.useSortedKeys.biome": true,
+        "source.fixAll.biome": true
       }
     },
     "TSX": {
+      "formatter": { "language_server": { "name": "biome" } },
       "code_actions_on_format": {
-        "source.fixAll.eslint": true
+        "source.fixAll.eslint": true,
+        "source.action.useSortedKeys.biome": true,
+        "source.fixAll.biome": true
       }
     },
+
+    "JSON": { "formatter": { "language_server": { "name": "biome" } } },
+    "JSONC": { "formatter": { "language_server": { "name": "biome" } } },
+    "CSS": { "formatter": { "language_server": { "name": "biome" } } },
     "Luau": {
       "formatter": {
         "external": {
