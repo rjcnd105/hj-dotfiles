@@ -18,14 +18,16 @@ in
     # ../../shared/development/devops/postgresql.nix
   ];
 
-
   config = {
     environment.systemPackages = [
       # pkgs.nix
       # pkgs.nix-search-cli
       pkgs.devenv
+      pkgs.dive
       pkgs.podman
       pkgs.podman-compose
+      pkgs.podman-desktop
+      pkgs.podman-tui
     ];
 
     homebrew = {
@@ -46,7 +48,9 @@ in
     ];
 
     environment.variables = variables // {
-      DOCKER_HOST = "unix://${config.users.users.${myOptions.userName}.home}/.local/share/containers/podman/machine/podman.sock";
+      DOCKER_HOST = "unix://${
+        config.users.users.${myOptions.userName}.home
+      }/.local/share/containers/podman/machine/podman.sock";
     };
 
     security.pam.services.sudo_local.touchIdAuth = true;
@@ -99,13 +103,18 @@ in
     };
 
     # Podman 설정
-    virtualisation.podman = {
-      enable = true;
-      # Docker 호환성을 위한 설정
-      dockerCompat = true;
-      # 자동 시작 설정
-      autoPrune.enable = true;
-    };
+    # virtualisation.containers.enable = true;
+    # virtualisation.podman = {
+    #   enable = true;
+    #   # Docker 호환성을 위한 설정
+    #   dockerCompat = true;
+
+    #   defaultNetwork.settings.dns_enabled = true;
+
+    #   # 자동 시작 설정
+    #   # autoPrune.enable = true;
+
+    # };
 
   };
 }
