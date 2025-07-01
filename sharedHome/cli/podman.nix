@@ -9,10 +9,10 @@
   # https://github.com/containers/podman
   home.packages = with pkgs; [
     dive
-    # podman
-    # podman-compose
-    # podman-desktop
-
+    podman
+    podman-tui
+    podman-compose
+    podman-desktop
   ];
 
   # Docker 호환성을 위한 설정
