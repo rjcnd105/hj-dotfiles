@@ -23,11 +23,7 @@ in
       # pkgs.nix
       # pkgs.nix-search-cli
       pkgs.devenv
-      pkgs.dive
-      pkgs.podman
-      pkgs.podman-compose
-      pkgs.podman-desktop
-      pkgs.podman-tui
+      pkgs.libyaml
     ];
 
     homebrew = {

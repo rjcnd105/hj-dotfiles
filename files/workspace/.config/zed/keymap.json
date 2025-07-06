@@ -12,11 +12,16 @@
 
       "cmd-q": "workspace::CloseWindow",
       "cmd-shift-q": "zed::Quit",
-
-      "cmd-shift-w": ["pane::CloseInactiveItems", { "close_pinned": false }]
+      "cmd-shift-w": ["pane::CloseInactiveItems", { "close_pinned": false }],
     }
   },
+  {
 
+    "context": "AgentPanel",
+    "bindings": {
+      "cmd-?": "workspace::ToggleRightDock"
+    }
+  },
   {
     "context": "Workspace",
     "bindings": {
