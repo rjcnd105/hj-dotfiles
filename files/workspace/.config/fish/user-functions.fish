@@ -23,3 +23,4 @@ function kill_port
   end
   echo "Processes on port $port have been killed."
 end
+

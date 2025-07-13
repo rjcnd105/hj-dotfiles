@@ -43,6 +43,12 @@ in
       pkgs.fish
     ];
 
+    environment.etc."nix/conf.d/custom.conf".text = ''
+      !include ${config.users.users.${myOptions.userName}.home}/.config/nix/nix.custom.conf
+      extra-substituters = https://cache.nixos.org/ https://devenv.cachix.org https://jdx.cachix.org
+      extra-trusted-public-keys = devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw= jdx.cachix.org-1:3N2cKS7DOv4oDa53G8GfI72sD9aI2zspA6Sj08B2f3U=
+    '';
+
     environment.variables = variables // {
       DOCKER_HOST = "unix://${config.users.users.${myOptions.userName}.home}/.local/share/containers/podman/machine/podman.sock";
     };
