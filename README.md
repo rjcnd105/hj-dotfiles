@@ -6,6 +6,8 @@ My mac flake, template, dev configs
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 ```
+
+2. [mise](https://mise.jdx.dev/installing-mise.html) install
 2. build
 ```bash
 nix build github:rjcnd105/hj-dotfiles#darwinConfigurations.workspace_hj.system --impure --fallback
