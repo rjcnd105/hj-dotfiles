@@ -39,6 +39,7 @@ in
     EDITOR = pkgs.helix + "/bin/hx";
     USER_PROFILE = config.home.profileDirectory;
     HM_CURRENT = "/run/current-system/sw";
+    ZED_ALLOW_ROOT = "true";
   };
 
   home.stateVersion = inputs.nixpkgs.lib.trivial.release;

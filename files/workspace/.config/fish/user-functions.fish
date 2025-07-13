@@ -1,3 +1,8 @@
+if test -d /opt/homebrew/bin
+  # Apple Silicon (M1, M2, etc.)
+  eval (/opt/homebrew/bin/brew shellenv)
+end
+
 function kill_port
   if test (count $argv) -ne 1
     echo "Usage: kill_port <port>"

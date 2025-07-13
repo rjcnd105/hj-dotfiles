@@ -14,6 +14,7 @@ in
   environment.systemPackages = [
     pkgs.postgresql_17
     pkgs.usql
+    # pkgs.libyaml
   ];
 
   services.postgresql = {

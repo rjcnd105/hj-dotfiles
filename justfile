@@ -26,10 +26,10 @@ darwin-switch:
     ./result/sw/bin/darwin-rebuild switch --flake .#workspace_hj --show-trace --impure --fallback
 
 
-new-darwin-switch:
-    set -euo pipefail
-    source {{root_dir}}/createEnv.sh
-    sudo darwin-rebuild activate
+# new-darwin-switch:
+#     set -euo pipefail
+#     source {{root_dir}}/createEnv.sh
+#     ./result/sw/bin/darwin-rebuild activate
 
 
 switch-from-github:

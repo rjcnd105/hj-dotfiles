@@ -5,5 +5,6 @@
     package = pkgs.mise;
     enableFishIntegration = true;
     enableZshIntegration = true;
+    enableBashIntegration = true;
   };
 }
