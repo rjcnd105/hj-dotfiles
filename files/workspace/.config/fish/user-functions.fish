@@ -3,6 +3,15 @@ if test -d /opt/homebrew/bin
   eval (/opt/homebrew/bin/brew shellenv)
 end
 
+# set mise_exec "/Users/$USER/.local/bin/mise"
+# if test -f "$mise_exec"
+#   "$mise_exec" shellenv | source
+# end
+source $HOME/.config/fish/activate.fish
+source $HOME/.config/fish/completions/mise.fish
+
+
+
 function kill_port
   if test (count $argv) -ne 1
     echo "Usage: kill_port <port>"

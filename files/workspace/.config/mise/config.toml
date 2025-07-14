@@ -27,6 +27,10 @@ postinstall = """
   jj config set --user user.email "rjcnd123@gmail.com"
 """
 
+[tools.gemini-cli]
+version = "latest"
+
+
 [tools.uv]
 version = "latest"
 
@@ -51,10 +55,7 @@ version = "latest"
 
 [tools.usage]
 version = "latest"
-postinstall = """
-  mise completion fish > ~/.config/fish/completions/mise.fish \
-  chmod +x ~/.config/fish/completions/mise.fish
-"""
+
 
 [tools.elixir-ls]
 version = "latest"
@@ -87,3 +88,16 @@ version = "latest"
 
 [tools.ffmpeg]
 version = "latest"
+
+
+
+[tasks.mise-completion]
+run = """
+  mise completion fish > ~/.config/fish/completions/mise.fish
+  chmod +x ~/.config/fish/completions/mise.fish
+
+  jj util completion fish > ~/.config/fish/completions/jj.fish
+  jj config set --user user.name "hj"
+  jj config set --user user.email "rjcnd123@gmail.com"
+  jj config set --user user.editor "cursor"
+"""

@@ -38,9 +38,16 @@ in
     VISUAL = pkgs.zed + "/bin/zed";
     EDITOR = pkgs.helix + "/bin/hx";
     USER_PROFILE = config.home.profileDirectory;
+    XDG_BIN_HOME = "$HOME/.local/bin";
     HM_CURRENT = "/run/current-system/sw";
+
     ZED_ALLOW_ROOT = "true";
   };
+
+  home.sessionPath = [
+    "$XDG_BIN_HOME"
+    "$HOME/.local/share/mise/installs"
+  ];
 
   home.stateVersion = inputs.nixpkgs.lib.trivial.release;
 

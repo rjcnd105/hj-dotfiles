@@ -1,5 +1,9 @@
 {
     "debug.javascript.defaultRuntimeExecutable": {
         "pwa-node": "/Users/hj/.local/share/mise/shims/node"
-    }
+    },
+    "i18n-ally.localesPaths": [
+        "result/sw/share/locale",
+        "result/etc/profiles/per-user/hj/share/locale"
+    ]
 }
