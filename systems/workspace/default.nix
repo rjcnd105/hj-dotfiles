@@ -18,7 +18,6 @@ in
     # ../../shared/development/devops/postgresql.nix
   ];
 
-
   config = {
     environment.systemPackages = [
       # pkgs.nix
@@ -35,11 +34,11 @@ in
       # };
     };
 
-
     # 여기에 추가해야지만 기본 쉘 설정 가능
     # ex) chsh -s /nix/var/nix/profiles/default/bin/zsh
     # ex) chsh -s $(which fish)
     environment.shells = [
+      pkgs.bashInteractive
       pkgs.zsh
       pkgs.fish
     ];
@@ -51,9 +50,12 @@ in
     '';
 
     environment.variables = variables // {
-      DOCKER_HOST = "unix://${config.users.users.${myOptions.userName}.home}/.local/share/containers/podman/machine/podman.sock";
+      DOCKER_HOST = "unix://${
+        config.users.users.${myOptions.userName}.home
+      }/.local/share/containers/podman/machine/podman.sock";
     };
 
+    environment.localBinInPath = true;
     security.pam.services.sudo_local.touchIdAuth = true;
 
     users.groups = {
