@@ -27,6 +27,7 @@ in
 
     homebrew = {
       enable = true;
+
       # onActivation = {
       #   autoUpdate = true;
       #   cleanup = "uninstall";
@@ -55,7 +56,6 @@ in
       }/.local/share/containers/podman/machine/podman.sock";
     };
 
-    environment.localBinInPath = true;
     security.pam.services.sudo_local.touchIdAuth = true;
 
     users.groups = {

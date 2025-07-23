@@ -59,7 +59,6 @@
       "provider": "google",
       "model": "gemini-2.5-pro"
     },
-    "version": "2"
   },
   "ui_font_size": 12,
   "buffer_font_size": 12.5,
@@ -243,7 +242,10 @@
   },
   "languages": {
     "JavaScript": {
-      "formatter": { "language_server": { "name": "biome" } },
+      "formatter": ["prettier",{
+        "language_server":
+        { "name": "biome" }
+      }],
       "code_actions_on_format": {
         "source.fixAll.eslint": true,
         "source.action.useSortedKeys.biome": true,
@@ -251,7 +253,10 @@
       }
     },
     "TypeScript": {
-      "formatter": { "language_server": { "name": "biome" } },
+      "formatter": ["prettier",{
+        "language_server":
+        { "name": "biome" }
+      }],
       "code_actions_on_format": {
         "source.fixAll.eslint": true,
         "source.action.useSortedKeys.biome": true,
@@ -259,7 +264,10 @@
       }
     },
     "TSX": {
-      "formatter": { "language_server": { "name": "biome" } },
+      "formatter": ["prettier",{
+        "language_server":
+        { "name": "biome" }
+      }],
       "code_actions_on_format": {
         "source.fixAll.eslint": true,
         "source.action.useSortedKeys.biome": true,

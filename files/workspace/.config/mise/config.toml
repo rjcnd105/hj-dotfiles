@@ -65,6 +65,12 @@ version = "latest"
 [tools.gleam]
 version = "latest"
 
+[tools.sops]
+version = "latest"
+
+[tools.age]
+version = "latest"
+
 [tools.lazygit]
 version = "latest"
 
