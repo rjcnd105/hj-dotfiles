@@ -5,7 +5,7 @@
     ./bat.nix
     ./gh.nix
     ./git.nix
-    ./podman.nix
+    # ./podman.nix
     ./ssh.nix
     ./eza.nix
     ./zoxide.nix
