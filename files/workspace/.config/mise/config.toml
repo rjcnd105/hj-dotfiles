@@ -3,6 +3,9 @@ experimental = true
 python.uv_venv_auto = true
 idiomatic_version_file_enable_tools = ["ruby"]
 
+[plugins]
+# "mise-nix" = "https://github.com/jbadeau/mise-nix.git"
+
 [tools]
 "aqua:hashicorp/vault" = "latest"
 "aqua:jesseduffield/lazydocker" = "latest"
