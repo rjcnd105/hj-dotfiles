@@ -6,4 +6,9 @@ matches:
     replace: console.log($|$ ,"{{monthday}} {{currenttime}}");
 
   - trigger: :doc
-    replace: "/**\n* \n* @example \n* \n*/\n"
+    replace: |
+      /**
+       *
+       * @example
+       *
+       **/

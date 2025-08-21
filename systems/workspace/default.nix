@@ -91,7 +91,6 @@ in
     home-manager = {
       sharedModules = [
         inputs.catppuccin.homeModules.catppuccin
-        inputs.mac-app-util.homeManagerModules.default
         {
           catppuccin = {
             enable = true;

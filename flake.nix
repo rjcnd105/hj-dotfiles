@@ -14,7 +14,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    mac-app-util.url = "github:hraban/mac-app-util";
     catppuccin.url = "github:catppuccin/nix";
 
     # mise = {
@@ -31,7 +30,6 @@
       nixpkgs,
       home-manager,
       darwin,
-      mac-app-util,
     # mise,
     }:
     let
