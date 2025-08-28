@@ -20,7 +20,7 @@ in
         decorations = "Buttonless";
         option_as_alt = "OnlyLeft";
         blur = true;
-        opacity = 0.92;
+        opacity = 0.91;
       };
       font = {
         size = 11.5;
@@ -37,8 +37,8 @@ in
         bold_italic.style = "SemiBold Italic";
       };
       window.dimensions = {
-        columns = 220;
-        lines = 54;
+        columns = 240;
+        lines = 58;
       };
     };
   };

@@ -6,13 +6,17 @@ My mac flake, template, dev configs
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 ```
+1-2. [mise](https://mise.jdx.dev/installing-mise.html) install
 
-2. [mise](https://mise.jdx.dev/installing-mise.html) install
 2. build
 ```bash
 nix build github:rjcnd105/hj-dotfiles#darwinConfigurations.workspace_hj.system --impure --fallback
 ```
-3. darwin switch
+3. make env
+```bash
+source ./createEnv.sh
+```
+4. darwin switch
 ```bash
 ./result/sw/bin/darwin-rebuild switch --flake .#workspace_hj
 ```

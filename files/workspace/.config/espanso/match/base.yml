@@ -19,7 +19,6 @@ global_vars:
     params:
       format: "%H:%M:%S"
 
-
 matches:
   - trigger: :date
     replace: "{{currentday}} {{currenttime}}"
