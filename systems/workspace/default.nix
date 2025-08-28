@@ -50,19 +50,13 @@ in
       extra-trusted-public-keys = devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw= jdx.cachix.org-1:3N2cKS7DOv4oDa53G8GfI72sD9aI2zspA6Sj08B2f3U=
     '';
 
-    environment.variables = variables // {
-      DOCKER_HOST = "unix://${
-        config.users.users.${myOptions.userName}.home
-      }/.local/share/containers/podman/machine/podman.sock";
-    };
-
     security.pam.services.sudo_local.touchIdAuth = true;
 
     users.groups = {
       while = {
         description = "시스템 관리자 권한";
         # 이것과는 별개로 dseditgroup를 사용해서 수동으로 그룹으로 추가해줘야함.
-        members = [ "hj" ];
+        members = [ myOptions.userName ];
       };
 
     };

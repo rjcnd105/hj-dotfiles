@@ -115,7 +115,8 @@
 
               };
             }
-          ] ++ systemModulePaths;
+          ]
+          ++ systemModulePaths;
         }
       ) hosts;
 

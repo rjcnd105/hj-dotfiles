@@ -5,13 +5,3 @@ if ! command -v usage &> /dev/null
     echo "See https://usage.jdx.dev for more information." >&2
     return 1
 end
-
-if ! set -q _usage_spec_mise_2025_7_32
-  set -g _usage_spec_mise_2025_7_32 (mise usage | string collect)
-end
-set -l tokens
-if commandline -x >/dev/null 2>&1
-    complete -xc mise -a '(usage complete-word --shell fish -s "$_usage_spec_mise_2025_7_32" -- (commandline -xpc) (commandline -t))'
-else
-    complete -xc mise -a '(usage complete-word --shell fish -s "$_usage_spec_mise_2025_7_32" -- (commandline -opc) (commandline -t))'
-end
