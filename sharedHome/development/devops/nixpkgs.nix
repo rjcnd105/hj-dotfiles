@@ -6,6 +6,7 @@
   home.packages = with pkgs; [
     deploy-rs
     nixd
+    nil
     nix-prefetch-git
     nixfmt-rfc-style
   ];

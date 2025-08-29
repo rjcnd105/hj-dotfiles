@@ -162,8 +162,12 @@
         "require_config_file": true
       }
     },
-    "nixd": {
-      "settings": {}
+    "nil": {
+      "initialization_options": {
+        "formatting": {
+          "command": ["nixfmt"]  // or ["nixfmt"]
+        }
+      }
     },
 
     "elixir-ls": {
@@ -323,13 +327,7 @@
       ]
     },
     "Nix": {
-      "language_servers": ["nixd", "!nil"],
-      "formatter": {
-        "external": {
-          "command": "nixfmt",
-          "arguments": []
-        }
-      }
+      "language_servers": ["nil", "!nixd"]
     }
   },
   "context_servers": {}

@@ -97,7 +97,7 @@
   },
   "explorer.fileNesting.enabled": true,
   "nix.enableLanguageServer": true,
-  "nix.serverPath": "nixd",
+  "nix.serverPath": "nil",
   "nix.serverSettings": {
     "nixd": {
       "formatting": {
