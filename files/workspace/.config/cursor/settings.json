@@ -1,0 +1,208 @@
+{
+  "workbench.colorTheme": "Ayu Mirage",
+  "terminal.integrated.shellIntegration.suggestEnabled": true,
+  "security.promptForLocalFileProtocolHandling": false,
+  "cursor.chat.showSuggestedFiles": true,
+  "editor.formatOnSave": true,
+  "cursor.chat.smoothStreaming": true,
+  "cursor.preferNotificationsSameAsChat": true,
+  "cursor.cpp.enablePartialAccepts": true,
+  "cursor.general.gitGraphIndexing": "enabled",
+  "workbench.iconTheme": "vscode-jetbrains-icon-theme-2023-dark",
+  "vsicons.associations.folderDefault.folder": null,
+  "editor.fontFamily": "Cascadia Code",
+  "editor.fontWeight": "300",
+  "editor.fontVariations": true,
+  "cursor.general.enableShadowWorkspace": true,
+  "cursor.terminal.usePreviewBox": true,
+  "cursor.chat.alwaysSearchWeb": true,
+  "cursor.aipreview.enabled": true,
+  "cursor.chat.collapseInputBoxPills": true,
+  "editor.experimental.treeSitterTelemetry": true,
+  "editor.linkedEditing": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true,
+  "diffEditor.experimental.useTrueInlineView": true,
+  "diffEditor.diffAlgorithm": "advanced",
+  "diffEditor.experimental.showMoves": true,
+  "diffEditor.codeLens": true,
+  "diffEditor.hideUnchangedRegions.enabled": true,
+  "workbench.commandPalette.experimental.suggestCommands": true,
+  "editor.suggest.shareSuggestSelections": true,
+  "git.allowForcePush": true,
+  "git.enableSmartCommit": true,
+  "emmet.showSuggestionsAsSnippets": true,
+  "cursor.composer.collapsePaneInputBoxPills": true,
+  "editor.experimentalInlineEdit.enabled": true,
+  "editor.foldingImportsByDefault": true,
+  "editor.find.globalFindClipboard": true,
+  "editor.suggest.snippetsPreventQuickSuggestions": true,
+  "workbench.trustedDomains.promptInTrustedWorkspace": true,
+  "workbench.editor.customLabels.patterns": {
+    "**/app/**/_layout.tsx": "${dirname} - Layout",
+    "**/app/**/index.tsx": "${dirname} - Page",
+    "**/app/**/layout.tsx": "${dirname} - Layout",
+    "**/app/**/page.tsx": "${dirname} - Page",
+    "**/app/**/route.tsx": "${dirname} - Route",
+    "**/components/**/index.tsx": "${dirname} - Component"
+  },
+  "editor.formatOnSaveMode": "modifications",
+  "macros": {
+    "showFileAndFocus": [
+      "workbench.files.action.focusFilesExplorer",
+      "workbench.files.action.showActiveFileInExplorer"
+    ]
+  },
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features",
+    "editor.suggest.insertMode": "replace",
+    "gitlens.codeLens.scopes": [
+      "document"
+    ]
+  },
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  },
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[elixir]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "JakeBecker.elixir-ls"
+  },
+  "[phoenix-heex]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "JakeBecker.elixir-ls"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[nix]": {
+    "editor.defaultFormatter": "jnoortheen.nix-ide"
+  },
+  "files.associations": {
+    "*.heex": "phoenix-heex"
+  },
+  "emmet.includeLanguages": {
+    "html-eex": "html"
+  },
+  "explorer.fileNesting.enabled": true,
+  "nix.enableLanguageServer": true,
+  "nix.serverPath": "nixd",
+  "nix.serverSettings": {
+    "nixd": {
+      "formatting": {
+        "command": [
+          "nixfmt"
+        ]
+      }
+    },
+    "nil": {
+      "formatting": { "command": ["nixfmt"] }
+    }
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/.hg/store/**": true,
+    "**/node_modules/*/**": true,
+    "**/target/**": true
+  },
+  "terminal.integrated.sendKeybindingsToShell": true,
+  "terminal.integrated.enableImages": true,
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.fontSize": 12,
+  "terminal.integrated.lineHeight": 1,
+  "terminal.integrated.fontFamily": "Menlo, Monaco, 'Courier New', monospace",
+  "git.autofetch": true,
+  "elixir.credo.diffMode.enabled": true,
+  "elixir.credo.lintEverything": true,
+
+  "elixirLS.projectDir": "./deopjib",
+  "elixirLS.trace.server": "messages",
+  "elixirLS.fetchDeps": true,
+  "elixirLS.enableTestLenses": true,
+  "cursor.composer.cmdPFilePicker2": true,
+  "cursor.composer.renderPillsInsteadOfBlocks": true,
+  "cursor.composer.shouldShowMarkdownHoverParticipantActions2": true,
+  "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+  "editor.experimentalEditContextEnabled": true,
+  "direnv.restart.automatic": true,
+  "workbench.editorAssociations": {
+    "*.sqlite": "default"
+  },
+  "gitlens.ai.model": "",
+  "explorer.confirmPasteNative": false,
+  "roo-cline.allowedCommands": [
+    "npm test",
+    "npm install",
+    "tsc",
+    "git log",
+    "git diff",
+    "git show"
+  ],
+  "cline.vsCodeLmModelSelector": {
+
+  },
+  "eslint.format.enable": true,
+  "eslint.run": "onSave",
+  "eslint.timeBudget.onFixes": {
+
+    "warn": 3000,
+    "error": 6000
+  },
+  "eslint.lintTask.enable": true,
+  "cursor.composer.shouldAllowCustomModes": true,
+  "update.releaseTrack": "prerelease",
+  "explorer.autoReveal": "focusNoScroll",
+  "files.exclude": {
+    "**/.git": false
+  },
+  "i18n-ally.annotationMaxLength": 50,
+  "cursor.semanticSearch.includeCommitsWithFiles": true,
+  "i18n-ally.enabledFrameworks": [
+    "next-intl"
+  ],
+  "search.exclude": {
+    "**/.git": true,
+    "**/.next": true,
+    "**/.yarn": true,
+    "**/*.code-search": true,
+    "**/bower_components": true,
+    "**/node_modules": true,
+    "**/yarn.lock": true
+  },
+  "editor.accessibilitySupport": "off",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "i18n-ally.displayLanguage": "ko",
+  "cursor.windowSwitcher.sidebarHoverCollapsed": true,
+
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "javascript.inlayHints.parameterNames.enabled": "all",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "window.newWindowDimensions": "maximized",
+  "window.titleBarStyle": "custom",
+  "typescript.experimental.expandableHover": true,
+  "typescript.inlayHints.parameterNames.enabled": "all",
+  "mise.binPath": "/Users/hj/.local/bin/mise",
+  "redhat.telemetry.enabled": true,
+  "cursor.composer.textSizeScale": 0.85,
+  "geminicodeassist.inlineSuggestions.enableAuto": false,
+  "files.trimTrailingWhitespace": true,
+
+  "i18n-ally.extract.autoDetect": true,
+  "yaml.suggest.parentSkeletonSelectedFirst": true,
+  "yaml.customTags": []
+}
