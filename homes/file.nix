@@ -59,6 +59,7 @@ in
   # TODO: 추후 XDG_CONFIG를 지원하지 않는 앱(ex: cursor) 등을 위해 특정 위치(ex: ~/Library/Application Support)에 2차 심볼릭 링크 체인 거는 기능 추가
   home.preferXdgDirectories = true;
   xdg.enable = true;
+  # ${PROJECT_ROOT}/files/config/~ 내에 있는 파일들을 host별 매핑
   xdg.configFile = (
     mkLinkFolders {
       basePath = myOptions.absoluteProjectPath + "/files/${myOptions.hostName}/.config";
