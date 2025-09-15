@@ -6,7 +6,7 @@
     ./gh.nix
     ./git.nix
     # ./podman.nix
-    ./ssh.nix
+    # ./ssh.nix
     ./eza.nix
     ./zoxide.nix
     ./btop.nix

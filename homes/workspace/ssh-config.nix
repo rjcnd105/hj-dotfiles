@@ -7,13 +7,26 @@
 {
   programs.ssh = {
     enable = true;
+    enableDefaultConfig = false;
 
-    extraConfig = ''
-      AddKeysToAgent yes
+  extraConfig = ''
+      # AddKeysToAgent yes # 이 옵션은 matchBlocks 로 이동했습니다.
       UseKeychain yes
     '';
 
     matchBlocks = {
+      "*" = {
+        addKeysToAgent = "yes";
+        forwardAgent = false;
+        compression = false;
+        serverAliveInterval = 0;
+        serverAliveCountMax = 3;
+        hashKnownHosts = false;
+        userKnownHostsFile = [ "~/.ssh/known_hosts" ];
+        controlMaster = "no";
+        controlPath = "~/.ssh/master-%r@%n:%p";
+        controlPersist = "no";
+      };
       "github.com" = {
         identityFile = "~/.ssh/id_ed25519";
         identitiesOnly = lib.mkDefault true;

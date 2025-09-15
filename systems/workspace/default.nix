@@ -23,6 +23,7 @@ in
       # pkgs.nix
       # pkgs.nix-search-cli
       pkgs.devenv
+
     ];
 
     homebrew = {
@@ -67,6 +68,7 @@ in
 
     home-manager = {
       sharedModules = [
+        inputs.sops-nix.homeManagerModules.sops
         inputs.catppuccin.homeModules.catppuccin
         {
           catppuccin = {

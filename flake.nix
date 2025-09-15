@@ -13,6 +13,10 @@
       url = "github:lnl7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     catppuccin.url = "github:catppuccin/nix";
 
@@ -30,6 +34,7 @@
       nixpkgs,
       home-manager,
       darwin,
+      sops-nix,
     # mise,
     }:
     let

@@ -7,6 +7,12 @@
   ...
 }:
 let
+
+  sops_dir = "${config.home.homeDirectory}/.config/sops";
+  sops_age_dir = sops_dir + "/age";
+  age_key_file = sops_age_dir + "/keys.txt";
+
+  user_secrets_path = "${myOptions.absoluteProjectPath}/secrets/workspace/secrets.yaml";
 in
 # aqua = import (myOptions.paths.pkgs + "/aqua.nix") {
 #   inherit pkgs;
@@ -78,6 +84,7 @@ in
       p7zip
       fontconfig
       zstd
+
     ]
     ++ [
       pkgs.nerd-fonts.d2coding
@@ -90,11 +97,42 @@ in
   home.shellAliases = {
     lzg = "lazygit";
   };
+
+  # @see https://github.com/nix-community/home-manager/blob/master/modules/files.nix
   home.activation = {
+
+    # sopsSetup = lib.hm.dag.entryAfter [ "onFilesChange" ] ''
+    #   SOPS_AGE_DIR="${sops_age_dir}"
+    #   AGE_KEY_FILE="${age_key_file}"
+
+    #   if [[ ! -d "$SOPS_AGE_DIR" ]]; then
+    #     mkdir -p "$SOPS_AGE_DIR"
+    #     echo "Created sops age directory: $SOPS_AGE_DIR"
+    #   fi
+
+    #   # age 키가 없는 경우에만 생성
+    #   if [[ ! -f "$AGE_KEY_FILE" ]]; then
+    #     echo "Generating new age key for sops..."
+    #     ${pkgs.age}/bin/age-keygen -o "$AGE_KEY_FILE"
+    #     chmod 600 "$AGE_KEY_FILE"
+    #     echo "Age key generated at: $AGE_KEY_FILE"
+
+    #     # Public key 표시
+    #     if [[ -f "$AGE_KEY_FILE" && -z "$DRY_RUN_CMD" ]]; then
+    #       echo "=== Your age public key ==="
+    #       ${pkgs.age}/bin/age-keygen -y "$AGE_KEY_FILE"
+    #       echo "=== Add this key to your .sops.yaml file ==="
+    #     fi
+    #   else
+    #     echo "Age key already exists at: $AGE_KEY_FILE"
+    #   fi
+    # '';
+
     miseInstall = lib.hm.dag.entryAfter [ "onFilesChange" ] ''
       run ${pkgs.mise}/bin/mise install
     '';
   };
+
 
   fonts.fontconfig.enable = true;
 }

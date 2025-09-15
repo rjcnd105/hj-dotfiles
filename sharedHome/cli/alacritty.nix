@@ -23,7 +23,7 @@ in
         opacity = 0.91;
       };
       font = {
-        size = 11.5;
+        size = 10.5;
         normal.family = "JetBrainsMono Nerd Font";
         normal.style = "Light";
 
@@ -37,8 +37,8 @@ in
         bold_italic.style = "SemiBold Italic";
       };
       window.dimensions = {
-        columns = 240;
-        lines = 58;
+        columns = 250;
+        lines = 62;
       };
     };
   };

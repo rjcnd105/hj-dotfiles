@@ -1,0 +1,16 @@
+keys:
+  - &hj_age age1h2qh6uqjyat8rqdjx0zrxgxgq2re7mhuhl5yfqqx82ehctw0w3ms8mruxd
+
+creation_rules:
+  # 공통 secrets (모든 사용자가 접근)
+  - path_regex: secrets/shared/[^/]+\.(yaml|json|env|ini)$
+    key_groups:
+      - age:
+          # - *admin_age
+          - *hj_age
+
+  # workspace/hj 전용 secrets
+  - path_regex: secrets/workspace/[^/]+\.(yaml|json|env|ini)$
+    key_groups:
+      - age:
+          - *hj_age

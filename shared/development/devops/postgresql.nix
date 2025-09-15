@@ -12,14 +12,14 @@ in
 {
 
   environment.systemPackages = [
-    pkgs.postgresql_17
+    pkgs.postgresql_18
     pkgs.usql
     # pkgs.libyaml
   ];
 
   services.postgresql = {
     enable = true;
-    package = pkgs.postgresql_17;
+    package = pkgs.postgresql_18;
     enableTCPIP = true;
     port = PGPORT;
     dataDir = PGDATA;

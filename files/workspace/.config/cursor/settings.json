@@ -71,11 +71,11 @@
   },
   "[elixir]": {
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "JakeBecker.elixir-ls"
+    "editor.defaultFormatter": "elixir-lsp.elixir-ls"
   },
   "[phoenix-heex]": {
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "JakeBecker.elixir-ls"
+    "editor.defaultFormatter": "elixir-lsp.elixir-ls"
   },
   "[javascript]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"
@@ -112,13 +112,6 @@
   },
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit"
-  },
-  "files.watcherExclude": {
-    "**/.git/objects/**": true,
-    "**/.git/subtree-cache/**": true,
-    "**/.hg/store/**": true,
-    "**/node_modules/*/**": true,
-    "**/target/**": true
   },
   "terminal.integrated.sendKeybindingsToShell": true,
   "terminal.integrated.enableImages": true,
@@ -175,17 +168,7 @@
   "i18n-ally.enabledFrameworks": [
     "next-intl"
   ],
-  "search.exclude": {
-    "**/.git": true,
-    "**/.next": true,
-    "**/.yarn": true,
-    "**/*.code-search": true,
-    "**/bower_components": true,
-    "**/node_modules": true,
-    "**/yarn.lock": true
-  },
   "editor.accessibilitySupport": "off",
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "i18n-ally.displayLanguage": "ko",
   "cursor.windowSwitcher.sidebarHoverCollapsed": true,
 
@@ -204,5 +187,68 @@
 
   "i18n-ally.extract.autoDetect": true,
   "yaml.suggest.parentSkeletonSelectedFirst": true,
-  "yaml.customTags": []
+  "yaml.customTags": [],
+  "i18n-ally.translate.openai.apiModel": "gpt-4",
+  "i18n-ally.extract.targetPickingStrategy": "most-similar",
+  "i18n-ally.parsers.typescript.compilerOptions": {},
+
+  "files.readonlyInclude": {
+    "**/routeTree.gen.ts": true
+  },
+  "files.watcherExclude": {
+    "**/routeTree.gen.ts": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/.hg/store/**": true,
+    "**/node_modules/*/**": true,
+    "**/target/**": true
+  },
+  "search.exclude": {
+    "**/routeTree.gen.ts": true,
+    "**/.git": true,
+    "**/.next": true,
+    "**/.yarn": true,
+    "**/*.code-search": true,
+    "**/bower_components": true,
+    "**/node_modules": true,
+    "**/yarn.lock": true
+  },
+  "terminal.integrated.profiles.osx": {
+    "bash": {
+      "path": "bash",
+      "args": [
+        "-l"
+      ],
+      "icon": "terminal-bash"
+    },
+    "zsh": {
+      "path": "zsh",
+      "args": [
+        "-l"
+      ]
+    },
+    "fish": {
+      "path": "fish",
+      "args": [
+        "-l"
+      ]
+    },
+    "tmux": {
+      "path": "tmux",
+      "icon": "terminal-tmux"
+    },
+    "pwsh": {
+      "path": "pwsh",
+      "icon": "terminal-powershell"
+    },
+    "zsh (2)": {
+      "path": "/run/current-system/sw/bin/zsh"
+    }
+  },
+  "editor.experimental.preferTreeSitter.css": true,
+  "tailwindCSS.emmetCompletions": true,
+  "evenBetterToml.taplo.path": "",
+  "evenBetterToml.formatter.indentTables": true,
+  "evenBetterToml.formatter.inlineTableExpand": true,
+  "evenBetterToml.formatter.reorderInlineTables": false
 }

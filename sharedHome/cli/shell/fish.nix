@@ -20,7 +20,7 @@
         source $HOME/.config/fish/user-functions.fish
         fish_add_path -maP /usr/bin /usr/sbin /bin /sbin
 
-  
+
       '';
     };
   };

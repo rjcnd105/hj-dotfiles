@@ -8,3 +8,5 @@ templates/**/.pre-commit-config.yaml
 
 
 **/nix.secrets.conf
+
+**/keys.txt

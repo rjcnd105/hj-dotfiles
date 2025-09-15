@@ -61,10 +61,5 @@
     "key": "ctrl+j",
     "command": "-editor.action.showHover",
     "when": "editorTextFocus"
-  },
-  {
-    "key": "cmd+e",
-    "command": "composerMode.background"
   }
-
 ]

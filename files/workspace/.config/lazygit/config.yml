@@ -1,6 +1,7 @@
 gui:
   useHunkModeInStagingView: true
   tabWidth: 3
+  nerdFontsVersion: "3"
 
 git:
   skipHookPrefix: WIP

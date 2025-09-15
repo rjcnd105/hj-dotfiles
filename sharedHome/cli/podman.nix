@@ -17,7 +17,7 @@
 
   # Docker 호환성을 위한 설정
   home.sessionVariables = {
-    DOCKER_HOST = "unix://${config.home.homeDirectory}/.local/share/containers/podman/machine/podman.sock";
+    # DOCKER_HOST = "unix://${config.home.homeDirectory}/.local/share/containers/podman/machine/podman.sock";
   };
 
   # launchd.agents."start-podman-machine" = {
