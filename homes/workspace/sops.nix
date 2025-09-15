@@ -44,8 +44,6 @@ in
         mode = "600";
         # 기본 경로: ~/.config/sops/secrets/github-token
       };
-
     };
-
   };
 }

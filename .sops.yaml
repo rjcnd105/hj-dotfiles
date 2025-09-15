@@ -1,5 +1,5 @@
 keys:
-  - &hj_age age1h2qh6uqjyat8rqdjx0zrxgxgq2re7mhuhl5yfqqx82ehctw0w3ms8mruxd
+  - &hj_age age14c6z2hf8qr9lumph8smjh7yny25nd7v4xy9guc8n5r2pfrmhjfasrjmhz5
 
 creation_rules:
   # 공통 secrets (모든 사용자가 접근)
