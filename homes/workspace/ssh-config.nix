@@ -8,7 +8,6 @@
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
-    startAgent = true;
 
     extraConfig = ''
       # AddKeysToAgent yes # 이 옵션은 matchBlocks 로 이동했습니다.
