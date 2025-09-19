@@ -40,7 +40,7 @@ in
     # secrets 정의
     secrets = {
       # 개인용 github token
-      "github-token" = {
+      "github_master_token" = {
         mode = "600";
         # 기본 경로: ~/.config/sops/secrets/github-token
       };
