@@ -38,7 +38,7 @@
   home.activation.addSSHKeyToAgent = lib.mkIf pkgs.stdenv.isDarwin (
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       if [ -f "$HOME/.ssh/id_ed25519" ]; then
-        run ssh-add --apple-use-keychain "$HOME/.ssh/id_ed25519" || true
+        run /usr/bin/ssh-add --apple-use-keychain "$HOME/.ssh/id_ed25519" || true
       fi
     ''
   );
