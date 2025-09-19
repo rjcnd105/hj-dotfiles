@@ -19,14 +19,14 @@ in
   # nix-shell -p ssh-to-age --run 'cat ~/.ssh/id_ed25519.pub | ssh-to-age'
 
   home.packages = [
-        # 암호관리
-      pkgs.sops
-      pkgs.age
+    # 암호관리
+    pkgs.sops
+    pkgs.age
   ];
 
   home.sessionVariables = {
-      SOPS_DIR = sops_dir;
-      AGE_KEY_FILE = age_key_file;
+    SOPS_DIR = sops_dir;
+    AGE_KEY_FILE = age_key_file;
   };
 
   sops = {

@@ -8,8 +8,9 @@
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
+    startAgent = true;
 
-  extraConfig = ''
+    extraConfig = ''
       # AddKeysToAgent yes # 이 옵션은 matchBlocks 로 이동했습니다.
       UseKeychain yes
     '';
@@ -35,7 +36,7 @@
   };
 
   home.activation = {
-    setupSSH = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    setupSSH = lib.hm.dag.entryBefore [ "writeBoundary" ] ''
       if [ ! -d "$HOME/.ssh" ]; then
         # SSH 디렉토리가 없는 경우 새로 생성
         run mkdir -p "$HOME/.ssh"
@@ -47,26 +48,6 @@
           run chmod 600 "$HOME/.ssh/id_ed25519"
           run chmod 644 "$HOME/.ssh/id_ed25519.pub"
           echo "Created new SSH key"
-        fi
-      else
-        # 기존 SSH 디렉토리가 있는 경우
-        echo "Existing SSH directory found"
-
-        # 백업 디렉토리 생성
-        backup_dir="$HOME/.ssh_backup_$(date +%Y%m%d_%H%M%S)"
-        run mkdir -p "$backup_dir"
-
-        # 기존 파일 백업
-        run cp -r "$HOME/.ssh/"* "$backup_dir/"
-        echo "Backed up existing SSH files to $backup_dir"
-
-        # 권한 설정
-        run chmod 700 "$HOME/.ssh"
-        if [ -f "$HOME/.ssh/id_ed25519" ]; then
-          run chmod 600 "$HOME/.ssh/id_ed25519"
-        fi
-        if [ -f "$HOME/.ssh/id_ed25519.pub" ]; then
-          run chmod 644 "$HOME/.ssh/id_ed25519.pub"
         fi
       fi
     '';

@@ -7,16 +7,10 @@
   ...
 }:
 let
-
-  sops_dir = "${config.home.homeDirectory}/.config/sops";
-  sops_age_dir = sops_dir + "/age";
-  age_key_file = sops_age_dir + "/keys.txt";
-
-  user_secrets_path = "${myOptions.absoluteProjectPath}/secrets/workspace/secrets.yaml";
+  # aqua = import (myOptions.paths.pkgs + "/aqua.nix") {
+  #   inherit pkgs;
+  # };
 in
-# aqua = import (myOptions.paths.pkgs + "/aqua.nix") {
-#   inherit pkgs;
-# };
 {
   home.username = myOptions.userName;
 
@@ -41,7 +35,7 @@ in
     HOME_VERSION = inputs.nixpkgs.lib.trivial.release;
     AQUA_GLOBAL_CONFIG = config.xdg.configHome + "/aqua/aqua.toml";
     PROJECT_PATH = "${myOptions.absoluteProjectPath}";
-    VISUAL = pkgs.zed + "/bin/zed";
+    VISUAL = "/usr/local/bin/zed";
     EDITOR = pkgs.helix + "/bin/hx";
     USER_PROFILE = config.home.profileDirectory;
     XDG_BIN_HOME = "$HOME/.local/bin";
@@ -51,6 +45,7 @@ in
   };
 
   home.sessionPath = [
+    "/usr/bin"
     "$XDG_BIN_HOME"
     "$HOME/.local/share/mise/installs"
   ];
