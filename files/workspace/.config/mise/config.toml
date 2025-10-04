@@ -29,6 +29,9 @@ postinstall = """
   jj config set --user user.email "rjcnd123@gmail.com"
 """
 
+[tools.claude]
+version = "latest"
+
 [tools.gemini-cli]
 version = "latest"
 
@@ -98,7 +101,6 @@ version = "latest"
 
 [tools.ffmpeg]
 version = "latest"
-
 
 
 [tasks.mise-completion]

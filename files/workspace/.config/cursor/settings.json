@@ -1,5 +1,4 @@
 {
-  "workbench.colorTheme": "Ayu Mirage",
   "terminal.integrated.shellIntegration.suggestEnabled": true,
   "security.promptForLocalFileProtocolHandling": false,
   "cursor.chat.showSuggestedFiles": true,
@@ -8,11 +7,10 @@
   "cursor.preferNotificationsSameAsChat": true,
   "cursor.cpp.enablePartialAccepts": true,
   "cursor.general.gitGraphIndexing": "enabled",
-  "workbench.iconTheme": "vscode-jetbrains-icon-theme-2023-dark",
+  "workbench.iconTheme": "catppuccin-latte",
   "vsicons.associations.folderDefault.folder": null,
   "editor.fontFamily": "Cascadia Code",
-  "editor.fontWeight": "300",
-  "editor.fontVariations": true,
+  "editor.fontWeight": "400",
   "cursor.general.enableShadowWorkspace": true,
   "cursor.terminal.usePreviewBox": true,
   "cursor.chat.alwaysSearchWeb": true,
@@ -168,7 +166,6 @@
   "i18n-ally.enabledFrameworks": [
     "next-intl"
   ],
-  "editor.accessibilitySupport": "off",
   "i18n-ally.displayLanguage": "ko",
   "cursor.windowSwitcher.sidebarHoverCollapsed": true,
 
@@ -250,5 +247,27 @@
   "evenBetterToml.taplo.path": "",
   "evenBetterToml.formatter.indentTables": true,
   "evenBetterToml.formatter.inlineTableExpand": true,
-  "evenBetterToml.formatter.reorderInlineTables": false
+  "evenBetterToml.formatter.reorderInlineTables": false,
+  "docker.extension.enableComposeLanguageServer": false,
+  "editor.accessibilityPageSize": 1000,
+  "editor.fontLigatures": false,
+  "[dockercompose]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.autoIndent": "advanced",
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": false,
+      "strings": true
+    },
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "[github-actions-workflow]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "errorLens.fontWeight": "300",
+  "[scss]": {
+    "editor.defaultFormatter": "vscode.css-language-features"
+  },
+  "kfc.views.settings.visible": true
 }
