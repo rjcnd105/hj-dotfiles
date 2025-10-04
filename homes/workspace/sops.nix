@@ -26,7 +26,7 @@ in
 
   home.sessionVariables = {
     SOPS_DIR = sops_dir;
-    AGE_KEY_FILE = age_key_file;
+    SOPS_AGE_KEY_FILE = age_key_file;
   };
 
   sops = {
