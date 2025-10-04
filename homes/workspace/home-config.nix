@@ -40,7 +40,6 @@ in
     USER_PROFILE = config.home.profileDirectory;
     XDG_BIN_HOME = "$HOME/.local/bin";
     HM_CURRENT = "/run/current-system/sw";
-    SOPS_AGE_KEY_FILE = "$HOME/.config/sops/age/keys.txt";
 
     ZED_ALLOW_ROOT = "true";
   };
