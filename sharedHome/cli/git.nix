@@ -10,12 +10,12 @@
   };
   programs.git = {
     enable = true;
-    user = {
-      email = myOptions.email;
-      name = myOptions.name;
-    };
 
-    config = {
+    settings = {
+      user = {
+        name = myOptions.userName;
+        email = myOptions.email;
+      };
       core = {
         quotePath = false;
         precomposeunicode = true;
@@ -24,6 +24,7 @@
         autoSetupRemote = true;
       };
     };
+
     signing = {
       format = "openpgp";
     };
