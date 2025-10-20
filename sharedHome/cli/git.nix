@@ -5,6 +5,9 @@
   ...
 }:
 {
+  programs.delta = {
+    enable = true;
+  };
   programs.git = {
     enable = true;
     userEmail = myOptions.email;
@@ -28,7 +31,6 @@
       "*.swp"
     ];
 
-    delta.enable = true;
     lfs.enable = true;
 
   };

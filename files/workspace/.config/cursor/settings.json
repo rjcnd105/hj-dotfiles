@@ -6,7 +6,6 @@
   "cursor.chat.smoothStreaming": true,
   "cursor.preferNotificationsSameAsChat": true,
   "cursor.cpp.enablePartialAccepts": true,
-  "cursor.general.gitGraphIndexing": "enabled",
   "workbench.iconTheme": "catppuccin-latte",
   "vsicons.associations.folderDefault.folder": null,
   "editor.fontFamily": "Cascadia Code",
@@ -269,5 +268,21 @@
   "[scss]": {
     "editor.defaultFormatter": "vscode.css-language-features"
   },
-  "kfc.views.settings.visible": true
+  "kfc.views.settings.visible": true,
+  "cursor.agent_layout_browser_beta_setting": true,
+  "scss.lint.duplicateProperties": "warning",
+  "emmet.showExpandedAbbreviation": "inMarkupAndStylesheetFilesOnly",
+  "scss.format.enable": false,
+  "explorer.confirmDragAndDrop": false,
+  "workbench.colorTheme": "Webstorm New Light",
+  "deepl.formality": "default",
+  "deepl.tagHandling": "off",
+  "deepl.splitSentences": "1",
+  "deepl.translationMode": "Replace",
+  "deepl.defaultTargetLanguage": "KO",
+  "i18n-ally.translate.deepl.useFreeApiEntry": true,
+  "editor.experimental.preferTreeSitter.typescript": true,
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  }
 }
