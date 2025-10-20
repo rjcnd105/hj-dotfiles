@@ -10,10 +10,12 @@
   };
   programs.git = {
     enable = true;
-    userEmail = myOptions.email;
-    userName = myOptions.userName;
+    user = {
+      email = myOptions.email;
+      name = myOptions.name;
+    };
 
-    extraConfig = {
+    config = {
       core = {
         quotePath = false;
         precomposeunicode = true;

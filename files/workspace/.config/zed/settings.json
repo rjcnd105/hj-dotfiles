@@ -246,37 +246,61 @@
   },
   "languages": {
     "JavaScript": {
-      "formatter": ["prettier",{
-        "language_server":
-        { "name": "biome" }
-      }],
-      "code_actions_on_format": {
-        "source.fixAll.eslint": true,
-        "source.action.useSortedKeys.biome": true,
-        "source.fixAll.biome": true
-      }
+      "formatter": [
+        {
+          "code_action": "source.fixAll.eslint"
+        },
+        {
+          "code_action": "source.action.useSortedKeys.biome"
+        },
+        {
+          "code_action": "source.fixAll.biome"
+        },
+        "prettier",
+        {
+          "language_server": {
+            "name": "biome"
+          }
+        }
+      ]
     },
     "TypeScript": {
-      "formatter": ["prettier",{
-        "language_server":
-        { "name": "biome" }
-      }],
-      "code_actions_on_format": {
-        "source.fixAll.eslint": true,
-        "source.action.useSortedKeys.biome": true,
-        "source.fixAll.biome": true
-      }
+      "formatter": [
+        {
+          "code_action": "source.fixAll.eslint"
+        },
+        {
+          "code_action": "source.action.useSortedKeys.biome"
+        },
+        {
+          "code_action": "source.fixAll.biome"
+        },
+        "prettier",
+        {
+          "language_server": {
+            "name": "biome"
+          }
+        }
+      ]
     },
     "TSX": {
-      "formatter": ["prettier",{
-        "language_server":
-        { "name": "biome" }
-      }],
-      "code_actions_on_format": {
-        "source.fixAll.eslint": true,
-        "source.action.useSortedKeys.biome": true,
-        "source.fixAll.biome": true
-      }
+      "formatter": [
+        {
+          "code_action": "source.fixAll.eslint"
+        },
+        {
+          "code_action": "source.action.useSortedKeys.biome"
+        },
+        {
+          "code_action": "source.fixAll.biome"
+        },
+        "prettier",
+        {
+          "language_server": {
+            "name": "biome"
+          }
+        }
+      ]
     },
 
     "JSON": { "formatter": { "language_server": { "name": "biome" } } },
@@ -291,6 +315,17 @@
       }
     },
     "Elixir": {
+      "formatter": {
+        "external": {
+          "command": "mix",
+          "arguments": [
+            "format",
+            "--stdin-filename",
+            "{buffer_path}",
+            "-"
+          ]
+        }
+      },
       "show_edit_predictions": true,
       "show_whitespaces": "selection",
       "language_servers": [
@@ -298,12 +333,7 @@
         "html-language-server",
         "tailwindcss-language-server"
       ],
-      "format_on_save": {
-        "external": {
-          "command": "mix",
-          "arguments": ["format", "--stdin-filename", "{buffer_path}", "-"]
-        }
-      },
+      "format_on_save": "on",
       // ~H sigil 내의 HTML 인식을 위한 설정
       "embedded_languages": {
         "~H": "html",
@@ -311,14 +341,20 @@
       }
     },
     "HEEX": {
-      "show_edit_predictions": true,
-      "show_whitespaces": "selection",
-      "format_on_save": {
+      "formatter": {
         "external": {
           "command": "mix",
-          "arguments": ["format", "--stdin-filename", "{buffer_path}", "-"]
+          "arguments": [
+            "format",
+            "--stdin-filename",
+            "{buffer_path}",
+            "-"
+          ]
         }
       },
+      "show_edit_predictions": true,
+      "show_whitespaces": "selection",
+      "format_on_save": "on",
       "language_servers": [
         "html-language-server",
         "elixir-ls",
