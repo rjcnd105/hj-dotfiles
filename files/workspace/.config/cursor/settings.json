@@ -68,7 +68,7 @@
   },
   "[elixir]": {
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "elixir-lsp.elixir-ls"
+    "editor.defaultFormatter": "saratravi.elixir-formatter"
   },
   "[phoenix-heex]": {
     "editor.formatOnSave": true,
@@ -133,7 +133,7 @@
   "workbench.editorAssociations": {
     "*.sqlite": "default"
   },
-  "gitlens.ai.model": "",
+  "gitlens.ai.model": "gitkraken",
   "explorer.confirmPasteNative": false,
   "roo-cline.allowedCommands": [
     "npm test",
@@ -284,5 +284,27 @@
   "editor.experimental.preferTreeSitter.typescript": true,
   "[javascriptreact]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"
-  }
+  },
+  "gitlens.ai.gitkraken.model": "gemini:gemini-2.0-flash",
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "gitlens.graph.minimap.dataType": "lines",
+  "gitlens.graph.minimap.additionalTypes": [
+    "localBranches"
+  ],
+  "gitlens.graph.minimap.enabled": false,
+  "gitlens.gitkraken.cli.integration.enabled": true,
+  "gitlens.ai.experimental.composer.enabled": true,
+  "gitlens.ai.explainChanges.customInstructions": "한국어로 간결하게",
+  "gitlens.blame.format": "${message|20?} ${agoOrDateShort|4-}",
+  "gitlens.blame.fontWeight": "bold",
+  "gitlens.blame.fontFamily": "Input Mono Compressed",
+  "gitlens.blame.dateFormat": "YYYY/MM/DD HH:mm",
+  "gitlens.changes.locations": [
+    "gutter",
+    "overview",
+    "line"
+  ],
+  "gitlens.graph.defaultItemLimit": 300,
 }
