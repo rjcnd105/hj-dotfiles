@@ -6,14 +6,18 @@ idiomatic_version_file_enable_tools = ["ruby"]
 [plugins]
 "nix" = "https://github.com/jbadeau/mise-nix.git"
 
-[tools]
-"aqua:hashicorp/vault" = "latest"
-"aqua:jesseduffield/lazydocker" = "latest"
-"aqua:ollama/ollama" = "latest"
-"ubi:slimtoolkit/slim" = "latest"
-erlang= "latest"
-elixir= "latest"
-zig= "latest"
+[tools.erlang]
+version = "latest"
+
+[tools.elixir]
+version = "latest"
+
+[tools.zig]
+version = "latest"
+
+[tools.lazydocker]
+version = "latest"
+
 
 [tools.docker-compose]
 version = "latest"
@@ -36,8 +40,10 @@ version = "latest"
 [tools.gemini-cli]
 version = "latest"
 
-
 [tools.uv]
+version = "latest"
+
+[tools.podman]
 version = "latest"
 
 [tools.lazyjournal]
@@ -114,3 +120,9 @@ run = """
   jj config set --user user.email "rjcnd123@gmail.com"
   jj config set --user user.editor "cursor"
 """
+
+
+[tasks.chrome-debug]
+run = '''
+  /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug 2>&1 &
+'''
