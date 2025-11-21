@@ -23,7 +23,7 @@ in
         opacity = 0.92;
       };
       font = {
-        size = 10.5;
+        size = 11.5;
         normal.family = "D2CodingLigature Nerd Font";
         normal.style = "Regular";
 
