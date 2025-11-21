@@ -18,6 +18,16 @@
       enable = true;
       enableZshIntegration = true;
       enableFishIntegration = true;
+      # 현대적인 프리셋 적용
+      settings = {
+        add_newline = false;
+        # Transient Prompt 기능과 유사한 깔끔한 설정
+        character = {
+          success_symbol = "[➜](bold green)";
+          error_symbol = "[✗](bold red)";
+        };
+        package.disabled = true; # 불필요한 정보 숨김
+      };
     };
 
     direnv = {
