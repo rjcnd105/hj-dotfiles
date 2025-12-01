@@ -207,7 +207,8 @@
     "**/*.code-search": true,
     "**/bower_components": true,
     "**/node_modules": true,
-    "**/yarn.lock": true
+    "**/yarn.lock": true,
+    "**/.history/*": true
   },
   "terminal.integrated.profiles.osx": {
     "bash": {
@@ -309,4 +310,6 @@
   "gitlens.graph.defaultItemLimit": 300,
   "explorer.confirmDelete": false,
   "svelte.enable-ts-plugin": true,
+  "unison.trace.server": "verbose",
+  "claudeCode.preferredLocation": "panel",
 }
