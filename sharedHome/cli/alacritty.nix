@@ -9,11 +9,13 @@ in
       env = {
         TERM = "xterm-256color";
         PATH = defaultPATH;
+        SHELL = "${config.home.profileDirectory}/bin/fish";
       };
       terminal.shell = {
-        program = "${config.home.profileDirectory}/bin/fish";
+        program = "${config.home.profileDirectory}/bin/zellij";
         args = [
-          "--login"
+          "--layout"
+          "default"
         ];
       };
       window = {

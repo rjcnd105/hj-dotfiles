@@ -104,6 +104,8 @@ version = "latest"
 # [tools.redis]
 # version = "latest"
 
+[tools.difftastic]
+version = "latest"
 
 [tools.lima]
 version = "latest"

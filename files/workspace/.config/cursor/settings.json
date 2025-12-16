@@ -12,9 +12,6 @@
   "editor.fontWeight": "400",
   "cursor.general.enableShadowWorkspace": true,
   "cursor.terminal.usePreviewBox": true,
-  "cursor.chat.alwaysSearchWeb": true,
-  "cursor.aipreview.enabled": true,
-  "cursor.chat.collapseInputBoxPills": true,
   "editor.experimental.treeSitterTelemetry": true,
   "editor.linkedEditing": true,
   "editor.formatOnPaste": true,
@@ -30,7 +27,6 @@
   "git.enableSmartCommit": true,
   "emmet.showSuggestionsAsSnippets": true,
   "cursor.composer.collapsePaneInputBoxPills": true,
-  "editor.experimentalInlineEdit.enabled": true,
   "editor.foldingImportsByDefault": true,
   "editor.find.globalFindClipboard": true,
   "editor.suggest.snippetsPreventQuickSuggestions": true,
@@ -173,7 +169,6 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
   "window.newWindowDimensions": "maximized",
   "window.titleBarStyle": "custom",
-  "typescript.experimental.expandableHover": true,
   "typescript.inlayHints.parameterNames.enabled": "all",
   "mise.binPath": "/Users/hj/.local/bin/mise",
   "redhat.telemetry.enabled": true,
@@ -312,4 +307,7 @@
   "svelte.enable-ts-plugin": true,
   "unison.trace.server": "verbose",
   "claudeCode.preferredLocation": "panel",
+  "json.schemaDownload.enable": true,
+  "cursor.terminal.enableAiChecks": false,
+  "emmet.useInlineCompletions": true
 }

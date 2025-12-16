@@ -38,7 +38,7 @@
 
     zellij = {
       enable = true;
-      enableFishIntegration = true;
+      enableFishIntegration = false;
     };
     # folder viewer
     yazi = {
