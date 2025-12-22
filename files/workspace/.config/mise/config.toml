@@ -36,6 +36,9 @@ postinstall = """
   jj config set --user user.email "rjcnd123@gmail.com"
 """
 
+[tools.jjui]
+version = "latest"
+
 [tools.claude]
 version = "latest"
 
@@ -101,6 +104,8 @@ version = "latest"
 # [tools.redis]
 # version = "latest"
 
+[tools.difftastic]
+version = "latest"
 
 [tools.lima]
 version = "latest"
