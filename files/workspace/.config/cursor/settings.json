@@ -1,8 +1,11 @@
 {
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
   "terminal.integrated.shellIntegration.suggestEnabled": true,
   "security.promptForLocalFileProtocolHandling": false,
   "cursor.chat.showSuggestedFiles": true,
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
   "cursor.chat.smoothStreaming": true,
   "cursor.preferNotificationsSameAsChat": true,
   "cursor.cpp.enablePartialAccepts": true,
