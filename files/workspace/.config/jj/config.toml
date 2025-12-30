@@ -12,8 +12,8 @@ diff-formatter = "difft"
 
 
 [revset-aliases]
-"closest_bm(to)" = "heads(::to & bookmarks() & mutable())"
-"closest_bm()" = "closest_bm(@)"
+"closest_bm(to)" = "heads(::to & bookmarks())"
+"closest_mut_bm(to)" = "heads(::to & bookmarks() & mutable())"
 
 [aliases]
 fetch   = ["git", "fetch", "--all-remotes"]
@@ -29,21 +29,21 @@ eject = ["squash", "--from", "@", "--into"]
 # 가장 가까운 mutable 북마크를 @로 이동
 bhere = [
     "bookmark", "move",
-    "--from", "heads(::@ & bookmarks() & ~immutable_heads())",
+    "--from", "closest_mut_bm(@)",
     "--to", "@"
 ]
 
 # 가장 가까운 북마크를 @로 이동(warning: immutable도 포함!)
 "bhere!" = [
     "bookmark", "move",
-    "--from", "heads(::@ & bookmarks())",
+    "--from", "closest_bm(@)",
     "--to", "@",
 ]
 
 # 가장 가까운 mutable 북마크를 @-로 이동
 bhere- = [
     "bookmark", "move",
-    "--from", "heads(::@ & bookmarks() & ~immutable_heads())",
+    "--from", "closest_mut_bm(@)",
     "--to", "@-",
     "--allow-backwards"
 ]
@@ -51,7 +51,7 @@ bhere- = [
 # 가장 가까운 북마크를 @-로 이동(warning: immutable도 포함!)
 "bhere-!" = [
     "bookmark", "move",
-    "--from", "heads(::@ & bookmarks())",
+    "--from", "closest_bm(@)",
     "--to", "@-",
 ]
 
