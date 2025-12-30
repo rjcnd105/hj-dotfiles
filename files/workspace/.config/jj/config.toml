@@ -33,7 +33,7 @@ bhere = [
     "--to", "@"
 ]
 
-# 가장 가까운 북마크를 @로 이동(warning: mutable도 포함!)
+# 가장 가까운 북마크를 @로 이동(warning: immutable도 포함!)
 "bhere!" = [
     "bookmark", "move",
     "--from", "heads(::@ & bookmarks())",
@@ -48,8 +48,8 @@ bhere- = [
     "--allow-backwards"
 ]
 
-# 가장 가까운 북마크를 @-로 이동(warning: mutable도 포함!)
-"bhere!-" = [
+# 가장 가까운 북마크를 @-로 이동(warning: immutable도 포함!)
+"bhere-!" = [
     "bookmark", "move",
     "--from", "heads(::@ & bookmarks())",
     "--to", "@-",
