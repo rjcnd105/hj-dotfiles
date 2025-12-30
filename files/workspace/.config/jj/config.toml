@@ -7,9 +7,16 @@ email = "rjcnd123@gmail.com"
 [ui]
 editor = "hx"
 default-command = "log"
-merge-editor = "zed"
+merge-editor = "cursor"
 diff-formatter = "difft"
 
+[merge-tools.cursor]
+program = "cursor"
+merge-args = ["--wait", "--merge", "$left", "$right", "$base", "$output"]
+# VS Code reads the output file and behaves better if it's prepopulated with conflict
+# markers. Unfortunately, it does not seem to be able to output conflict markers when
+# the user only resolves some of the conflicts.
+merge-tool-edits-conflict-markers = true
 
 [revset-aliases]
 "closest_bm(to)" = "heads(::to & bookmarks())"
@@ -21,6 +28,8 @@ publish   = ["git", "push", "--allow-new"]
 # Take content from any change, and move it into @. The inverse of 'eject'
 # - jj consume xyz path/to/file`
 consume = ["squash", "--into", "@", "--from"]
+
+cp = ["restore", "--to", "@", "--from"]
 
 # Eject content from @ into any other change. The inverse of 'consume'
 # - jj eject xyz --interactive
