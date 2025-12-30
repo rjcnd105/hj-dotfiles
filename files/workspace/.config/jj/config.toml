@@ -11,6 +11,10 @@ merge-editor = "zed"
 diff-formatter = "difft"
 
 
+[revset-aliases]
+"closest_bm(to)" = "heads(::to & bookmarks() & mutable())"
+"closest_bm()" = "closest_bm(@)"
+
 [aliases]
 fetch   = ["git", "fetch", "--all-remotes"]
 publish   = ["git", "push", "--allow-new"]
@@ -22,7 +26,33 @@ consume = ["squash", "--into", "@", "--from"]
 # - jj eject xyz --interactive
 eject = ["squash", "--from", "@", "--into"]
 
-bmove = ["bookmark", "set", "-r", "@"]
-bmove- = ["bookmark", "set", "-r", "@-", "--allow-backwards"]
+# 가장 가까운 mutable 북마크를 @로 이동
+bhere = [
+    "bookmark", "move",
+    "--from", "heads(::@ & bookmarks() & ~immutable_heads())",
+    "--to", "@"
+]
+
+# 가장 가까운 북마크를 @로 이동(warning: mutable도 포함!)
+"bhere!" = [
+    "bookmark", "move",
+    "--from", "heads(::@ & bookmarks())",
+    "--to", "@",
+]
+
+# 가장 가까운 mutable 북마크를 @-로 이동
+bhere- = [
+    "bookmark", "move",
+    "--from", "heads(::@ & bookmarks() & ~immutable_heads())",
+    "--to", "@-",
+    "--allow-backwards"
+]
+
+# 가장 가까운 북마크를 @-로 이동(warning: mutable도 포함!)
+"bhere!-" = [
+    "bookmark", "move",
+    "--from", "heads(::@ & bookmarks())",
+    "--to", "@-",
+]
 
 done = ["util", "exec", "sh", "-c", "jj desc -m \"$1\" && jj bookmark set \"$2\" -r @ && jj new"]
