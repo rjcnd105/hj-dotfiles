@@ -7,7 +7,7 @@ description: Use when managing source control with Jujutsu (jj), including commi
 Jujutsu (jj) is a Git-compatible VCS that treats commits as mutable objects identified by a Change ID. It emphasizes a "stacked diffs" workflow where you can easily manipulate history.
 
 ## When to Use
-- **Always** for VCS operations in this project (instead of `git`).
+- **Always** when a `.jj` directory exists in the project root.
 - Creating commits, branches (bookmarks), and PRs.
 - Rebasing, splitting, or squashing changes.
 
