@@ -53,6 +53,19 @@ let
         }
     ) { } (builtins.readDir currentPath));
 
+  # 특정 폴더 자체를 직접 링크 (폴더 내부 파일 변경시 재빌드 불필요)
+  mkLinkSpecificFolder =
+    {
+      path,
+    }:
+    lib.optionalAttrs (builtins.pathExists path) {
+      "${path}" = {
+        source = config.lib.file.mkOutOfStoreSymlink path;
+        force = true;
+        recursive = true;
+      };
+    };
+
 in
 {
 
@@ -60,12 +73,17 @@ in
   home.preferXdgDirectories = true;
   xdg.enable = true;
   # ${PROJECT_ROOT}/files/config/~ 내에 있는 파일들을 host별 매핑
-  xdg.configFile = (
-    mkLinkFolders {
-      basePath = myOptions.absoluteProjectPath + "/files/${myOptions.hostName}/.config";
+  xdg.configFile =
+    let
+      initalBasePath = myOptions.absoluteProjectPath + "/files/${myOptions.hostName}/.config";
+    in
+    (mkLinkFolders {
+      basePath = initalBasePath;
       userPath = config.home.homeDirectory + "/.config";
-    }
-  );
+    })
+    // (mkLinkSpecificFolder {
+      path = initalBasePath + "/opencode/skills";
+    });
 
   home.file = (mkAddFileAttrIfExists ".editorconfig");
 
