@@ -311,6 +311,5 @@
   "unison.trace.server": "verbose",
   "claudeCode.preferredLocation": "panel",
   "json.schemaDownload.enable": true,
-  "cursor.terminal.enableAiChecks": false,
   "emmet.useInlineCompletions": true
 }

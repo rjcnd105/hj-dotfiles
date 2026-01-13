@@ -53,11 +53,11 @@
         "context_servers": {}
       }
     },
-    "default_profile": "ask",
+    "default_profile": "admin",
     "always_allow_tool_actions": true,
     "default_model": {
       "provider": "anthropic",
-      "model": "claude-sonnet-4-5-latest"
+      "model": "claude-sonnet-4-5-thinking-latest"
     },
   },
   "ui_font_size": 12,
