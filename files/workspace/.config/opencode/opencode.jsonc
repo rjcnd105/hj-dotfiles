@@ -34,6 +34,25 @@
       "enabled": true  // macOS-style momentum scrolling
     }
   },
+  "mcp": {
+    "exa": {
+      "type": "local",
+      "command": [
+        "/Users/hj/.local/share/mise/installs/bun/latest/bin/bunx",
+        "-y",
+        "mcp-remote",
+        "https://mcp.exa.ai/mcp"
+      ]
+    },
+    "context7": {
+      "type": "local",
+      "command": [
+        "/Users/hj/.local/share/mise/installs/bun/latest/bin/bunx",
+        "-y",
+        "@upstash/context7-mcp"
+      ]
+    },
+  },
 
   "agent": {
     // Build agent - full capability with slight creativity
