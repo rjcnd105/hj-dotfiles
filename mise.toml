@@ -1,0 +1,11 @@
+
+
+
+[settings.sops]
+age_key_file = "{{env.SOPS_AGE_KEY_FILE}}"
+
+
+[env]
+_.file = [
+  { path = "./secrets/{{env.USER_HOST}}/secrets.yaml", redact = true, read_only = true}
+]

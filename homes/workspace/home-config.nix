@@ -37,6 +37,7 @@ in
     PROJECT_PATH = "${myOptions.absoluteProjectPath}";
     VISUAL = "/usr/local/bin/zed";
     EDITOR = pkgs.helix + "/bin/hx";
+    USER_HOST = myOptions.hostName;
     USER_PROFILE = config.home.profileDirectory;
     XDG_BIN_HOME = "$HOME/.local/bin";
     HM_CURRENT = "/run/current-system/sw";
