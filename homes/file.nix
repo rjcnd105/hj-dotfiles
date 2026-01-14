@@ -49,6 +49,7 @@ let
           "${childPath}" = {
             source = config.lib.file.mkOutOfStoreSymlink currentFile;
             force = true;
+            recursive = true;
           };
         }
     ) { } (builtins.readDir currentPath));
@@ -62,7 +63,6 @@ let
       "${path}" = {
         source = config.lib.file.mkOutOfStoreSymlink path;
         force = true;
-        recursive = true;
       };
     };
 
@@ -83,6 +83,12 @@ in
     })
     // (mkLinkSpecificFolder {
       path = initalBasePath + "/opencode/skills";
+    })
+    // (mkLinkSpecificFolder {
+      path = initalBasePath + "/opencode/agent";
+    })
+    // (mkLinkSpecificFolder {
+      path = initalBasePath + "/opencode/plugin";
     });
 
   home.file = (mkAddFileAttrIfExists ".editorconfig");

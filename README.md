@@ -2,6 +2,11 @@
 
 My mac flake, template, dev configs
 
+## Configuration Structure
+
+Global configuration files are always located in `./files/workspace/.config`.
+- When adding new dotfiles or agent configurations, verify this path.
+
 ## Install
 
 1. nix install (recomended determinate.systems)

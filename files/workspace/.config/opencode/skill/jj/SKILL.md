@@ -1,17 +1,21 @@
+---
 name: using-jj
 description: Use when managing source control with Jujutsu (jj), including commits, branching (bookmarks), rebasing, and GitHub PRs.
-
+---
 # Using Jujutsu (jj)
 
 ## Overview
+
 Jujutsu (jj) is a Git-compatible VCS that treats commits as mutable objects identified by a Change ID. It emphasizes a "stacked diffs" workflow where you can easily manipulate history.
 
 ## When to Use
+
 - **Always** when a `.jj` directory exists in the project root.
 - Creating commits, branches (bookmarks), and PRs.
 - Rebasing, splitting, or squashing changes.
 
 ## Core Concepts
+
 - **Change ID**: Constant identifier (e.g., `kkmpptxz`) for a change. Persists across rewrites.
 - **Commit ID**: Git SHA (e.g., `a1b2c3d`). Changes every time you modify the revision.
 - **Bookmark**: Equivalent to a Git branch. Points to a specific revision.
@@ -19,11 +23,11 @@ Jujutsu (jj) is a Git-compatible VCS that treats commits as mutable objects iden
 
 ## Workflow: Creating a PR
 
-1.  **Work**: Make changes in the working copy.
-2.  **Describe**: `jj describe -m "feat: description"`
-3.  **Bookmark**: `jj bookmark create <branch-name>`
-4.  **Push**: `jj git push --bookmark <branch-name>`
-5.  **PR**: `gh pr create`
+1. **Work**: Make changes in the working copy.
+2. **Describe**: `jj describe -m "feat: description"`
+3. **Bookmark**: `jj bookmark create <branch-name>`
+4. **Push**: `jj git push --bookmark <branch-name>`
+5. **PR**: `gh pr create`
 
 ## Common Operations
 
@@ -45,10 +49,12 @@ Jujutsu (jj) is a Git-compatible VCS that treats commits as mutable objects iden
 - **Squash**: `jj squash` (moves changes into parent)
 
 ## Red Flags / Anti-Patterns
+
 - ❌ **Don't use `git` commands directly** for creating commits/branches (except `gh` CLI).
 - ❌ **Don't panic about "detached HEAD"**. JJ is always detached. Use `jj new` to start fresh.
 - ❌ **Don't forget to push bookmarks**. Changes without bookmarks are local-only.
 
 ## Troubleshooting
+
 - **Conflict**: `jj` records conflicts in the file. Edit file to resolve `<<<<` markers, then no `git add` needed.
 - **Lost**: `jj op log` shows operation history. `jj undo` works like magic.

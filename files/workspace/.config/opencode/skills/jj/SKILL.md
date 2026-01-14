@@ -1,1 +1,0 @@
-/nix/store/9vsfa9s49ai05i9ldsyllv36lnxxa2va-home-manager-files/dot/nix-dots/files/workspace/.config/opencode/skills/jj/SKILL.md
