@@ -2,3 +2,4 @@
 *.swp
 .history/
 .mise.toml
+.mise.local.toml

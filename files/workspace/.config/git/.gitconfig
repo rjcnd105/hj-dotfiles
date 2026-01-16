@@ -1,6 +1,7 @@
 [core]
 quotepath = false
 precomposeunicode = true
+excludesfile = ~/.config/git/.gitignore_global
 
 [push]
 autoSetupRemote = true

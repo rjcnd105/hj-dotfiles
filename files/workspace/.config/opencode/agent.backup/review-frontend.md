@@ -1,0 +1,1 @@
+/nix/store/6k7rsn3awcdjxl81vblpgkblvi4a7br6-home-manager-files/.config/opencode/agent/review-frontend.md

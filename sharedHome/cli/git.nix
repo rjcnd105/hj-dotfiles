@@ -19,6 +19,7 @@
       core = {
         quotePath = false;
         precomposeunicode = true;
+        excludesfile = "~/.config/git/.gitignore_global"; # 글로벌 ignore 경로
       };
       push = {
         autoSetupRemote = true;
