@@ -37,7 +37,10 @@ let
         matchUserFile = userPath + "${userPath}/${childPath}";
       in
 
-      if value == "directory" then
+      # 심볼릭 링크인 경우 재귀 탐색 및 반환 모두 스킵
+      if value == "symlink" then
+        acc
+      else if value == "directory" then
         acc
         // (mkLinkFolders {
           inherit basePath userPath;
@@ -54,18 +57,6 @@ let
         }
     ) { } (builtins.readDir currentPath));
 
-  # 특정 폴더 자체를 직접 링크 (폴더 내부 파일 변경시 재빌드 불필요)
-  mkLinkSpecificFolder =
-    {
-      path,
-    }:
-    lib.optionalAttrs (builtins.pathExists path) {
-      "${path}" = {
-        source = config.lib.file.mkOutOfStoreSymlink path;
-        force = true;
-      };
-    };
-
 in
 {
 
@@ -80,15 +71,6 @@ in
     (mkLinkFolders {
       basePath = initalBasePath;
       userPath = config.home.homeDirectory + "/.config";
-    })
-    // (mkLinkSpecificFolder {
-      path = initalBasePath + "/opencode/skills";
-    })
-    // (mkLinkSpecificFolder {
-      path = initalBasePath + "/opencode/agent";
-    })
-    // (mkLinkSpecificFolder {
-      path = initalBasePath + "/opencode/plugin";
     });
 
   home.file = (mkAddFileAttrIfExists ".editorconfig");

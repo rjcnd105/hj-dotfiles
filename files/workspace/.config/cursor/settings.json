@@ -154,7 +154,7 @@
   },
   "eslint.lintTask.enable": true,
   "cursor.composer.shouldAllowCustomModes": true,
-  "update.releaseTrack": "prerelease",
+  "update.releaseTrack": "dev",
   "explorer.autoReveal": "focusNoScroll",
   "files.exclude": {
     "**/.git": false
@@ -311,5 +311,6 @@
   "unison.trace.server": "verbose",
   "claudeCode.preferredLocation": "panel",
   "json.schemaDownload.enable": true,
-  "emmet.useInlineCompletions": true
+  "emmet.useInlineCompletions": true,
+  "update.mode": "silentlyApplyOnQuit"
 }
