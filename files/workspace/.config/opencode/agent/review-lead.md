@@ -1,7 +1,7 @@
 ---
 description: "Multi-lens code review coordinator"
 mode: subagent
-model: google/antigravity-gemini-3-flash
+model: google/gemini-3-flash-preview
 temperature: 0.2
 tools:
   edit: false

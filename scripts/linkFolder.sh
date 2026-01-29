@@ -16,27 +16,34 @@ find_project_root() {
 }
 
 PROJECT_ROOT="$(find_project_root)"
-# 링크할 폴더 배열 (프로젝트 루트 기준 상대 경로)
-FOLDERS=(
-  ".config/opencode/agent"
-  ".config/opencode/plugin"
-  ".config/opencode/skill"
-)
-
 # 소스 베이스 경로
-SOURCE_BASE="$PROJECT_ROOT/files/workspace"
+SOURCE_BASE="$PROJECT_ROOT/files/$USER_HOST"
 # 타겟 베이스 경로
 TARGET_BASE="$HOME"
+
+# .manual-link 마커 파일이 있는 폴더들을 자동으로 수집
+FOLDERS=()
+while IFS= read -r -d '' marker_file; do
+  # .manual-link 파일의 부모 디렉토리 경로를 SOURCE_BASE 기준 상대 경로로 변환
+  folder_path="$(dirname "$marker_file")"
+  relative_path="${folder_path#$SOURCE_BASE/}"
+  FOLDERS+=("$relative_path")
+done < <(find "$SOURCE_BASE" -name ".manual-link" -type f -print0)
+
+if [[ ${#FOLDERS[@]} -eq 0 ]]; then
+  echo "⚠️  .manual-link 마커 파일이 있는 폴더를 찾을 수 없습니다."
+  exit 0
+fi
+
+echo "📂 발견된 수동 링크 폴더들:"
+for folder in "${FOLDERS[@]}"; do
+  echo "   - $folder"
+done
+echo ""
 
 for folder in "${FOLDERS[@]}"; do
   source_path="$SOURCE_BASE/$folder"
   target_path="$TARGET_BASE/$folder"
-
-  # 소스 폴더 존재 확인
-  if [[ ! -d "$source_path" ]]; then
-    echo "⚠️  소스 폴더가 존재하지 않습니다: $source_path"
-    continue
-  fi
 
   # 타겟 부모 디렉토리 생성
   target_parent="$(dirname "$target_path")"

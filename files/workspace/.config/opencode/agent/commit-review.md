@@ -1,7 +1,7 @@
 ---
-description: Reviews pending changes (Git staged or Jujutsu
+description: "Reviews pending changes (Git staged or Jujutsu)"
 mode: subagent
-model: google/antigravity-gemini-3-pro-high
+model: google/antigravity-gemini-3-pro
 temperature: 0.4
 tools:
   bash: true

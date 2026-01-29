@@ -49,6 +49,7 @@ in
     "/usr/bin"
     "$XDG_BIN_HOME"
     "$HOME/.local/share/mise/installs"
+    "$HOME/.cache/.bun/bin"
   ];
 
   home.stateVersion = inputs.nixpkgs.lib.trivial.release;

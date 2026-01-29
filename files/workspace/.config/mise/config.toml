@@ -6,6 +6,12 @@ idiomatic_version_file_enable_tools = ["ruby"]
 [plugins]
 "nix" = "https://github.com/jbadeau/mise-nix.git"
 
+
+[tools]
+# POC
+"ubi:yoanbernabeu/grepai" = "latest"
+"ollama" = "latest"
+
 [tools.opencode]
 version = "latest"
 
@@ -95,9 +101,6 @@ version = "latest"
 version = "latest"
 
 [tools.aws-cli]
-version = "latest"
-
-[tools.aws-vault]
 version = "latest"
 
 [tools.just]

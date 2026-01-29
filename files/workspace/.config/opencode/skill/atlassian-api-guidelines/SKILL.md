@@ -62,12 +62,25 @@ let filtered = all_issues.filter(i => i.status == "Open");
 | Jira | `startAt`, `maxResults`, `total` |
 | Bitbucket | `pagelen`, `page`, `next` |
 
-### 4. 인증
+### 4. 환경 변수 설정
+
+👉 **`.env.template` 파일을 참조하여 환경 변수를 설정할 것**
+
+| 변수명 | 용도 | 예시 |
+|--------|------|------|
+| `ATLASSIAN_EMAIL` | Atlassian 계정 이메일 | `your_email@provider.com` |
+| `JIRA_HOST` | Jira 인스턴스 URL | `https://your-jira-host.atlassian.net` |
+| `JIRA_API_TOKEN` | Jira API 토큰 | - |
+| `BITBUCKET_WORKSPACE` | Bitbucket 워크스페이스 | `your_workspace` |
+| `BITBUCKET_REPO_SLUG` | Bitbucket 레포지토리 슬러그 | `your_reposlug` |
+| `BITBUCKET_API_TOKEN` | Bitbucket 앱 패스워드/토큰 | - |
+
+### 5. 인증
 
 - **Jira/Bitbucket Cloud:** Basic Auth (email + API token) 또는 OAuth 2.0
-- Authorization 헤더: `Basic base64(email:api_token)`
+- Authorization 헤더: `Basic base64(ATLASSIAN_EMAIL:API_TOKEN)`
 
-### 5. 에러 처리
+### 6. 에러 처리
 
 상태 코드별 처리 필수:
 
@@ -101,3 +114,85 @@ let filtered = all_issues.filter(i => i.status == "Open");
 - 브랜치/커밋 조회
 
 ⚠️ **레포지토리 설정 변경 API는 사용하지 말 것**
+
+## 터미널 API 호출 예시 (curl)
+
+### Bitbucket 브랜치 검색
+
+```bash
+curl -u "$ATLASSIAN_EMAIL:$BITBUCKET_API_TOKEN" \
+  "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO_SLUG/refs/branches?q=name~\"PROJ-123\""
+```
+
+### Bitbucket PR 목록 조회 (서버 필터링)
+
+```bash
+# source 브랜치로 필터링
+curl -u "$ATLASSIAN_EMAIL:$BITBUCKET_API_TOKEN" \
+  "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO_SLUG/pullrequests?q=source.branch.name~\"PROJ-123\"&state=ALL&sort=-created_on&pagelen=20"
+
+# destination 브랜치 추가 필터링
+curl -u "$ATLASSIAN_EMAIL:$BITBUCKET_API_TOKEN" \
+  "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO_SLUG/pullrequests?q=source.branch.name~\"PROJ-123\"%20AND%20destination.branch.name~\"main\"&state=ALL"
+```
+
+### Bitbucket PR 생성
+
+```bash
+curl -u "$ATLASSIAN_EMAIL:$BITBUCKET_API_TOKEN" \
+  -X POST \
+  -H "Content-Type: application/json" \
+  "https://api.bitbucket.org/2.0/repositories/$BITBUCKET_WORKSPACE/$BITBUCKET_REPO_SLUG/pullrequests" \
+  -d '{
+    "title": "[PROJ-123] PR 제목",
+    "source": { "branch": { "name": "feature/PROJ-123" } },
+    "destination": { "branch": { "name": "main" } }
+  }'
+```
+
+### Jira 이슈 조회
+
+```bash
+curl -u "$ATLASSIAN_EMAIL:$JIRA_API_TOKEN" \
+  -H "Accept: application/json" \
+  "$JIRA_HOST/rest/api/3/issue/PROJ-123"
+```
+
+### Jira 이슈 검색 (JQL)
+
+```bash
+curl -u "$ATLASSIAN_EMAIL:$JIRA_API_TOKEN" \
+  -H "Accept: application/json" \
+  "$JIRA_HOST/rest/api/3/search?jql=project=PROJ%20AND%20status=\"In%20Progress\"&maxResults=10"
+```
+
+### Jira 이슈 생성
+
+```bash
+curl -u "$ATLASSIAN_EMAIL:$JIRA_API_TOKEN" \
+  -X POST \
+  -H "Content-Type: application/json" \
+  "$JIRA_HOST/rest/api/3/issue" \
+  -d '{
+    "fields": {
+      "project": { "key": "PROJ" },
+      "summary": "이슈 제목",
+      "issuetype": { "name": "Task" }
+    }
+  }'
+```
+
+### Jira 이슈 상태 전환
+
+```bash
+# 1. 가능한 전환 목록 조회
+curl -u "$ATLASSIAN_EMAIL:$JIRA_API_TOKEN" \
+  "$JIRA_HOST/rest/api/3/issue/PROJ-123/transitions"
+
+# 2. 상태 전환 실행
+curl -u "$ATLASSIAN_EMAIL:$JIRA_API_TOKEN" \
+  -X POST \
+  -H "Content-Type: application/json" \
+  "$JIRA_HOST/rest/api/3/issue/PROJ-123/transitions" \
+  -d '{ "transition": { "id": "31" } }'
+```

@@ -35,10 +35,14 @@ let
         childPath = (if namePath == null then currentName else (namePath + "/${currentName}"));
         currentFile = basePath + "/${childPath}";
         matchUserFile = userPath + "${userPath}/${childPath}";
+        # 디렉토리 내에 .manual-link 마커 파일이 있으면 수동 링크 폴더로 간주
+        isManualLinkDir = value == "directory" && builtins.pathExists (currentFile + "/.manual-link");
       in
 
-      # 심볼릭 링크인 경우 재귀 탐색 및 반환 모두 스킵
+      # 심볼릭 링크이거나 .manual-link 마커가 있는 폴더인 경우 스킵
       if value == "symlink" then
+        acc
+      else if isManualLinkDir then
         acc
       else if value == "directory" then
         acc
