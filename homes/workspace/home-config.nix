@@ -98,9 +98,6 @@ in
   # @see https://github.com/nix-community/home-manager/blob/master/modules/files.nix
   home.activation = {
 
-    miseInstall = lib.hm.dag.entryAfter [ "onFilesChange" ] ''
-      run ${pkgs.mise}/bin/mise install
-    '';
   };
 
   fonts.fontconfig.enable = true;

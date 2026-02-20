@@ -7,6 +7,15 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  "edit_predictions": {
+    "provider": "mercury"
+  },
+  "prettier": {
+    "allowed": true
+  },
+  "document_symbols": "on",
+  "semantic_tokens": "combined",
+  "document_folding_ranges": "on",
   "git_panel": {
     "tree_view": true
   },
@@ -18,6 +27,11 @@
     }
   },
   "agent": {
+    "inline_assistant_model": {
+      "provider": "google",
+      "model": "gemini-3-pro-preview",
+      "enable_thinking": false
+    },
     "profiles": {
       "ask": {
         "name": "Ask",
@@ -64,10 +78,9 @@
       }
     },
     "default_profile": "admin",
-    "always_allow_tool_actions": true,
     "default_model": {
-      "provider": "anthropic",
-      "model": "claude-opus-4-5-latest"
+      "provider": "google",
+      "model": "gemini-3-pro-preview"
     },
   },
   "ui_font_size": 12,
@@ -90,9 +103,6 @@
     }
   },
 
-  "features": {
-    "edit_prediction_provider": "zed"
-  },
   // korean support
   "ui_font_fallbacks": ["D2CodingLigature Nerd Font"],
 
@@ -102,17 +112,10 @@
     "HEEX": ["heex"],
     "Elixir": ["ex", "exs"]
   },
-  // 이 설정은 파일 확장자와 언어 모드를 연결합니다
-  "associations": {
-    "*.ex": "elixir",
-    "*.exs": "elixir",
-    "*.heex": "heex",
-    "*.eex": "html"
-  },
 
   "theme": {
-    "mode": "system",
-    "light": "Catppuccin Frappé",
+    "mode": "light",
+    "light": "Catppuccin Latte",
     "dark": "Catppuccin Macchiato"
   },
 
@@ -154,9 +157,6 @@
       ]
     }
   },
-  "chat_panel": {
-    "dock": "left"
-  },
 
   "buffer_font_features": {
     "calt": false
@@ -167,11 +167,6 @@
     "git_status": true
   },
   "lsp": {
-    "biome": {
-      "settings": {
-        "require_config_file": true
-      }
-    },
     "nil": {
       "initialization_options": {
         "formatting": {
@@ -211,18 +206,7 @@
         }
       }
     },
-    "html-language-server": {
-      "settings": {
-        "html": {
-          "includeLanguages": {
-            "heex": "html",
-            "elixir": "html"
-          },
-          "autoClosingTags": true,
-          "autoCreateQuotes": true
-        }
-      }
-    },
+
     "tailwindcss-language-server": {
       "settings": {
         "classFunctions": ["tw", "clsx", "cx", "tva", "twMerge", "cva", "cn"],
@@ -243,87 +227,32 @@
           ["twMerge\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
         ]
       }
-    },
-    "luau-lsp": {
-      "settings": {
-        "luau-lsp": {
-          "inlayHints": {
-            "parameterNames": "all"
-          }
-        }
-      }
     }
   },
   "languages": {
     "JavaScript": {
-      "formatter": [
-        {
-          "code_action": "source.fixAll.eslint"
-        },
-        {
-          "code_action": "source.action.useSortedKeys.biome"
-        },
-        {
-          "code_action": "source.fixAll.biome"
-        },
-        "prettier",
-        {
-          "language_server": {
-            "name": "biome"
-          }
-        }
-      ]
+      "formatter": null,
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true
+      }
     },
     "TypeScript": {
-      "formatter": [
-        {
-          "code_action": "source.fixAll.eslint"
-        },
-        {
-          "code_action": "source.action.useSortedKeys.biome"
-        },
-        {
-          "code_action": "source.fixAll.biome"
-        },
-        "prettier",
-        {
-          "language_server": {
-            "name": "biome"
-          }
-        }
-      ]
+      "formatter": null,
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true
+      }
     },
     "TSX": {
-      "formatter": [
-        {
-          "code_action": "source.fixAll.eslint"
-        },
-        {
-          "code_action": "source.action.useSortedKeys.biome"
-        },
-        {
-          "code_action": "source.fixAll.biome"
-        },
-        "prettier",
-        {
-          "language_server": {
-            "name": "biome"
-          }
-        }
-      ]
+      "formatter": null,
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true
+      }
     },
 
     "JSON": { "formatter": { "language_server": { "name": "biome" } } },
     "JSONC": { "formatter": { "language_server": { "name": "biome" } } },
     "CSS": { "formatter": { "language_server": { "name": "biome" } } },
-    "Luau": {
-      "formatter": {
-        "external": {
-          "command": "stylua",
-          "arguments": ["--stdin-filepath", "{buffer_path}", "-"]
-        }
-      }
-    },
+
     "Elixir": {
       "formatter": {
         "external": {
@@ -344,11 +273,11 @@
         "tailwindcss-language-server"
       ],
       "format_on_save": "on",
-      // ~H sigil 내의 HTML 인식을 위한 설정
-      "embedded_languages": {
-        "~H": "html",
-        "heex": "html"
-      }
+      // // ~H sigil 내의 HTML 인식을 위한 설정
+      // "embedded_languages": {
+      //   "~H": "html",
+      //   "heex": "html"
+      // }
     },
     "HEEX": {
       "formatter": {
@@ -376,5 +305,48 @@
       "language_servers": ["nil", "!nixd"]
     }
   },
-  "context_servers": {}
+  "context_servers": {
+    "chrome-devtools-mcp-zed": {
+      "enabled": true,
+      "remote": false,
+      "settings": {
+        "browser_url": null,
+        "ws_endpoint": null,
+        "ws_headers": null,
+        "auto_connect": true,
+        "channel": null,
+        "headless": null,
+        "isolated": null,
+        "user_data_dir": null,
+        "viewport": null,
+        "executable_path": null,
+        "chrome_arg": [],
+        "proxy_server": null,
+        "accept_insecure_certs": null,
+        "category_emulation": null,
+        "category_performance": null,
+        "category_network": null,
+        "log_file": null,
+        "extra_args": []
+      }
+    },
+    "mcp-server-github": {
+      "enabled": true,
+      "remote": false,
+      "settings": {}
+    },
+
+    "mcp-server-exa-search": {
+      "enabled": true,
+      "remote": false,
+      "settings": {
+        "exa_api_key": "3c524b3a-c4d4-4c8a-8348-b7018f3ce1fd"
+      }
+    },
+    "postgres-context-server": {
+      "enabled": true,
+      "remote": false,
+      "settings": {}
+    }
+  }
 }

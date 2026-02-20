@@ -311,5 +311,13 @@
   "unison.trace.server": "verbose",
   "claudeCode.preferredLocation": "panel",
   "json.schemaDownload.enable": true,
-  "emmet.useInlineCompletions": true
+  "emmet.useInlineCompletions": true,
+  "editor.experimental.preferTreeSitter.regex": true,
+  "editor.lineHeight": 1.6,
+  "workbench.editor.enablePreviewFromQuickOpen": true,
+  "workbench.editor.enablePreviewFromCodeNavigation": true,
+  "workbench.editor.highlightModifiedTabs": true,
+  "workbench.editor.closeOnFileDelete": true,
+  "workbench.editor.limit.enabled": true,
+  "workbench.editor.limit.perEditorGroup": true
 }

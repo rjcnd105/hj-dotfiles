@@ -29,8 +29,7 @@
       //
 
       "cmd-r": ["task::Spawn", { "task_name": "run_file" }],
-      "cmd-0": "project_panel::ToggleFocus",
-      "cmd-1": ["workspace::ActivatePane", 0]
+      "cmd-escape": "project_panel::ToggleFocus"
     }
   },
   {

@@ -34,16 +34,20 @@ let
       let
         childPath = (if namePath == null then currentName else (namePath + "/${currentName}"));
         currentFile = basePath + "/${childPath}";
-        matchUserFile = userPath + "${userPath}/${childPath}";
-        # 디렉토리 내에 .manual-link 마커 파일이 있으면 수동 링크 폴더로 간주
+        # .manual-link 파일이 있으면 "통째로 링크할 디렉토리"로 판단
         isManualLinkDir = value == "directory" && builtins.pathExists (currentFile + "/.manual-link");
       in
-
       # 심볼릭 링크이거나 .manual-link 마커가 있는 폴더인 경우 스킵
       if value == "symlink" then
         acc
+      # .manual-link가 발견되면 재귀를 멈추고 폴더 자체를 링크함
       else if isManualLinkDir then
-        acc
+        acc // {
+          "${childPath}" = {
+            source = config.lib.file.mkOutOfStoreSymlink currentFile;
+            force = true; # 기존 디렉토리가 있어도 강제로 덮어쓰고 링크로 대체
+          };
+        }
       else if value == "directory" then
         acc
         // (mkLinkFolders {
@@ -55,7 +59,6 @@ let
         // {
           "${childPath}" = {
             source = config.lib.file.mkOutOfStoreSymlink currentFile;
-            force = true;
             recursive = true;
           };
         }
