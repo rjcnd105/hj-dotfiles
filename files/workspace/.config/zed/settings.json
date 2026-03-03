@@ -8,7 +8,10 @@
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
   "edit_predictions": {
-    "provider": "mercury"
+    "sweep": {
+      "privacy_mode": true
+    },
+    "provider": "sweep"
   },
   "prettier": {
     "allowed": true
@@ -157,14 +160,24 @@
       ]
     }
   },
-
+  "file_scan_exclusions": [
+     // "**/.git",
+     "**/.svn",
+     "**/.hg",
+     "**/.jj",
+     "**/CVS",
+     "**/.DS_Store",
+     "**/Thumbs.db",
+     "**/.classpath",
+     "**/.settings"
+   ],
   "buffer_font_features": {
     "calt": false
   },
   "project_panel": {
     "auto_fold_dirs": false,
     "indent_size": 16,
-    "git_status": true
+    "git_status": true,
   },
   "lsp": {
     "nil": {
@@ -184,6 +197,13 @@
         "fetchDeps": true,
         "signatureAfterComplete": true,
         "enableHEExFormatter": true
+      }
+    },
+    "expert": {
+      "settings": {
+        "workspaceSymbols": {
+          "minQueryLength": 0
+        }
       }
     },
     "emmet-language-server": {
@@ -268,7 +288,8 @@
       "show_edit_predictions": true,
       "show_whitespaces": "selection",
       "language_servers": [
-        "elixir-ls",
+        // "elixir-ls",
+        "expert",
         "html-language-server",
         "tailwindcss-language-server"
       ],
@@ -340,6 +361,7 @@
       "enabled": true,
       "remote": false,
       "settings": {
+        "exa_api_key": "3c524b3a-c4d4-4c8a-8348-b7018f3ce1fd"
       }
     },
     "postgres-context-server": {

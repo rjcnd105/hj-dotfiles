@@ -41,6 +41,7 @@ in
     USER_PROFILE = config.home.profileDirectory;
     XDG_BIN_HOME = "$HOME/.local/bin";
     HM_CURRENT = "/run/current-system/sw";
+    OBSIDIAN = "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents";
 
     ZED_ALLOW_ROOT = "true";
   };

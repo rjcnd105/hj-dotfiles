@@ -11,6 +11,7 @@ idiomatic_version_file_enable_tools = ["ruby"]
 # POC
 "ubi:yoanbernabeu/grepai" = "latest"
 "ollama" = "latest"
+"osv-scanner" = "latest"
 
 [tools.opencode]
 version = "latest"
