@@ -23,7 +23,7 @@ build_hj-workspace:
 darwin-switch:
     set -euo pipefail
     source {{root_dir}}/createEnv.sh
-    ./result/sw/bin/darwin-rebuild switch --flake .#workspace_hj --show-trace --impure --fallback
+    darwin-rebuild switch --flake .#workspace_hj --show-trace --impure --fallback
 
 
 # new-darwin-switch:
