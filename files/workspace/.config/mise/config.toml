@@ -135,6 +135,28 @@ run = '''
 /Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug
 '''
 
+[tasks.jj-desc]
+description = "AI로 jj commit description 자동 작성 (Claude Haiku)"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+
+DIFF=$(jj diff --git)
+if [ -z "$DIFF" ]; then echo "변경사항이 없습니다"; exit 1; fi
+
+PROMPT_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/jj/commit-prompt.txt"
+PROMPT=$(cat "$PROMPT_FILE")
+
+MSG=$(echo "$DIFF" | claude -p "$PROMPT" --model haiku --no-session-persistence --disable-slash-commands --allowedTools "" 2>/dev/null)
+
+if [ -z "$MSG" ]; then echo "API 응답 실패"; exit 1; fi
+
+echo "$MSG"
+read -r ans < /dev/tty
+case "$ans" in [nN]*) echo "취소됨"; exit 1 ;; esac
+jj desc -m "$MSG"
+'''
+
 # claude native 설치를 위함
 [tasks.install-claude]
 description = "Claude Code CLI 네이티브 스크립트로 설치"

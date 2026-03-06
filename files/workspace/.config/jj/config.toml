@@ -65,3 +65,4 @@ bhere- = [
 ]
 
 done = ["util", "exec", "sh", "-c", "jj desc -m \"$1\" && jj bookmark set \"$2\" -r @ && jj new"]
+ai-desc = ["util", "exec", "mise", "run", "jj-desc"]

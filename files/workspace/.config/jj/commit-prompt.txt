@@ -1,0 +1,7 @@
+Write a minimal commit message in Korean from this diff.
+
+Rules:
+- Single line only, max 72 chars
+- Prefix: feat:, fix:, refactor:, docs:, chore:
+- No details, no bullet points, no explanation
+- Output ONLY the message, no formatting
