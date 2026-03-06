@@ -141,8 +141,12 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 
-DIFF=$(jj diff --git)
-if [ -z "$DIFF" ]; then echo "변경사항이 없습니다"; exit 1; fi
+STAT=$(jj diff --stat)
+if [ -z "$STAT" ]; then echo "변경사항이 없습니다"; exit 1; fi
+
+# stat(파일 요약) + diff 앞부분(최대 2000자)로 토큰 절약
+DIFF=$(jj diff --git | head -c 2000)
+CONTEXT="[변경 파일]\n${STAT}\n\n[Diff (truncated)]\n${DIFF}"
 
 PROMPT_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/jj/commit-prompt.txt"
 PROMPT=$(cat "$PROMPT_FILE")
@@ -150,7 +154,7 @@ PROMPT=$(cat "$PROMPT_FILE")
 MSG=$(curl -s "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent" \
   -H "x-goog-api-key: ${GEMINI_API_KEY_FREE}" \
   -H 'Content-Type: application/json' \
-  -d "$(jq -n --arg text "$PROMPT"$'\n\n'"$DIFF" '{contents:[{parts:[{text:$text}]}]}')" \
+  -d "$(jq -n --arg text "$PROMPT"$'\n\n'"$CONTEXT" '{contents:[{parts:[{text:$text}]}],generationConfig:{maxOutputTokens:512}}')" \
   | jq -r '.candidates[0].content.parts[0].text')
 
 if [ -z "$MSG" ] || [ "$MSG" = "null" ]; then echo "API 응답 실패"; exit 1; fi
