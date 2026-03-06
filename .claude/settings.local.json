@@ -1,4 +1,9 @@
 {
   "outputStyle": "Explanatory",
-  "prefersReducedMotion": false
+  "prefersReducedMotion": false,
+  "permissions": {
+    "allow": [
+      "Bash(mise --help)"
+    ]
+  }
 }

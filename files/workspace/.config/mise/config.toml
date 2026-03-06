@@ -136,7 +136,7 @@ run = '''
 '''
 
 [tasks.jj-desc]
-description = "AI로 jj commit description 자동 작성 (Claude Haiku)"
+description = "AI로 jj commit description 자동 작성 (Gemini Flash)"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -147,14 +147,16 @@ if [ -z "$DIFF" ]; then echo "변경사항이 없습니다"; exit 1; fi
 PROMPT_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/jj/commit-prompt.txt"
 PROMPT=$(cat "$PROMPT_FILE")
 
-MSG=$(echo "$DIFF" | claude -p "$PROMPT" --model haiku --no-session-persistence --disable-slash-commands --allowedTools "" 2>/dev/null)
+MSG=$(curl -s "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent" \
+  -H "x-goog-api-key: ${GEMINI_API_KEY_FREE}" \
+  -H 'Content-Type: application/json' \
+  -d "$(jq -n --arg text "$PROMPT"$'\n\n'"$DIFF" '{contents:[{parts:[{text:$text}]}]}')" \
+  | jq -r '.candidates[0].content.parts[0].text')
 
-if [ -z "$MSG" ]; then echo "API 응답 실패"; exit 1; fi
+if [ -z "$MSG" ] || [ "$MSG" = "null" ]; then echo "API 응답 실패"; exit 1; fi
 
-echo "$MSG"
-read -r ans < /dev/tty
-case "$ans" in [nN]*) echo "취소됨"; exit 1 ;; esac
 jj desc -m "$MSG"
+echo "✓ $MSG"
 '''
 
 # claude native 설치를 위함
