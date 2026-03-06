@@ -49,9 +49,6 @@ postinstall = """
 [tools.jjui]
 version = "latest"
 
-[tools.claude]
-version = "latest"
-
 [tools.gemini-cli]
 version = "latest"
 
@@ -73,9 +70,6 @@ version = "latest"
 [tools.node]
 version = "24"
 postinstall = "corepack enable"
-
-[tools.lua]
-version = "latest"
 
 [tools.python]
 version = "latest"
@@ -140,3 +134,8 @@ run = """
 run = '''
 /Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug
 '''
+
+# claude native 설치를 위함
+[tasks.install-claude]
+description = "Claude Code CLI 네이티브 스크립트로 설치"
+run = "curl -fsSL https://claude.ai/install.sh | bash"

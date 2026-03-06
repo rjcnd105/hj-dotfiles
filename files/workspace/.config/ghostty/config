@@ -1,0 +1,8 @@
+# Alt + n : 자동 분할 (창 비율에 맞춰 가로/세로 중 자동으로 분할)
+keybind = alt+n=new_split:auto
+
+# Alt + Shift + h, j, k, l : 지정된 방향으로 분할
+keybind = alt+shift+h=new_split:left
+keybind = alt+shift+j=new_split:down
+keybind = alt+shift+k=new_split:up
+keybind = alt+shift+l=new_split:right
