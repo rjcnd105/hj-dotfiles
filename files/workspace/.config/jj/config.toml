@@ -3,19 +3,24 @@
 [user]
 name = "hj"
 email = "rjcnd123@gmail.com"
+editor = "cursor"
 
 [ui]
 editor = "hx"
 default-command = "log"
-merge-editor = "cursor"
+# merge-editor = "zed"
 diff-formatter = "difft"
 
-[merge-tools.cursor]
-program = "cursor"
-merge-args = ["--wait", "--merge", "$left", "$right", "$base", "$output"]
-# VS Code reads the output file and behaves better if it's prepopulated with conflict
-# markers. Unfortunately, it does not seem to be able to output conflict markers when
-# the user only resolves some of the conflicts.
+
+[merge-tools.zed]
+program = "zed"
+# jj split 이나 jj diff --tool zed 실행 시 Zed의 diff 모드로 열기
+diff-args = ["--wait", "--diff", "$left", "$right"]
+
+# jj resolve 실행 시 설정
+# (Zed는 아직 3-way merge 전용 UI가 없으므로, jj가 파일에 충돌 마커(<<<<)를
+# 심어두면 Zed로 그 파일을 열어서 수정하도록 설정합니다.)
+merge-args = ["--wait", "$output"]
 merge-tool-edits-conflict-markers = true
 
 [revset-aliases]
