@@ -1,3 +1,10 @@
+# https://ghostty.org/docs/config/keybind/reference
+
+macos-option-as-alt = true
+theme = Arcoiris
+command = /Users/hj/.config/ghostty/ghostty-nix-env.sh
+shell-integration = fish
+
 # Alt + n : 자동 분할 (창 비율에 맞춰 가로/세로 중 자동으로 분할)
 keybind = alt+n=new_split:auto
 
@@ -6,3 +13,9 @@ keybind = alt+shift+h=new_split:left
 keybind = alt+shift+j=new_split:down
 keybind = alt+shift+k=new_split:up
 keybind = alt+shift+l=new_split:right
+keybind = alt+w=close_surface
+
+keybind = alt+j=goto_split:down
+keybind = alt+h=goto_split:left
+keybind = alt+l=goto_split:right
+keybind = alt+k=goto_split:up

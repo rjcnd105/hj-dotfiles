@@ -13,6 +13,9 @@ idiomatic_version_file_enable_tools = ["ruby"]
 "ollama" = "latest"
 "osv-scanner" = "latest"
 
+[tools.codex]
+version = "latest"
+
 [tools.opencode]
 version = "latest"
 
