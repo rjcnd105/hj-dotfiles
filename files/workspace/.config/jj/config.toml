@@ -14,9 +14,13 @@ diff-formatter = "difft"
 
 [merge-tools.zed]
 program = "zed"
-# jj split 이나 jj diff --tool zed 실행 시 Zed의 diff 모드로 열기
-diff-args = ["--wait", "--diff", "$left", "$right"]
-
+diff-args = [
+  "--wait",
+  "--new",
+  "--diff",
+  "$left",
+  "$right",
+]
 # jj resolve 실행 시 설정
 # (Zed는 아직 3-way merge 전용 UI가 없으므로, jj가 파일에 충돌 마커(<<<<)를
 # 심어두면 Zed로 그 파일을 열어서 수정하도록 설정합니다.)
@@ -30,6 +34,7 @@ merge-tool-edits-conflict-markers = true
 [aliases]
 fetch   = ["git", "fetch", "--all-remotes"]
 publish   = ["git", "push", "--allow-new"]
+zdiff = ["diff", "--tool", "zed"]
 # Take content from any change, and move it into @. The inverse of 'eject'
 # - jj consume xyz path/to/file`
 consume = ["squash", "--into", "@", "--from"]
