@@ -1,0 +1,8 @@
+[tasks.add-fish-completions]
+usage = '''
+arg "<scriptname>" help="target script name"
+example "mise run add-fish-completions add-my-skill"
+'''
+run = '''
+usage generate completion -f ${usage_scriptname} fish ${usage_scriptname} > ../../.config/fish/completions/${usage_scriptname}.fish
+'''

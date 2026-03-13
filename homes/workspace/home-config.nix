@@ -48,9 +48,10 @@ in
 
   home.sessionPath = [
     "/usr/bin"
-    "$XDG_BIN_HOME"
-    "$HOME/.local/share/mise/installs"
-    "$HOME/.cache/.bun/bin"
+    # "$XDG_BIN_HOME"
+    # "$HOME/.local/share/mise/installs"
+    # "$HOME/.cache/.bun/bin"
+    # "$HOME/.local/scripts"
   ];
 
   home.stateVersion = inputs.nixpkgs.lib.trivial.release;

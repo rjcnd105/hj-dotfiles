@@ -2,6 +2,7 @@
 experimental = true
 python.uv_venv_auto = true
 idiomatic_version_file_enable_tools = ["ruby"]
+env_shell_expand = true
 
 [plugins]
 "nix" = "https://github.com/jbadeau/mise-nix.git"
@@ -120,6 +121,7 @@ version = "latest"
 version = "latest"
 
 
+
 [tasks.mise-completion]
 run = """
   mise completion fish > ~/.config/fish/completions/mise.fish
@@ -161,3 +163,11 @@ echo "✓ $MSG"
 [tasks.install-claude]
 description = "Claude Code CLI 네이티브 스크립트로 설치"
 run = "curl -fsSL https://claude.ai/install.sh | bash"
+
+[env]
+_.path = [
+  "$XDG_BIN_HOME",
+  "$HOME/.cache/.bun/bin",
+  "$HOME/.local/scripts"
+]
+SKILLIB = "$HOME/.local/agents/skills"

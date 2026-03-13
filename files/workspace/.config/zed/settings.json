@@ -1,4 +1,9 @@
 {
+  "terminal": {
+    "shell": {
+      "program": "/etc/profiles/per-user/hj/bin/fish"
+    }
+  },
   "edit_predictions": {
     "sweep": {
       "privacy_mode": true

@@ -1,9 +1,11 @@
 {
-  "outputStyle": "Explanatory",
-  "prefersReducedMotion": false,
   "permissions": {
     "allow": [
-      "Bash(mise --help)"
+      "Bash(mise --help)",
+      "Bash(fish -l -c 'echo $PATH')",
+      "WebFetch(domain:github.com)"
     ]
-  }
+  },
+  "outputStyle": "Explanatory",
+  "prefersReducedMotion": false
 }
