@@ -48,7 +48,7 @@ in
 
   home.sessionPath = [
     "/usr/bin"
-    # "$XDG_BIN_HOME"
+    "$XDG_BIN_HOME"
     # "$HOME/.local/share/mise/installs"
     # "$HOME/.cache/.bun/bin"
     # "$HOME/.local/scripts"

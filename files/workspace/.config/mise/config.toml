@@ -120,6 +120,9 @@ version = "latest"
 [tools.ffmpeg]
 version = "latest"
 
+[tools.pandoc]
+version = "latest"
+
 
 
 [tasks.mise-completion]
@@ -166,7 +169,6 @@ run = "curl -fsSL https://claude.ai/install.sh | bash"
 
 [env]
 _.path = [
-  "$XDG_BIN_HOME",
   "$HOME/.cache/.bun/bin",
   "$HOME/.local/scripts"
 ]
