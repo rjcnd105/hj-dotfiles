@@ -1,0 +1,8 @@
+{
+  "name": "self-improving",
+  "description": "Plugin for self improvement loop",
+  "version": "1.0.0",
+  "author": {
+    "name": "김회준"
+  }
+}

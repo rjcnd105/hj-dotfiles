@@ -169,7 +169,7 @@ run = "curl -fsSL https://claude.ai/install.sh | bash"
 
 [env]
 _.path = [
-  "$HOME/.cache/.bun/bin",
-  "$HOME/.local/scripts"
+  # "$HOME/.cache/.bun/bin",
+  # "$HOME/.local/scripts"
 ]
 SKILLIB = "$HOME/.local/agents/skills"

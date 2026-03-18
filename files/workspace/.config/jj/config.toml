@@ -3,13 +3,20 @@
 [user]
 name = "hj"
 email = "rjcnd123@gmail.com"
-editor = "cursor"
+editor = "zed"
 
 [ui]
 editor = "hx"
 default-command = "log"
 # merge-editor = "zed"
 diff-formatter = "difft"
+
+[git]
+private-commits = "description(glob:'wip:*') | description(glob:'private:*')"
+
+[snapshot]
+# https://docs.jj-vcs.dev/latest/working-copy/#stale-working-copy
+auto-update-stale = true
 
 
 [merge-tools.zed]
@@ -32,8 +39,10 @@ merge-tool-edits-conflict-markers = true
 "closest_mut_bm(to)" = "heads(::to & bookmarks() & mutable())"
 
 [aliases]
-fetch   = ["git", "fetch", "--all-remotes"]
-publish   = ["git", "push", "--allow-new"]
+l = ["log", "-r", "@ | ancestors(trunk()..(visible_heads() & mine()), 2) | trunk()"]
+la = ["log", "-r", "all()"]
+gfetch   = ["git", "fetch", "--all-remotes"]
+gpub   = ["git", "push", "--allow-new"]
 zdiff = ["diff", "--tool", "zed"]
 # Take content from any change, and move it into @. The inverse of 'eject'
 # - jj consume xyz path/to/file`
