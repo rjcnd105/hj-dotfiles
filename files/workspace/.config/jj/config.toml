@@ -83,5 +83,8 @@ bhere- = [
     "--to", "@-",
 ]
 
-done = ["util", "exec", "sh", "-c", "jj desc -m \"$1\" && jj bookmark set \"$2\" -r @ && jj new"]
-ai-desc = ["util", "exec", "mise", "run", "jj-desc"]
+done = ["util", "exec", "--", "sh", "-c", "jj desc -m \"$1\" && jj bookmark set \"$2\" -r @ && jj new", ""]
+ai-desc = [
+    "util", "exec", "--", "sh", "-c",
+    "MSG=$(mise run gen-ai-desc) && jj desc -m \"$MSG\" && printf '✓ %s\\n' \"$MSG\"", ""
+]

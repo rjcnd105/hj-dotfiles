@@ -60,7 +60,11 @@ END PROFILE: <name>
 ```
 
 6. `프로필 [<name>] 로드 완료.` 출력
-7. 이후 모든 응답에서 프로필의 지침을 따른다 — 성격, 가치관, 커뮤니케이션 스타일, failure mode 감지 등
+7. 프로필 환경변수 설정:
+   ```bash
+   export HINDSIGHT_TAG_PROFILE="<name>"
+   ```
+8. 이후 모든 응답에서 프로필의 지침을 따른다 — 성격, 가치관, 커뮤니케이션 스타일, failure mode 감지 등
 
 로드 시 주의사항:
 - `sessions/`와 `memories/` 하위 디렉토리는 읽지 않는다. PROFILE.md 안에 정의된 Navigation Protocol에 따라 필요할 때만 on-demand로 접근한다.
@@ -78,7 +82,11 @@ PROFILE UNLOADED: <name>
 ---
 ```
 
-3. `프로필 [<name>] 언로드 완료.`
+3. 프로필 환경변수 해제:
+   ```bash
+   unset HINDSIGHT_TAG_PROFILE
+   ```
+4. `프로필 [<name>] 언로드 완료.`
 
 ### `list`
 
@@ -89,3 +97,10 @@ bash <skill-dir>/scripts/list.sh
 ```
 
 스크립트가 `~/.claude/profiles/` 하위 디렉토리를 탐색하여 `PROFILE.md`가 존재하는 프로필의 이름과 제목을 출력한다. 결과 앞에 `사용 가능한 프로필:` 헤더를 붙여 표시한다.
+
+## Hindsight 연동
+
+프로필 로드 시 `export HINDSIGHT_TAG_PROFILE="<name>"`으로 현재 세션에 프로필 태그를 설정한다.
+Hindsight 규칙(`rules/hindsight.md`)은 이 환경변수를 읽어 `profile:<name>` 태그를 구성한다.
+프로필 언로드 시 `unset HINDSIGHT_TAG_PROFILE`로 태그가 제거된다.
+환경변수는 프로세스별로 격리되므로 여러 Claude Code 인스턴스가 각자 다른 프로필을 사용할 수 있다.

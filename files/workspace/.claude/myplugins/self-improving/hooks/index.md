@@ -1,1 +1,0 @@
-ooks are shell scripts that run before or after tool calls. Pre-commit validation, bash command safety guards, output compression, clipboard handling. These are deterministic -- they execute the same way every time, unlike probabilistic skill instructions.

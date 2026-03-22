@@ -124,7 +124,6 @@ version = "latest"
 version = "latest"
 
 
-
 [tasks.mise-completion]
 run = """
   mise completion fish > ~/.config/fish/completions/mise.fish
@@ -142,8 +141,8 @@ run = '''
 /Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug
 '''
 
-[tasks.jj-desc]
-description = "AI로 jj commit description 자동 작성 (Gemini CLI)"
+[tasks.gen-ai-desc]
+description = "AI로 jj commit description 자동 작성 (Codex GPT-5.4 Mini)"
 run = '''
 #!/usr/bin/env bash
 set -euo pipefail
@@ -154,12 +153,35 @@ if [ -z "$STAT" ]; then echo "변경사항이 없습니다"; exit 1; fi
 PROMPT_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/jj/commit-prompt.txt"
 PROMPT=$(cat "$PROMPT_FILE")
 
-MSG=$({ echo "[변경 파일]"; echo "$STAT"; echo; echo "[Diff (삭제 전용 파일 제외)]"; jj diff --git | awk '/^diff --git/{header=$0; deleted=0} /^deleted file mode/{deleted=1} {if(!deleted) print}' | head -c 3000; } | gemini -p "$PROMPT" --allowed-mcp-server-names="[]" --extensions="[]" -m flash-lite -o text 2>/dev/null || true)
+MSG_FILE=$(mktemp)
+trap 'rm -f "$MSG_FILE"' EXIT
+
+{
+  echo "[사용자 프롬프트]"
+  echo "$PROMPT"
+  echo
+  echo "[변경 파일]"
+  echo "$STAT"
+  echo
+  echo "[Diff (삭제 전용 파일 제외)]"
+  jj diff --git | awk '/^diff --git/{header=$0; deleted=0} /^deleted file mode/{deleted=1} {if(!deleted) print}' | head -c 3000
+} | codex exec \
+  -m gpt-5.4-mini \
+  -s read-only \
+  --disable apps \
+  --color never \
+  --output-last-message "$MSG_FILE" \
+  -c model_reasoning_effort='"low"' \
+  -c 'mcp_servers={}' \
+  -c default_tools_enabled=false \
+  -c 'skills.config=[]' \
+  - >/dev/null 2>/dev/null || true
+
+MSG=$(cat "$MSG_FILE")
 
 if [ -z "$MSG" ]; then echo "API 응답 실패"; exit 1; fi
 
-jj desc -m "$MSG"
-echo "✓ $MSG"
+printf '%s\n' "$MSG"
 '''
 
 # claude native 설치를 위함
@@ -168,8 +190,15 @@ description = "Claude Code CLI 네이티브 스크립트로 설치"
 run = "curl -fsSL https://claude.ai/install.sh | bash"
 
 [env]
+_.file = [
+  "$PROJECT_PATH/secrets/$USER_HOST/pub.enc.yaml"
+]
 _.path = [
   # "$HOME/.cache/.bun/bin",
   # "$HOME/.local/scripts"
 ]
 SKILLIB = "$HOME/.local/agents/skills"
+HINDSIGHT_BANK_ID = "my"
+HINDSIGHT_BANK_USER = "hj"
+# 프로젝트 명시시
+# HINDSIGHT_TAG_PROJECT = "nix-dot"

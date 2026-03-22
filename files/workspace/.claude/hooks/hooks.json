@@ -4,7 +4,7 @@
       {
         "matcher": "Bash|Write|Edit",
         "hooks": [
-          { "type": "command", "command": "bash ${SKILLS_DIR}/self-improving-agent/hooks/pre-tool.sh \"$TOOL_NAME\" \"$TOOL_INPUT\"" }
+          { "type": "command", "command": "bash ${SKILLS_DIR}/self-improving-agent/scripts/pre-tool.sh \"$TOOL_NAME\" \"$TOOL_INPUT\"" }
         ]
       }
     ],
@@ -12,7 +12,7 @@
       {
         "matcher": "Bash",
         "hooks": [
-          { "type": "command", "command": "bash ${SKILLS_DIR}/self-improving-agent/hooks/post-bash.sh \"$TOOL_OUTPUT\" \"$EXIT_CODE\"" }
+          { "type": "command", "command": "bash ${SKILLS_DIR}/self-improving-agent/scripts/post-bash.sh \"$TOOL_OUTPUT\" \"$EXIT_CODE\"" }
         ]
       }
     ],
@@ -20,7 +20,7 @@
       {
         "matcher": "",
         "hooks": [
-          { "type": "command", "command": "bash ${SKILLS_DIR}/self-improving-agent/hooks/session-end.sh" }
+          { "type": "command", "command": "bash ${SKILLS_DIR}/self-improving-agent/scripts/session-end.sh" }
         ]
       }
     ]
