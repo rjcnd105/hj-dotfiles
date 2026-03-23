@@ -54,36 +54,21 @@ cp = ["restore", "--to", "@", "--from"]
 # - jj eject xyz --interactive
 eject = ["squash", "--from", "@", "--into"]
 
-# 가장 가까운 mutable 북마크를 @로 이동
-bhere = [
-    "bookmark", "move",
-    "--from", "closest_mut_bm(@)",
-    "--to", "@"
-]
-
-# 가장 가까운 북마크를 @로 이동(warning: immutable도 포함!)
-"bhere!" = [
-    "bookmark", "move",
-    "--from", "closest_bm(@)",
-    "--to", "@",
-]
-
 # 가장 가까운 mutable 북마크를 @-로 이동
-bhere- = [
-    "bookmark", "move",
-    "--from", "closest_mut_bm(@)",
-    "--to", "@-",
-    "--allow-backwards"
-]
+# bhere- = [
+#     "bookmark", "move",
+#     "--from", "closest_mut_bm(@)",
+#     "--to", "@-",
+# ]
 
 # 가장 가까운 북마크를 @-로 이동(warning: immutable도 포함!)
-"bhere-!" = [
-    "bookmark", "move",
-    "--from", "closest_bm(@)",
-    "--to", "@-",
-]
+# "bhere-!" = [
+#     "bookmark", "move",
+#     "--from", "closest_bm(@)",
+#     "--to", "@-",
+#     "--allow-backwards"
+# ]
 
-done = ["util", "exec", "--", "sh", "-c", "jj desc -m \"$1\" && jj bookmark set \"$2\" -r @ && jj new", ""]
 ai-desc = [
     "util", "exec", "--", "sh", "-c",
     "MSG=$(mise run gen-ai-desc) && jj desc -m \"$MSG\" && printf '✓ %s\\n' \"$MSG\"", ""

@@ -85,7 +85,7 @@ arguments 없이 호출하면 위 표를 보여준다.
          "timestamp": "<세션 시작 시각 ISO 8601>",
          "document_id": "session-<YYYY-MM-DD>-<주제>",
          "tags": [<구성된 태그들>],
-         "metadata": {"source": "claude-code", "date": "<ISO 8601>", "session_topic": "<주제>"}
+         "metadata": {"source": "claude-code", "session_topic": "<주제>"}
        }]
      }'
    ```
@@ -146,7 +146,7 @@ arguments 없이 호출하면 위 표를 보여준다.
          "timestamp": "<현재 시각 ISO 8601>",
          "document_id": "<주제-날짜 형식의 안정적 ID>",
          "tags": [<구성된 태그들>],
-         "metadata": {"source": "claude-code", "date": "<ISO 8601>"}
+         "metadata": {"source": "claude-code"}
        }]
      }'
    ```
