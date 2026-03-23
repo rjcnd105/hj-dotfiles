@@ -7,5 +7,6 @@ age_key_file = "{{env.SOPS_AGE_KEY_FILE}}"
 
 [env]
 _.file = [
-  { path = "./secrets/$USER_HOST:workspace/secrets.yaml", redact = true, read_only = true}
+  { path = "./secrets/$USER_HOST:workspace/secrets.yaml", redact = true, read_only = true},
+  { path = "./secrets/$USER_HOST:workspace/pub.enc.yaml", redact = true, read_only = true}
 ]
