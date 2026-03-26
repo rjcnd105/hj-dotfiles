@@ -116,6 +116,10 @@ in
           SCRAPECREATORS_API_KEY=${config.sops.placeholder."SCRAPECREATORS_API_KEY"}
           # optional - legacy Reddit fallback if using `codex login`
           OPENAI_API_KEY=${config.sops.placeholder.openai_gpt_key}
+          # optional - Brave search
+          BRAVE_API_KEY=${config.sops.placeholder."BRAVE_API_KEY"}
+          # optional - OpenRouter search
+          OPENROUTER_API_KEY=${config.sops.placeholder."OPENROUTER_API_KEY"}
           # recommended for X search - copy once from x.com cookies
           AUTH_TOKEN=${config.sops.placeholder."AUTH_TOKEN"}
           # recommended for X search - copy once from x.com cookies
