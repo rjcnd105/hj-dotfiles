@@ -193,9 +193,6 @@ description = "Claude Code CLI 네이티브 스크립트로 설치"
 run = "curl -fsSL https://claude.ai/install.sh | bash"
 
 [env]
-_.file = [
-  "$PROJECT_PATH/secrets/shared/pub.enc.yaml"
-]
 _.path = [
   # "$HOME/.cache/.bun/bin",
   # "$HOME/.local/scripts"

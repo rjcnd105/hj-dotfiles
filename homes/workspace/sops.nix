@@ -59,7 +59,6 @@ in
       "TELEGRAM_BOT_hjsAgentBot".mode = "600";
       "GROQ_API_KEY".mode = "600";
 
-
       "BSKY_HANDLE" = {
         mode = "600";
         sopsFile = last30days_secrets_path;
@@ -80,7 +79,6 @@ in
         mode = "600";
         sopsFile = last30days_secrets_path;
       };
-
 
     };
 

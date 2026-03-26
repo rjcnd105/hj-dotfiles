@@ -37,7 +37,7 @@ in
     PROJECT_PATH = "${myOptions.absoluteProjectPath}";
     VISUAL = "/usr/local/bin/zed";
     EDITOR = pkgs.helix + "/bin/hx";
-    USER_HOST = myOptions.hostName;
+
     USER_PROFILE = config.home.profileDirectory;
     XDG_BIN_HOME = "$HOME/.local/bin";
     HM_CURRENT = "/run/current-system/sw";
@@ -63,27 +63,31 @@ in
       helix
       ripgrep # grep 대체 (rg)
       sd # sed 대체 (더 직관적)
-      hyperfine # 벤치마크 도구
-      termshark # Wireshark의 TUI 버전
-      bandwhich # 실시간 네트워크 사용량을 프로세스별로 표시
-      mtr-gui # traceroute 대체, 더 상호작용적
       jq # json 파싱
-      tlrc # 문서 보기
+      # tlrc # 문서 보기
       coreutils # 기본 유틸리티
       file # 파일 타입 확인
       fd # find 대체
       restic # 백업 도구
-      nmap # 네트워크 스캔
+      # nmap # 네트워크 스캔
       pwgen # 패스워드 생성
-      fastfetch # 빠른 fetch
+      # fastfetch # 빠른 fetch
       curl # 다운로드
-      procs
+      # procs
       gping # ping 대체, 그래프 표시 기능
       dua # 디스크 사용량
-      p7zip
       fontconfig
+      # 7zip
+      p7zip
+      # 압축
       zstd
 
+
+
+      # hyperfine # 벤치마크 도구
+      # termshark # Wireshark의 TUI 버전
+      # bandwhich # 실시간 네트워크 사용량을 프로세스별로 표시
+      # mtr-gui # traceroute 대체, 더 상호작용적
     ]
     ++ [
       pkgs.nerd-fonts.d2coding

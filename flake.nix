@@ -77,7 +77,7 @@
           userName = builtins.elemAt split 2;
           myOptions = {
             inherit key;
-            inherit (config) email;
+            inherit (config) email system;
             inherit hostName userName;
             paths = myLib.config.paths;
             absoluteProjectPath = envVars.PWD;
@@ -124,6 +124,17 @@
           ++ systemModulePaths;
         }
       ) hosts;
+
+      devShells.aarch64-darwin.default =
+        let
+          pkgs = import nixpkgs { system = "aarch64-darwin"; };
+        in
+        pkgs.mkShell {
+          packages = with pkgs; [
+            nixd
+            nixfmt
+          ];
+        };
 
       templates = {
         phoenix = {

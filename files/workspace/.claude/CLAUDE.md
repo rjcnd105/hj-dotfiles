@@ -20,6 +20,10 @@ plan mode에서 요구사항을 파악할 때는 다음 원칙을 따른다:
    ---
    ```
 
+## 작업 규칙
+
+- 작업 중 일관되지 않은 부분 발견 시 통합을 제안.
+
 ## Hindsight Memory
 
 장기 기억 시스템. 환경 변수(`HINDSIGHT_BANK_ID`, `HINDSIGHT_BANK_USER`, `HINDSIGHT_API_URL`)가

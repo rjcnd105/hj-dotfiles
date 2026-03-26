@@ -1,11 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mise --help)",
-      "Bash(fish -l -c 'echo $PATH')",
-      "WebFetch(domain:github.com)",
-      "Bash(gh api:*)",
-      "Bash(npx ctx7@latest docs /anthropics/claude-code \"MCP server HTTP transport url .mcp.json configuration\")"
+      "Bash(curl -s *)",
+      "Bash(fish -l -c *)",
+      "Bash(jj cat:*)",
+      "Bash(jj file:*)",
+      "Bash(python3 -c *)"
     ]
   },
   "outputStyle": "Explanatory",

@@ -1,5 +1,6 @@
 result
 
+.direnv
 
 templates/**/.devenv*
 templates/**/devenv.local.nix

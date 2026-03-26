@@ -23,7 +23,6 @@ in
       # pkgs.nix
       # pkgs.nix-search-cli
       pkgs.devenv
-
     ];
 
     homebrew = {

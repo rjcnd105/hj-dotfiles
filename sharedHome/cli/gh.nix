@@ -13,11 +13,9 @@
     settings = {
       prompt = "enabled";
     };
-
   };
 
   home.shellAliases = {
     prw = "pr view --web";
   };
-
 }

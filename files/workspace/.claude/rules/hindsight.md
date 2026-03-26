@@ -9,6 +9,10 @@
 - **`/hindsight` 명령 수신 시** → hindsight 스킬의 arguments(retain, recall, reflect, save, context, setup, status)에 따라 실행.
 - **태그로 필터링이 필요한 작업 시** → CLI는 `--tags`를 지원하지 않으므로 REST API(curl)를 사용. 상세는 `hindsight-docs` 스킬 참조.
 
+## Compound → Hindsight 연동
+
+- **`/ce:compound` 완료 후** → 세션의 원본 내용(사용자 요청, 수행한 작업, 피드백, 결정 등)을 `/hindsight record`로 retain한다. compound가 생성한 `docs/solutions/` 파일은 이미 정제된 문서이므로 그것을 넣지 않는다 — 원본 세션 내용을 넣어야 Hindsight가 fact을 풍부하게 추출할 수 있다.
+
 ## Gotchas
 
 - retain 직후 같은 턴에서 recall하면 안 됨 — 인덱싱이 비동기로 진행된다

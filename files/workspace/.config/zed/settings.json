@@ -198,11 +198,27 @@
     "git_status": true
   },
   "lsp": {
-    "nil": {
-      "initialization_options": {
+    "nixd": {
+      "settings": {
         "formatting": {
           "command": [
             "nixfmt"
+          ]
+        },
+        "nixpkgs": {
+          "expr": "import (builtins.getFlake \"/Users/hj/dot/nix-dots\").inputs.nixpkgs { }"
+        },
+        "options": {
+          "darwin": {
+            "expr": "(builtins.getFlake \"/Users/hj/dot/nix-dots\").darwinConfigurations.workspace_hj.options"
+          },
+          "home-manager": {
+            "expr": "(builtins.getFlake \"/Users/hj/dot/nix-dots\").darwinConfigurations.workspace_hj.options.home-manager.users.type.getSubOptions []"
+          }
+        },
+        "diagnostic": {
+          "suppress": [
+            "sema-extra-with"
           ]
         }
       }
@@ -383,9 +399,17 @@
     },
     "Nix": {
       "language_servers": [
-        "nil",
-        "!nixd"
-      ]
+        "nixd",
+        "!nil"
+      ],
+      "formatter": {
+        "language_server": {
+          "name": "nixd"
+        }
+      },
+      "format_on_save": "on",
+      "show_edit_predictions": true,
+      "show_whitespaces": "selection"
     }
   },
   "context_servers": {

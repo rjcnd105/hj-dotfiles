@@ -6,13 +6,14 @@
 {
 
   config = {
-    system.stateVersion = 5;
 
     # documentation.enable = true;
 
     environment.variables = {
       USER = myOptions.userName;
       HOME = "/Users/${myOptions.userName}";
+      SYSTEM = myOptions.system;
+      USER_HOST = myOptions.hostName;
     };
 
     networking = {

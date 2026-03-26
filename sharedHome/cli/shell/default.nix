@@ -12,7 +12,6 @@
   ];
 
   programs = {
-
     # shell customize
     starship = {
       enable = true;
