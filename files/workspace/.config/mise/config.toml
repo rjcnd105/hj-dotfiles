@@ -13,6 +13,9 @@ env_shell_expand = true
 "ollama" = "latest"
 "osv-scanner" = "latest"
 
+[tools.acli]
+version = "latest"
+
 [tools.codex]
 version = "latest"
 
@@ -191,7 +194,7 @@ run = "curl -fsSL https://claude.ai/install.sh | bash"
 
 [env]
 _.file = [
-  "$PROJECT_PATH/secrets/$USER_HOST/pub.enc.yaml"
+  "$PROJECT_PATH/secrets/shared/pub.enc.yaml"
 ]
 _.path = [
   # "$HOME/.cache/.bun/bin",

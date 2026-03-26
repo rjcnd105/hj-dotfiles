@@ -12,6 +12,7 @@ let
   ssh_key_file = "${config.home.homeDirectory}/.ssh/id_ed25519";
 
   host_secrets_path = "${myOptions.absoluteProjectPath}/secrets/${myOptions.hostName}/secrets.yaml";
+  last30days_secrets_path = "${myOptions.absoluteProjectPath}/secrets/${myOptions.hostName}/last30days.enc.yaml";
 in
 {
 
@@ -49,7 +50,7 @@ in
       "anthropic_key".mode = "600";
       "google_search".mode = "600";
       "openai_gpt_key".mode = "600";
-      "open_router".mode = "600";
+      "OPENROUTER_API_KEY".mode = "600";
       "BRAVE_API_KEY".mode = "600";
       "cursor_background".mode = "600";
       "EXA_API_KEY".mode = "600";
@@ -57,6 +58,30 @@ in
       "GEMINI_API_KEY_FREE".mode = "600";
       "TELEGRAM_BOT_hjsAgentBot".mode = "600";
       "GROQ_API_KEY".mode = "600";
+
+
+      "BSKY_HANDLE" = {
+        mode = "600";
+        sopsFile = last30days_secrets_path;
+      };
+      "BSKY_APP_PASSWORD" = {
+        mode = "600";
+        sopsFile = last30days_secrets_path;
+      };
+      "SCRAPECREATORS_API_KEY" = {
+        mode = "600";
+        sopsFile = last30days_secrets_path;
+      };
+      "AUTH_TOKEN" = {
+        mode = "600";
+        sopsFile = last30days_secrets_path;
+      };
+      "CT0" = {
+        mode = "600";
+        sopsFile = last30days_secrets_path;
+      };
+
+
     };
 
     templates = {
@@ -65,7 +90,7 @@ in
         ANTHROPIC_KEY=${config.sops.placeholder.anthropic_key}
         GOOGLE_SEARCH=${config.sops.placeholder.google_search}
         OPENAI_GPT_KEY=${config.sops.placeholder.openai_gpt_key}
-        OPENROUTER_API_KEY=${config.sops.placeholder.open_router}
+        OPENROUTER_API_KEY=${config.sops.placeholder."OPENROUTER_API_KEY"}
         BRAVE_API_KEY=${config.sops.placeholder."BRAVE_API_KEY"}
         CURSOR_BACKGROUND=${config.sops.placeholder.cursor_background}
         EXA_API_KEY=${config.sops.placeholder."EXA_API_KEY"}
@@ -77,11 +102,30 @@ in
       "llm.env".content = ''
         OPENAI_API_KEY=${config.sops.placeholder.openai_gpt_key}
         ANTHROPIC_API_KEY=${config.sops.placeholder.anthropic_key}
-        OPENROUTER_API_KEY=${config.sops.placeholder.open_router}
+        OPENROUTER_API_KEY=${config.sops.placeholder."OPENROUTER_API_KEY"}
         EXA_API_KEY=${config.sops.placeholder."EXA_API_KEY"}
         GEMINI_API_KEY=${config.sops.placeholder."GEMINI_API_KEY_FREE"}
         GROQ_API_KEY=${config.sops.placeholder."GROQ_API_KEY"}
       '';
+
+      "last30days.env" = {
+        path = "${config.home.homeDirectory}/.config/last30days/.env";
+        mode = "600";
+        content = ''
+          # Reddit + TikTok + Instagram (one key, all three) - scrapecreators.com
+          SCRAPECREATORS_API_KEY=${config.sops.placeholder."SCRAPECREATORS_API_KEY"}
+          # optional - legacy Reddit fallback if using `codex login`
+          OPENAI_API_KEY=${config.sops.placeholder.openai_gpt_key}
+          # recommended for X search - copy once from x.com cookies
+          AUTH_TOKEN=${config.sops.placeholder."AUTH_TOKEN"}
+          # recommended for X search - copy once from x.com cookies
+          CT0=${config.sops.placeholder."CT0"}
+          # optional - Bluesky search (create app password below)
+          BSKY_HANDLE=${config.sops.placeholder."BSKY_HANDLE"}
+          # optional - bsky.app/settings/app-passwords
+          BSKY_APP_PASSWORD=${config.sops.placeholder."BSKY_APP_PASSWORD"}
+        '';
+      };
     };
   };
 }

@@ -6,12 +6,15 @@
   },
   "edit_predictions": {
     "sweep": {
-      "privacy_mode": true
+      "privacy_mode": false
     },
     "provider": "sweep"
   },
   "prettier": {
     "allowed": true
+  },
+  "session": {
+    "trust_all_worktrees": true
   },
   "document_symbols": "on",
   "semantic_tokens": "combined",
@@ -301,12 +304,14 @@
     },
     "TypeScript": {
       "formatter": null,
+      "language_servers": ["tsgo", "vtsls"],
       "code_actions_on_format": {
         "source.fixAll.eslint": true
       }
     },
     "TSX": {
       "formatter": null,
+      "language_servers": ["tsgo", "vtsls"],
       "code_actions_on_format": {
         "source.fixAll.eslint": true
       }
@@ -347,7 +352,8 @@
       "show_edit_predictions": true,
       "show_whitespaces": "selection",
       "language_servers": [
-        "expert",
+        "elixir-ls",
+        "!expert",
         "html-language-server",
         "tailwindcss-language-server"
       ],
@@ -369,8 +375,8 @@
       "show_whitespaces": "selection",
       "format_on_save": "on",
       "language_servers": [
-        "html-language-server",
         "elixir-ls",
+        "html-language-server",
         "tailwindcss-language-server",
         "emmet-language-server"
       ]

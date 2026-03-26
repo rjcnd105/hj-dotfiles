@@ -6,12 +6,13 @@ description: >-
   `/hindsight recall <질문>` — 과거 기억을 검색.
   `/hindsight reflect <질문>` — 기억 기반 추론/분석.
   `/hindsight save` — 현재 세션의 경험(성공/실패/피드백)을 장기 기억에 저장.
+  `/hindsight record <내용>` — 주어진 내용을 save 규격(태그, document_id, context 등)으로 장기 기억에 저장. 세션 분석 생략.
   `/hindsight context <주제>` — 관련 과거 기억을 불러와 작업 맥락으로 사용.
   `/hindsight setup` — bank mission 설정 (재귀 발전 최적화, 최초 1회).
   `/hindsight status` — bank 상태 확인.
   사용자가 "/hindsight", "hindsight에 저장", "hindsight에서 찾아", "hindsight 검색",
   "장기 기억에 저장", "장기 기억 검색", "세션 저장", "과거 기억 참고", "이전 경험" 등을 말할 때 사용.
-  반드시 arguments(retain/recall/reflect/save/context/setup/status)로 동작을 결정한다.
+  반드시 arguments(retain/recall/reflect/save/record/context/setup/status)로 동작을 결정한다.
   arguments 없이 호출되면 사용법을 안내한다.
 ---
 
@@ -32,6 +33,7 @@ Hindsight 장기 기억 시스템의 직접 인터페이스.
 | `/hindsight recall <질문>` | 과거 기억에서 관련 fact 검색 |
 | `/hindsight reflect <질문>` | 기억 기반 추론 — Hindsight가 답변을 생성 |
 | `/hindsight save` | 현재 세션의 경험을 장기 기억에 저장 |
+| `/hindsight record <내용>` | 주어진 내용을 save 규격으로 장기 기억에 저장 |
 | `/hindsight context <주제>` | 관련 과거 기억을 불러와 작업 맥락으로 주입 |
 | `/hindsight setup` | bank mission 설정 — 재귀 발전에 최적화 (최초 1회) |
 | `/hindsight status` | bank 통계 확인 |
@@ -91,6 +93,38 @@ arguments 없이 호출하면 위 표를 보여준다.
    ```
 
 5. 결과 보고: 저장된 경험 요약 (성공 N건, 실패 N건, 피드백 N건, 결정 N건)
+
+### `record <내용>`
+
+주어진 내용을 세션 경험으로 기록한다. `save`와 동일한 규격(태그, document_id, context, metadata)을 적용하되, 세션 분석을 생략한다. 다른 워크플로우(예: compound)가 이미 세션을 분석한 결과물을 Hindsight에 저장할 때 사용한다.
+
+1. 내용을 **그대로** 사용한다 — 요약하거나 재분석하지 않는다.
+
+2. 태그 구성 (`save`와 동일):
+   - `user:$HINDSIGHT_BANK_USER` (필수)
+   - `project:$HINDSIGHT_TAG_PROJECT` (env 존재 시)
+   - `profile:$HINDSIGHT_TAG_PROFILE` (env 존재 시)
+   - `session:<날짜-주제>` — 세션 식별
+
+3. 내용에서 주제를 파악하여 document_id, context, metadata를 구성한다.
+
+4. REST API로 retain (`save`와 동일한 형식):
+   ```bash
+   curl -s -X POST "$HINDSIGHT_API_URL/v1/default/banks/$HINDSIGHT_BANK_ID/memories" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "items": [{
+         "content": "<주어진 내용 전체>",
+         "context": "claude-code session experience log: <주제 요약>. recorded from external workflow output.",
+         "timestamp": "<현재 시각 ISO 8601>",
+         "document_id": "session-<YYYY-MM-DD>-<주제>",
+         "tags": [<구성된 태그들>],
+         "metadata": {"source": "claude-code", "session_topic": "<주제>"}
+       }]
+     }'
+   ```
+
+5. 결과 보고
 
 ### `context <주제>`
 

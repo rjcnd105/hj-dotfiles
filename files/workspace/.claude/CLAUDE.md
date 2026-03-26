@@ -1,5 +1,11 @@
 # CLAUDE.md
 
+If the data is insufficient to draw conclusions, say so rather than speculating.
+
+## VCS 우선순위
+
+프로젝트 루트에 `.jj` 폴더가 있으면 git 대신 jj(Jujutsu)를 사용한다. `jj commit`, `jj describe`, `jj log`, `jj diff` 등 jj 명령어를 우선으로 쓰고, git 명령어는 jj가 지원하지 않는 작업에만 사용한다.
+
 ## Plan Mode 행동 지침
 
 plan mode에서 요구사항을 파악할 때는 다음 원칙을 따른다:
