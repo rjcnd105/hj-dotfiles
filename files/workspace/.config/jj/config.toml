@@ -71,5 +71,5 @@ eject = ["squash", "--from", "@", "--into"]
 
 ai-desc = [
     "util", "exec", "--", "sh", "-c",
-    "MSG=$(mise run gen-ai-desc) && jj desc -m \"$MSG\" && printf '✓ %s\\n' \"$MSG\"", ""
+    "MSG=$(mise run gen-ai-desc) && [ -n \"$MSG\" ] && jj desc -m \"$MSG\" && printf '✓ %s\\n' \"$MSG\"", ""
 ]

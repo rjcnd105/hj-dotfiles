@@ -150,8 +150,8 @@ run = '''
 #!/usr/bin/env bash
 set -euo pipefail
 
+if jj diff --stat | grep -q "0 files changed"; then echo "변경사항이 없습니다" >&2; exit 1; fi
 STAT=$(jj diff --stat)
-if [ -z "$STAT" ]; then echo "변경사항이 없습니다"; exit 1; fi
 
 PROMPT_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/jj/commit-prompt.txt"
 PROMPT=$(cat "$PROMPT_FILE")
