@@ -20,3 +20,16 @@ keybind = alt+j=goto_split:down
 keybind = alt+h=goto_split:left
 keybind = alt+l=goto_split:right
 keybind = alt+k=goto_split:up
+
+# 한글 입력 모드에서도 동일하게 동작 (두벌식: h=ㅗ j=ㅓ k=ㅏ l=ㅣ)
+keybind = alt+shift+ㅗ=new_split:left
+keybind = alt+shift+ㅓ=new_split:down
+keybind = alt+shift+ㅏ=new_split:up
+keybind = alt+shift+ㅣ=new_split:right
+
+keybind = alt+ㅈ=close_surface
+
+keybind = alt+ㅓ=goto_split:down
+keybind = alt+ㅗ=goto_split:left
+keybind = alt+ㅣ=goto_split:right
+keybind = alt+ㅏ=goto_split:up

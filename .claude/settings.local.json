@@ -5,7 +5,8 @@
       "Bash(fish -l -c *)",
       "Bash(jj cat:*)",
       "Bash(jj file:*)",
-      "Bash(python3 -c *)"
+      "Bash(python3 -c *)",
+      "Bash(jj log:*)"
     ]
   },
   "outputStyle": "Explanatory",

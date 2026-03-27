@@ -60,28 +60,21 @@ arguments 없이 호출하면 위 표를 보여준다.
 
 ### `save`
 
-현재 세션의 원본 내용을 Hindsight에 retain한다. **Claude가 분석/분류하지 않는다** — Hindsight의 fact 추출 LLM이 직접 처리한다.
+세션의 모든 대화 내용을 있는 그대로 Hindsight에 retain한다. **Claude가 선별/분류/재구성하지 않는다** — Hindsight의 fact 추출 LLM이 원본에서 직접 처리한다.
 
-1. 세션에서 **원본 내용을 수집**한다 (pre-summarization 안티패턴 회피):
-   - 사용자의 실제 요청과 발언
-   - 수행한 작업의 구체적 내용 (파일 경로, 명령어, 에러 메시지, 코드 변경사항)
-   - 사용자의 피드백과 수정 요청 (원문 그대로)
-   - 채택/거부된 선택지와 그 맥락
+1. `/hindsight save` 호출 시점 이전의 **모든 대화 내용을 그대로** content에 넣는다:
+   - 사용자 메시지, assistant 응답, 도구 실행 결과를 빠짐없이 포함
+   - 선별하지 않는다 — 전체를 넣는다
+   - 요약/재구성/분류하지 않는다 — 원문 그대로 넣는다
+   - `/hindsight` 관련 대화(save/record/retain 호출과 그 응답)는 제외한다
 
-2. 수집한 내용을 **대화 형식으로 구성**한다. 분류하거나 요약하지 않는다:
-   ```
-   [YYYY-MM-DDTHH:MM:SSZ] user: <사용자 발언 원문>
-   [YYYY-MM-DDTHH:MM:SSZ] assistant: <수행한 작업과 결과 구체적 기술>
-   [YYYY-MM-DDTHH:MM:SSZ] user: <피드백 원문>
-   ...
-   ```
-   대화가 길면 핵심 상호작용 위주로 선별하되, 선별한 내용은 원문을 유지한다.
-
-3. 태그 구성:
+2. 태그 구성:
    - `user:$HINDSIGHT_BANK_USER` (필수)
    - `project:$HINDSIGHT_TAG_PROJECT` (env 존재 시)
    - `profile:$HINDSIGHT_TAG_PROFILE` (env 존재 시)
    - `session:<날짜-주제>` — 세션 식별
+
+3. 세션 대화 전체에서 주제를 파악하여 document_id, context를 구성한다.
 
 4. REST API로 retain:
    ```bash
@@ -90,8 +83,8 @@ arguments 없이 호출하면 위 표를 보여준다.
      -H "Authorization: Bearer $HINDSIGHT_API_KEY" \
      -d '{
        "items": [{
-         "content": "<수집한 세션 원본 내용>",
-         "context": "claude-code session log: <세션 주제 1줄 요약>. raw conversation with user requests, actions taken, feedback, and decisions.",
+         "content": "<세션의 모든 대화 원본>",
+         "context": "claude-code full session log: <세션 주제 1줄 요약>. complete raw conversation including all user messages, assistant responses, and tool outputs.",
          "timestamp": "<세션 시작 시각 ISO 8601>",
          "document_id": "session-<YYYY-MM-DD>-<주제>",
          "tags": [<구성된 태그들>],
