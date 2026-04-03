@@ -11,7 +11,7 @@
 
 ## Compound → Hindsight 연동
 
-- **`/ce:compound` 완료 후** → 세션의 원본 내용(사용자 요청, 수행한 작업, 피드백, 결정 등)을 `/hindsight record`로 retain한다. compound가 생성한 `docs/solutions/` 파일은 이미 정제된 문서이므로 그것을 넣지 않는다 — 원본 세션 내용을 넣어야 Hindsight가 fact을 풍부하게 추출할 수 있다.
+- **`/ce:compound` 완료 후** → 세션의 원본 내용(사용자 요청, 수행한 작업, 피드백, 결정 등)을 `/hindsight retain`으로 저장한다. compound가 생성한 `docs/solutions/` 파일은 이미 정제된 문서이므로 그것을 넣지 않는다 — 원본 세션 내용을 넣어야 Hindsight가 fact을 풍부하게 추출할 수 있다.
 
 ## Gotchas
 

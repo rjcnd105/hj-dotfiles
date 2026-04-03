@@ -13,3 +13,4 @@ templates/**/.pre-commit-config.yaml
 **/keys.txt
 
 files/**/profiles/session/*
+.gstack/

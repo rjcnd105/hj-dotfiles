@@ -28,7 +28,7 @@ hindsight configure --api-url http://localhost:8888 --api-key your-api-key
 
 # Or use environment variables (highest priority)
 export HINDSIGHT_API_URL=http://localhost:8888
-export HINDSIGHT_API_KEY=your-api-key
+export HINDSIGHT_API_TOKEN=your-api-key
 ```
 
 ## Core Commands

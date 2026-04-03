@@ -117,7 +117,7 @@ from hindsight_agno import configure, HindsightTools
 
 configure(
     hindsight_api_url="http://localhost:8888",
-    api_key="your-api-key",       # Or set HINDSIGHT_API_KEY env var
+    api_key="your-api-key",       # Or set HINDSIGHT_API_TOKEN env var
     budget="mid",                  # Recall budget: low/mid/high
     max_tokens=4096,               # Max tokens for recall results
     tags=["env:prod"],             # Tags for stored memories
@@ -170,7 +170,7 @@ tools = [HindsightTools(bank_id="user-123")]
 | Parameter | Default | Description |
 |---|---|---|
 | `hindsight_api_url` | Production API | Hindsight API URL |
-| `api_key` | `HINDSIGHT_API_KEY` env | API key for authentication |
+| `api_key` | `HINDSIGHT_API_TOKEN` env | API key for authentication |
 | `budget` | `"mid"` | Default recall budget level |
 | `max_tokens` | `4096` | Default max tokens for recall |
 | `tags` | `None` | Default tags for retain operations |

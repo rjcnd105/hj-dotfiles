@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/Users/hj/.local/bin/mise generate:*)",
+      "Bash(jj help:*)",
+      "Bash(jj --version)",
+      "Bash(export PATH=\"/Users/hj/.local/share/mise/installs/jj/0.40.0:$PATH\")",
+      "Read(//Users/hj/dot/nix-dots/**)",
+      "Bash(jj commit:*)"
+    ]
+  }
+}

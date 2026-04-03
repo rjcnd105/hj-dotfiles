@@ -38,13 +38,13 @@ export HINDSIGHT_API_URL=http://localhost:8888
 export HINDSIGHT_BANK_ID=my-agent
 
 # Optional — only needed if using Hindsight Cloud (https://api.hindsight.vectorize.io)
-export HINDSIGHT_API_KEY=your-api-key
+export HINDSIGHT_API_TOKEN=your-api-key
 
 # Optional — recall budget: low (fast), mid (default), high (thorough)
 export HINDSIGHT_BUDGET=mid
 ```
 
-If neither `HINDSIGHT_API_URL` nor `HINDSIGHT_API_KEY` is set, the plugin silently skips registration — Hermes starts normally without the Hindsight tools.
+If neither `HINDSIGHT_API_URL` nor `HINDSIGHT_API_TOKEN` is set, the plugin silently skips registration — Hermes starts normally without the Hindsight tools.
 
 ### 3. Disable Hermes's built-in memory tool
 
@@ -117,7 +117,7 @@ curl -s http://localhost:8888/v1/default/banks/my-agent/memories/recall \
    ```
    You should see `EntryPoint(name='hindsight', value='hindsight_hermes', group='hermes_agent.plugins')`.
 
-3. **Check env vars are set.** The plugin skips registration silently if `HINDSIGHT_API_URL` and `HINDSIGHT_API_KEY` are both unset.
+3. **Check env vars are set.** The plugin skips registration silently if `HINDSIGHT_API_URL` and `HINDSIGHT_API_TOKEN` are both unset.
 
 ### Hermes uses built-in memory instead of Hindsight
 
@@ -209,7 +209,7 @@ This exposes the same retain/recall/reflect operations through Hermes's MCP inte
 | Parameter | Env Var | Default | Description |
 |-----------|---------|---------|-------------|
 | `hindsight_api_url` | `HINDSIGHT_API_URL` | `https://api.hindsight.vectorize.io` | Hindsight API URL |
-| `api_key` | `HINDSIGHT_API_KEY` | — | API key for authentication |
+| `api_key` | `HINDSIGHT_API_TOKEN` | — | API key for authentication |
 | `bank_id` | `HINDSIGHT_BANK_ID` | — | Memory bank ID |
 | `budget` | `HINDSIGHT_BUDGET` | `mid` | Recall budget (low/mid/high) |
 | `max_tokens` | — | `4096` | Max tokens for recall results |

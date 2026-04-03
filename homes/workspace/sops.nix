@@ -57,6 +57,7 @@ in
       "CONTEXT7_API_KEY".mode = "600";
       "GEMINI_API_KEY_FREE".mode = "600";
       "TELEGRAM_BOT_hjsAgentBot".mode = "600";
+      "FIGMA_READ_API_KEY".mode = "600";
       "GROQ_API_KEY".mode = "600";
 
       "BSKY_HANDLE" = {
@@ -95,6 +96,7 @@ in
         CONTEXT7_API_KEY=${config.sops.placeholder."CONTEXT7_API_KEY"}
         GEMINI_API_KEY_FREE=${config.sops.placeholder."GEMINI_API_KEY_FREE"}
         TELEGRAM_BOT_HJSAGENTBOT=${config.sops.placeholder."TELEGRAM_BOT_hjsAgentBot"}
+        FIGMA_READ_API_KEY=${config.sops.placeholder."FIGMA_READ_API_KEY"}
       '';
 
       "llm.env".content = ''

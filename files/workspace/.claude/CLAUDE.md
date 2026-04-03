@@ -20,11 +20,16 @@ plan mode에서 요구사항을 파악할 때는 다음 원칙을 따른다:
    ---
    ```
 
-## 작업 규칙
+## gstack
 
-- 작업 중 일관되지 않은 부분 발견 시 통합을 제안.
+모든 웹 브라우징에는 gstack의 `/browse` 스킬을 사용한다. `mcp__claude-in-chrome__*` 도구는 절대 사용하지 않는다.
+
+사용 가능한 스킬:
+`/office-hours`, `/plan-ceo-review`, `/plan-eng-review`, `/plan-design-review`, `/design-consultation`, `/review`, `/ship`, `/land-and-deploy`, `/canary`, `/benchmark`, `/browse`, `/qa`, `/qa-only`, `/design-review`, `/setup-browser-cookies`, `/setup-deploy`, `/retro`, `/investigate`, `/document-release`, `/codex`, `/cso`, `/autoplan`, `/careful`, `/freeze`, `/guard`, `/unfreeze`, `/gstack-upgrade`
 
 ## Hindsight Memory
 
 장기 기억 시스템. 환경 변수(`HINDSIGHT_BANK_ID`, `HINDSIGHT_BANK_USER`, `HINDSIGHT_API_URL`)가
 설정된 경우에만 활성화된다. 사용 규칙은 `rules/hindsight.md` 참조.
+
+@RTK.md

@@ -1,0 +1,135 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(cat *)",
+      "Bash(echo *)",
+      "Bash(env)",
+      "Bash(gh *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(grep *)",
+      "Bash(grep -r *)",
+      "Bash(jj diff *)",
+      "Bash(jj log *)",
+      "Bash(jj show *)",
+      "Bash(jj status)",
+      "Bash(just *)",
+      "Bash(ls *)",
+      "Bash(mise *)",
+      "Bash(mkdir *)",
+      "Bash(nix eval *)",
+      "Bash(nix flake *)",
+      "Bash(nixfmt *)",
+      "Bash(node *)",
+      "Bash(which *)",
+      "WebFetch",
+      "WebSearch"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/hj/.claude/hooks/rtk-rewrite.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"/Users/hj/.claude/plugins/cache/hindsight/hindsight-memory/0.3.0/scripts/recall.py\"",
+            "timeout": 12
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"/Users/hj/.claude/plugins/cache/hindsight/hindsight-memory/0.3.0/scripts/retain.py\"",
+            "timeout": 15,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"/Users/hj/.claude/plugins/cache/hindsight/hindsight-memory/0.3.0/scripts/session_start.py\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"/Users/hj/.claude/plugins/cache/hindsight/hindsight-memory/0.3.0/scripts/session_end.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "typescript-lsp@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": false,
+    "context7@claude-plugins-official": false,
+    "compound-engineering@compound-engineering-plugin": true,
+    "last30days@last30days-skill": true,
+    "harness@harness-marketplace": true,
+    "hindsight-memory@hindsight": true
+  },
+  "extraKnownMarketplaces": {
+    "compound-engineering-plugin": {
+      "source": {
+        "source": "github",
+        "repo": "EveryInc/compound-engineering-plugin"
+      }
+    },
+    "last30days-skill": {
+      "source": {
+        "source": "github",
+        "repo": "mvanhorn/last30days-skill"
+      }
+    },
+    "harness-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "revfactory/harness"
+      }
+    },
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
+    },
+    "hindsight": {
+      "source": {
+        "source": "github",
+        "repo": "vectorize-io/hindsight"
+      }
+    }
+  },
+  "language": "Korean",
+  "effortLevel": "high",
+  "skipDangerousModePermissionPrompt": true
+}

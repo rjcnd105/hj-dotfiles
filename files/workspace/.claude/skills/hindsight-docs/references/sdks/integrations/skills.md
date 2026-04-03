@@ -255,7 +255,7 @@ If you work on multiple projects, you can have different skills installed for ea
 ```bash
 # Environment variable override (temporary)
 HINDSIGHT_API_URL=https://api.hindsight.vectorize.io \
-HINDSIGHT_API_KEY=hs_xxx \
+HINDSIGHT_API_TOKEN=hs_xxx \
 hindsight memory recall different-bank "query"
 ```
 

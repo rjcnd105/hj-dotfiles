@@ -7,9 +7,12 @@ env_shell_expand = true
 [plugins]
 "nix" = "https://github.com/jbadeau/mise-nix.git"
 
+[shell_alias]
+wsc='wt switch --create --execute=claude'
+
 [tools]
 # POC
-"ubi:yoanbernabeu/grepai" = "latest"
+"rtk" = "latest"
 "ollama" = "latest"
 "osv-scanner" = "latest"
 
@@ -197,8 +200,16 @@ _.path = [
   # "$HOME/.cache/.bun/bin",
   # "$HOME/.local/scripts"
 ]
+_.file = [
+  { path = "$PROJECT_PATH/secrets/shared/pub.enc.yaml", redact = true, read_only = true}
+]
 SKILLIB = "$HOME/.local/agents/skills"
 HINDSIGHT_BANK_ID = "my"
 HINDSIGHT_BANK_USER = "hj"
+HINDSIGHT_API_KEY="$HINDSIGHT_API_TOKEN"
+
+MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3
+CLAUDE_CODE_COORDINATOR_MODE=1
+# USER_TYPE = "ant"
 # 프로젝트 명시시
 # HINDSIGHT_TAG_PROJECT = "nix-dot"

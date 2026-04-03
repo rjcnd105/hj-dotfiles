@@ -5,10 +5,14 @@
     }
   },
   "edit_predictions": {
-    "sweep": {
-      "privacy_mode": false
-    },
-    "provider": "sweep"
+    "provider": "zed",
+    "open_ai_compatible_api": {
+      "api_url": "http://localhost:1234/v1/completions",
+      "model": "NexVeridian/zeta-2-4bit",
+      "prompt_format": "zeta2",
+
+      "max_output_tokens": 128
+    }
   },
   "prettier": {
     "allowed": true
@@ -279,35 +283,9 @@
           "class"
         ],
         "emmetCompletions": true,
-        "includeLanguages": {
-          "phoenix-heex": "html",
-          "javascript": "javascript",
-          "typescript": "javascript",
-          "javascriptreact": "javascript",
-          "typescriptreact": "javascript"
-        },
-        "classRegex": [
-          [
-            "cva\\(([^)]*)\\)",
-            "[\"'`]([^\"'`]*).*?[\"'`]"
-          ],
-          [
-            "tva\\(([^)]*)\\)",
-            "[\"'`]([^\"'`]*).*?[\"'`]"
-          ],
-          [
-            "cn\\(([^)]*)\\)",
-            "[\"'`]([^\"'`]*).*?[\"'`]"
-          ],
-          [
-            "clsx\\(([^)]*)\\)",
-            "[\"'`]([^\"'`]*).*?[\"'`]"
-          ],
-          [
-            "twMerge\\(([^)]*)\\)",
-            "[\"'`]([^\"'`]*).*?[\"'`]"
-          ]
-        ]
+        "experimental": {
+            "classRegex": ["[cls|cn|className]\\s\\:\\=\\s\"([^\"]*)"]
+          }
       }
     }
   },
@@ -320,14 +298,15 @@
     },
     "TypeScript": {
       "formatter": null,
-      "language_servers": ["tsgo", "vtsls"],
+      "language_servers": ["vtsls"],
       "code_actions_on_format": {
         "source.fixAll.eslint": true
       }
     },
+
     "TSX": {
       "formatter": null,
-      "language_servers": ["tsgo", "vtsls"],
+      "language_servers": [ "vtsls", "tailwindcss-language-server"],
       "code_actions_on_format": {
         "source.fixAll.eslint": true
       }
@@ -375,7 +354,7 @@
       ],
       "format_on_save": "on"
     },
-    "HEEX": {
+    "HEEx": {
       "formatter": {
         "external": {
           "command": "mix",
