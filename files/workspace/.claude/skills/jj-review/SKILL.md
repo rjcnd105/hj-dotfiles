@@ -14,17 +14,27 @@ jj revision의 diff를 compound-engineering:review 에이전트로 리뷰한다.
 
 ### 1. Diff 추출
 
+메인 세션에서 jj 명령을 실행한다. 서브에이전트에 jj를 맡기지 않는다.
+
 ```bash
 REV="${ARG:-@}"
 jj diff -r "$REV" --stat
-jj diff -r "$REV" -U10
 ```
 
 diff가 비어있으면 알리고 종료.
 
+`--stat` 결과를 분류한다:
+
+- **diff 불필요** — 삭제, 이동, lock/빌드 파일 → stat 정보만 에이전트에 전달
+- **diff 필요** — 새 파일, 수정된 소스 코드 → 해당 파일만 선택하여 diff 추출
+
+```bash
+jj diff -r "$REV" <리뷰 대상 소스 파일들>
+```
+
 ### 2. 에이전트 선택
 
-diff의 파일 확장자, 변경 영역, 변경 규모를 분석하여 에이전트를 선택한다.
+파일 확장자, 변경 영역, 변경 규모를 분석하여 에이전트를 선택한다.
 선택 기준은 [references/review-agents.md](references/review-agents.md) 참조.
 
 **Always-on** (항상 실행):
@@ -40,7 +50,8 @@ diff의 파일 확장자, 변경 영역, 변경 규모를 분석하여 에이전
 
 - `subagent_type`: `compound-engineering:review:<agent-name>`
 - `model`: 에이전트별 지정 (위 표 참조)
-- 전달 정보: 파일 목록, diff 전문, 변경 의도 요약
+- 전달 정보: 필터링된 diff 전문, 변경 의도 요약
+- 에이전트는 diff로 변경 내용을 파악하고, 주변 맥락이 필요하면 Read로 파일을 추가로 읽는다
 
 각 에이전트는 **읽기 전용**. JSON으로 findings 반환:
 

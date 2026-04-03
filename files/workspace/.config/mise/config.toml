@@ -7,9 +7,6 @@ env_shell_expand = true
 [plugins]
 "nix" = "https://github.com/jbadeau/mise-nix.git"
 
-[shell_alias]
-wsc='wt switch --create --execute=claude'
-
 [tools]
 # POC
 "rtk" = "latest"

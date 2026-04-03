@@ -6,7 +6,8 @@
       "Bash(jj --version)",
       "Bash(export PATH=\"/Users/hj/.local/share/mise/installs/jj/0.40.0:$PATH\")",
       "Read(//Users/hj/dot/nix-dots/**)",
-      "Bash(jj commit:*)"
+      "Bash(jj commit:*)",
+      "Bash(claude plugin:*)"
     ]
   }
 }

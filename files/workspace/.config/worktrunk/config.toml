@@ -1,2 +1,0 @@
-[commit.generation]
-command = "codex exec -m gpt-5.3-codex-mini --disable apps -c model_reasoning_effort='low' -c 'mcp_servers={}' -c default_tools_enabled=false -c 'skills.config=[]' -c system_prompt='' --sandbox=read-only  --json - | jq -sr '[.[] | select(.item.type? == \"agent_message\")] | last.item.text'"

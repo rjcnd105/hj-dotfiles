@@ -15,4 +15,4 @@ function __sops_completions
     command $cmd 2>/dev/null
 end
 
-complete -c sops -f -a '(__sops_completions)'
+complete -c sops -a '(__sops_completions)'

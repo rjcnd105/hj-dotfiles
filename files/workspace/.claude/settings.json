@@ -41,51 +41,6 @@
           }
         ]
       }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"/Users/hj/.claude/plugins/cache/hindsight/hindsight-memory/0.3.0/scripts/recall.py\"",
-            "timeout": 12
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"/Users/hj/.claude/plugins/cache/hindsight/hindsight-memory/0.3.0/scripts/retain.py\"",
-            "timeout": 15,
-            "async": true
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"/Users/hj/.claude/plugins/cache/hindsight/hindsight-memory/0.3.0/scripts/session_start.py\"",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"/Users/hj/.claude/plugins/cache/hindsight/hindsight-memory/0.3.0/scripts/session_end.py\"",
-            "timeout": 10
-          }
-        ]
-      }
     ]
   },
   "enabledPlugins": {
@@ -95,7 +50,10 @@
     "compound-engineering@compound-engineering-plugin": true,
     "last30days@last30days-skill": true,
     "harness@harness-marketplace": true,
-    "hindsight-memory@hindsight": true
+    "hindsight-memory@hindsight": true,
+    "context-engineering@context-engineering-marketplace": true,
+    "frontend-design@claude-plugins-official": true,
+    "caveman@caveman": true
   },
   "extraKnownMarketplaces": {
     "compound-engineering-plugin": {
@@ -126,6 +84,18 @@
       "source": {
         "source": "github",
         "repo": "vectorize-io/hindsight"
+      }
+    },
+    "context-engineering-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "muratcankoylan/Agent-Skills-for-Context-Engineering"
+      }
+    },
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
       }
     }
   },
