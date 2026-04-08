@@ -1,5 +1,6 @@
 {
   pkgs,
+  inputs,
   myOptions,
   ...
 }:
@@ -7,30 +8,30 @@
 
   config = {
 
-    # documentation.enable = true;
-
     environment.variables = {
       USER = myOptions.userName;
-      HOME = "/Users/${myOptions.userName}";
       SYSTEM = myOptions.system;
       USER_HOST = myOptions.hostName;
-    };
-
-    networking = {
-      hostName = myOptions.userName;
-      computerName = myOptions.userName;
-      localHostName = myOptions.userName;
-    };
-
-    users.users.${myOptions.userName} = {
-      name = myOptions.userName;
-      home = "/Users/${myOptions.userName}";
     };
 
     home-manager = {
       useUserPackages = true;
       useGlobalPkgs = true;
-      backupFileExtension = "backup"; # 백업 파일 확장자 설정
+      backupFileExtension = "backup";
+      sharedModules = [
+        inputs.sops-nix.homeManagerModules.sops
+        inputs.catppuccin.homeModules.catppuccin
+        {
+          catppuccin = {
+            enable = true;
+            flavor = "macchiato";
+            zellij.enable = false;
+          };
+        }
+      ];
+      extraSpecialArgs = {
+        inherit inputs myOptions;
+      };
     };
 
     # nerd-fonts list
@@ -38,9 +39,6 @@
     fonts.packages = [
       pkgs.nerd-fonts.d2coding
       pkgs.nerd-fonts.jetbrains-mono
-      # 필요한 다른 폰트들...
     ];
-    system.primaryUser = myOptions.userName;
-    system.defaults.NSGlobalDomain.AppleFontSmoothing = 2;
   };
 }

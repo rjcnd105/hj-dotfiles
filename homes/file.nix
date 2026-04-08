@@ -10,7 +10,7 @@ let
   mkAddFileAttrIfExists =
     name:
     let
-      filePath = myOptions.paths.files + "/${myOptions.hostName}/${name}";
+      filePath = myOptions.paths.files + "/${myOptions.filesHost}/${name}";
     in
     lib.optionalAttrs (builtins.pathExists filePath) {
       "${name}" = {
@@ -73,7 +73,7 @@ in
   # ${PROJECT_ROOT}/files/${hostName} 내의 모든 파일/폴더를 ~/ 기준으로 매핑
   home.file =
     let
-      initalBasePath = myOptions.absoluteProjectPath + "/files/${myOptions.hostName}";
+      initalBasePath = myOptions.absoluteProjectPath + "/files/${myOptions.filesHost}";
     in
     (mkLinkFolders {
       basePath = initalBasePath;

@@ -9,8 +9,7 @@
     enable = true;
     enableDefaultConfig = false;
 
-    extraConfig = ''
-      # AddKeysToAgent yes # 이 옵션은 matchBlocks 로 이동했습니다.
+    extraConfig = lib.optionalString pkgs.stdenv.isDarwin ''
       UseKeychain yes
     '';
 

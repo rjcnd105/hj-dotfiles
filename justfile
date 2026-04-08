@@ -35,6 +35,11 @@ darwin-switch:
 switch-from-github:
     nix run nix-darwin -- switch --flake github:rjcnd105/hj-dotfiles#workspace_hj --impure
 
+build_hj-homelab:
+    set -euo pipefail
+    source {{root_dir}}/createEnv.sh
+    nix eval .#nixosConfigurations.homelab_hj.config.networking.hostName --impure
+
 mkEnv:
     source ./createEnv.sh
 

@@ -35,14 +35,14 @@ in
     HOME_VERSION = inputs.nixpkgs.lib.trivial.release;
     AQUA_GLOBAL_CONFIG = config.xdg.configHome + "/aqua/aqua.toml";
     PROJECT_PATH = "${myOptions.absoluteProjectPath}";
-    VISUAL = "/usr/local/bin/zed";
     EDITOR = pkgs.helix + "/bin/hx";
 
     USER_PROFILE = config.home.profileDirectory;
     XDG_BIN_HOME = "$HOME/.local/bin";
     HM_CURRENT = "/run/current-system/sw";
+  } // lib.optionalAttrs pkgs.stdenv.isDarwin {
+    VISUAL = "/usr/local/bin/zed";
     OBSIDIAN = "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents";
-
     ZED_ALLOW_ROOT = "true";
   };
 
