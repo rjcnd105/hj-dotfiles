@@ -8,7 +8,9 @@
       "Bash(python3 -c *)",
       "Bash(jj log:*)",
       "Bash(claude plugin:*)",
-      "Bash(claude plugins:*)"
+      "Bash(claude plugins:*)",
+      "Bash(git commit:*)",
+      "Bash(git add:*)"
     ]
   },
   "outputStyle": "Explanatory",
