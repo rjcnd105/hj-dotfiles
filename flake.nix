@@ -153,27 +153,22 @@
         }
       ) linuxHosts;
 
-      devShells.aarch64-darwin.default =
+      devShells = lib.genAttrs [
+        "aarch64-darwin"
+        "x86_64-linux"
+      ] (system:
         let
-          pkgs = import nixpkgs { system = "aarch64-darwin"; };
+          pkgs = import nixpkgs { inherit system; };
         in
-        pkgs.mkShell {
-          packages = with pkgs; [
-            nixd
-            nixfmt
-          ];
-        };
-
-      devShells.x86_64-linux.default =
-        let
-          pkgs = import nixpkgs { system = "x86_64-linux"; };
-        in
-        pkgs.mkShell {
-          packages = with pkgs; [
-            nixd
-            nixfmt
-          ];
-        };
+        {
+          default = pkgs.mkShell {
+            packages = with pkgs; [
+              nixd
+              nixfmt
+            ];
+          };
+        }
+      );
 
       templates = {
         phoenix = {

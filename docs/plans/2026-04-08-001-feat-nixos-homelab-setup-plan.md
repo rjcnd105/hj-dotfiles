@@ -1,7 +1,7 @@
 ---
 title: NixOS 홈서버(homelab) flake 확장
 type: feat
-status: active
+status: completed
 date: 2026-04-08
 ---
 

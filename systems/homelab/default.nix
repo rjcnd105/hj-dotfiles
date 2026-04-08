@@ -15,9 +15,10 @@
   virtualisation.docker.enable = true;
 
   # llama.cpp — CPU 모드로 시작. GPU 가속은 ROCm gfx1150 공식 지원 후 추가
+  # 로컬 전용 바인딩. 외부 접근이 필요하면 host를 0.0.0.0으로 변경하고 firewall에 8080 추가
   services.llama-cpp = {
     enable = true;
-    host = "0.0.0.0";
+    host = "127.0.0.1";
     port = 8080;
   };
 

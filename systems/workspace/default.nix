@@ -63,10 +63,9 @@ in
 
     };
 
-    # https://determinate.systems/blog/nix-darwin-updates/#what-you-should-change
-    # TODO: 그러나 이후 https://determinate.systems/blog/changelog-determinate-nix-386/#nix-darwin 적용 확인..
     # Determinate Nix 사용 — nix-darwin의 nix 관리 비활성화
     # https://determinate.systems/blog/nix-darwin-updates/#what-you-should-change
+    # TODO: 이후 https://determinate.systems/blog/changelog-determinate-nix-386/#nix-darwin 적용 확인
     nix.enable = false;
 
   };
