@@ -46,6 +46,8 @@ prefix = `systems`, `homes` (flake.nix:87-88).
 
 호스트별: `systems/workspace/`, `homes/workspace/`, `files/workspace/`, `secrets/workspace/`
 
+- `docs/solutions/` — 과거 해결한 문제와 베스트 프랙티스 문서. 카테고리별 구성, YAML frontmatter(`module`, `tags`, `problem_type`)로 검색 가능
+
 ### myOptions
 
 전 모듈 `specialArgs` 전달 컨텍스트 객체 (flake.nix:78-85):
