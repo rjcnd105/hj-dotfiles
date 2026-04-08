@@ -1,0 +1,5 @@
+{
+  "enabledPlugins": {
+    "nixd@claude-code-lsps": true
+  }
+}

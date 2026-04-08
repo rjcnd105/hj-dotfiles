@@ -97,6 +97,12 @@
         "source": "github",
         "repo": "JuliusBrussee/caveman"
       }
+    },
+    "claude-code-lsps": {
+      "source": {
+        "source": "github",
+        "repo": "boostvolt/claude-code-lsps"
+      }
     }
   },
   "language": "Korean",

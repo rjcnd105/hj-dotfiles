@@ -6,7 +6,9 @@
       "Bash(jj cat:*)",
       "Bash(jj file:*)",
       "Bash(python3 -c *)",
-      "Bash(jj log:*)"
+      "Bash(jj log:*)",
+      "Bash(claude plugin:*)",
+      "Bash(claude plugins:*)"
     ]
   },
   "outputStyle": "Explanatory",
