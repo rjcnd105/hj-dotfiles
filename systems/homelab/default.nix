@@ -11,6 +11,14 @@
 
   networking.hostName = "homelab";
 
+  # 정적 IP — ipTIME DHCP 예약 대신 NixOS에서 직접 고정
+  networking.interfaces.eno1.ipv4.addresses = [{
+    address = "192.168.0.5";
+    prefixLength = 24;
+  }];
+  networking.defaultGateway = "192.168.0.1";
+  networking.nameservers = [ "111.118.0.1" "111.118.0.11" ];
+
   # Docker
   virtualisation.docker.enable = true;
 

@@ -13,34 +13,40 @@ ipTIME 공유기 환경에서 외부 네트워크로부터 homelab에 SSH 접속
 
 DHCP가 IP를 변경하면 포트포워딩이 깨지므로 IP를 고정한다.
 
-ipTIME 관리 페이지:
-1. **고급 설정** → **네트워크 관리** → **DHCP 서버 설정** → **수동 IP 할당**
-2. homelab의 MAC 주소와 원하는 IP를 등록 (예: `192.168.0.100`)
-3. 적용
+NixOS에서 정적 IP를 설정한다 (`systems/homelab/default.nix`):
 
-homelab의 MAC 주소 확인:
-```bash
-ip link show
-# enp* 또는 eth0의 link/ether 뒤에 나오는 값 (예: aa:bb:cc:dd:ee:ff)
+```nix
+networking.interfaces.<인터페이스> = {
+  ipv4.addresses = [{
+    address = "192.168.0.x";   # 원하는 고정 IP
+    prefixLength = 24;
+  }];
+};
+networking.defaultGateway = "192.168.0.1";
+networking.nameservers = [ "<DNS1>" "<DNS2>" ];  # ipTIME DHCP 서버 설정에서 확인
 ```
+
+인터페이스 이름은 `ip link show`로 확인 (`eno1`, `enp1s0` 등).
+
+적용 후 `nixos-rebuild switch` (또는 comin이 자동 적용).
 
 ## 2. 포트포워딩 설정
 
 ipTIME 관리 페이지:
-1. **고급 설정** → **NAT/라우터 관리** → **포트포워드 설정**
+1. **전체 메뉴** → **NAT/라우터 관리** → **포트포워드 설정**
 2. 새 규칙 추가:
 
 | 항목 | 값 |
 |------|-----|
 | 규칙이름 | homelab-ssh |
-| 내부 IP 주소 | 고정한 IP (예: `192.168.0.100`) |
+| 내부 IP 주소 | `192.168.0.5` |
 | 프로토콜 | TCP |
-| 외부 포트 | 2222 (기본 22 대신 변경 권장) |
+| 외부 포트 | 기본 22 대신 변경 권장 (예: 2222) |
 | 내부 포트 | 22 |
 
 3. 적용
 
-> 외부 포트를 22가 아닌 2222 등으로 바꾸면 자동 스캔 봇 대부분을 회피할 수 있다.
+> 외부 포트를 22가 아닌 다른 번호로 바꾸면 자동 스캔 봇 대부분을 회피할 수 있다.
 
 ## 3. 외부 IP 확인
 
@@ -52,7 +58,9 @@ curl ifconfig.me
 
 내부 네트워크가 아닌 곳(모바일 핫스팟 등)에서:
 ```bash
-ssh -p 2222 hj@<외부IP>
+ssh -p 2323 hj@<외부IP>
+# 또는 DDNS 설정 후:
+ssh -p <외부포트> hj@<호스트명>.iptime.org
 ```
 
 > 같은 공유기 내부에서 외부 IP로 접속하면 안 되는 경우가 있다 (NAT hairpinning 미지원). 반드시 외부 네트워크에서 테스트한다.
@@ -62,12 +70,12 @@ ssh -p 2222 hj@<외부IP>
 가정용 인터넷은 외부 IP가 주기적으로 바뀔 수 있다. DDNS를 설정하면 도메인으로 접속 가능.
 
 ipTIME 관리 페이지:
-1. **고급 설정** → **특수기능** → **DDNS 설정**
+1. **전체 메뉴** → **특수 기능** → **DDNS 설정**
 2. 호스트 이름 입력 (예: `myhomelab`)
-3. 등록하면 `myhomelab.iptime.org`로 접속 가능:
+3. 등록하면 `<호스트명>.iptime.org`로 접속 가능:
 
 ```bash
-ssh -p 2222 hj@myhomelab.iptime.org
+ssh -p <외부포트> hj@<호스트명>.iptime.org
 ```
 
 ## 6. SSH 보안 강화
