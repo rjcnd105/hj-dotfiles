@@ -10,7 +10,12 @@
       "Bash(claude plugin:*)",
       "Bash(claude plugins:*)",
       "Bash(git commit:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(agent-browser:*)",
+      "Bash(jj describe:*)",
+      "Bash(jj restore:*)",
+      "Bash(jj new:*)",
+      "Bash(jj bookmark:*)"
     ]
   },
   "outputStyle": "Explanatory",

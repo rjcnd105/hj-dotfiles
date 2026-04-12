@@ -25,6 +25,7 @@
   # comin — GitOps: GitHub main 브랜치를 poll하여 자동 nixos-rebuild switch
   services.comin = {
     enable = true;
+    hostname = "homelab_hj";
     remotes = [
       {
         name = "origin";
