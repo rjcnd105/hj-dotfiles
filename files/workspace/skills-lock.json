@@ -11,6 +11,11 @@
       "sourceType": "github",
       "computedHash": "aa7939fc4d1fe31484090290da77f2d21e026aa4b34b329d00e6630feb985d75"
     },
+    "context7": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "fccbea654f8e35824a8bdce3e059e206efeb6c1fab9f6c096c3867e761081983"
+    },
     "find-docs": {
       "source": "upstash/context7",
       "sourceType": "github",

@@ -18,8 +18,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    catppuccin.url = "github:catppuccin/nix";
-
     comin = {
       url = "github:nlewo/comin";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -30,7 +28,6 @@
   outputs =
     inputs@{
       self,
-      catppuccin,
       nixpkgs,
       home-manager,
       darwin,

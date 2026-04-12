@@ -49,11 +49,17 @@
     "context7@claude-plugins-official": false,
     "compound-engineering@compound-engineering-plugin": true,
     "last30days@last30days-skill": true,
-    "harness@harness-marketplace": true,
     "hindsight-memory@hindsight": true,
-    "context-engineering@context-engineering-marketplace": true,
     "frontend-design@claude-plugins-official": true,
-    "caveman@caveman": true
+    "caveman@caveman": true,
+    "reflexion@context-engineering-kit": true,
+    "sdd@context-engineering-kit": true,
+    "sadd@context-engineering-kit": true,
+    "ddd@context-engineering-kit": true,
+    "customaize-agent@context-engineering-kit": true,
+    "code-review@claude-plugins-official": true,
+    "kaizen@context-engineering-kit": true,
+    "git@context-engineering-kit": true
   },
   "extraKnownMarketplaces": {
     "compound-engineering-plugin": {
@@ -102,6 +108,12 @@
       "source": {
         "source": "github",
         "repo": "boostvolt/claude-code-lsps"
+      }
+    },
+    "context-engineering-kit": {
+      "source": {
+        "source": "github",
+        "repo": "NeoLabHQ/context-engineering-kit"
       }
     }
   },

@@ -1,7 +1,4 @@
 {
-  config,
-  inputs,
-  myOptions,
   pkgs,
   ...
 }:
@@ -35,10 +32,6 @@
       nix-direnv.enable = true;
     };
 
-    zellij = {
-      enable = true;
-      enableFishIntegration = false;
-    };
     # folder viewer
     yazi = {
       enable = true;

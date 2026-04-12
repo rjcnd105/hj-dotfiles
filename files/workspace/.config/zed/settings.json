@@ -1,4 +1,10 @@
 {
+  "outline_panel": {
+    "dock": "left"
+  },
+  "collaboration_panel": {
+    "dock": "left"
+  },
   "terminal": {
     "shell": {
       "program": "/etc/profiles/per-user/hj/bin/fish"
@@ -24,6 +30,7 @@
   "semantic_tokens": "combined",
   "document_folding_ranges": "on",
   "git_panel": {
+    "dock": "left",
     "tree_view": true
   },
   "agent_servers": {
@@ -44,6 +51,7 @@
     }
   },
   "agent": {
+    "dock": "right",
     "inline_assistant_model": {
       "provider": "google",
       "model": "gemini-3-pro-preview",
@@ -197,6 +205,7 @@
     "calt": false
   },
   "project_panel": {
+    "dock": "left",
     "auto_fold_dirs": false,
     "indent_size": 16,
     "git_status": true

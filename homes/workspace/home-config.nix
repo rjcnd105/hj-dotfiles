@@ -31,7 +31,6 @@ in
   };
 
   home.sessionVariables = {
-    ZELLIJ_CONFIG_DIR = "$HOME/.config/zellij";
     HOME_VERSION = inputs.nixpkgs.lib.trivial.release;
     AQUA_GLOBAL_CONFIG = config.xdg.configHome + "/aqua/aqua.toml";
     PROJECT_PATH = "${myOptions.absoluteProjectPath}";

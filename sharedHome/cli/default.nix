@@ -6,7 +6,6 @@
     ./git.nix
     ./eza.nix
     ./zoxide.nix
-    ./alacritty.nix
     ./nh.nix
     ./shell
   ];

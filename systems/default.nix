@@ -20,14 +20,6 @@
       backupFileExtension = "backup";
       sharedModules = [
         inputs.sops-nix.homeManagerModules.sops
-        inputs.catppuccin.homeModules.catppuccin
-        {
-          catppuccin = {
-            enable = true;
-            flavor = "macchiato";
-            zellij.enable = false;
-          };
-        }
       ];
       extraSpecialArgs = {
         inherit inputs myOptions;

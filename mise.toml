@@ -10,3 +10,5 @@ _.file = [
   { path = "./secrets/$USER_HOST:workspace/secrets.yaml", redact = true, read_only = true},
   { path = "./secrets/shared/pub.enc.yaml", redact = true, read_only = true}
 ]
+
+HINDSIGHT_DYNAMIC_BANK_ID = true
