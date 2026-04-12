@@ -1,7 +1,6 @@
 keys:
   - &hj_age age14c6z2hf8qr9lumph8smjh7yny25nd7v4xy9guc8n5r2pfrmhjfasrjmhz5
-  # homelab age key — 설치 후 ssh-to-age로 생성하여 교체
-  # - &homelab_age age1...
+  - &homelab_age age1lx6p4n6fcztf0wdqw20wxqkfkdwdjtqe7xgjj0wks0qxxx2d49jqxc9gqt
 
 creation_rules:
   # 공통 secrets (모든 사용자가 접근)
@@ -22,4 +21,4 @@ creation_rules:
     key_groups:
       - age:
           - *hj_age
-          # - *homelab_age
+          - *homelab_age
