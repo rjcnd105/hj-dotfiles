@@ -141,6 +141,7 @@
           };
           modules = [
             { nixpkgs = nixpkgsConfig config.system; }
+            { system.configurationRevision = self.rev or self.dirtyRev or "dirty"; }
             home-manager.nixosModules.home-manager
             { home-manager.users.${userName}.imports = homeModulePaths; }
             comin.nixosModules.comin
