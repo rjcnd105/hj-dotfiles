@@ -11,8 +11,9 @@ let
   age_key_file = sops_age_dir + "/keys.txt";
   ssh_key_file = "${config.home.homeDirectory}/.ssh/id_ed25519";
 
-  host_secrets_path = "${myOptions.absoluteProjectPath}/secrets/${myOptions.hostName}/secrets.yaml";
-  last30days_secrets_path = "${myOptions.absoluteProjectPath}/secrets/${myOptions.hostName}/last30days.enc.yaml";
+  # Nix path (path + string = path) — store로 복사되어 빌드 샌드박스에서 접근 가능
+  host_secrets_path = ../../secrets + "/${myOptions.hostName}/secrets.yaml";
+  last30days_secrets_path = ../../secrets + "/${myOptions.hostName}/last30days.enc.yaml";
 in
 {
 
