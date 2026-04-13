@@ -10,7 +10,6 @@ env_shell_expand = true
 [tools]
 # POC
 "rtk" = "latest"
-"ollama" = "latest"
 "osv-scanner" = "latest"
 
 [tools.acli]
@@ -31,26 +30,9 @@ version = "latest"
 [tools.zig]
 version = "latest"
 
-[tools.lazydocker]
-version = "latest"
-
 [tools.unison]
 version = "latest"
 
-[tools.docker-compose]
-version = "latest"
-
-[tools.mkcert]
-version = "latest"
-
-[tools.jj]
-version = "latest"
-postinstall = """
-  jj util completion fish
-  jj util completion zsh
-  jj config set --user user.name "hj"
-  jj config set --user user.email "rjcnd123@gmail.com"
-"""
 
 [tools.jjui]
 version = "latest"
@@ -59,9 +41,6 @@ version = "latest"
 version = "latest"
 
 [tools.uv]
-version = "latest"
-
-[tools.podman]
 version = "latest"
 
 [tools.lazyjournal]
@@ -92,50 +71,19 @@ version = "latest"
 [tools.gleam]
 version = "latest"
 
-[tools.sops]
-version = "latest"
-
-[tools.age]
-version = "latest"
-
-[tools.lazygit]
-version = "latest"
 
 [tools.aws-cli]
-version = "latest"
-
-[tools.just]
 version = "latest"
 
 
 # [tools.redis]
 # version = "latest"
 
-[tools.difftastic]
-version = "latest"
-
-[tools.lima]
-version = "latest"
-
-[tools.dive]
-version = "latest"
-
-[tools.ffmpeg]
-version = "latest"
-
-[tools.pandoc]
-version = "latest"
-
 
 [tasks.mise-completion]
 run = """
   mise completion fish > ~/.config/fish/completions/mise.fish
   chmod +x ~/.config/fish/completions/mise.fish
-
-  jj util completion fish > ~/.config/fish/completions/jj.fish
-  jj config set --user user.name "hj"
-  jj config set --user user.email "rjcnd123@gmail.com"
-  jj config set --user user.editor "cursor"
 """
 
 
@@ -207,6 +155,9 @@ HINDSIGHT_API_KEY="$HINDSIGHT_API_TOKEN"
 
 MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3
 CLAUDE_CODE_COORDINATOR_MODE=1
+CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING = 1
+CLAUDE_CODE_AUTO_COMPACT_WINDOW = 400000
+
 # USER_TYPE = "ant"
 # 프로젝트 명시시
 # HINDSIGHT_TAG_PROJECT = "nix-dot"

@@ -84,6 +84,7 @@ in
       # termshark # Wireshark의 TUI 버전
       # bandwhich # 실시간 네트워크 사용량을 프로세스별로 표시
       # mtr-gui # traceroute 대체, 더 상호작용적
+      lima # macOS 전용 Linux VM
     ]
     ++ [
       pkgs.nerd-fonts.d2coding
