@@ -1,6 +1,6 @@
 keys:
   - &hj_age age14c6z2hf8qr9lumph8smjh7yny25nd7v4xy9guc8n5r2pfrmhjfasrjmhz5
-  - &homelab_age age1lx6p4n6fcztf0wdqw20wxqkfkdwdjtqe7xgjj0wks0qxxx2d49jqxc9gqt
+  - &homelab_age age13l5ytc0xuqawqzt07xt0gyskk07lyayfsndut3cnyd0slzka7ppq4m3k64
 
 creation_rules:
   # 공통 secrets (모든 사용자가 접근)
