@@ -37,7 +37,6 @@ in
     EDITOR = pkgs.helix + "/bin/hx";
 
     USER_PROFILE = config.home.profileDirectory;
-    XDG_BIN_HOME = "$HOME/.local/bin";
     HM_CURRENT = "/run/current-system/sw";
   } // lib.optionalAttrs pkgs.stdenv.isDarwin {
     VISUAL = "/usr/local/bin/zed";
