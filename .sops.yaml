@@ -9,6 +9,7 @@ creation_rules:
       - age:
           # - *admin_age
           - *hj_age
+          - *homelab_age
 
   # workspace/hj 전용 secrets
   - path_regex: secrets/workspace/[^/]+\.(yaml|json|env|ini)$

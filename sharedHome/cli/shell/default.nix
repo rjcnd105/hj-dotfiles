@@ -5,7 +5,7 @@
 {
   imports = [
     ./fish.nix
-    # ./mise.nix
+    ./mise.nix
   ];
 
   programs = {

@@ -11,11 +11,6 @@ in
     ../../sharedHome/development
   ] ++ lib.optional enableSecrets ../workspace/sops.nix;
 
-  programs.mise = {
-    enable = true;
-    enableFishIntegration = true;
-  };
-
   home.packages = [
     pkgs.claude-code
   ];
