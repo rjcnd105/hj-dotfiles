@@ -7,14 +7,13 @@ Nix flake macOS dotfiles (nix-darwin + home-manager).
 - `just build_hj-workspace` — 빌드만 (검증용, 자율실행 OK)
 - `just darwin-switch` — 빌드+적용. **macOS 서비스 재시작 → 사용자 확인 필수**
 - `nixfmt <file>` — Nix 포맷팅
-- `darwin-rebuild` 직접 호출 금지 — justfile이 `createEnv.sh`로 `env.nix` 생성해야 빌드 동작
-- `env.nix` 자동생성 — 수정 금지
+- `darwin-rebuild` 직접 호출 금지 — justfile 사용
 
 ## Architecture
 
 ### Naming Convention
 
-hosts 맵(flake.nix:42-47) key = `{host}_{user}`:
+hosts 맵(flake.nix) key = `{host}_{user}`:
 
 | 식별자 | 값 | 용도 |
 |--------|-----|------|
@@ -24,7 +23,7 @@ hosts 맵(flake.nix:42-47) key = `{host}_{user}`:
 
 ### Module Resolution
 
-`getModulePaths`(flake.nix:56-65) 6경로 시도, 존재만 로드:
+`getModulePaths`(flake.nix) 6경로 시도, 존재만 로드:
 
 ```
 {prefix}/default.nix
@@ -35,7 +34,7 @@ hosts 맵(flake.nix:42-47) key = `{host}_{user}`:
 {prefix}/{host}/{user}/default.nix         ← system-skip shortcut
 ```
 
-prefix = `systems`, `homes` (flake.nix:87-88).
+prefix = `systems`, `homes`.
 
 ### Module Layers
 
@@ -50,7 +49,7 @@ prefix = `systems`, `homes` (flake.nix:87-88).
 
 ### myOptions
 
-전 모듈 `specialArgs` 전달 컨텍스트 객체 (flake.nix:78-85):
+전 모듈 `specialArgs` 전달 컨텍스트 객체 (flake.nix):
 
 `key`, `email`, `system`, `hostName`, `userName`, `paths`, `absoluteProjectPath`
 

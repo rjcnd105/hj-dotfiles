@@ -9,6 +9,8 @@
     enable = true;
     enableDefaultConfig = false;
 
+    includes = [ "~/.ssh/config.d/*" ];
+
     extraConfig = lib.optionalString pkgs.stdenv.isDarwin ''
       UseKeychain yes
     '';

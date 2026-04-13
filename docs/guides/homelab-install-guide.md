@@ -179,10 +179,6 @@ cp /tmp/hw-config.nix /mnt/etc/nixos/systems/homelab/hardware-configuration.nix
 `ENABLE_SECRETS=0`으로 secrets 없이 설치한다. age 키가 아직 없으므로 secrets는 Phase 17 이후에 설정한다.
 
 ```bash
-# env.nix 생성 (createEnv.sh 실행)
-cd /mnt/etc/nixos
-bash createEnv.sh
-
 # NixOS 설치 (secrets 제외)
 ENABLE_SECRETS=0 nixos-install --flake /mnt/etc/nixos#homelab_hj --impure
 ```
@@ -332,7 +328,6 @@ journalctl -u comin --since "5 minutes ago"
 
 ### nixos-install 실패
 - `hardware-configuration.nix`가 올바른지 확인
-- `env.nix`가 생성되었는지 확인 (`cat /mnt/etc/nixos/env.nix`)
 - 네트워크 연결 확인 (패키지 다운로드 필요)
 - sops 관련 에러: `ENABLE_SECRETS=0`을 붙여서 실행했는지 확인
 

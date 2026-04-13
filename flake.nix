@@ -40,11 +40,13 @@
         workspace_hj = {
           system = "aarch64-darwin";
           email = "rjcnd123@gmail.com";
+          projectPath = "/Users/hj/dot/nix-dots";
         };
         homelab_hj = {
           system = "x86_64-linux";
           email = "rjcnd123@gmail.com";
           filesHost = "workspace";
+          projectPath = "/etc/nixos";
         };
       };
       lib = nixpkgs.lib;
@@ -52,8 +54,6 @@
         inherit lib;
         pkgs = nixpkgs;
       };
-
-      envVars = import ./env.nix;
 
       getModulePaths =
         prefix: system: host: user:
@@ -84,7 +84,7 @@
             inherit hostName userName;
             filesHost = config.filesHost or hostName;
             paths = myLib.config.paths;
-            absoluteProjectPath = envVars.PWD;
+            absoluteProjectPath = config.projectPath;
             _debug = { };
           };
         };
@@ -102,9 +102,7 @@
       };
     in
     {
-      _debug = {
-        inherit envVars;
-      };
+      _debug = { };
 
       darwinConfigurations = lib.mapAttrs (
         key: config:
@@ -151,22 +149,26 @@
         }
       ) linuxHosts;
 
-      devShells = lib.genAttrs [
-        "aarch64-darwin"
-        "x86_64-linux"
-      ] (system:
-        let
-          pkgs = import nixpkgs { inherit system; };
-        in
-        {
-          default = pkgs.mkShell {
-            packages = with pkgs; [
-              nixd
-              nixfmt
-            ];
-          };
-        }
-      );
+      devShells =
+        lib.genAttrs
+          [
+            "aarch64-darwin"
+            "x86_64-linux"
+          ]
+          (
+            system:
+            let
+              pkgs = import nixpkgs { inherit system; };
+            in
+            {
+              default = pkgs.mkShell {
+                packages = with pkgs; [
+                  nixd
+                  nixfmt
+                ];
+              };
+            }
+          );
 
       templates = {
         phoenix = {
