@@ -15,16 +15,16 @@ nix_instll:
     curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 
 build_hj-workspace:
-    nix build .#darwinConfigurations.workspace_hj.system --show-trace --impure --fallback --experimental-features "nix-command flakes"
+    nix build .#darwinConfigurations.workspace_hj.system --show-trace --fallback --experimental-features "nix-command flakes"
 
 darwin-switch:
-    darwin-rebuild switch --flake .#workspace_hj --show-trace --impure --fallback
+    darwin-rebuild switch --flake .#workspace_hj --show-trace --fallback
 
 switch-from-github:
-    nix run nix-darwin -- switch --flake github:rjcnd105/hj-dotfiles#workspace_hj --impure
+    nix run nix-darwin -- switch --flake github:rjcnd105/hj-dotfiles#workspace_hj
 
 build_hj-homelab:
-    nix eval .#nixosConfigurations.homelab_hj.config.networking.hostName --impure
+    nix eval .#nixosConfigurations.homelab_hj.config.networking.hostName
 
 flake_update:
     @nix flake update

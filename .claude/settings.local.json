@@ -16,7 +16,8 @@
       "Bash(jj restore:*)",
       "Bash(jj new:*)",
       "Bash(jj bookmark:*)",
-      "Bash(jj git:*)"
+      "Bash(jj git:*)",
+      "Bash(nix build:*)"
     ]
   },
   "outputStyle": "Explanatory",

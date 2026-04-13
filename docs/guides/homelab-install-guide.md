@@ -180,7 +180,7 @@ cp /tmp/hw-config.nix /mnt/etc/nixos/systems/homelab/hardware-configuration.nix
 
 ```bash
 # NixOS 설치 (secrets 제외)
-ENABLE_SECRETS=0 nixos-install --flake /mnt/etc/nixos#homelab_hj --impure
+ENABLE_SECRETS=0 nixos-install --flake /mnt/etc/nixos#homelab_hj
 ```
 
 설치 중 root 비밀번호를 묻는다. 설정한다.
