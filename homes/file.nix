@@ -64,6 +64,7 @@ let
           "${childPath}" = {
             source = config.lib.file.mkOutOfStoreSymlink linkFile;
             recursive = true;
+            force = true;
           };
         }
     ) { } (builtins.readDir currentScanPath));
