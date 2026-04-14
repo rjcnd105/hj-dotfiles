@@ -8,7 +8,9 @@ end
 #   "$mise_exec" shellenv | source
 # end
 source $HOME/.config/fish/activate.fish
-source $HOME/.config/fish/completions/mise.fish
+if test -f $HOME/.config/fish/completions/mise.fish
+  source $HOME/.config/fish/completions/mise.fish
+end
 
 
 
