@@ -7,6 +7,7 @@
 
   imports = [
     ./hardware-configuration.nix
+    ./sops.nix
   ];
 
   networking.hostName = "homelab";
