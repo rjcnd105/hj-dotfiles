@@ -8,6 +8,7 @@
   imports = [
     ./hardware-configuration.nix
     ./sops.nix
+    ./cloudflared.nix
   ];
 
   networking.hostName = "homelab";
