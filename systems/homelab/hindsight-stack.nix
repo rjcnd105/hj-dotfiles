@@ -5,7 +5,6 @@
 {
   config,
   pkgs,
-  myOptions,
   ...
 }:
 let
@@ -25,7 +24,11 @@ in
   # hindsight 전용 bridge network — 컨테이너 간 이름 해석
   systemd.services.init-hindsight-network = {
     description = "hindsight docker bridge network 생성";
-    after = [ "network.target" ];
+    after = [
+      "network.target"
+      "docker.service"
+    ];
+    requires = [ "docker.service" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "oneshot";
@@ -138,17 +141,25 @@ in
         HINDSIGHT_API_TENANT_EXTENSION = "hindsight_api.extensions.builtin.tenant:ApiKeyTenantExtension";
       };
       ports = [ "127.0.0.1:8888:8888" ];
-      extraOptions = [ "--network=hindsight" ];
+      extraOptions = [
+        "--network=hindsight"
+      ];
     };
   };
 
-  # 전 컨테이너가 network 생성 후에 시작하도록 systemd 의존성 추가
+  # 전 컨테이너가 network 생성 후에 시작
   systemd.services.docker-hindsight-db.after = [ "init-hindsight-network.service" ];
   systemd.services.docker-hindsight-db.requires = [ "init-hindsight-network.service" ];
   systemd.services.docker-tei-embed.after = [ "init-hindsight-network.service" ];
   systemd.services.docker-tei-embed.requires = [ "init-hindsight-network.service" ];
-  systemd.services.docker-tei-rerank.after = [ "init-hindsight-network.service" ];
+
+  # TEI reranker는 embed 이후 시작 (동시 모델 로딩 방지 → peak RAM 절감)
+  systemd.services.docker-tei-rerank.after = [
+    "init-hindsight-network.service"
+    "docker-tei-embed.service"
+  ];
   systemd.services.docker-tei-rerank.requires = [ "init-hindsight-network.service" ];
+
   systemd.services.docker-hindsight.after = [ "init-hindsight-network.service" ];
   systemd.services.docker-hindsight.requires = [ "init-hindsight-network.service" ];
 }

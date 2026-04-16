@@ -1,6 +1,5 @@
 {
   pkgs,
-  myOptions,
   ...
 }:
 {
@@ -9,8 +8,7 @@
     ./hardware-configuration.nix
     ./sops.nix
     ./cloudflared.nix
-    # FIXME: TEI 동시 기동 시 시스템 과부하 → 순차 기동 + 리소스 제한 추가 후 재활성화
-    # ./hindsight-stack.nix
+    ./hindsight-stack.nix
   ];
 
   networking.hostName = "homelab";
@@ -27,6 +25,25 @@
     "111.118.0.1"
     "111.118.0.11"
   ];
+
+  # zram 스왑 — 압축 RAM 기반 swap. 미사용 시 RAM 소비 ≈ 0.
+  zramSwap = {
+    enable = true;
+    algorithm = "zstd";
+    memoryPercent = 25;
+  };
+
+  # earlyoom — kswapd livelock 전에 선제 조치 → SSH 유지.
+  # systemd-oomd와 중복 방지를 위해 oomd는 비활성.
+  services.earlyoom = {
+    enable = true;
+    freeMemThreshold = 5;
+    freeMemKillThreshold = 3;
+    freeSwapThreshold = 10;
+    freeSwapKillThreshold = 5;
+    enableNotifications = true;
+  };
+  systemd.oomd.enable = false;
 
   # Docker
   virtualisation.docker.enable = true;
@@ -54,6 +71,7 @@
 
   environment.systemPackages = with pkgs; [
     devenv
+    ghostty.terminfo
     # 메모리/iGPU UMA 실측용 (dmidecode -t memory)
     dmidecode
   ];
