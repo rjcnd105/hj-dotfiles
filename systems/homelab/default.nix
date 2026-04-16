@@ -9,6 +9,7 @@
     ./hardware-configuration.nix
     ./sops.nix
     ./cloudflared.nix
+    ./hindsight-stack.nix
   ];
 
   networking.hostName = "homelab";
