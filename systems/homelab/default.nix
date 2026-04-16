@@ -9,7 +9,8 @@
     ./hardware-configuration.nix
     ./sops.nix
     ./cloudflared.nix
-    ./hindsight-stack.nix
+    # FIXME: TEI 동시 기동 시 시스템 과부하 → 순차 기동 + 리소스 제한 추가 후 재활성화
+    # ./hindsight-stack.nix
   ];
 
   networking.hostName = "homelab";
