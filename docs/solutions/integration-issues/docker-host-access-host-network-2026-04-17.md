@@ -151,3 +151,4 @@ host network 모드는 컨테이너의 netns 분리를 포기 — **컨테이너
 - Plan: `docs/plans/2026-04-17-001-feat-homelab-llamaswap-embedding-reranker-plan.md`
 - 관련 커밋: `4e7ca687`(초기) → `bd8aaf7f` → `820b04eb` → `fe5852ca` → `2edd5518` → **`5d2d8f6a`(최종 host network)**
 - Docker 문서: user-defined bridge 에서 `host.docker.internal:host-gateway` 동작은 Docker 버전/bridge 종류에 따라 상이 (공식 가이드 범위 외)
+- Downstream fix: [`../performance-issues/hindsight-reranker-vulkan-acceleration-2026-04-19.md`](../performance-issues/hindsight-reranker-vulkan-acceleration-2026-04-19.md) — 본 doc의 host network 전환으로 확보된 `127.0.0.1:8090` endpoint가 이후 Vulkan iGPU 가속으로 CPU-only BLAS → Radeon 890M GPU로 upgrade됨
