@@ -54,7 +54,7 @@ let
           --host 127.0.0.1
           --reranking
           --ctx-size 8192
-          --threads 4
+          --threads 12
         proxy: http://127.0.0.1:''${PORT}
         ttl: 600
   '';
