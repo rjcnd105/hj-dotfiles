@@ -1,0 +1,122 @@
+# AI inference stack — llama-swap + embed-prefix-proxy
+#
+# TEI 2-컨테이너(≈8GB)를 Q8_0 GGUF 2-모델(≈1.3GB)로 교체.
+# llama-swap이 /v1/embeddings, /v1/rerank 경로별로 모델 스왑.
+# embed-prefix-proxy가 Harrier instruct prefix 주입 후 llama-swap에 forward.
+#
+# 토폴로지:
+#   Hindsight API ─ openai provider ─→ :8091 (prefix-proxy) ─→ :8090 (llama-swap) ─→ harrier
+#   Hindsight API ─ cohere provider ─→ :8090 (llama-swap) ─→ qwen3-reranker
+{
+  pkgs,
+  ...
+}:
+let
+  # GGUF 모델 — SHA256 pinned, /nix/store 영구 캐시
+  harrierModel = pkgs.fetchurl {
+    url = "https://huggingface.co/SuperPauly/harrier-oss-v1-0.6b-gguf/resolve/main/harrier-oss-v1-0.6B-Q8_0.gguf";
+    sha256 = "1c2hda54lb0xgvgacqfgl9gqnimwf588bjkh265lp0gnffyr4w7r";
+  };
+  qwen3RerankerModel = pkgs.fetchurl {
+    url = "https://huggingface.co/ggml-org/Qwen3-Reranker-0.6B-Q8_0-GGUF/resolve/main/qwen3-reranker-0.6b-q8_0.gguf";
+    sha256 = "0j4s88iyma5q5mx8y2wqmbqyz5r7qd0nc31ivjncbkgvwjf9gj92";
+  };
+
+  llamaServer = "${pkgs.llama-cpp}/bin/llama-server";
+
+  # llama-swap 라우팅 설정.
+  # ${PORT} = llama-swap이 backend에 할당한 동적 포트.
+  # ttl=600 → 10분 idle 후 언로드 (embedding/reranker 동시 필요 시 서로 스왑)
+  llamaSwapConfig = pkgs.writeText "llama-swap-config.yaml" ''
+    healthCheckTimeout: 120
+
+    models:
+      harrier:
+        cmd: |
+          ${llamaServer}
+          --model ${harrierModel}
+          --port ''${PORT}
+          --host 127.0.0.1
+          --embeddings
+          --pooling last
+          --ctx-size 8192
+          --batch-size 8192
+          --ubatch-size 8192
+          --threads 4
+        proxy: http://127.0.0.1:''${PORT}
+        ttl: 600
+
+      qwen3-reranker:
+        cmd: |
+          ${llamaServer}
+          --model ${qwen3RerankerModel}
+          --port ''${PORT}
+          --host 127.0.0.1
+          --reranking
+          --ctx-size 8192
+          --threads 4
+        proxy: http://127.0.0.1:''${PORT}
+        ttl: 600
+  '';
+
+  # FastAPI 런타임 — httpx + uvicorn
+  proxyPython = pkgs.python313.withPackages (ps: with ps; [
+    fastapi
+    httpx
+    uvicorn
+  ]);
+
+  # embed-prefix-proxy 소스 (main.py, test_main.py) — /nix/store로 복사
+  proxySrc = ./embed-prefix-proxy;
+in
+{
+  # ── llama-swap ─────────────────────────────────────────
+  # :8090 listen, backend 모델 동적 스왑
+  systemd.services.llama-swap = {
+    description = "llama-swap — model router for llama.cpp";
+    after = [ "network.target" ];
+    wantedBy = [ "multi-user.target" ];
+
+    serviceConfig = {
+      ExecStart = "${pkgs.llama-swap}/bin/llama-swap --config ${llamaSwapConfig} --listen 127.0.0.1:8090";
+      Restart = "always";
+      RestartSec = "5s";
+
+      DynamicUser = true;
+      ProtectSystem = "strict";
+      ProtectHome = true;
+      PrivateTmp = true;
+      NoNewPrivileges = true;
+    };
+  };
+
+  # ── embed-prefix-proxy ─────────────────────────────────
+  # :8091 listen, Harrier instruct prefix 주입 후 llama-swap에 forward
+  systemd.services.embed-prefix-proxy = {
+    description = "FastAPI proxy — injects Harrier instruct prefix";
+    after = [
+      "network.target"
+      "llama-swap.service"
+    ];
+    wantedBy = [ "multi-user.target" ];
+
+    environment = {
+      UPSTREAM_URL = "http://127.0.0.1:8090";
+      QUERY_PREFIX = "Instruct: Given a query, retrieve relevant passages that answer the query\nQuery: ";
+      TIMEOUT_SECONDS = "60";
+    };
+
+    serviceConfig = {
+      ExecStart = "${proxyPython}/bin/uvicorn main:app --host 127.0.0.1 --port 8091";
+      WorkingDirectory = "${proxySrc}";
+      Restart = "always";
+      RestartSec = "5s";
+
+      DynamicUser = true;
+      ProtectSystem = "strict";
+      ProtectHome = true;
+      PrivateTmp = true;
+      NoNewPrivileges = true;
+    };
+  };
+}

@@ -8,6 +8,7 @@
     ./hardware-configuration.nix
     ./sops.nix
     ./cloudflared.nix
+    ./ai-stack.nix
     ./hindsight-stack.nix
   ];
 

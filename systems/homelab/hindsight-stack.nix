@@ -1,6 +1,10 @@
-# hindsight RAG 스택 — 4 컨테이너 + 공유 네트워크/볼륨
+# hindsight RAG 스택 — 2 컨테이너 + 공유 네트워크/볼륨
 #
-# hindsight (API) ← hindsight-db (TimescaleDB) + tei-embed (bge-m3) + tei-rerank (bge-reranker-v2-m3)
+# hindsight (API) ← hindsight-db (TimescaleDB)
+# Embedding/Reranker는 ai-stack.nix(호스트 systemd)의 llama-swap으로 위임.
+# - embedding: openai provider → :8091 (prefix-proxy) → :8090 (llama-swap) → harrier
+# - reranker:  cohere provider → :8090 (llama-swap) → qwen3-reranker
+#
 # 비밀 env는 sops.templates."services.env" 경유, 비밀 아닌 env는 environment 맵에 직접.
 {
   config,
@@ -15,7 +19,6 @@ let
   images = {
     hindsight = "ghcr.io/vectorize-io/hindsight:0.5.2-slim";
     db = "timescale/timescaledb-ha:pg18";
-    tei = "ghcr.io/huggingface/text-embeddings-inference:cpu-latest";
   };
 in
 {
@@ -54,41 +57,11 @@ in
       extraOptions = [ "--network=hindsight" ];
     };
 
-    # ── TEI Embedding (bge-m3, CPU) ──────────────────────────
-    tei-embed = {
-      image = images.tei;
-      cmd = [
-        "--model-id"
-        "BAAI/bge-m3"
-        "--port"
-        "80"
-      ];
-      volumes = [ "hf_cache:/data" ];
-      ports = [ "127.0.0.1:8001:80" ];
-      extraOptions = [ "--network=hindsight" ];
-    };
-
-    # ── TEI Reranker (bge-reranker-v2-m3, CPU) ───────────────
-    tei-rerank = {
-      image = images.tei;
-      cmd = [
-        "--model-id"
-        "BAAI/bge-reranker-v2-m3"
-        "--port"
-        "80"
-      ];
-      volumes = [ "hf_cache:/data" ];
-      ports = [ "127.0.0.1:8002:80" ];
-      extraOptions = [ "--network=hindsight" ];
-    };
-
     # ── Hindsight API ────────────────────────────────────────
     hindsight = {
       image = images.hindsight;
       dependsOn = [
         "hindsight-db"
-        "tei-embed"
-        "tei-rerank"
       ];
       environmentFiles = [ servicesEnv ];
       environment = {
@@ -106,11 +79,18 @@ in
         HINDSIGHT_API_CONSOLIDATION_LLM_PROVIDER = "openrouter";
         HINDSIGHT_API_CONSOLIDATION_LLM_MODEL = "google/gemma-4-31b-it";
 
-        # Embedding + Reranker → TEI (로컬 CPU)
-        HINDSIGHT_API_EMBEDDINGS_PROVIDER = "tei";
-        HINDSIGHT_API_EMBEDDINGS_TEI_URL = "http://tei-embed:80";
-        HINDSIGHT_API_RERANKER_PROVIDER = "tei";
-        HINDSIGHT_API_RERANKER_TEI_URL = "http://tei-rerank:80";
+        # Embedding → openai provider → embed-prefix-proxy (host:8091) → llama-swap → harrier
+        HINDSIGHT_API_EMBEDDINGS_PROVIDER = "openai";
+        HINDSIGHT_API_EMBEDDINGS_OPENAI_BASE_URL = "http://host.docker.internal:8091/v1";
+        HINDSIGHT_API_EMBEDDINGS_OPENAI_MODEL = "harrier";
+        # llama.cpp는 API 키 검증 안 함 — 더미 값으로 클라이언트 라이브러리만 통과
+        HINDSIGHT_API_EMBEDDINGS_OPENAI_API_KEY = "sk-local";
+
+        # Reranker → cohere provider (직접 호환) → llama-swap (host:8090) → qwen3-reranker
+        HINDSIGHT_API_RERANKER_PROVIDER = "cohere";
+        HINDSIGHT_API_RERANKER_COHERE_BASE_URL = "http://host.docker.internal:8090";
+        HINDSIGHT_API_RERANKER_COHERE_MODEL = "qwen3-reranker";
+        HINDSIGHT_API_RERANKER_COHERE_API_KEY = "sk-local";
 
         # Concurrency (VPS 동일값, 실측 후 상향 예정)
         HINDSIGHT_API_LLM_MAX_CONCURRENT = "6";
@@ -143,6 +123,8 @@ in
       ports = [ "127.0.0.1:8888:8888" ];
       extraOptions = [
         "--network=hindsight"
+        # Docker bridge 내부에서 호스트 루프백(ai-stack systemd) 접근용 DNS 별칭
+        "--add-host=host.docker.internal:host-gateway"
       ];
     };
   };
@@ -150,16 +132,12 @@ in
   # 전 컨테이너가 network 생성 후에 시작
   systemd.services.docker-hindsight-db.after = [ "init-hindsight-network.service" ];
   systemd.services.docker-hindsight-db.requires = [ "init-hindsight-network.service" ];
-  systemd.services.docker-tei-embed.after = [ "init-hindsight-network.service" ];
-  systemd.services.docker-tei-embed.requires = [ "init-hindsight-network.service" ];
 
-  # TEI reranker는 embed 이후 시작 (동시 모델 로딩 방지 → peak RAM 절감)
-  systemd.services.docker-tei-rerank.after = [
+  # hindsight API는 ai-stack 기동 이후에 시작 (첫 recall 요청이 llama-swap warm-up을 타지 않도록)
+  systemd.services.docker-hindsight.after = [
     "init-hindsight-network.service"
-    "docker-tei-embed.service"
+    "llama-swap.service"
+    "embed-prefix-proxy.service"
   ];
-  systemd.services.docker-tei-rerank.requires = [ "init-hindsight-network.service" ];
-
-  systemd.services.docker-hindsight.after = [ "init-hindsight-network.service" ];
   systemd.services.docker-hindsight.requires = [ "init-hindsight-network.service" ];
 }
