@@ -86,7 +86,9 @@ in
         HINDSIGHT_API_WORKER_MAX_SLOTS = "4";
         HINDSIGHT_API_WORKER_CONSOLIDATION_MAX_SLOTS = "2";
 
-        HINDSIGHT_API_RERANKER_MAX_CANDIDATES = "150";
+        # 150 @ threads=12 → 58s, Hindsight Cohere 클라이언트 60s 하드코딩 타임아웃에 근접.
+        # CPU inference + 메모리 대역폭 제약으로 thread 추가 증설 효과 <20%. 80이면 ~31s로 안정권.
+        HINDSIGHT_API_RERANKER_MAX_CANDIDATES = "80";
         HINDSIGHT_API_LAZY_RERANKER = "true";
 
         HINDSIGHT_API_LLM_MAX_RETRIES = "5";
