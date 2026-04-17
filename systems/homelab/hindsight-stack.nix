@@ -24,9 +24,11 @@ in
 {
   virtualisation.oci-containers.backend = "docker";
 
-  # hindsight 전용 bridge network — 컨테이너 간 이름 해석
+  # hindsight 전용 bridge network — 컨테이너 간 이름 해석.
+  # 비정상 종료(OOM, kswapd livelock 등) 후 network endpoint가 stale하게 남아
+  # 재시작 시 "endpoint with name X already exists" 오류 발생 → 해당 endpoint만 강제 해제.
   systemd.services.init-hindsight-network = {
-    description = "hindsight docker bridge network 생성";
+    description = "hindsight docker bridge network 생성 + stale endpoint 정리";
     after = [
       "network.target"
       "docker.service"
@@ -38,8 +40,22 @@ in
       RemainAfterExit = true;
     };
     script = ''
-      ${pkgs.docker}/bin/docker network inspect hindsight >/dev/null 2>&1 || \
-      ${pkgs.docker}/bin/docker network create hindsight --driver bridge
+      docker=${pkgs.docker}/bin/docker
+
+      # 1. network 생성 (없을 때만)
+      $docker network inspect hindsight >/dev/null 2>&1 \
+        || $docker network create hindsight --driver bridge
+
+      # 2. stale endpoint 일괄 정리 — endpoint는 남아있는데 실제 컨테이너가 없으면 disconnect
+      endpoints=$($docker network inspect hindsight \
+        --format '{{range .Containers}}{{println .Name}}{{end}}' 2>/dev/null || true)
+      for name in $endpoints; do
+        [ -z "$name" ] && continue
+        if ! $docker inspect "$name" >/dev/null 2>&1; then
+          echo "stale endpoint 해제: $name"
+          $docker network disconnect -f hindsight "$name" || true
+        fi
+      done
     '';
   };
 
