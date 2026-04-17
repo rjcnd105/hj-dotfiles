@@ -44,14 +44,25 @@ Arguments 파싱→서브커맨드 결정:
 | `/kb rebuild-index` | rebuild-index |
 | `/kb crystallize` | crystallize |
 
+## Helper Scripts
+
+`scripts/` 디렉토리 포함. 대량 파일 스캔을 쉘에 위임하여 Claude 컨텍스트 토큰 최소화.
+
+- `scripts/unprocessed.sh [--all | -n N]` — `Clippings/` 와 `kb/.sources` diff. 기본 첫 20개 반환. 10k 파일 vault에서도 출력 크기만 LLM 소모.
+- `scripts/rebuild-sources.sh` — 모든 kb 페이지 frontmatter의 `kb-sources` 항목을 `kb/.sources`로 집계. 메타 파일(SCHEMA/INDEX/LOG/ROADMAP) 제외.
+
+`kb/.sources` 는 캐시. 편집 금지. rebuild-sources.sh 가 단일 진실원천에서 재생성.
+
 ## Workflow: ingest
 
 단일 Clipping 읽고 kb/ 페이지 생성/업데이트.
 
+경로 지정 없이 `/kb ingest` 호출 시: `bash scripts/unprocessed.sh` 실행하여 미처리 목록 표시 (기본 20개). 사용자 선택 후 각 파일을 아래 워크플로우로 처리.
+
 1. **Read** — 대상 Clipping 읽음. 빈 본문→LOG.md `skip` 기록 후 종료
 2. **Load schema** — `kb/SCHEMA.md` 읽음 (타입 목록, 규칙, frontmatter 스키마)
 3. **Load index** — `kb/INDEX.md` 읽음. 없으면 rebuild-index 먼저 실행
-4. **Check duplicates** — INDEX.md `kb-sources`에 Clipping 경로 존재 여부 검색. 있으면 기존 페이지 업데이트 모드 전환
+4. **Check duplicates** — `grep -Fx "Clippings/$name" kb/.sources` 로 기존 처리 여부 확인. 존재하면 기존 페이지 업데이트 모드 전환. (INDEX.md 전체 grep 금지 — `.sources` 캐시만 사용)
 5. **Read related** — qmd로 관련 주제 기존 kb 페이지 검색 (`qmd vsearch "핵심 키워드" --json -n 5`), 찾은 페이지 읽음
 6. **Extract concepts** — 기사에서 개념/기술/패턴을 추출. 각 개념에 대해:
    - 기존 topic 페이지 있음→새 정보를 기존 페이지에 통합 (출처 추가, 내용 보강)
@@ -133,11 +144,12 @@ kb/ 위키 기반 질문 답변.
 
 kb/ 스캔→INDEX.md 재생성.
 
-1. `kb/` 모든 .md Glob 탐색 (SCHEMA.md, INDEX.md, LOG.md 제외)
+1. `kb/` 모든 .md Glob 탐색 (SCHEMA.md, INDEX.md, LOG.md, ROADMAP.md 제외)
 2. 각 파일 frontmatter에서 `kb-type`, `created`, 파일명 추출
 3. 도메인별 섹션 그룹핑, 섹션 내 created 내림차순
 4. INDEX.md 형식: `- [[파일명]] — 한줄 설명` (첫 문단에서 추출)
 5. INDEX.md 덮어쓰기
+5b. **Rebuild sources cache** — `bash scripts/rebuild-sources.sh` 실행하여 `kb/.sources` 갱신. ingest `.sources` 조회의 단일 진실원천.
 6. **Health summary** — INDEX.md 하단에 Health 섹션 자동 생성:
    ```
    ## Health
@@ -170,7 +182,7 @@ kb/ 스캔→INDEX.md 재생성.
 - Clippings/ 외 파일 ingest 금지
 - Dev/ 노트 수정 금지 (위키링크 참조만)
 - ingest 중 타입 제안 금지 (lint에서만)
-- 위키링크 Obsidian 기본 형식: `[[파일명]]`
+- 위키링크 Obsidian 짧은 형식: `[[파일명]]` (경로 prefix 금지). kb 페이지명은 vault 전체(특히 Clippings/)에서 유일 (SCHEMA §6)
 - 페이지 생성 시 obsidian-markdown 스킬 frontmatter/위키링크 규칙 준수
 - qmd collection 미등록 시 자동 등록 후 진행
 - crystallize는 Hindsight→kb/ 단방향. 프로젝트 특정 지식은 Hindsight에만 저장
