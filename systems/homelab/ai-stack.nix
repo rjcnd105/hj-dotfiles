@@ -22,7 +22,10 @@ let
     sha256 = "0j4s88iyma5q5mx8y2wqmbqyz5r7qd0nc31ivjncbkgvwjf9gj92";
   };
 
-  llamaServer = "${pkgs.llama-cpp}/bin/llama-server";
+  # Vulkan 백엔드 포함 llama.cpp — Radeon 890M (RDNA 3.5, gfx1150) iGPU 가속.
+  # Mesa RADV 경로 (AMDVLK/ROCm 대비 APU에서 우수).
+  llamaCppVulkan = pkgs.llama-cpp.override { vulkanSupport = true; };
+  llamaServer = "${llamaCppVulkan}/bin/llama-server";
 
   # llama-swap 라우팅 설정.
   # ${PORT} = llama-swap이 backend에 할당한 동적 포트.
@@ -53,8 +56,13 @@ let
           --port ''${PORT}
           --host 127.0.0.1
           --reranking
-          --ctx-size 8192
-          --threads 12
+          --n-gpu-layers 99
+          --ctx-size 2048
+          --batch-size 512
+          --ubatch-size 512
+          --parallel 8
+          --no-mmap
+          --threads 4
         proxy: http://127.0.0.1:''${PORT}
         ttl: 600
   '';
@@ -70,6 +78,18 @@ let
   proxySrc = ./embed-prefix-proxy;
 in
 {
+  # ── Vulkan userspace for Radeon 890M (RDNA 3.5) ────────
+  # hardware.graphics = Mesa radv + vulkan-loader 포함. amdvlk는 추가 X (radv와 ICD 충돌).
+  # kernel params: amdgpu가 GTT 통해 시스템 RAM 전체를 iGPU에 매핑 — dedicated VRAM(512MB) 제약 해제.
+  # amdgpu.gttsize=-1, ttm.pages_limit=-1 → 0.6B에선 기본값으로도 충분하나 모델 확장 대비.
+  # 참고: kernel params 변경은 다음 부팅부터 적용. userspace는 즉시 반영.
+  hardware.graphics.enable = true;
+  boot.kernelParams = [
+    "amdgpu.gttsize=-1"
+    "ttm.pages_limit=-1"
+  ];
+  environment.systemPackages = [ pkgs.vulkan-tools ];
+
   # ── llama-swap ─────────────────────────────────────────
   # 0.0.0.0:8090 listen — Docker bridge 내 Hindsight 컨테이너가
   # host.docker.internal(=docker bridge gateway)로 접근하기 위해 모든 인터페이스 바인딩.
@@ -85,6 +105,12 @@ in
       RestartSec = "5s";
 
       DynamicUser = true;
+      # Vulkan 접근: DynamicUser의 임시 UID가 /dev/dri/renderD128에 접근하려면
+      # render 그룹이 필요. video는 amdgpu device 조작용. PrivateDevices=false 유지(기본).
+      SupplementaryGroups = [
+        "render"
+        "video"
+      ];
       ProtectSystem = "strict";
       ProtectHome = true;
       PrivateTmp = true;
