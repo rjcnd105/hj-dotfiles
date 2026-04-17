@@ -86,9 +86,9 @@ in
         HINDSIGHT_API_WORKER_MAX_SLOTS = "4";
         HINDSIGHT_API_WORKER_CONSOLIDATION_MAX_SLOTS = "2";
 
-        # CPU inference + 메모리 대역폭 제약. 80 @ threads=12 = ~56s, 타임아웃 여유 부족.
-        # 60 = 예상 ~42s. 향후 Vulkan iGPU 백엔드 전환 시 상향 재검토.
-        HINDSIGHT_API_RERANKER_MAX_CANDIDATES = "60";
+        # Vulkan iGPU(Radeon 890M) 전환 이후 — 60 리랭크 9.3s 실측.
+        # 150 선형 외삽 ~23s, 60s 타임아웃 안전권. 품질 원복.
+        HINDSIGHT_API_RERANKER_MAX_CANDIDATES = "150";
         HINDSIGHT_API_LAZY_RERANKER = "true";
 
         HINDSIGHT_API_LLM_MAX_RETRIES = "5";

@@ -57,6 +57,7 @@ let
           --host 127.0.0.1
           --reranking
           --n-gpu-layers 99
+          --flash-attn on
           --ctx-size 2048
           --batch-size 512
           --ubatch-size 512
