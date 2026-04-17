@@ -33,7 +33,7 @@ in
     content = ''
       # DB (hindsight-db + hindsight 공용)
       POSTGRES_PASSWORD=${config.sops.placeholder.HINDSIGHT_DB_PASSWORD}
-      HINDSIGHT_API_DATABASE_URL=postgresql://hindsight:${config.sops.placeholder.HINDSIGHT_DB_PASSWORD}@hindsight-db:5432/hindsight
+      HINDSIGHT_API_DATABASE_URL=postgresql://hindsight:${config.sops.placeholder.HINDSIGHT_DB_PASSWORD}@127.0.0.1:5432/hindsight
       # LLM API keys (hindsight)
       HINDSIGHT_API_OPENROUTER_API_KEY=${config.sops.placeholder.OPENROUTER_API_KEY}
       HINDSIGHT_API_LLM_API_KEY=${config.sops.placeholder.OPENROUTER_API_KEY}
