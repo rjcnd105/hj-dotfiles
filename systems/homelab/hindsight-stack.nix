@@ -86,9 +86,9 @@ in
         HINDSIGHT_API_WORKER_MAX_SLOTS = "4";
         HINDSIGHT_API_WORKER_CONSOLIDATION_MAX_SLOTS = "2";
 
-        # 150 @ threads=12 → 58s, Hindsight Cohere 클라이언트 60s 하드코딩 타임아웃에 근접.
-        # CPU inference + 메모리 대역폭 제약으로 thread 추가 증설 효과 <20%. 80이면 ~31s로 안정권.
-        HINDSIGHT_API_RERANKER_MAX_CANDIDATES = "80";
+        # CPU inference + 메모리 대역폭 제약. 80 @ threads=12 = ~56s, 타임아웃 여유 부족.
+        # 60 = 예상 ~42s. 향후 Vulkan iGPU 백엔드 전환 시 상향 재검토.
+        HINDSIGHT_API_RERANKER_MAX_CANDIDATES = "60";
         HINDSIGHT_API_LAZY_RERANKER = "true";
 
         HINDSIGHT_API_LLM_MAX_RETRIES = "5";
