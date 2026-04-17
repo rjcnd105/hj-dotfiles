@@ -59,14 +59,13 @@
     "context7@claude-plugins-official": false,
     "compound-engineering@compound-engineering-plugin": true,
     "hindsight-memory@hindsight": true,
-    "frontend-design@claude-plugins-official": true,
     "caveman@caveman": true,
     "reflexion@context-engineering-kit": false,
     "sdd@context-engineering-kit": false,
     "sadd@context-engineering-kit": false,
     "ddd@context-engineering-kit": true,
-    "playwright@claude-plugins-official": true,
-    "serena@claude-plugins-official": false
+    "serena@claude-plugins-official": false,
+    "claude-md-management@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "compound-engineering-plugin": {
@@ -119,7 +118,7 @@
     }
   },
   "language": "Korean",
-  "effortLevel": "high",
+  "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true,
   "skipAutoPermissionPrompt": true
 }
