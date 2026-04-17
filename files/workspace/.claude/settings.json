@@ -41,6 +41,16 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/hj/.claude/hooks/jj-vcs-context.sh"
+          }
+        ]
+      }
     ]
   },
   "enabledPlugins": {
