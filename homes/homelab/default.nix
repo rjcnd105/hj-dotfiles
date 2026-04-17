@@ -9,6 +9,7 @@ in
     ../workspace/ssh-config.nix
     ../../sharedHome/cli
     ../../sharedHome/development
+    ./claude-remote-control.nix
   ] ++ lib.optional enableSecrets ../workspace/sops.nix;
 
   home.packages = with pkgs; [
