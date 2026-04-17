@@ -21,7 +21,18 @@
       "Bash(rtk git:*)",
       "Bash(rtk sops:*)",
       "Bash(rtk grep *)",
-      "Bash(jj st *)"
+      "Bash(jj st *)",
+      "Bash(ssh homelab *)",
+      "Bash(rtk ls *)",
+      "Bash(rtk read *)",
+      "Bash(command -v brew npm yaml-language-server)",
+      "Bash(rtk find *)",
+      "Bash(scutil --dns)",
+      "Bash(jj split *)",
+      "Bash(JJ_EDITOR=true jj split @ systems/homelab/ai-stack.nix)",
+      "Bash(rtk curl *)",
+      "Bash(dscacheutil -q host -a name hindsight.deopjib.site)",
+      "Bash(curl -sS -m 10 -6 https://hindsight.deopjib.site/health --resolve hindsight.deopjib.site:443:2606:4700:3034::ac43:a8b2)"
     ]
   },
   "outputStyle": "Explanatory",
