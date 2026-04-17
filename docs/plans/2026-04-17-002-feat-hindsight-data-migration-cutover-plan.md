@@ -158,7 +158,7 @@ flowchart LR
 
 ## Implementation Units
 
-- [ ] **Unit 1: Pre-flight 실측 및 호환성 확정**
+- [x] **Unit 1: Pre-flight 실측 및 호환성 확정**
 
 **Goal:** `hindsight-admin backup` 생성 파일 크기와 전송 시간 실측 + 0.5.0→0.5.2 schema migration 경로 확정. 실측 없이 cutover 시작 금지.
 
@@ -192,7 +192,7 @@ flowchart LR
 
 ---
 
-- [ ] **Unit 2: 임베딩 공간 전략 확정 (블로커 해결)**
+- [x] **Unit 2: 임베딩 공간 전략 확정 (블로커 해결)**
 
 **Goal:** Open Questions의 임베딩 불연속 항목 결정을 명시적으로 기록. Unit 3 이후의 recall 품질 기대치를 고정.
 
@@ -219,7 +219,7 @@ flowchart LR
 
 ---
 
-- [ ] **Unit 3: `hindsight-admin` logical backup + restore**
+- [x] **Unit 3: `hindsight-admin` logical backup + restore**
 
 **Goal:** VPS application-level snapshot(memory banks, documents, chunks, entities, memory units, cooccurrences, memory links)을 homelab으로 무손실 복제. 다운타임은 write 차단 + 전송 + restore + migration 합.
 
@@ -269,7 +269,7 @@ flowchart LR
 
 ---
 
-- [ ] **Unit 4: Cloudflare Tunnel ingress 본 도메인 전환**
+- [x] **Unit 4: Cloudflare Tunnel ingress 본 도메인 전환**
 
 **Goal:** `cloudflared.nix` ingress가 `hindsight.deopjib.site`의 API 경로만 공개하도록 전환. 9999 대시보드 비노출 유지.
 
@@ -306,7 +306,7 @@ flowchart LR
 
 ---
 
-- [ ] **Unit 5: DNS 컷오버 + 플러그인/스킬 smoke test**
+- [x] **Unit 5: DNS 컷오버 + 플러그인/스킬 smoke test**
 
 **Goal:** `hindsight.deopjib.site`를 homelab tunnel로 전환, plugin + skill이 즉시 작동하는지 확인.
 
