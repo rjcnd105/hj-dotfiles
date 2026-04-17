@@ -19,7 +19,9 @@
       "Bash(jj git:*)",
       "Bash(nix build:*)",
       "Bash(rtk git:*)",
-      "Bash(rtk sops:*)"
+      "Bash(rtk sops:*)",
+      "Bash(rtk grep *)",
+      "Bash(jj st *)"
     ]
   },
   "outputStyle": "Explanatory",
