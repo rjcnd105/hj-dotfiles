@@ -9,6 +9,7 @@
 {
   config,
   pkgs,
+  lib,
   ...
 }:
 let
@@ -20,6 +21,28 @@ let
     hindsight = "ghcr.io/vectorize-io/hindsight:0.5.2-slim";
     db = "timescale/timescaledb-ha:pg18";
   };
+
+  # init-hindsight-network script — restartTriggers 참조용으로 변수화.
+  # oneshot+RemainAfterExit 유닛은 기본적으로 switch 시 재실행되지 않으므로
+  # restartTriggers에 script 내용을 넣어 내용 변경 시 강제 재실행 유도.
+  initNetworkScript = ''
+    docker=${pkgs.docker}/bin/docker
+
+    # 1. network 생성 (없을 때만)
+    $docker network inspect hindsight >/dev/null 2>&1 \
+      || $docker network create hindsight --driver bridge
+
+    # 2. stale endpoint 일괄 정리 — endpoint는 남아있는데 실제 컨테이너가 없으면 disconnect
+    endpoints=$($docker network inspect hindsight \
+      --format '{{range .Containers}}{{println .Name}}{{end}}' 2>/dev/null || true)
+    for name in $endpoints; do
+      [ -z "$name" ] && continue
+      if ! $docker inspect "$name" >/dev/null 2>&1; then
+        echo "stale endpoint 해제: $name"
+        $docker network disconnect -f hindsight "$name" || true
+      fi
+    done
+  '';
 in
 {
   virtualisation.oci-containers.backend = "docker";
@@ -39,24 +62,9 @@ in
       Type = "oneshot";
       RemainAfterExit = true;
     };
-    script = ''
-      docker=${pkgs.docker}/bin/docker
-
-      # 1. network 생성 (없을 때만)
-      $docker network inspect hindsight >/dev/null 2>&1 \
-        || $docker network create hindsight --driver bridge
-
-      # 2. stale endpoint 일괄 정리 — endpoint는 남아있는데 실제 컨테이너가 없으면 disconnect
-      endpoints=$($docker network inspect hindsight \
-        --format '{{range .Containers}}{{println .Name}}{{end}}' 2>/dev/null || true)
-      for name in $endpoints; do
-        [ -z "$name" ] && continue
-        if ! $docker inspect "$name" >/dev/null 2>&1; then
-          echo "stale endpoint 해제: $name"
-          $docker network disconnect -f hindsight "$name" || true
-        fi
-      done
-    '';
+    script = initNetworkScript;
+    # script 내용 변경 시 switch-to-configuration이 재실행하도록 trigger
+    restartTriggers = [ initNetworkScript ];
   };
 
   virtualisation.oci-containers.containers = {
@@ -156,4 +164,11 @@ in
     "embed-prefix-proxy.service"
   ];
   systemd.services.docker-hindsight.requires = [ "init-hindsight-network.service" ];
+
+  # 독립적 방어선: init-hindsight-network가 어떤 이유로든 cleanup을 놓쳐도
+  # 이 유닛이 restart될 때마다 스스로 자기 network endpoint를 disconnect 시도.
+  # ("-" prefix = 실패 무시, 정상 상태에선 "no such endpoint"로 실패함)
+  systemd.services.docker-hindsight.serviceConfig.ExecStartPre = lib.mkAfter [
+    "-${pkgs.docker}/bin/docker network disconnect -f hindsight hindsight"
+  ];
 }
