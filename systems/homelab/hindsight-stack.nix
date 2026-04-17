@@ -66,8 +66,10 @@ in
         HINDSIGHT_API_EMBEDDINGS_OPENAI_API_KEY = "sk-local";
 
         # Reranker → cohere provider → 127.0.0.1:8090 (host network)
+        # 0.5.2 CohereCrossEncoder는 base_url을 그대로 rerank_url로 사용 (path append 없음).
+        # Azure AI Foundry 호환 분기와 동일 — full endpoint URL 필수.
         HINDSIGHT_API_RERANKER_PROVIDER = "cohere";
-        HINDSIGHT_API_RERANKER_COHERE_BASE_URL = "http://127.0.0.1:8090";
+        HINDSIGHT_API_RERANKER_COHERE_BASE_URL = "http://127.0.0.1:8090/v1/rerank";
         HINDSIGHT_API_RERANKER_COHERE_MODEL = "qwen3-reranker";
         HINDSIGHT_API_RERANKER_COHERE_API_KEY = "sk-local";
 
