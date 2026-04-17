@@ -14,3 +14,33 @@ auto-format = true
 [language-server.tailwind-heex]
 command = "tailwindcss-language-server"
 args = ["--stdio"]
+
+[[language]]
+name = "go"
+auto-format = true
+language-servers = ["gopls"]
+
+[language-server.gopls.config]
+usePlaceholders = true
+completeUnimported = true
+staticcheck = true
+semanticTokens = true
+
+[language-server.gopls.config.formatting]
+gofumpt = true
+
+[language-server.gopls.config.analyses]
+unusedparams = true
+unusedwrite = true
+shadow = true
+nilness = true
+useany = true
+
+[language-server.gopls.config.hints]
+assignVariableTypes = true
+compositeLiteralFields = true
+compositeLiteralTypes = true
+constantValues = true
+functionTypeParameters = true
+parameterNames = true
+rangeVariableTypes = true

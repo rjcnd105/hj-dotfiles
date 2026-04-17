@@ -276,6 +276,41 @@
         }
       }
     },
+    "gopls": {
+      "initialization_options": {
+        "usePlaceholders": true,
+        "completeUnimported": true,
+        "staticcheck": true,
+        "formatting": {
+          "gofumpt": true
+        },
+        "analyses": {
+          "unusedparams": true,
+          "unusedwrite": true,
+          "shadow": true,
+          "nilness": true,
+          "useany": true
+        },
+        "hints": {
+          "assignVariableTypes": true,
+          "compositeLiteralFields": true,
+          "compositeLiteralTypes": true,
+          "constantValues": true,
+          "functionTypeParameters": true,
+          "parameterNames": true,
+          "rangeVariableTypes": true
+        },
+        "codelenses": {
+          "generate": true,
+          "test": true,
+          "tidy": true,
+          "upgrade_dependency": true,
+          "vendor": true
+        },
+        "semanticTokens": true,
+        "vulncheck": "Imports"
+      }
+    },
     "tailwindcss-language-server": {
       "settings": {
         "classFunctions": [
@@ -384,6 +419,22 @@
         "tailwindcss-language-server",
         "emmet-language-server"
       ]
+    },
+    "Go": {
+      "language_servers": ["gopls"],
+      "formatter": {
+        "language_server": {
+          "name": "gopls"
+        }
+      },
+      "code_actions_on_format": {
+        "source.organizeImports": true
+      },
+      "format_on_save": "on",
+      "tab_size": 4,
+      "hard_tabs": true,
+      "show_edit_predictions": true,
+      "show_whitespaces": "selection"
     },
     "Nix": {
       "language_servers": [

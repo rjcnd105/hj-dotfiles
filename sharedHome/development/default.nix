@@ -1,5 +1,6 @@
 {
   imports = [
     ./devops
+    ./go.nix
   ];
 }
