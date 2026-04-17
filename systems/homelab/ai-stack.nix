@@ -71,14 +71,16 @@ let
 in
 {
   # ── llama-swap ─────────────────────────────────────────
-  # :8090 listen, backend 모델 동적 스왑
+  # 0.0.0.0:8090 listen — Docker bridge 내 Hindsight 컨테이너가
+  # host.docker.internal(=docker bridge gateway)로 접근하기 위해 모든 인터페이스 바인딩.
+  # 외부(LAN 이상) 노출은 networking.firewall 기본 거부 정책으로 차단됨.
   systemd.services.llama-swap = {
     description = "llama-swap — model router for llama.cpp";
     after = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
 
     serviceConfig = {
-      ExecStart = "${pkgs.llama-swap}/bin/llama-swap --config ${llamaSwapConfig} --listen 127.0.0.1:8090";
+      ExecStart = "${pkgs.llama-swap}/bin/llama-swap --config ${llamaSwapConfig} --listen 0.0.0.0:8090";
       Restart = "always";
       RestartSec = "5s";
 
@@ -91,7 +93,8 @@ in
   };
 
   # ── embed-prefix-proxy ─────────────────────────────────
-  # :8091 listen, Harrier instruct prefix 주입 후 llama-swap에 forward
+  # 0.0.0.0:8091 listen — 동일하게 Docker bridge 내 Hindsight 접근 허용.
+  # firewall로 외부 차단.
   systemd.services.embed-prefix-proxy = {
     description = "FastAPI proxy — injects Harrier instruct prefix";
     after = [
@@ -107,7 +110,7 @@ in
     };
 
     serviceConfig = {
-      ExecStart = "${proxyPython}/bin/uvicorn main:app --host 127.0.0.1 --port 8091";
+      ExecStart = "${proxyPython}/bin/uvicorn main:app --host 0.0.0.0 --port 8091";
       WorkingDirectory = "${proxySrc}";
       Restart = "always";
       RestartSec = "5s";
