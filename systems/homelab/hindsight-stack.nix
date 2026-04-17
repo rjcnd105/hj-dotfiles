@@ -104,15 +104,17 @@ in
         HINDSIGHT_API_CONSOLIDATION_LLM_MODEL = "google/gemma-4-31b-it";
 
         # Embedding → openai provider → embed-prefix-proxy (host:8091) → llama-swap → harrier
+        # 호스트 LAN IP 직접 사용 (192.168.0.5 = systems/homelab/default.nix의 고정 IP).
+        # host.docker.internal host-gateway 매핑은 사용자 정의 bridge에서 신뢰할 수 없어 회피.
         HINDSIGHT_API_EMBEDDINGS_PROVIDER = "openai";
-        HINDSIGHT_API_EMBEDDINGS_OPENAI_BASE_URL = "http://host.docker.internal:8091/v1";
+        HINDSIGHT_API_EMBEDDINGS_OPENAI_BASE_URL = "http://192.168.0.5:8091/v1";
         HINDSIGHT_API_EMBEDDINGS_OPENAI_MODEL = "harrier";
         # llama.cpp는 API 키 검증 안 함 — 더미 값으로 클라이언트 라이브러리만 통과
         HINDSIGHT_API_EMBEDDINGS_OPENAI_API_KEY = "sk-local";
 
         # Reranker → cohere provider (직접 호환) → llama-swap (host:8090) → qwen3-reranker
         HINDSIGHT_API_RERANKER_PROVIDER = "cohere";
-        HINDSIGHT_API_RERANKER_COHERE_BASE_URL = "http://host.docker.internal:8090";
+        HINDSIGHT_API_RERANKER_COHERE_BASE_URL = "http://192.168.0.5:8090";
         HINDSIGHT_API_RERANKER_COHERE_MODEL = "qwen3-reranker";
         HINDSIGHT_API_RERANKER_COHERE_API_KEY = "sk-local";
 
@@ -147,8 +149,6 @@ in
       ports = [ "127.0.0.1:8888:8888" ];
       extraOptions = [
         "--network=hindsight"
-        # Docker bridge 내부에서 호스트 루프백(ai-stack systemd) 접근용 DNS 별칭
-        "--add-host=host.docker.internal:host-gateway"
       ];
     };
   };
