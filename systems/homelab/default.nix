@@ -75,5 +75,7 @@
     ghostty.terminfo
     # 메모리/iGPU UMA 실측용 (dmidecode -t memory)
     dmidecode
+    # PCI 디바이스 조회 (lspci) — iGPU/NVMe BDF 확인
+    pciutils
   ];
 }
