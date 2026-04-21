@@ -32,7 +32,19 @@
       "Bash(JJ_EDITOR=true jj split @ systems/homelab/ai-stack.nix)",
       "Bash(rtk curl *)",
       "Bash(dscacheutil -q host -a name hindsight.deopjib.site)",
-      "Bash(curl -sS -m 10 -6 https://hindsight.deopjib.site/health --resolve hindsight.deopjib.site:443:2606:4700:3034::ac43:a8b2)"
+      "Bash(curl -sS -m 10 -6 https://hindsight.deopjib.site/health --resolve hindsight.deopjib.site:443:2606:4700:3034::ac43:a8b2)",
+      "Bash(jj workspace *)",
+      "Bash(git check-ignore *)",
+      "Bash(JJ_EDITOR=true jj split @ systems/homelab/hindsight-stack.nix)",
+      "Bash(jj op *)",
+      "Bash(git ls-tree *)",
+      "Bash(JJ_EDITOR=true jj split -r @ systems/x86_64-linux/default.nix)",
+      "Bash(rm *)",
+      "Bash(JJ_EDITOR=true jj split @ docs/plans/2026-04-17-002-feat-hindsight-data-migration-cutover-plan.md)",
+      "Bash(JJ_EDITOR=true jj split @ systems/homelab/hindsight-stack.nix systems/homelab/ai-stack.nix)",
+      "Bash(python3 *)",
+      "Bash(JJ_EDITOR=true jj split @ docs/solutions/performance-issues/hindsight-reranker-vulkan-acceleration-2026-04-19.md docs/solutions/integration-issues/docker-host-access-host-network-2026-04-17.md docs/solutions/runtime-errors/nixos-kswapd-livelock-zero-swap-2026-04-16.md)",
+      "Bash(rtk npx *)"
     ]
   },
   "outputStyle": "Explanatory",

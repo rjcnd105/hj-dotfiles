@@ -1,60 +1,570 @@
 {
   "version": 1,
   "skills": {
+    "Agent Development": {
+      "source": "anthropics/claude-code",
+      "sourceType": "github",
+      "computedHash": "4931c2867890bfef5881225adb691c3d719fe9ad556e3d5fae15f83e0668fa60"
+    },
+    "Command Development": {
+      "source": "anthropics/claude-code",
+      "sourceType": "github",
+      "computedHash": "bca581f0a2789f75d9501499b9f4dc354eb40b213ccd23d13f5b87299db1f84a"
+    },
+    "Hook Development": {
+      "source": "anthropics/claude-code",
+      "sourceType": "github",
+      "computedHash": "a1721df65785b6c0439d4326cdee0cb2b6aa98de09fc98463afc3e040fe00ce9"
+    },
+    "MCP Integration": {
+      "source": "anthropics/claude-code",
+      "sourceType": "github",
+      "computedHash": "99cfef49810cb80a39762a79dbb6a80d486ea56cfa1a81ed10cae0a5a296b496"
+    },
+    "Plugin Settings": {
+      "source": "anthropics/claude-code",
+      "sourceType": "github",
+      "computedHash": "b4be0bf62782da83e962aa759e7d5efb1d5934b81554f1d15801fdf5e01b18a4"
+    },
+    "Plugin Structure": {
+      "source": "anthropics/claude-code",
+      "sourceType": "github",
+      "computedHash": "c4e9b3ea36efad4ab599465aaac71f81dc3320a183920678fe1587181c446b07"
+    },
     "Skill Development": {
       "source": "anthropics/claude-code",
       "sourceType": "github",
       "computedHash": "8d262f08f33825947ea20204ebf5101e36056c98090251bd973a552ec8ef0c0c"
     },
+    "Writing Hookify Rules": {
+      "source": "anthropics/claude-code",
+      "sourceType": "github",
+      "computedHash": "429463a57a711ee42d1373a726e66ccc2189118022f0c281dbb48b28796d417f"
+    },
+    "algorithmic-art": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "5c2804e8f0d4944c7ce6939a2e4afdcf0cb69c966a505481ed8b96e20bb32eee"
+    },
+    "anki-connect": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "16a78ae3f4481dd2723323405afe4ddde0e70eb3a61498233ea293f296ffe668"
+    },
+    "api-designer": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "a031e4b22f94702c2e0c2ee3f900cf0ed0afeb4cbca4efab00fdc14c6a61332f"
+    },
+    "api-documenter": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "280a185674a726f5c455b0611650dfe69ad05c87e48cb26d6fa9c955b7aeede3"
+    },
+    "architecting-solutions": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "0c760106be3df5a15052e08c88c7f7127eeabcbec24eb3517b6b444659bbd8d6"
+    },
+    "auto-trigger": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "655cb50be77448c2d1ce4e9fa51cfe0f3db849717acf61b8c4ca76df4c54b9ec"
+    },
+    "beautiful-mermaid": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "0bbbe0bb6d026f50ba64b18bca28fbf646b2602456da9c1ce0f8f3d27bf80b03"
+    },
+    "brand-guidelines": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "4aa754f4f7fc54ac3e7f6e2fb55c0e2fb14b7d70da077b41a86bd1889ff9094c"
+    },
+    "canvas-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "a2fe47d24b3fd8e52faef731fff099c557e698083cd644b2e5695cc4dd8c7715"
+    },
     "caveman": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "934433479903febc585bf6deb5f0cebc63137e3f86b7babe0aab1ecb94d6d7a4"
+    },
+    "caveman-commit": {
       "source": "juliusbrussee/caveman",
       "sourceType": "github",
-      "computedHash": "aa7939fc4d1fe31484090290da77f2d21e026aa4b34b329d00e6630feb985d75"
+      "computedHash": "76994afc39b68f4dbe098df76262b68d9928a23ee0f6aaebb11ba0e0f55bfa13"
+    },
+    "caveman-compress": {
+      "source": "juliusbrussee/caveman",
+      "sourceType": "github",
+      "computedHash": "300fb8578258161e1752a2a4142a7e9ff178c960bcb83b84422e2987421f33bf"
+    },
+    "caveman-help": {
+      "source": "juliusbrussee/caveman",
+      "sourceType": "github",
+      "computedHash": "3cd5f7d3f88c8ef7b16a6555dc61f5a11b14151386697609ab6887ab8b5f059d"
+    },
+    "caveman-review": {
+      "source": "juliusbrussee/caveman",
+      "sourceType": "github",
+      "computedHash": "1dc59e7e896bc9dd449e43116c4c8b2e656b88c3370df91848330c17347af3d0"
+    },
+    "claude-api": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "ef469b7e846529e60f36f2b8c1a7aad3cb925cf1ea89b12855da08ae1012b1d4"
+    },
+    "claude-opus-4-5-migration": {
+      "source": "anthropics/claude-code",
+      "sourceType": "github",
+      "computedHash": "b03b91554e25480cd5dfdcb8e1c797a4703b9ed5e303593c9ac338d6d43c040a"
+    },
+    "code-review": {
+      "source": "vectorize-io/hindsight",
+      "sourceType": "github",
+      "computedHash": "97b30dd992a789bf17cff64ffda46dff97d6b6e859fc0f765da53b0986062509"
+    },
+    "code-reviewer": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "3b5dc5735e7f4de06bf69d6af7609b72ded26620da45945f4f2a48bf70386c80"
+    },
+    "commit-helper": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "fef2b8a9a573a534c7f4e5b9df64d3e013e9a3de0de912f7b44e41d9cb5ab2df"
+    },
+    "compress": {
+      "source": "juliusbrussee/caveman",
+      "sourceType": "github",
+      "computedHash": "05c97bc3120108acd0b80bdef7fb4fa7c224ba83c8d384ccbc97f92e8a065918"
     },
     "context7": {
       "source": "intellectronica/agent-skills",
       "sourceType": "github",
       "computedHash": "fccbea654f8e35824a8bdce3e059e206efeb6c1fab9f6c096c3867e761081983"
     },
+    "context7-cli": {
+      "source": "upstash/context7",
+      "sourceType": "github",
+      "computedHash": "6077b3c638fb7efb31d9b2c815436650de4aef73e7b671edec2f1c63f6a1e105"
+    },
+    "context7-mcp": {
+      "source": "upstash/context7",
+      "sourceType": "github",
+      "computedHash": "6b02383f86f87e81a722b3b6c6d6e06efa5c72f23bc87bb02599e3d499ca2c58"
+    },
+    "copilot-sdk": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "4ef99f861cc70d0eb55085cc37939a3c2d6a498efa374f12259a7fe49ee93c4c"
+    },
+    "create-pr": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "337936efe807fee1eb8615924d7b5d6b0511fd7c40ee2dafb90638266f8f80de"
+    },
+    "debugger": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "d5a096356227c45ed2662a152291f5d080c9bfd30a07ff3511bfef191b4f4b19"
+    },
+    "defuddle": {
+      "source": "kepano/obsidian-skills",
+      "sourceType": "github",
+      "computedHash": "0ed68bc3e818ba0e6b8d192357ea3daaf552a3893f8854e7fd43c06831f91323"
+    },
+    "deployment-engineer": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "5295e84f69249fa86100be7269cd89c79b96ce2065e171c111dbe3867b5237dd"
+    },
+    "design-an-interface": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "885b05367fb1cf61a1e27e0d50f14d2502a05c1fa276c6e9ea050ce6a90e7095"
+    },
+    "doc-coauthoring": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "b964e4c3ffe13f66f76dd7919073e60c7aec622cd8a8363bb36323188100cf8e"
+    },
+    "documentation-engineer": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "d9f90e59044d430eedc27a860c46b69356828824fa2933c913210fc4ba6a8e34"
+    },
+    "docx": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "6962db07127ee540a56e4677f65576d0727668a1d67f7da8bc978f10791c2bfe"
+    },
+    "domain-model": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "71fd7d7d8c96228d663fcc133843e06e16f211c1d4d1e781aabdc73a097a2d60"
+    },
+    "edit-article": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "6d29872a4015fcbb4879fe1bddf1919995c477dcf7248885efb85722f50e6c4d"
+    },
+    "figma-designer": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "a0df102470fc916291bb118dcfb9950e0d803087023767ccf161ab84cbcc1f88"
+    },
     "find-docs": {
       "source": "upstash/context7",
       "sourceType": "github",
-      "computedHash": "b631499b08026841fe535f17927d692fc37d29111032ee1991e55ecec1f937be"
+      "computedHash": "0210767e57873317edc8b91783a2f1b74eb9bbdd2139bd14e9129e9a0bbc2dd6"
     },
     "find-skills": {
       "source": "vercel-labs/skills",
       "sourceType": "github",
-      "computedHash": "d31e234f0c90694a670222cdd1dafa853e051d7066beda389f1097c22dadd461"
+      "computedHash": "9e1c8b3103f92fa8092568a44fe64858de7c5c9dc65ce4bea8f168080e889cfd"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
+    },
+    "git-guardrails-claude-code": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "53a1de29d2b76481202608376fa4a20a8bd7e65b0b8a907a8c9578e629cf313f"
+    },
+    "github-triage": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "7963f970135cc69f951346e5a7123f5ba4c6fc9dcde8dbd068d583884cb143fe"
+    },
+    "gog-cli": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "f925d160548377ebd89b1a97e8e5b4ba800fa74618ecd5682b16f1d5cccddfee"
+    },
+    "gpt-image-1-5": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "447bf01b53e2fa158c4b2cc5d97eeb86e7f35a33d2cf9f11c1b4bb54e3e2ed8a"
     },
     "grill-me": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "computedHash": "784f0dbb7403b0f00324bce9a112f715342777a0daee7bbb7385f9c6f0a170ea"
     },
+    "here-be-git": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "0866efa76d11ce004da29c838d0d980fd0fbf014b47d9e85849930dd284d4673"
+    },
+    "hindsight-architect": {
+      "source": "vectorize-io/hindsight",
+      "sourceType": "github",
+      "computedHash": "4df3e7c9108f58efd71c42a3b12b20f9391d316a3cb704472a341b6733073b3d"
+    },
+    "hindsight-cloud": {
+      "source": "vectorize-io/hindsight",
+      "sourceType": "github",
+      "computedHash": "568d2b680d69312c850aabc5bca38103aa52c0595b6d3ed80756aa424b639b90"
+    },
     "hindsight-docs": {
       "source": "vectorize-io/hindsight",
       "sourceType": "github",
-      "computedHash": "19f3abac5e15a748394fd51ceb6e3aab69577c54c8ab2c20b7cda557140675ea"
+      "computedHash": "6d8b28dca6fa36617f8f809b5537ed3bfdb7a60c77d73ef8c81e93e1bcb0499e"
+    },
+    "hindsight-local": {
+      "source": "vectorize-io/hindsight",
+      "sourceType": "github",
+      "computedHash": "21aed53045c6dc844f7e13df11d79e6a983542bf51f0359bf845444264514de1"
+    },
+    "hindsight-self-hosted": {
+      "source": "vectorize-io/hindsight",
+      "sourceType": "github",
+      "computedHash": "288ef59df6e6a4c6dde491f1d967186f86d2d00c4f79dbaf3667213c4346c1dc"
+    },
+    "improve-codebase-architecture": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "76d07c4c0bebc162cc76ca7494bfe7a90e279f35832f7ce6dfc4ce16518fd560"
+    },
+    "internal-comms": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "b36b333bee983462008af46d74689ae5832c2f79ae5f2c18680ee82f6e6bef56"
+    },
+    "json-canvas": {
+      "source": "kepano/obsidian-skills",
+      "sourceType": "github",
+      "computedHash": "56cbac74a93e4fba97f4d44bccfdeaae89e545b223f47df392c7705e01e6c543"
+    },
+    "long-task-coordinator": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "7a1e2d7a010ba67c79468bf7a67fa94edf93f40f4b4758ec19e0e2d28c43aeaf"
+    },
+    "lorem-ipsum": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "3075507adf45c14ac4a625e0257c3ed72ecbdb690492d211296fea2079d745dd"
+    },
+    "markdown-converter": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "bf956f81ca3a5a47d113ee48810dcdc0177c5111fc95d8bd1c83b459f8a45a63"
+    },
+    "mcp-builder": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "fc68038c900eb801f73ff96130c9f9dba533cc94212ed8435833242f196dedcf"
+    },
+    "mgrep-code-search": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "36f005abaf3a8445455cc52db53dccbd3c94839938b1111e4004e9af43439a99"
+    },
+    "migrate-to-shoehorn": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "8f1a623a019abca0ab5e22e8deaae375829368cc1344016010201cf650331d33"
+    },
+    "nano-banana-2": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "a7211c0bbfbad5536793efe99000b683778407b87825ab14ade054f1afbd521f"
+    },
+    "nano-banana-pro": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "eacaa3b7f0512e9c4793b38be0e2242dc81071e61d51e333ac114148d1a9422b"
+    },
+    "notion-api": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "aa73210fcc5a4f075f53983d5d7ddfeb1fe46fa789998bf265b86cad6ec14d2e"
     },
     "obsidian-bases": {
       "source": "kepano/obsidian-skills",
       "sourceType": "github",
       "computedHash": "ed0a53502693e56c67575a9958daca9a3a1ac7ba483367f400b4cad9488bfb3c"
     },
+    "obsidian-cli": {
+      "source": "kepano/obsidian-skills",
+      "sourceType": "github",
+      "computedHash": "f46ae626875f7e47c410c2ee93896c4526024ebe127719e8fb430261b5677edc"
+    },
     "obsidian-markdown": {
       "source": "kepano/obsidian-skills",
       "sourceType": "github",
       "computedHash": "cacc9058a35ad3fd4985b4c31121bff8202f1337c39808c1326ded6a19a7915f"
+    },
+    "obsidian-vault": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "960437c7c2febc15cf9d49964f0c8bd889d90a56e81b6eaa33f3ac5b594291c3"
+    },
+    "pdf": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "cfbc539377088ca7e44a813b30c306327385bbd973cd7a721e1743f60837dd62"
+    },
+    "performance-engineer": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "114b0fcf34769818ae8c75289d22575607d40c07af962f4e46147861294a9639"
+    },
+    "planning-with-files": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "ca537b202293f273130dbedcd2436d5fe1a836dac62dcc18950e08d7a764d071"
+    },
+    "pptx": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "6b8b859d26f93aa059c9870d1ab76b44ab69e3d6757ce4a03cc94cb760888073"
+    },
+    "prd-implementation-precheck": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "4754e390bcb700b44c12f1f270eb91b0deae56e7594e34ceb0690ffc0348a6cd"
+    },
+    "prd-planner": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "c57e474f276ebedc86876cd534c9254e20c4298577235ab5b78ae4449bd974ad"
+    },
+    "promptify": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "c16b9c1a696956c299e715252ecea7628d66f23d04d2a67541979f629673a21d"
+    },
+    "qa": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "20c63e29b268b1f0762cff524b5e321d5e1a773b4f61b90d84811b755948a66c"
+    },
+    "qa-expert": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "446bcedcfd363a312cfeef9626eb0bb06b0eb0c2316a0d87cef26379b40996e0"
+    },
+    "raindrop-api": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "b0beffa2608e6678c47533f41ec5b63a0cd2d58306365d28d61d2c66f45dd359"
+    },
+    "ray-so-code-snippet": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "e4e9646a1945a995f27b6d783007454ef575811087fcf6084ac36a765dcf0a53"
+    },
+    "refactoring-specialist": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "095bbb482331906ee5c4ea3d45eece638b428fdf56f544011182fc740e7251cf"
+    },
+    "request-refactor-plan": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "176cf1d0c4dc4fc4d958c4bc4ed67f222f2656bda2f3f15e3a3e98b2e5edaf2f"
+    },
+    "scaffold-exercises": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "486d60a7e984b76850bd22b3b58b98d0063a3b9b3acf319e4d5a37bf1283ea02"
+    },
+    "security-auditor": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "6149c0686af7cec1a2c17b8bc862d1ced062ccfb39db72dc36047fbad1baec9d"
     },
     "self-improving-agent": {
       "source": "charon-fan/agent-playbook",
       "sourceType": "github",
       "computedHash": "5b95ba0530d21f79cf01f7d593463812e7702b1358dd89d259b8073cf6012349"
     },
+    "session-logger": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "cdf0c6353b08e1d3ca9156bdcdfdc82b6e33ff35e1cfc7aac7d4c594b5c8f70b"
+    },
+    "setup-pre-commit": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "f9aeedf0a1f560ec465c3939c54434c2d949ac8b958a0493db52216f688a0366"
+    },
     "skill-creator": {
       "source": "anthropics/skills",
       "sourceType": "github",
       "computedHash": "b122f4d1e91aa1d83027e050b5b37c3156203ee85458d7b1360bc48167c9e02a"
+    },
+    "skill-router": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "d24b603203170e3e5fe219a8dc8b9dad78f72b836cc215e1fa49fc97faf4ccf1"
+    },
+    "slack-gif-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "146d0f407e3f04aac0378b74bb238833b24bbd5e6387b932e82cfbf228f219b4"
+    },
+    "tavily": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "405d1fff83c48c3bb0eb7e4415d353a718865d0e3b16249e0a7c16da80960f60"
+    },
+    "tdd": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "ad055544599481182d0079c4198e85da26677cb408a677be2da04915375f0427"
+    },
+    "template-skill": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "38c88f722b574a922311d334a70c2008a2a5b896f06eaa75516d716e5725b26f"
+    },
+    "test-automator": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "f1ed2406cb466608be72e8a2d2a3775d929317ff4668896dd1f9679d8ea2f426"
+    },
+    "theme-factory": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "93e78aa44f8fa00bb2c0608f400de1e1dcd6494611dd8ea27c867654240c7bcd"
+    },
+    "to-issues": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "2db47f0db7e6975486cd28bc6744f1358b47a434fb98df5b6ad507b6c3685b6a"
+    },
+    "to-prd": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "8351452ad372ea4f839d3f7b951927b417851ffa49e7e6af28ea0f0ae111dca8"
+    },
+    "todoist-api": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "30f2cfcc3ff109671cac1a15f0ab96865b15074557500d5a20cd68166cce086e"
+    },
+    "triage-issue": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "6834b87393bff8f529b3126b9f761c1c2b9706af8a784ad1061961c34bbdb4a9"
+    },
+    "ubiquitous-language": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "32f8a3426cb2d2c3db05977369e70d793e342c38ea87f5447eb22108c03c8d7a"
+    },
+    "ultrathink": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "723c2241c0fdd1f4e555e207e1c682e45b6e0df5f29ed6fc357b27bceb5f4799"
+    },
+    "upstash-redis-kv": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "039971d77b5b1df7119ce450e4d6dbde8f9db5e5bb7aec526e6a8e95395707f1"
+    },
+    "web-artifacts-builder": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "143730c6db11d82d8c5db4d0cf8f435421983f1fc510b24f77ee9a0e8bae7704"
+    },
+    "webapp-testing": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "cf8e5916d474886bd67b09691247f43f331523008b7d366064bc607ab42d6302"
+    },
+    "workflow-orchestrator": {
+      "source": "charon-fan/agent-playbook",
+      "sourceType": "github",
+      "computedHash": "177b9620bfa5b0dbf024eec4bd2de3a0b62a0ece5d8e74495f02892e8453ba80"
+    },
+    "write-a-skill": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "b44d8aab2ead83c716e01af4c9a24ccc4575ce70ad58ec4f1749fb88c9cc82ba"
+    },
+    "xlsx": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "efd0c8011cf0677d8075cf93867ecec804f9a8754a777e1d2fdb46197e9c247f"
+    },
+    "youtube-transcript": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "790a7240f43726fe8d25da049af9b771623d27d9b446eeab33f9aa5b3e0756c1"
+    },
+    "zoom-out": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "b549a5421e015c19eaac2131056a77d2d61adcd192760c3000dba8a824132970"
     }
   }
 }

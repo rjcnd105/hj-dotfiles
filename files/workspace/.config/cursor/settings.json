@@ -273,7 +273,7 @@
   "emmet.showExpandedAbbreviation": "inMarkupAndStylesheetFilesOnly",
   "scss.format.enable": false,
   "explorer.confirmDragAndDrop": false,
-  "workbench.colorTheme": "Webstorm New Light",
+  "workbench.colorTheme": "Cursor Light",
   "deepl.formality": "default",
   "deepl.tagHandling": "off",
   "deepl.splitSentences": "1",

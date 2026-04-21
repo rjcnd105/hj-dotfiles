@@ -4,7 +4,11 @@ macos-option-as-alt = true
 theme = Arcoiris
 command = /Users/hj/.config/ghostty/ghostty-nix-env.sh
 shell-integration = fish
-font-size = 12
+font-size = 11
+
+# split 경계선 가시성
+split-divider-color = #6e5e80
+unfocused-split-opacity = 0.7
 
 # Alt + n : 자동 분할 (창 비율에 맞춰 가로/세로 중 자동으로 분할)
 keybind = alt+n=new_split:auto
