@@ -42,9 +42,11 @@ let
           --host 127.0.0.1
           --embeddings
           --pooling last
-          --ctx-size 8192
-          --batch-size 8192
-          --ubatch-size 8192
+          --n-gpu-layers 99
+          --no-mmap
+          --ctx-size 4096
+          --batch-size 512
+          --ubatch-size 512
           --threads 4
         proxy: http://127.0.0.1:''${PORT}
         ttl: 600
@@ -69,11 +71,13 @@ let
   '';
 
   # FastAPI 런타임 — httpx + uvicorn
-  proxyPython = pkgs.python313.withPackages (ps: with ps; [
-    fastapi
-    httpx
-    uvicorn
-  ]);
+  proxyPython = pkgs.python313.withPackages (
+    ps: with ps; [
+      fastapi
+      httpx
+      uvicorn
+    ]
+  );
 
   # embed-prefix-proxy 소스 (main.py, test_main.py) — /nix/store로 복사
   proxySrc = ./embed-prefix-proxy;
