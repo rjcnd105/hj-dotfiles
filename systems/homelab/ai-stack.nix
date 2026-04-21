@@ -29,7 +29,10 @@ let
 
   # llama-swap 라우팅 설정.
   # ${PORT} = llama-swap이 backend에 할당한 동적 포트.
-  # ttl=600 → 10분 idle 후 언로드 (embedding/reranker 동시 필요 시 서로 스왑)
+  # ttl=600 → 10분 idle 후 언로드.
+  # groups.retrieval: 두 모델 동시 load 허용 (swap 비활성화).
+  #   기본 정책은 1모델만 resident → recall 호출마다 embed/rerank 번갈아 unload+reload
+  #   (cold load 5s × 2 = 10s 오버헤드). persistent:true로 본 그룹 영구 고정.
   llamaSwapConfig = pkgs.writeText "llama-swap-config.yaml" ''
     healthCheckTimeout: 120
 
@@ -68,6 +71,15 @@ let
           --threads 4
         proxy: http://127.0.0.1:''${PORT}
         ttl: 600
+
+    groups:
+      retrieval:
+        swap: false
+        exclusive: false
+        persistent: true
+        members:
+          - harrier
+          - qwen3-reranker
   '';
 
   # FastAPI 런타임 — httpx + uvicorn
