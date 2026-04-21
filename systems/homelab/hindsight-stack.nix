@@ -87,8 +87,9 @@ in
         HINDSIGHT_API_WORKER_CONSOLIDATION_MAX_SLOTS = "2";
 
         # Vulkan iGPU(Radeon 890M) 전환 이후 — 60 리랭크 9.3s 실측.
-        # 150 선형 외삽 ~23s, 60s 타임아웃 안전권. 품질 원복.
-        HINDSIGHT_API_RERANKER_MAX_CANDIDATES = "150";
+        # Claude Code recall 훅 timeout 12s 준수 위해 80 유지.
+        # UMA carve-out 16 GiB 해제 후 상향 검토 — 32 GB 풀파워 시 150 여유.
+        HINDSIGHT_API_RERANKER_MAX_CANDIDATES = "80";
         HINDSIGHT_API_LAZY_RERANKER = "true";
 
         HINDSIGHT_API_LLM_MAX_RETRIES = "5";

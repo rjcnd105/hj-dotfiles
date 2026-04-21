@@ -5,6 +5,6 @@
   "recallMaxTokens": 512,
   "recallContextTurns": 1,
   "debug": true,
-  "retainMission": "사용자의 의사결정과 그 이유, 선호도, 프로젝트 맥락, 반복적 문제의 해결책을 추출한다. 도구 출력, 파일 탐색, 중간 디버깅 과정, 모드 전환 같은 일시적 작업은 무시한다.",
-  "bankMission": "사용자의 작업 맥락과 의사결정을 기억하는 시스템. '무엇을 했는가'가 아닌 '왜 그렇게 했는가'를 기억한다."
+  "retainMission": "Extract user's decisions and rationale, preferences, project context, and solutions to recurring problems. Ignore ephemeral work: tool output, file exploration, intermediate debugging, mode switching.",
+  "bankMission": "System remembering user's work context and decisions. Capture the 'why', not the 'what'."
 }
