@@ -157,6 +157,10 @@ HINDSIGHT_API_RERANKER_MAX_CANDIDATES = "150";  # CPU 때 60으로 축소했던 
 
 Vulkan 헤드룸 확보로 실측 12.7s total recall (candidates=150 + flash-attn on). 60s 타임아웃 여유 충분. 검색 품질 원복.
 
+> **후속 조정 (2026-04-21)**: 150은 Hindsight API `/v1/retain` 60s 예산엔 적합하나, Claude Code `UserPromptSubmit` 훅 timeout(10s, recall.py 하드코딩)엔 과함. 실제 배포는 단계적으로 **80 → 60**으로 축소. 자세한 내용: [`hindsight-recall-hook-silent-timeout-2026-04-21.md`](./hindsight-recall-hook-silent-timeout-2026-04-21.md). 이 문서의 150은 Vulkan 가속 직후의 품질-최대 설정을 기록한 역사적 스냅샷.
+>
+> **embedding 경로도 Vulkan 오프로드 확장 (2026-04-21)**: 이 문서는 qwen3-reranker만 다루었으나, harrier embedding은 GPU flag 없이 CPU-only로 남아 있었음 (5-6s per request). `-ngl 99 --no-mmap --ctx 4096 --batch 512 --ubatch 512` 추가로 warm path 15-175ms 달성. 동시에 **llama-swap `groups.retrieval {swap:false, persistent:true}`** 설정으로 두 모델 동시 상주 — 모델 스왑 thrash 제거가 실질적 승부처. 자세한 내용은 위 링크의 "Real Root Cause" 섹션.
+
 ## Why This Works
 
 - **Radeon 890M은 RDNA 3.5, 12 CU, UMA 공유** — 시스템 RAM을 GTT(Graphics Translation Table)로 iGPU 메모리 공간에 매핑. PCIe 전송 비용 없음. 0.6B Q8 모델(650 MiB)은 22 GiB GTT 가용량에 trivially fit.
@@ -193,6 +197,7 @@ Vulkan 헤드룸 확보로 실측 12.7s total recall (candidates=150 + flash-att
 
 - Plan 및 컨텍스트: `docs/plans/2026-04-17-002-feat-hindsight-data-migration-cutover-plan.md` (Unit 5 smoke test에서 본 문제 노출)
 - **Host network 전환 선행 fix**: [`docs/solutions/integration-issues/docker-host-access-host-network-2026-04-17.md`](../integration-issues/docker-host-access-host-network-2026-04-17.md) — Hindsight 컨테이너가 host network로 `127.0.0.1:8090`(llama-swap) 접근. 본 fix는 그 8090 endpoint의 backend를 CPU → Vulkan iGPU로 가속한 직접 downstream.
+- **Hook timeout 후속 조정**: [`./hindsight-recall-hook-silent-timeout-2026-04-21.md`](./hindsight-recall-hook-silent-timeout-2026-04-21.md) — 본 fix 이후 Vulkan 기반 150 candidates도 Claude Code 훅 12s 예산엔 초과. MAX_CANDIDATES 80으로 재조정한 기록. 두 문서는 시간순 연속체로 같이 읽을 것.
 - **kswapd livelock (별개 문제)**: [`docs/solutions/runtime-errors/nixos-kswapd-livelock-zero-swap-2026-04-16.md`](../runtime-errors/nixos-kswapd-livelock-zero-swap-2026-04-16.md) — TEI 동시 기동 시 zero-swap + UMA reservation 조합으로 RAM 고갈. 본 fix로 rerank 워크로드가 Docker에서 호스트 systemd로 이동했으므로 Docker startup concurrency 계산에서 rerank 슬롯은 제외 가능 (session history).
 - Phase 1 brainstorm에서 이미 "TEI는 Vulkan 백엔드 없음 (llama.cpp만)"으로 Vulkan 경로가 **식별되었으나 Phase 1엔 과한 통합 비용으로 연기**되었던 "bridge not taken". 본 fix가 그 연기된 통합을 완결. (session history)
 
