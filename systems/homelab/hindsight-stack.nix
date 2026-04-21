@@ -77,7 +77,8 @@ in
         HINDSIGHT_API_RETAIN_LLM_MAX_CONCURRENT = "3";
         HINDSIGHT_API_CONSOLIDATION_LLM_MAX_CONCURRENT = "2";
         HINDSIGHT_API_RECALL_MAX_CONCURRENT = "6";
-        HINDSIGHT_API_RECALL_CONNECTION_BUDGET = "4";
+        # DB 병렬도 4 → 6 (vector search 단축). LLM concurrent(6)와 대칭.
+        HINDSIGHT_API_RECALL_CONNECTION_BUDGET = "6";
         HINDSIGHT_API_MENTAL_MODEL_REFRESH_CONCURRENCY = "2";
 
         HINDSIGHT_API_DB_POOL_MIN_SIZE = "2";
@@ -86,10 +87,15 @@ in
         HINDSIGHT_API_WORKER_MAX_SLOTS = "4";
         HINDSIGHT_API_WORKER_CONSOLIDATION_MAX_SLOTS = "2";
 
-        # Vulkan iGPU(Radeon 890M) 전환 이후 — 60 리랭크 9.3s 실측.
-        # Claude Code recall 훅 timeout 12s 준수 위해 80 유지.
+        # Claude Code recall 훅 latency 튜닝 (2026-04-21 실측 fix).
+        # 실측: 80 candidates @ Vulkan iGPU p50 ~10s, p99 ~18s.
+        # `recall.py:153 timeout=10` 하드코딩이 실질 ceiling → 9s 내 진입 필요.
+        # MAX_CANDIDATES 80 → 60: rerank 입력 25% 축소.
+        # BUDGET_FIXED_LOW 100 → 40: RRF pre-filter 전 각 retrieval method items.
+        #   candidate pool 480(=40×4methods×3types) → rerank 60개.
         # UMA carve-out 16 GiB 해제 후 상향 검토 — 32 GB 풀파워 시 150 여유.
-        HINDSIGHT_API_RERANKER_MAX_CANDIDATES = "80";
+        HINDSIGHT_API_RERANKER_MAX_CANDIDATES = "60";
+        HINDSIGHT_API_RECALL_BUDGET_FIXED_LOW = "40";
         HINDSIGHT_API_LAZY_RERANKER = "true";
 
         HINDSIGHT_API_LLM_MAX_RETRIES = "5";
