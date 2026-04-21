@@ -91,12 +91,13 @@ in
         # llama-swap groups.retrieval {swap:false, persistent:true} 이후 embedding
         # warm path 15-175ms 복원. rerank 60 candidates = 3.84-4.37s (실측).
         # `recall.py:153 timeout=10` 하드코딩이 실질 ceiling → 9s 내 진입 필요.
-        # 60 → 100 상향: 선형 외삽 ~6.8s 예상, 10s budget 여유 ~3s. 품질 향상.
-        # BUDGET_FIXED_LOW 100 → 40: RRF pre-filter 전 각 retrieval method items.
-        #   candidate pool 480(=40×4methods×3types) → rerank 100개.
+        # MAX_CANDIDATES 60 → 100: 선형 외삽 ~6.8s 예상, 10s budget 여유 ~3s.
+        # BUDGET_FIXED_LOW 40 → 100 (default): latency knob 아닌 품질 knob.
+        #   pool 1200(=100×4methods×3types) → RRF fusion → top-100 rerank.
+        #   각 retrieval method 다양성 확보, RRF 품질 향상. pgvector HNSW 로그 스케일.
         # UMA carve-out 16 GiB 해제 후 상향 검토 — 32 GB 풀파워 시 150 여유.
         HINDSIGHT_API_RERANKER_MAX_CANDIDATES = "100";
-        HINDSIGHT_API_RECALL_BUDGET_FIXED_LOW = "40";
+        HINDSIGHT_API_RECALL_BUDGET_FIXED_LOW = "100";
         HINDSIGHT_API_LAZY_RERANKER = "true";
 
         HINDSIGHT_API_LLM_MAX_RETRIES = "5";
