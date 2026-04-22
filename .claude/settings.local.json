@@ -44,7 +44,10 @@
       "Bash(JJ_EDITOR=true jj split @ systems/homelab/hindsight-stack.nix systems/homelab/ai-stack.nix)",
       "Bash(python3 *)",
       "Bash(JJ_EDITOR=true jj split @ docs/solutions/performance-issues/hindsight-reranker-vulkan-acceleration-2026-04-19.md docs/solutions/integration-issues/docker-host-access-host-network-2026-04-17.md docs/solutions/runtime-errors/nixos-kswapd-livelock-zero-swap-2026-04-16.md)",
-      "Bash(rtk npx *)"
+      "Bash(rtk npx *)",
+      "Bash(rtk wc *)",
+      "Bash(go version *)",
+      "Bash(rtk go *)"
     ]
   },
   "outputStyle": "Explanatory",

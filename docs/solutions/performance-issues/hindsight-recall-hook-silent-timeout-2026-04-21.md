@@ -265,6 +265,8 @@ HINDSIGHT_API_RECALL_CONNECTION_BUDGET = "6";     # 4 → 6
        output = {"hookSpecificOutput": {"additionalContext": "⚠️ hindsight recall timeout — memory not injected"}}
    ```
 
+   **실장**: `systems/homelab/recall-eval.nix` + `systems/homelab/recall-eval/` Go 기반 regression eval gate가 이 class 를 외부 probe 로 감지. Fixture 10개 × recall@5 / p90 latency 메트릭 → Telegram + Claude SessionStart hook (`files/workspace/.claude/hooks/recall-eval-status.sh`) 2원 surface. 계획 근거: `docs/plans/2026-04-22-001-feat-recall-regression-eval-gate-plan.md`.
+
 3. **정기 health check**
 
    ```bash

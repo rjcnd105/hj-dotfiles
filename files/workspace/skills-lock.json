@@ -121,6 +121,11 @@
       "sourceType": "github",
       "computedHash": "b03b91554e25480cd5dfdcb8e1c797a4703b9ed5e303593c9ac338d6d43c040a"
     },
+    "cli-creator": {
+      "source": "openai/skills",
+      "sourceType": "github",
+      "computedHash": "bd8f6db9268abf0483e17215ae6a39852a8780429c54b65658780c6f94bb4f61"
+    },
     "code-review": {
       "source": "vectorize-io/hindsight",
       "sourceType": "github",

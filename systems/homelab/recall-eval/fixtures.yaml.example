@@ -1,0 +1,27 @@
+# Template for recall-eval fixtures.
+#
+# Real fixtures live at secrets/homelab/recall-eval-fixtures.yaml (sops-encrypted)
+# because the `query` strings may contain substrings of actual bank memories.
+#
+# Schema version: 1
+# - `bank`: hindsight bank id this fixture set targets
+# - `fixtures[]`:
+#   - id: stable opaque identifier, format `fx-NNN`
+#   - query: natural-language question sent to /v1/default/banks/<bank>/memories/recall
+#   - expected_memory_ids: list of memory UUIDs that must appear within top-5.
+#                         Hit = intersection non-empty. Order-independent.
+#   - description: human-readable reason this fixture exists (what signal it defends)
+#   - tags: optional labels for slicing metrics
+#
+# Loader rejects any fixture with `[EXAMPLE ONLY]` sentinel in expected_memory_ids
+# to prevent accidental use of this file in production.
+
+version: 1
+bank: "::nix-dots"
+fixtures:
+  - id: "fx-001"
+    query: "example query — what does the system do for X?"
+    expected_memory_ids:
+      - "[EXAMPLE ONLY — replace with real memory UUID]"
+    description: "Dummy entry. The real file is sops-encrypted at secrets/homelab/recall-eval-fixtures.yaml."
+    tags: ["example"]

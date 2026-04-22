@@ -30,8 +30,9 @@ find "$KB" -maxdepth 1 -type f -name '*.md' \
   ! -name 'LOG.md' \
   ! -name 'ROADMAP.md' \
   -print0 \
-  | xargs -0 grep -h -E '^\s*-\s+"(Clippings/|session:)' 2>/dev/null \
-  | sed -E 's/^[[:space:]]*-[[:space:]]+"([^"]+)".*/\1/' \
+  | xargs -0 grep -h -E "^[[:space:]]*-[[:space:]]+['\"](Clippings/|session:)" 2>/dev/null \
+  | sed -E -e "s/^[[:space:]]*-[[:space:]]+\"([^\"]+)\".*/\1/" \
+           -e "s/^[[:space:]]*-[[:space:]]+'([^']+)'.*/\1/" \
   | sort -u > "$tmp"
 
 mv "$tmp" "$OUT"

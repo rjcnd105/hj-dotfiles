@@ -10,6 +10,7 @@
     ./cloudflared.nix
     ./ai-stack.nix
     ./hindsight-stack.nix
+    ./recall-eval.nix
   ];
 
   networking.hostName = "homelab";

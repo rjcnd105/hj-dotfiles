@@ -28,7 +28,8 @@
       "Bash(which *)",
       "WebFetch",
       "WebSearch"
-    ]
+    ],
+    "defaultMode": "auto"
   },
   "hooks": {
     "PreToolUse": [
@@ -48,6 +49,10 @@
           {
             "type": "command",
             "command": "bash /Users/hj/.claude/hooks/jj-vcs-context.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash /Users/hj/.claude/hooks/recall-eval-status.sh"
           }
         ]
       }
@@ -65,7 +70,8 @@
     "sadd@context-engineering-kit": false,
     "ddd@context-engineering-kit": true,
     "serena@claude-plugins-official": false,
-    "claude-md-management@claude-plugins-official": true
+    "claude-md-management@claude-plugins-official": true,
+    "gopls-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "compound-engineering-plugin": {
@@ -120,5 +126,6 @@
   "language": "Korean",
   "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true,
+  "verbose": true,
   "skipAutoPermissionPrompt": true
 }

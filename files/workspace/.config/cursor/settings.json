@@ -164,7 +164,7 @@
   "i18n-ally.enabledFrameworks": [
     "next-intl"
   ],
-  "i18n-ally.displayLanguage": "ko",
+  "i18n-ally.displayLanguage": "en",
   "cursor.windowSwitcher.sidebarHoverCollapsed": true,
 
   "javascript.updateImportsOnFileMove.enabled": "always",

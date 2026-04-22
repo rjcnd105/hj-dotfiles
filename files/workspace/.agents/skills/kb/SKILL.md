@@ -44,14 +44,27 @@ Arguments 파싱→서브커맨드 결정:
 | `/kb rebuild-index` | rebuild-index |
 | `/kb crystallize` | crystallize |
 
-## Helper Scripts
+## Tools
 
-`scripts/` 디렉토리 포함. 대량 파일 스캔을 쉘에 위임하여 Claude 컨텍스트 토큰 최소화.
+기계적 스캔·재생성을 바이너리·쉘로 위임하여 Claude 토큰 소비 최소화.
 
-- `scripts/unprocessed.sh [--all | -n N]` — `Clippings/` 와 `kb/.sources` diff. 기본 첫 20개 반환. 10k 파일 vault에서도 출력 크기만 LLM 소모.
-- `scripts/rebuild-sources.sh` — 모든 kb 페이지 frontmatter의 `kb-sources` 항목을 `kb/.sources`로 집계. 메타 파일(SCHEMA/INDEX/LOG/ROADMAP) 제외.
+### Binary: `scripts/kbtool-bin` (Go, stdlib-only)
 
-`kb/.sources` 는 캐시. 편집 금지. rebuild-sources.sh 가 단일 진실원천에서 재생성.
+소스: `scripts/kbtool/`. 리빌드: `cd scripts/kbtool && go build -o ../kbtool-bin .`.
+
+| 서브커맨드 | 역할 | Latency |
+|-----------|------|---------|
+| `kbtool-bin lint` | 단일 JSON 출력: broken wikilinks, frontmatter violations, dead source refs, single/empty source pages, unresolved conflicts, unprocessed clippings, stale 최신 동향, orphan pages, classify-difficult, roadmap | ~20ms hot |
+| `kbtool-bin rebuild-index` | INDEX.md 결정론적 재생성 (frontmatter + tags → 도메인 섹션, Health 블록 append, atomic write) | ~20ms hot |
+
+LLM은 JSON 읽기만 수행. 페이지 직접 스캔 금지.
+
+### Shell scripts
+
+- `scripts/unprocessed.sh [--all | -n N]` — `Clippings/` vs `kb/.sources` diff. 기본 첫 20개
+- `scripts/rebuild-sources.sh` — kb 페이지 frontmatter의 `kb-sources` 항목을 `kb/.sources`로 집계. 메타 파일(SCHEMA/INDEX/LOG/ROADMAP) 제외
+
+`kb/.sources`는 캐시. 수동 편집 금지 — `rebuild-sources.sh`로 재생성.
 
 ## Workflow: ingest
 
@@ -76,12 +89,14 @@ Arguments 파싱→서브커맨드 결정:
    - 하나의 기사가 여러 페이지에 기여 가능
 7. **Write pages** — 개념별 페이지 생성/업데이트. 출처를 인라인 참조 (예: "(출처: [[Clipping명]])"). 위키링크 `[[파일명]]` 형식
    - 7b. 두 번째 corroborating source 도착 시, hedging 톤 → 확정 톤 전환 (SCHEMA.md Source Strength)
-8. **Glossary check** — 작성한 페이지에 비전문가가 이해하기 어려운 전문 용어/개념이 등장하면 (예: MVCC, CRDT, OLAP, Raft, AST 등), 해당 개념의 glossary 페이지가 kb/에 있는지 확인. 없으면 간결한 설명 페이지 생성 (`tags: [kb, glossary]`, `kb-sources: []`)
+8. **Glossary check** — 작성한 페이지에 비전문가가 이해하기 어려운 전문 용어/개념이 등장하면 (예: MVCC, CRDT, OLAP, Raft, AST 등), 해당 개념의 glossary 페이지가 kb/에 있는지 확인. 없으면 간결한 설명 페이지 생성:
+   - `tags`는 블록 형식으로 `- kb` + `- glossary` 포함
+   - **`kb-sources` 필드는 통째로 생략**. Obsidian Properties UI가 빈 inline 배열(`[]`)을 제대로 렌더 못 함
 9. **Freshness check** — 기사 발행일이 6개월 이상 지난 경우, WebSearch로 해당 기술의 최신 동향 확인. 유의미한 업데이트(메이저 버전, breaking change, 새 대안)가 있으면:
    - 9a. 페이지에 `## 최신 동향 (YYYY-MM)` 섹션 추가
    - 9b. 최신 동향이 본문과 모순 → 본문에 supersession 적용 (SCHEMA.md 섹션 7). 최신 동향 append만으로 끝내지 않음
 10. **Update search index** — `qmd embed` 실행하여 qmd 검색 인덱스 갱신
-11. **Rebuild index** — kb/ 모든 .md(SCHEMA.md, INDEX.md, LOG.md 제외) frontmatter 읽어 INDEX.md 재생성
+11. **Refresh indexes** — rebuild-index workflow 전체 실행 (`scripts/kbtool-bin rebuild-index` + `bash scripts/rebuild-sources.sh`). 둘 다 필요: binary는 INDEX.md 재생성, shell script는 `.sources` 캐시 갱신. sources 갱신 누락 시 다음 ingest의 duplicate check가 이번 항목을 놓쳐 재처리됨
 12. **Log** — LOG.md에 `## [날짜] ingest | Clipping 제목` 기록. glossary/freshness 생성 시 해당 내역도 기록
 
 ## Workflow: query
@@ -108,58 +123,42 @@ kb/ 위키 기반 질문 답변.
 6. **Integrate** — ingest steps 6-7과 동일 (개념 추출, 페이지 생성/업데이트). 소스 형식만 다름:
    ```yaml
    kb-sources:
-     - path: "session:YYYY-MM-DD/주제-설명"
-       published: YYYY-MM-DD
+     - "session:YYYY-MM-DD/주제-설명"
    ```
 7. **Glossary + Freshness** — ingest steps 8-9와 동일
 8. **Update search index** — `qmd embed` 실행
-9. **Rebuild index** — INDEX.md 재생성
+9. **Refresh indexes** — rebuild-index workflow 전체 실행 (`scripts/kbtool-bin rebuild-index` + `bash scripts/rebuild-sources.sh`). sources 캐시 갱신 필수
 10. **Log** — LOG.md에 `## [날짜] crystallize | 세션 주제` 기록
 
 ## Workflow: lint
 
-위키 건강 점검·스키마 진화 제안.
+위키 건강 점검·스키마 진화 제안. 기계적 스캔은 전부 `kbtool-bin lint`에 위임.
 
-1. **Rebuild index** — INDEX.md 먼저 재생성→최신 상태 보장
-2. **Update search index** — `qmd embed` 실행
-3. **Check integrity**:
-   - 깨진 위키링크 탐지
-   - frontmatter 스키마 위반 (필수 필드 누락 등)
-   - `kb-sources` Clipping 실제 존재 확인
-   - 3d. 단일 출처 페이지: `kb-sources` 항목 1개인 페이지 목록 (error 아님, "보강 기회")
-   - 3e. 미해결 논쟁: 모든 페이지에서 `[!warning] 논쟁` callout 수집. 미해결 건수 보고
-4. **Gap analysis**:
-   - Clippings/ 스캔→미ingest 파일 목록 ("미처리 Clippings N개")
-   - 같은 주제 Clippings 여럿인데 topic 페이지 없으면 제안
-   - 4c. 최신 동향 만료: `## 최신 동향` 섹션이 6개월+ 경과된 페이지 목록
-   - 4d. 고아 페이지: 다른 kb/ 페이지에서 inbound 위키링크 0개인 페이지 (glossary 제외)
-5. **Schema evolution**:
-   - LOG.md `classify-difficult` 이벤트 수집
-   - 패턴 발견 시 새 타입 제안 (SCHEMA.md 진화 프로토콜)
-   - before/after 비교: "현재 타입→... / 새 타입 분리→..."
-6. **Roadmap check** — `kb/ROADMAP.md` 읽기. 현재 페이지 수 + 최초 created 날짜 확인. milestone 조건 충족 시 "진화 제안" 섹션을 리포트에 포함. 이미 `[완료]`인 milestone은 건너뜀. 사용자 승인 시 해당 기능 구현, ROADMAP.md에 완료 기록. 거부 시 `[연기: 사유]` 기록
-7. **Report** — 발견 사항 severity별 정리 출력
+1. **Rebuild index** — rebuild-index workflow 전체 실행 (INDEX.md + `.sources` 캐시 최신화)
+2. **qmd embed** — 검색 인덱스 갱신
+3. **Integrity + gap scan** — `scripts/kbtool-bin lint` → 단일 JSON 출력:
+   - `broken_wikilinks`, `frontmatter_violations`, `dead_source_refs`
+   - `single_source_pages`, `empty_source_pages`
+   - `unresolved_conflicts`, `unprocessed_clippings`, `stale_recent_sections`, `orphan_pages` (glossary 제외)
+   - `classify_difficult`, `roadmap` (page_count + earliest created)
+4. **Schema evolution** — JSON의 `classify_difficult` 검사. 패턴 발견 시 새 타입 제안 (SCHEMA.md 진화 프로토콜, before/after 비교)
+5. **Roadmap check** — `roadmap.page_count`와 `kb/ROADMAP.md` milestone 대조. 충족 + `[완료]` 아닐 경우 "진화 제안" 섹션 포함. 승인 시 구현 + milestone 완료 기록. 거부 시 `[연기: 사유]` 기록
+6. **Report** — JSON을 한국어 사용자용 리포트로 변환, severity별 그룹화 + 권장 조치 명시
 
 ## Workflow: rebuild-index
 
-kb/ 스캔→INDEX.md 재생성.
+kb/ 스캔→INDEX.md + `.sources` 캐시 재생성. **LLM 개입 없음** — 바이너리·쉘·qmd 3연속 호출.
 
-1. `kb/` 모든 .md Glob 탐색 (SCHEMA.md, INDEX.md, LOG.md, ROADMAP.md 제외)
-2. 각 파일 frontmatter에서 `kb-type`, `created`, 파일명 추출
-3. 도메인별 섹션 그룹핑, 섹션 내 created 내림차순
-4. INDEX.md 형식: `- [[파일명]] — 한줄 설명` (첫 문단에서 추출)
-5. INDEX.md 덮어쓰기
-5b. **Rebuild sources cache** — `bash scripts/rebuild-sources.sh` 실행하여 `kb/.sources` 갱신. ingest `.sources` 조회의 단일 진실원천.
-6. **Health summary** — INDEX.md 하단에 Health 섹션 자동 생성:
-   ```
-   ## Health
-   - 총 페이지: N
-   - 단일 출처 페이지: N/총N
-   - 미해결 논쟁: N
-   - 최신 동향 만료: N (6개월 기준)
-   - 고아 페이지: N
-   ```
-7. `qmd embed` 실행하여 검색 인덱스도 갱신
+1. `scripts/kbtool-bin rebuild-index` — end-to-end 수행:
+   - `kb/*.md` Glob (SCHEMA/INDEX/LOG/ROADMAP 제외)
+   - frontmatter(`kb-type`, `created`, `tags`) + 첫 문단 파싱
+   - 태그→도메인 섹션 그룹핑 (Nix/Container, Elixir/Phoenix, CSS, Frontend/JavaScript, Database, AI/LLM, Glossary, Health/Science), 섹션 내 `created` 내림차순
+   - Health 블록 append (총 페이지, 단일 출처, 미해결 논쟁, 최신 동향 만료, 고아 페이지)
+   - INDEX.md atomic 덮어쓰기 (tmp + rename)
+2. `bash scripts/rebuild-sources.sh` — `.sources` 캐시 갱신. ingest duplicate check의 단일 진실원천
+3. `qmd embed` — 검색 인덱스 갱신
+
+섹션 매핑 변경: `scripts/kbtool/rebuild.go`의 `sectionRules` 편집 후 바이너리 리빌드.
 
 ## Subagent 위임
 
@@ -169,7 +168,6 @@ kb/ 스캔→INDEX.md 재생성.
 |------|------|------|
 | Read related (5번) | **sonnet** | 검색+읽기, 판단 불필요 |
 | Glossary check (8번) | **sonnet** | 용어 존재 확인+간결한 정의 생성 |
-| Rebuild index (11번) | **sonnet** | 기계적 스캔+재생성 |
 | Extract concepts (6번) | opus (기본) | 핵심 판단: 개념 추출·분류 |
 | Write pages (7번) | opus (기본) | 종합 작성, 교차참조 |
 | Freshness check (9번) | opus (기본) | 웹 검색+판단+반영 |
