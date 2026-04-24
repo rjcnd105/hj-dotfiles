@@ -101,6 +101,12 @@ in
   # amdgpu.gttsize=-1, ttm.pages_limit=-1 → 0.6B에선 기본값으로도 충분하나 모델 확장 대비.
   # 참고: kernel params 변경은 다음 부팅부터 적용. userspace는 즉시 반영.
   hardware.graphics.enable = true;
+  # amdgpu stage-2 강제 로드. udev auto-match 관측 실패 (lspci -k에 "Kernel modules: amdgpu"는
+  # 나오지만 "Kernel driver in use:"가 비어 device unbind 상태). initrd 대신 kernelModules로
+  # 두는 이유: headless 서버라 Early KMS 불필요, initrd 실패 시 SSH 이전에 hang = 원격 브릭 위험.
+  # stage-2 로드는 실패해도 multi-user.target 도달 → SSH 생존 → rollback 가능.
+  # 검증: 재부팅 후 `lspci -k | grep -A2 VGA` "driver in use: amdgpu", `vulkaninfo --summary`.
+  boot.kernelModules = [ "amdgpu" ];
   boot.kernelParams = [
     "amdgpu.gttsize=-1"
     "ttm.pages_limit=-1"

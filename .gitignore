@@ -13,3 +13,6 @@ templates/**/.pre-commit-config.yaml
 **/keys.txt
 
 files/**/profiles/session/*
+
+# graphify AST cache — regenerable, not source
+graphify-out/cache/
