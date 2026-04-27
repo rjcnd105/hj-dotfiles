@@ -1,0 +1,101 @@
+model = "gpt-5.5"
+model_reasoning_effort = "high"
+personality = 'pragmatic'
+
+notify = [
+  "/Users/hj/.codex/plugins/cache/openai-bundled/computer-use/1.0.755/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient",
+  "turn-ended",
+]
+approvals_reviewer = "user"
+
+[projects]
+[projects.'/Users/hj/work/gm/gentle-renewal']
+trust_level = "trusted"
+
+[projects."/Users/hj/study_ex/my-backend"]
+trust_level = "trusted"
+
+[projects."/Users/hj/dot/nix-dots"]
+trust_level = "trusted"
+
+[projects."/Users/hj/study/simple-pr"]
+trust_level = "trusted"
+
+[projects."/Users/hj/.codex/caveman"]
+trust_level = "trusted"
+
+[projects."/Users/hj/.codex"]
+trust_level = "trusted"
+
+[projects."/Users/hj/Library/Mobile Documents/iCloud~md~obsidian/Documents/Brain"]
+trust_level = "trusted"
+
+[projects."/Users/hj/Library/Mobile Documents/iCloud~md~obsidian/Documents/Brain/Philosophia"]
+trust_level = "trusted"
+
+[notice]
+hide_full_access_warning = true
+
+[notice.model_migrations]
+"gpt-5.3-codex" = "gpt-5.4"
+
+[features]
+js_repl = true
+apps = true
+multi_agent = true
+memories = true
+codex_hooks = true
+
+[apps.connector_76869538009648d5b282a4bb21c3d157]
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.agents/skills/slack/SKILL.md"
+enabled = false
+
+[plugins."github@openai-curated"]
+enabled = true
+
+[plugins."computer-use@openai-bundled"]
+enabled = true
+
+[plugins."caveman@caveman-repo"]
+enabled = true
+
+[plugins."compound-engineering@compound-engineering-plugin"]
+enabled = true
+
+[plugins."coding-tutor@compound-engineering-plugin"]
+enabled = true
+
+[marketplaces.openai-bundled]
+last_updated = "2026-04-22T07:56:20Z"
+source_type = "local"
+source = "/Users/hj/.codex/.tmp/bundled-marketplaces/openai-bundled"
+
+[marketplaces.compound-engineering-plugin]
+last_updated = "2026-04-27T04:41:33Z"
+last_revision = "4b5f28da9746aae8f2c5dd715d7029d0ab2758a6"
+source_type = "git"
+source = "https://github.com/EveryInc/compound-engineering-plugin.git"
+
+[mcp_servers.chrome-devtools]
+command = "npx"
+args = ["chrome-devtools-mcp@latest", "--autoConnect"]
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+
+[tui]
+status_line = [
+  "model-with-reasoning",
+  "project-root",
+  "git-branch",
+  "context-remaining",
+  "five-hour-limit",
+  "codex-version",
+  "used-tokens",
+]
+
+[tui.model_availability_nux]
+"gpt-5.5" = 4
