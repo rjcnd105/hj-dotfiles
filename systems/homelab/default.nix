@@ -47,8 +47,16 @@
   };
   systemd.oomd.enable = false;
 
-  # Docker
-  virtualisation.docker.enable = true;
+  # Podman runtime. dockerCompat keeps the `docker` command mapped to Podman;
+  # dockerSocket exposes Podman's Docker-compatible API at /run/docker.sock.
+  virtualisation.podman = {
+    enable = true;
+    dockerCompat = true;
+    dockerSocket.enable = true;
+    defaultNetwork.settings.dns_enabled = true;
+  };
+
+  systemd.timers.podman-auto-update.wantedBy = [ "timers.target" ];
 
   # llama.cpp — CPU 모드로 시작. GPU 가속은 ROCm gfx1150 공식 지원 후 추가
   # 로컬 전용 바인딩. 외부 접근이 필요하면 host를 0.0.0.0으로 변경하고 firewall에 8080 추가

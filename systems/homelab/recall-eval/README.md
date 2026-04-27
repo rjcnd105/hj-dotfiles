@@ -32,7 +32,7 @@ file, and posts changes to Telegram.
 2. **Pull state to workspace** — `just recall-eval-pull-state` copies the latest
    `alert-state.json` and `history.jsonl` tail to `~/.local/state/recall-eval/`.
 3. **Triage by metric:**
-   - `recall_unreachable` → `ssh homelab systemctl status docker-hindsight.service docker-hindsight-db.service`. Reranker container OOM or DB connect failure are the usual suspects. Check `journalctl -u docker-hindsight.service --since "10 min ago"`.
+   - `recall_unreachable` → `ssh homelab systemctl status hindsight.service hindsight-db.service`. Reranker cold-start or DB connect failure are the usual suspects. Check `journalctl -u hindsight.service --since "10 min ago"` and `podman logs hindsight`.
    - `p90_latency_ms` → likely reranker cold-start or CPU-only fallback. Cross-reference `docs/solutions/performance-issues/hindsight-recall-hook-silent-timeout-2026-04-21.md` §4 (timeout tuning) and §5 (reranker selection).
    - `recall@5 < 0.90` → a specific fixture missed. Open `history.jsonl` tail; look at the matching `dead_ids`. If the expected id was deleted (intentional), update `secrets/homelab/recall-eval-fixtures.yaml` and re-encrypt. If the rank dropped (still in corpus), investigate embedding/reranker drift.
    - `fixture_liveness` (warning) → an expected id no longer appears in any top-10. Fixture rot; replace or delete.
@@ -64,7 +64,7 @@ history.jsonl is a content sha256 — changes automatically on any edit.
 | `HINDSIGHT_API_TENANT_API_KEY not set` | sops.templates not mounted | `systemctl status recall-eval-gate.service` — check `EnvironmentFile=` line and `systemctl cat` for `%N` expansion |
 | `fixtures.yaml: no such file or directory` | LoadCredential failed | `systemctl status recall-eval-gate.service`; sops secret may not be decrypted. Check `systemctl status sops-install-secrets.service` |
 | alert fires but no Telegram | `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` empty in sops | `sops secrets/homelab/services.yaml` → set both |
-| `recall_unreachable` persists after hindsight restart | dns/network inside container, not eval | tail `docker logs hindsight` for actual error |
+| `recall_unreachable` persists after hindsight restart | dns/network inside container, not eval | tail `podman logs hindsight` for actual error |
 
 ## Security notes
 

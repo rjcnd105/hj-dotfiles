@@ -113,8 +113,7 @@ in
   environment.systemPackages = [ pkgs.vulkan-tools ];
 
   # ── llama-swap ─────────────────────────────────────────
-  # 0.0.0.0:8090 listen — Docker bridge 내 Hindsight 컨테이너가
-  # host.docker.internal(=docker bridge gateway)로 접근하기 위해 모든 인터페이스 바인딩.
+  # 0.0.0.0:8090 listen — Hindsight 컨테이너가 host network에서 127.0.0.1로 접근.
   # 외부(LAN 이상) 노출은 networking.firewall 기본 거부 정책으로 차단됨.
   systemd.services.llama-swap = {
     description = "llama-swap — model router for llama.cpp";
@@ -141,7 +140,7 @@ in
   };
 
   # ── embed-prefix-proxy ─────────────────────────────────
-  # 0.0.0.0:8091 listen — 동일하게 Docker bridge 내 Hindsight 접근 허용.
+  # 0.0.0.0:8091 listen — 동일하게 Hindsight 접근 허용.
   # firewall로 외부 차단.
   systemd.services.embed-prefix-proxy = {
     description = "FastAPI proxy — injects Harrier instruct prefix";

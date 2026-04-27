@@ -65,7 +65,8 @@ SQLite database shell history
 - gh
 - lazygit
 - direnv
-- docker, docker-compose
+- podman, podman-compose
+- docker-compatible CLI wrappers
 - lazydocker
 - devenv
 - mise

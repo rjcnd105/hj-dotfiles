@@ -28,7 +28,7 @@
     home = "/home/${myOptions.userName}";
     extraGroups = [
       "wheel"
-      "docker"
+      "podman"
     ];
     linger = true; # home-manager systemd user service 부팅 상주
     openssh.authorizedKeys.keys = [

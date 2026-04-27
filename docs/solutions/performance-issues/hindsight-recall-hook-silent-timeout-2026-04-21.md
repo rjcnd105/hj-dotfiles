@@ -68,7 +68,7 @@ hindsight-memory 플러그인의 `UserPromptSubmit` 훅(`recall.py`)이 매 turn
 
 ### 3. 배포
 
-`services.comin` (60s poll) → 자동 nixos-rebuild switch → `docker-hindsight.service` 재시작. 수동 개입 불요.
+`services.comin` (60s poll) → 자동 nixos-rebuild switch → `hindsight.service` 재시작. 수동 개입 불요.
 
 ## Why This Works
 

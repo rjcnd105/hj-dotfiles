@@ -55,10 +55,10 @@ WHERE id = :memory_id;
 ### 확인 명령 (재현용)
 
 ```bash
-ssh homelab "docker exec hindsight which hindsight-admin"
-ssh homelab "docker exec hindsight hindsight-admin --help"
-ssh homelab "docker exec hindsight-db psql -U hindsight -d hindsight -c '\dt'"
-ssh homelab "docker exec hindsight-db psql -U hindsight -d hindsight -c '\d memory_units'"
+ssh homelab "podman exec hindsight which hindsight-admin"
+ssh homelab "podman exec hindsight hindsight-admin --help"
+ssh homelab "podman exec hindsight-db psql -U hindsight -d hindsight -c '\dt'"
+ssh homelab "podman exec hindsight-db psql -U hindsight -d hindsight -c '\d memory_units'"
 ```
 
 ## 2. VPS 측 (완료 — 2026-04-17)
@@ -109,11 +109,11 @@ logical backup은 행 단위 copy이므로 extension 버전 drift는 **restore �
 ### 재확인 명령 (기록용 — 실전 Unit 3에서 재사용)
 
 접속은 sops-decrypt된 자격증명을 1회 shell 변수 로드 후 단일 ssh 세션으로 수행. 개별 커맨드는 다음 blob(REMOTE_SCRIPT)에 포함:
-- `docker exec hindsight hindsight-admin backup /tmp/hsdb-$(date +%Y%m%d).zip`
-- `docker cp hindsight:/tmp/hsdb-*.zip ~/` → Mac 경유 scp
-- homelab에서 `docker exec hindsight hindsight-admin restore /tmp/hsdb-*.zip --yes`
-- `docker exec hindsight hindsight-admin run-db-migration`
-- `docker restart hindsight`
+- `podman exec hindsight hindsight-admin backup /tmp/hsdb-$(date +%Y%m%d).zip`
+- `podman cp hindsight:/tmp/hsdb-*.zip ~/` → Mac 경유 scp
+- homelab에서 `podman exec hindsight hindsight-admin restore /tmp/hsdb-*.zip --yes`
+- `podman exec hindsight hindsight-admin run-db-migration`
+- `systemctl restart hindsight.service`
 
 ## 3. 남은 블로커 요약
 
