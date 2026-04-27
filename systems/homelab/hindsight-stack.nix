@@ -22,6 +22,29 @@ let
     hindsight = "ghcr.io/vectorize-io/hindsight:0.5.2-slim";
     db = "timescale/timescaledb-ha:pg18";
   };
+
+  applyDbSettings = pkgs.writeShellScript "hindsight-db-apply-settings" ''
+    set -eu
+
+    for attempt in $(${pkgs.coreutils}/bin/seq 1 60); do
+      if ${pkgs.podman}/bin/podman exec hindsight-db psql -U hindsight -d hindsight -v ON_ERROR_STOP=1 -c 'select 1' >/dev/null 2>&1; then
+        break
+      fi
+
+      if [ "$attempt" = 60 ]; then
+        echo "hindsight-db did not become ready in time" >&2
+        exit 1
+      fi
+
+      ${pkgs.coreutils}/bin/sleep 1
+    done
+
+    ${pkgs.podman}/bin/podman exec hindsight-db psql -U hindsight -d hindsight -v ON_ERROR_STOP=1 \
+      -c "ALTER ROLE hindsight IN DATABASE hindsight SET statement_timeout = '120s';"
+
+    ${pkgs.podman}/bin/podman exec hindsight-db psql -U hindsight -d hindsight -v ON_ERROR_STOP=1 \
+      -c "SELECT setconfig FROM pg_db_role_setting WHERE setrole = 'hindsight'::regrole AND setdatabase = 'hindsight'::regdatabase;"
+  '';
 in
 {
   system.activationScripts.hindsightDbVolumePath = ''
@@ -106,8 +129,8 @@ in
     "containers/systemd/hindsight.container".text = ''
       [Unit]
       Description=Hindsight API container
-      Requires=sops-install-secrets.service hindsight-db.service
-      After=sops-install-secrets.service network-online.target hindsight-db.service llama-swap.service embed-prefix-proxy.service
+      Requires=sops-install-secrets.service hindsight-db.service hindsight-db-settings.service
+      After=sops-install-secrets.service network-online.target hindsight-db.service hindsight-db-settings.service llama-swap.service embed-prefix-proxy.service
       Wants=network-online.target
 
       [Container]
@@ -195,5 +218,20 @@ in
       [Install]
       WantedBy=multi-user.target
     '';
+  };
+
+  systemd.services.hindsight-db-settings = {
+    description = "Apply Hindsight Postgres role settings";
+    requires = [ "hindsight-db.service" ];
+    after = [ "hindsight-db.service" ];
+    before = [ "hindsight.service" ];
+    wantedBy = [ "multi-user.target" ];
+    restartTriggers = [ applyDbSettings ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      TimeoutStartSec = "90s";
+      ExecStart = applyDbSettings;
+    };
   };
 }
