@@ -11,10 +11,10 @@ let
     vendorHash = "sha256-g+yaVIx4jxpAQ/+WrGKxhVeliYx7nLQe/zsGpxV4Fn4=";
   };
 
-  # systemd expands %d to the per-unit credentials directory populated by
-  # LoadCredential=. %N drops the ".service" suffix and points at the wrong
-  # path for oneshot units.
-  credFixturesPath = "%d/fixtures.yaml";
+  # systemd exposes LoadCredential= files through CREDENTIALS_DIRECTORY.
+  # Hard-coded /run/credentials/%N is brittle: on this host %N expands without
+  # the .service suffix and missed the actual credential file.
+  credFixturesPath = "\${CREDENTIALS_DIRECTORY}/fixtures.yaml";
 
   commonServiceConfig = {
     Type = "oneshot";
