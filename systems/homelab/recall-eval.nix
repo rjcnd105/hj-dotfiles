@@ -11,6 +11,18 @@ let
     vendorHash = "sha256-g+yaVIx4jxpAQ/+WrGKxhVeliYx7nLQe/zsGpxV4Fn4=";
   };
 
+  waitForHindsightHealth = pkgs.writeShellScript "recall-eval-wait-for-hindsight-health" ''
+    for _ in $(${pkgs.coreutils}/bin/seq 1 30); do
+      if ${pkgs.curl}/bin/curl -fsS --max-time 2 http://127.0.0.1:8888/health >/dev/null; then
+        exit 0
+      fi
+      ${pkgs.coreutils}/bin/sleep 2
+    done
+
+    echo "warning: Hindsight /health not ready after 60s; running recall eval anyway" >&2
+    exit 0
+  '';
+
   # systemd exposes LoadCredential= files through CREDENTIALS_DIRECTORY.
   # Hard-coded /run/credentials/%N is brittle: on this host %N expands without
   # the .service suffix and missed the actual credential file.
@@ -84,6 +96,7 @@ in
       StartLimitBurst = 2;
     };
     serviceConfig = commonServiceConfig // {
+      ExecStartPre = waitForHindsightHealth;
       ExecStart = "${recallEvalPkg}/bin/recall-eval --mode on-switch --fixtures ${credFixturesPath} --state-dir /var/lib/recall-eval";
     };
     restartTriggers = [
