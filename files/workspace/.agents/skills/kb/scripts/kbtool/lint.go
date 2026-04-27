@@ -115,9 +115,9 @@ func cmdLint() error {
 		if a.SingleSource {
 			report.SingleSourcePages = append(report.SingleSourcePages, p.Name)
 		}
-		// empty_source_pages: treat field-absent the same as field-empty;
-		// glossary tag does not exempt.
-		if a.EmptySource || (!p.kbSourcesPresent) {
+		// Glossary stubs intentionally omit kb-sources; other pages need
+		// at least one source, and explicit empty arrays are always invalid.
+		if a.EmptySource || (!p.kbSourcesPresent && !hasTag(p, "glossary")) {
 			report.EmptySourcePages = append(report.EmptySourcePages, p.Name)
 		}
 		if a.HasConflict {
