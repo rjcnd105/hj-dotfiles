@@ -10,6 +10,7 @@
 - Keep dev environments, tool versions, and dependencies reproducible, diffable, and version-controlled.
 - Preserve user changes. Never revert unrelated work or run destructive git commands without explicit approval.
 - Use fast search (`rg`, `rg --files`) and batch independent reads when possible.
+- When assigning a relatively simple, bounded coding subtask to a subagent, set its model to `gpt-5.3-codex-spark`; keep the inherited/default model for complex, ambiguous, or high-risk work.
 - After code changes, run the most relevant available checks. Never claim checks passed unless they actually ran.
 - For recent, non-obvious, or high-stakes claims, verify with current primary sources and cite URLs.
 - Keep final reports short: changed files, verification, and remaining risk.

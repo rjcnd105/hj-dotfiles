@@ -1,0 +1,6 @@
+{
+  "recallBudget": "low",
+  "recallMaxTokens": 512,
+  "recallSkipShortPrompts": true,
+  "recallSkipMaxChars": 40
+}
