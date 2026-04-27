@@ -43,7 +43,7 @@ let
       -c "ALTER ROLE hindsight IN DATABASE hindsight SET statement_timeout = '120s';"
 
     ${pkgs.podman}/bin/podman exec hindsight-db psql -U hindsight -d hindsight -v ON_ERROR_STOP=1 \
-      -c "SELECT setconfig FROM pg_db_role_setting WHERE setrole = 'hindsight'::regrole AND setdatabase = 'hindsight'::regdatabase;"
+      -c "SHOW statement_timeout;"
   '';
 in
 {
