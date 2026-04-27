@@ -111,18 +111,25 @@ in
       Environment=HINDSIGHT_API_RERANKER_COHERE_API_KEY=sk-local
 
       Environment=HINDSIGHT_API_LLM_MAX_CONCURRENT=6
-      Environment=HINDSIGHT_API_RETAIN_LLM_MAX_CONCURRENT=3
+      Environment=HINDSIGHT_API_RETAIN_LLM_MAX_CONCURRENT=2
       Environment=HINDSIGHT_API_CONSOLIDATION_LLM_MAX_CONCURRENT=2
-      Environment=HINDSIGHT_API_RECALL_MAX_CONCURRENT=6
-      # DB 병렬도 4 → 6 (vector search 단축). LLM concurrent(6)와 대칭.
-      Environment=HINDSIGHT_API_RECALL_CONNECTION_BUDGET=6
+      Environment=HINDSIGHT_API_RECALL_MAX_CONCURRENT=4
+      # homelab의 pgvector/HNSW workload는 retain write phase와 recall read path가
+      # 같은 Postgres pool을 공유한다. Retain은 느려도 되지만 recall은 interactive
+      # path라서 DB fan-out을 default 근처로 유지한다.
+      Environment=HINDSIGHT_API_RECALL_CONNECTION_BUDGET=4
       Environment=HINDSIGHT_API_MENTAL_MODEL_REFRESH_CONCURRENCY=2
 
       Environment=HINDSIGHT_API_DB_POOL_MIN_SIZE=2
       Environment=HINDSIGHT_API_DB_POOL_MAX_SIZE=20
 
-      Environment=HINDSIGHT_API_WORKER_MAX_SLOTS=4
-      Environment=HINDSIGHT_API_WORKER_CONSOLIDATION_MAX_SLOTS=2
+      # 2026-04-27: two concurrent batch_retain jobs reached retain.phase2.insert_facts
+      # and saturated DB pool waiters while /health and reranker stayed healthy.
+      # Serialize background write work so recall-eval and prompt-time recall keep headroom.
+      Environment=HINDSIGHT_API_WORKER_MAX_SLOTS=1
+      Environment=HINDSIGHT_API_WORKER_CONSOLIDATION_MAX_SLOTS=1
+      Environment=HINDSIGHT_API_RETAIN_MAX_CONCURRENT=1
+      Environment=HINDSIGHT_API_RETAIN_CHUNK_BATCH_SIZE=25
 
       # Claude Code recall 훅 latency 튜닝 (2026-04-21 실측 fix + llama-swap groups).
       # llama-swap groups.retrieval {swap:false, persistent:true} 이후 embedding
