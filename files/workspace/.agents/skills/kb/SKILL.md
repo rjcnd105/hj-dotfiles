@@ -46,25 +46,25 @@ Arguments 파싱→서브커맨드 결정:
 
 ## Tools
 
-기계적 스캔·재생성을 바이너리·쉘로 위임하여 Claude 토큰 소비 최소화.
+기계적 스캔·재생성은 Go tool에 위임하고, 미처리 목록 표시는 shell helper로 처리하여 Claude 토큰 소비 최소화.
 
-### Binary: `scripts/kbtool-bin` (Go, stdlib-only)
+### Go tool: `scripts/kbtool/` (stdlib-only)
 
-소스: `scripts/kbtool/`. 리빌드: `cd scripts/kbtool && go build -o ../kbtool-bin .`.
+현재 실행 기준은 바이너리가 아니라 Go source다. skill 디렉터리 기준으로 `cd scripts/kbtool && go run . <subcommand>`를 사용한다.
 
-| 서브커맨드 | 역할 | Latency |
-|-----------|------|---------|
-| `kbtool-bin lint` | 단일 JSON 출력: broken wikilinks, frontmatter violations, dead source refs, single/empty source pages, unresolved conflicts, unprocessed clippings, stale 최신 동향, orphan pages, classify-difficult, roadmap | ~20ms hot |
-| `kbtool-bin rebuild-index` | INDEX.md 결정론적 재생성 (frontmatter + tags → 도메인 섹션, Health 블록 append, atomic write) | ~20ms hot |
+| 서브커맨드 | 역할 |
+|-----------|------|
+| `go run . lint` | 단일 JSON 출력: broken wikilinks, frontmatter violations, dead source refs, single/empty source pages, unresolved conflicts, unprocessed clippings, stale 최신 동향, orphan pages, classify-difficult, roadmap |
+| `go run . rebuild-index` | INDEX.md 결정론적 재생성 (frontmatter + tags → 도메인 섹션, Health 블록 append, atomic write) |
+| `go run . rebuild-sources` | kb 페이지 frontmatter의 `kb-sources` 항목을 `kb/.sources`로 집계 |
 
 LLM은 JSON 읽기만 수행. 페이지 직접 스캔 금지.
 
 ### Shell scripts
 
 - `scripts/unprocessed.sh [--all | -n N]` — `Clippings/` vs `kb/.sources` diff. 기본 첫 20개
-- `scripts/rebuild-sources.sh` — kb 페이지 frontmatter의 `kb-sources` 항목을 `kb/.sources`로 집계. 메타 파일(SCHEMA/INDEX/LOG/ROADMAP) 제외
 
-`kb/.sources`는 캐시. 수동 편집 금지 — `rebuild-sources.sh`로 재생성.
+`kb/.sources`는 캐시. 수동 편집 금지 — `cd scripts/kbtool && go run . rebuild-sources`로 재생성.
 
 ## Workflow: ingest
 
@@ -96,7 +96,7 @@ LLM은 JSON 읽기만 수행. 페이지 직접 스캔 금지.
    - 9a. 페이지에 `## 최신 동향 (YYYY-MM)` 섹션 추가
    - 9b. 최신 동향이 본문과 모순 → 본문에 supersession 적용 (SCHEMA.md 섹션 7). 최신 동향 append만으로 끝내지 않음
 10. **Update search index** — `qmd embed` 실행하여 qmd 검색 인덱스 갱신
-11. **Refresh indexes** — rebuild-index workflow 전체 실행 (`scripts/kbtool-bin rebuild-index` + `bash scripts/rebuild-sources.sh`). 둘 다 필요: binary는 INDEX.md 재생성, shell script는 `.sources` 캐시 갱신. sources 갱신 누락 시 다음 ingest의 duplicate check가 이번 항목을 놓쳐 재처리됨
+11. **Refresh indexes** — rebuild-index workflow 전체 실행 (`cd scripts/kbtool && go run . rebuild-index` + `cd scripts/kbtool && go run . rebuild-sources`). 둘 다 필요: `rebuild-index`는 INDEX.md 재생성, `rebuild-sources`는 `.sources` 캐시 갱신. sources 갱신 누락 시 다음 ingest의 duplicate check가 이번 항목을 놓쳐 재처리됨
 12. **Log** — LOG.md에 `## [날짜] ingest | Clipping 제목` 기록. glossary/freshness 생성 시 해당 내역도 기록
 
 ## Workflow: query
@@ -127,16 +127,16 @@ kb/ 위키 기반 질문 답변.
    ```
 7. **Glossary + Freshness** — ingest steps 8-9와 동일
 8. **Update search index** — `qmd embed` 실행
-9. **Refresh indexes** — rebuild-index workflow 전체 실행 (`scripts/kbtool-bin rebuild-index` + `bash scripts/rebuild-sources.sh`). sources 캐시 갱신 필수
+9. **Refresh indexes** — rebuild-index workflow 전체 실행 (`cd scripts/kbtool && go run . rebuild-index` + `cd scripts/kbtool && go run . rebuild-sources`). sources 캐시 갱신 필수
 10. **Log** — LOG.md에 `## [날짜] crystallize | 세션 주제` 기록
 
 ## Workflow: lint
 
-위키 건강 점검·스키마 진화 제안. 기계적 스캔은 전부 `kbtool-bin lint`에 위임.
+위키 건강 점검·스키마 진화 제안. 기계적 스캔은 전부 `cd scripts/kbtool && go run . lint`에 위임.
 
 1. **Rebuild index** — rebuild-index workflow 전체 실행 (INDEX.md + `.sources` 캐시 최신화)
 2. **qmd embed** — 검색 인덱스 갱신
-3. **Integrity + gap scan** — `scripts/kbtool-bin lint` → 단일 JSON 출력:
+3. **Integrity + gap scan** — `cd scripts/kbtool && go run . lint` → 단일 JSON 출력:
    - `broken_wikilinks`, `frontmatter_violations`, `dead_source_refs`
    - `single_source_pages`, `empty_source_pages`
    - `unresolved_conflicts`, `unprocessed_clippings`, `stale_recent_sections`, `orphan_pages` (glossary 제외)
@@ -147,18 +147,18 @@ kb/ 위키 기반 질문 답변.
 
 ## Workflow: rebuild-index
 
-kb/ 스캔→INDEX.md + `.sources` 캐시 재생성. **LLM 개입 없음** — 바이너리·쉘·qmd 3연속 호출.
+kb/ 스캔→INDEX.md + `.sources` 캐시 재생성. **LLM 개입 없음** — Go tool·qmd 호출.
 
-1. `scripts/kbtool-bin rebuild-index` — end-to-end 수행:
+1. `cd scripts/kbtool && go run . rebuild-index` — end-to-end 수행:
    - `kb/*.md` Glob (SCHEMA/INDEX/LOG/ROADMAP 제외)
    - frontmatter(`kb-type`, `created`, `tags`) + 첫 문단 파싱
    - 태그→도메인 섹션 그룹핑 (Nix/Container, Elixir/Phoenix, CSS, Frontend/JavaScript, Database, AI/LLM, Glossary, Health/Science), 섹션 내 `created` 내림차순
    - Health 블록 append (총 페이지, 단일 출처, 미해결 논쟁, 최신 동향 만료, 고아 페이지)
    - INDEX.md atomic 덮어쓰기 (tmp + rename)
-2. `bash scripts/rebuild-sources.sh` — `.sources` 캐시 갱신. ingest duplicate check의 단일 진실원천
+2. `cd scripts/kbtool && go run . rebuild-sources` — `.sources` 캐시 갱신. ingest duplicate check의 단일 진실원천
 3. `qmd embed` — 검색 인덱스 갱신
 
-섹션 매핑 변경: `scripts/kbtool/rebuild.go`의 `sectionRules` 편집 후 바이너리 리빌드.
+섹션 매핑 변경: `scripts/kbtool/rebuild.go`의 `sectionRules` 편집 후 `cd scripts/kbtool && go run . rebuild-index`로 검증.
 
 ## Subagent 위임
 

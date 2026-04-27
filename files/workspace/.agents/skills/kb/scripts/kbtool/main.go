@@ -30,6 +30,7 @@ func usage() {
 	fmt.Fprintln(os.Stderr, "commands:")
 	fmt.Fprintln(os.Stderr, "  lint            run integrity + gap checks, emit JSON")
 	fmt.Fprintln(os.Stderr, "  rebuild-index   regenerate kb/INDEX.md")
+	fmt.Fprintln(os.Stderr, "  rebuild-sources regenerate kb/.sources")
 }
 
 func main() {
@@ -43,6 +44,8 @@ func main() {
 		err = cmdLint()
 	case "rebuild-index":
 		err = cmdRebuildIndex()
+	case "rebuild-sources":
+		err = cmdRebuildSources()
 	default:
 		usage()
 		os.Exit(2)

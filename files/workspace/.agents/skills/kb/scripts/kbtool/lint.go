@@ -115,8 +115,8 @@ func cmdLint() error {
 		if a.SingleSource {
 			report.SingleSourcePages = append(report.SingleSourcePages, p.Name)
 		}
-		// empty_source_pages: treat field-absent the same as field-empty — match
-		// the observed binary behaviour; glossary tag does not exempt.
+		// empty_source_pages: treat field-absent the same as field-empty;
+		// glossary tag does not exempt.
 		if a.EmptySource || (!p.kbSourcesPresent) {
 			report.EmptySourcePages = append(report.EmptySourcePages, p.Name)
 		}
