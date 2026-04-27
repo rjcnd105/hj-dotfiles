@@ -12,6 +12,24 @@ if test -f $HOME/.config/fish/completions/mise.fish
   source $HOME/.config/fish/completions/mise.fish
 end
 
+function skills --wraps skills --description "Run skills CLI with repo-local agent mirror limits"
+  set -l subcommand $argv[1]
+
+  switch "$subcommand"
+    case add a experimental_sync
+      if contains -- --agent $argv; or contains -- -a $argv
+        command skills $argv
+      else
+        command skills $argv --agent claude-code codex
+      end
+      and skills-cleanup
+    case update upgrade
+      command skills $argv
+      and skills-cleanup
+    case '*'
+      command skills $argv
+  end
+end
 
 
 function cleanup_zombies --description "좀비 + 고아 프로세스 정리"

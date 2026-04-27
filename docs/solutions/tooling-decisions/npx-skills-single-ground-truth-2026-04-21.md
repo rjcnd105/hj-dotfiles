@@ -32,12 +32,13 @@ tags: [npx-skills, agent-skills, ai-providers, symlinks, dotfiles, workspace]
 
 ## Guidance
 
-`npx skills`를 쓰는 단일-도구 환경에서는 **`.agents/skills/`를 단일 ground truth로 정의**하고, 나머지를 다음 규칙으로 정리한다.
+`skills` CLI를 쓰는 단일-도구 환경에서는 **`.agents/skills/`를 단일 ground truth로 정의**하고, 나머지를 다음 규칙으로 정리한다.
 
 ### 1. 보존
 
 - `.agents/skills/` — 공개 skill + 본인 작성 skill 모두 이 곳에만 실제 파일로 존재
 - `.claude/skills/` — 전부 `../../.agents/skills/<name>` 심링크. 본인 작성 skill도 예외 없음
+- `.codex/skills/` — Codex 전용 system/plugin skill 경로. repo-local agent mirror cleanup에서 보존
 - `skills-lock.json` — `npx skills update` 동작 전제, 유지
 
 ### 2. 삭제
@@ -60,13 +61,13 @@ for name in <your-skills>; do
 done
 ```
 
-### 4. 재발 방지 (미해결)
+### 4. 재발 방지 (해결 — 2026-04-27)
 
-`npx skills add` 실행 시 CLI가 다시 provider 미러를 생성한다. 현재로선 다음 중 택1:
+`skills --help` 기준 CLI가 `--agent <agents>` 옵션을 제공하므로, provider mirror 생성을 처음부터 제한한다.
 
-- post-install 스크립트로 `.agents`, `.claude` 외 provider 디렉토리 삭제
-- CLI가 `--providers` 같은 whitelist 옵션을 지원한다면 사용 (공식 문서 검증 필요)
-- `npx skills` 래퍼 shell 함수에 cleanup 묶음
+- `files/workspace/.config/fish/user-functions.fish`의 `skills` fish function이 `skills add` / `skills experimental_sync` 호출에 `--agent claude-code codex`를 자동 추가한다.
+- `files/workspace/.local/scripts/skills-cleanup`이 `.agents`, `.claude`, `.codex`, `.config`, `.hindsight`, `.local` 외 provider mirror 디렉토리와 깨진 skill symlink를 정리한다.
+- `skills update` 후에도 cleanup을 실행해 update 과정에서 생기는 mirror drift를 제거한다.
 
 ## Why This Matters
 
