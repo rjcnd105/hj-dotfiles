@@ -23,6 +23,11 @@
     };
   };
 
+  systemd.services."cloudflared-tunnel-a19003a7-293f-4872-b8a5-1db544878f45" = {
+    requires = [ "sops-install-secrets.service" ];
+    after = [ "sops-install-secrets.service" ];
+  };
+
   # Tunnel credentials JSON (sops binary format)
   # sops가 decrypt → /run/secrets/cloudflared-credentials에 원본 JSON 복원
   # → systemd LoadCredential이 서비스 credential dir로 전달

@@ -16,6 +16,9 @@ in
   sops.age.keyFile = "/home/${myOptions.userName}/.config/sops/age/keys.txt";
 
   sops.defaultSopsFile = homelab_secrets;
+  # Install /run/secrets via a boot-time systemd unit so runtime services can
+  # order themselves after decrypted templates and credentials exist.
+  sops.useSystemdActivation = true;
 
   # 개별 secret 선언 — sops.templates에서 ${placeholder.<key>}로 합성
   sops.secrets = {

@@ -43,8 +43,8 @@ in
     "containers/systemd/hindsight-db.container".text = ''
       [Unit]
       Description=Hindsight TimescaleDB container
-      Requires=hindsight-db-data-volume.service
-      After=network-online.target hindsight-db-data-volume.service
+      Requires=sops-install-secrets.service hindsight-db-data-volume.service
+      After=sops-install-secrets.service network-online.target hindsight-db-data-volume.service
       Wants=network-online.target
 
       [Container]
@@ -74,8 +74,8 @@ in
     "containers/systemd/hindsight.container".text = ''
       [Unit]
       Description=Hindsight API container
-      Requires=hindsight-db.service
-      After=network-online.target hindsight-db.service llama-swap.service embed-prefix-proxy.service
+      Requires=sops-install-secrets.service hindsight-db.service
+      After=sops-install-secrets.service network-online.target hindsight-db.service llama-swap.service embed-prefix-proxy.service
       Wants=network-online.target
 
       [Container]
