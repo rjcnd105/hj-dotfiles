@@ -11,7 +11,10 @@ let
     vendorHash = "sha256-g+yaVIx4jxpAQ/+WrGKxhVeliYx7nLQe/zsGpxV4Fn4=";
   };
 
-  credFixturesPath = "/run/credentials/%N/fixtures.yaml";
+  # systemd expands %d to the per-unit credentials directory populated by
+  # LoadCredential=. %N drops the ".service" suffix and points at the wrong
+  # path for oneshot units.
+  credFixturesPath = "%d/fixtures.yaml";
 
   commonServiceConfig = {
     Type = "oneshot";
@@ -51,6 +54,13 @@ in
 
   systemd.services.recall-eval-gate = {
     description = "recall eval — manual strict gate";
+    requires = [ "sops-install-secrets.service" ];
+    after = [
+      "sops-install-secrets.service"
+      "hindsight.service"
+      "embed-prefix-proxy.service"
+      "llama-swap.service"
+    ];
     serviceConfig = commonServiceConfig // {
       ExecStart = "${recallEvalPkg}/bin/recall-eval --mode gate --fixtures ${credFixturesPath} --state-dir /var/lib/recall-eval";
     };
@@ -62,6 +72,13 @@ in
 
   systemd.services.recall-eval-on-switch = {
     description = "recall eval — post-switch alert-only run";
+    requires = [ "sops-install-secrets.service" ];
+    after = [
+      "sops-install-secrets.service"
+      "hindsight.service"
+      "embed-prefix-proxy.service"
+      "llama-swap.service"
+    ];
     unitConfig = {
       StartLimitIntervalSec = 600;
       StartLimitBurst = 2;
@@ -77,6 +94,8 @@ in
 
   systemd.services.recall-eval-ack = {
     description = "recall eval — acknowledge all current alerts";
+    requires = [ "sops-install-secrets.service" ];
+    after = [ "sops-install-secrets.service" ];
     serviceConfig = commonServiceConfig // {
       ExecStart = "${recallEvalPkg}/bin/recall-eval --mode ack-all --state-dir /var/lib/recall-eval";
     };
