@@ -191,6 +191,11 @@
       "sourceType": "github",
       "computedHash": "885b05367fb1cf61a1e27e0d50f14d2502a05c1fa276c6e9ea050ce6a90e7095"
     },
+    "design-taste-frontend": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "computedHash": "9d1e82c5c409d2b0247245a005bc0f7e4447c0999b78dcea60f568c1ba4a6694"
+    },
     "doc-coauthoring": {
       "source": "anthropics/skills",
       "sourceType": "github",
@@ -251,10 +256,15 @@
       "sourceType": "github",
       "computedHash": "f925d160548377ebd89b1a97e8e5b4ba800fa74618ecd5682b16f1d5cccddfee"
     },
-    "gpt-image-1-5": {
-      "source": "intellectronica/agent-skills",
+    "gpt-image-2": {
+      "source": "agentspace-so/agent-skills",
       "sourceType": "github",
-      "computedHash": "447bf01b53e2fa158c4b2cc5d97eeb86e7f35a33d2cf9f11c1b4bb54e3e2ed8a"
+      "computedHash": "498171faa517848f110a840ae2b94c27b5f4a53fe514c11e9252c8afd62b0ed4"
+    },
+    "gpt-taste": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "computedHash": "cc8f0c601d8240a124e1d11634351a2be7b8a72fd807c75e5b6bf7afcd5ddee0"
     },
     "grill-me": {
       "source": "mattpocock/skills",
@@ -265,6 +275,11 @@
       "source": "intellectronica/agent-skills",
       "sourceType": "github",
       "computedHash": "0866efa76d11ce004da29c838d0d980fd0fbf014b47d9e85849930dd284d4673"
+    },
+    "high-end-visual-design": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "computedHash": "7db385e4c5370e5a7fca9704a1361b056e4504ea6a03924bb86f33a4f00b5c73"
     },
     "hindsight-architect": {
       "source": "vectorize-io/hindsight",
@@ -291,10 +306,20 @@
       "sourceType": "github",
       "computedHash": "288ef59df6e6a4c6dde491f1d967186f86d2d00c4f79dbaf3667213c4346c1dc"
     },
+    "image-to-code": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "computedHash": "58517b03b2a01f4c9ba65861559d03df931400871bbc200978c975b24bb92c73"
+    },
     "improve-codebase-architecture": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "computedHash": "76d07c4c0bebc162cc76ca7494bfe7a90e279f35832f7ce6dfc4ce16518fd560"
+    },
+    "industrial-brutalist-ui": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "computedHash": "8fc355c4aadb7d29c53ca28bc41be3cd6eea765d121e3737c4dc2d0f90a8effa"
     },
     "internal-comms": {
       "source": "anthropics/skills",
@@ -335,6 +360,11 @@
       "source": "mattpocock/skills",
       "sourceType": "github",
       "computedHash": "8f1a623a019abca0ab5e22e8deaae375829368cc1344016010201cf650331d33"
+    },
+    "minimalist-ui": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "computedHash": "08873a3131d3be27bef9bf3304b310b16b44ca6e3561aebe532797be3443f6bd"
     },
     "nano-banana-2": {
       "source": "intellectronica/agent-skills",
@@ -425,6 +455,11 @@
       "source": "intellectronica/agent-skills",
       "sourceType": "github",
       "computedHash": "e4e9646a1945a995f27b6d783007454ef575811087fcf6084ac36a765dcf0a53"
+    },
+    "redesign-existing-projects": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "computedHash": "b405eee0e0e80fc243f731d9aa368bca307e356db7e6157d27101d369dac6726"
     },
     "refactoring-specialist": {
       "source": "charon-fan/agent-playbook",
