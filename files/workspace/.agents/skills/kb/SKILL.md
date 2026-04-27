@@ -54,6 +54,7 @@ Arguments 파싱→서브커맨드 결정:
 
 | 서브커맨드 | 역할 |
 |-----------|------|
+| `go run . context [-mode query|ingest|crystallize] [-n 4] [-min-score 20] <query-or-path>` | Context Injection 후보 JSON 출력. 관련 kb 페이지를 파일명·본문·태그 기반으로 ranking하되, 기존 KB는 결론을 정하는 근거가 아니라 참고 자료(recall aid)로만 사용 |
 | `go run . lint` | 단일 JSON 출력: broken wikilinks, frontmatter violations, dead source refs, single/empty source pages, unresolved conflicts, unprocessed clippings, stale 최신 동향, orphan pages, classify-difficult, roadmap |
 | `go run . rebuild-index` | INDEX.md 결정론적 재생성 (frontmatter + tags → 도메인 섹션, Health 블록 append, atomic write) |
 | `go run . rebuild-sources` | kb 페이지 frontmatter의 `kb-sources` 항목을 `kb/.sources`로 집계 |
@@ -76,7 +77,7 @@ LLM은 JSON 읽기만 수행. 페이지 직접 스캔 금지.
 2. **Load schema** — `kb/SCHEMA.md` 읽음 (타입 목록, 규칙, frontmatter 스키마)
 3. **Load index** — `kb/INDEX.md` 읽음. 없으면 rebuild-index 먼저 실행
 4. **Check duplicates** — `grep -Fx "Clippings/$name" kb/.sources` 로 기존 처리 여부 확인. 존재하면 기존 페이지 업데이트 모드 전환. (INDEX.md 전체 grep 금지 — `.sources` 캐시만 사용)
-5. **Read related** — qmd로 관련 주제 기존 kb 페이지 검색 (`qmd vsearch "핵심 키워드" --json -n 5`), 찾은 페이지 읽음
+5. **Auto-context / Read related** — 먼저 `cd scripts/kbtool && go run . context -mode ingest -n 4 -min-score 20 "<Clipping path 또는 핵심 키워드>"` 실행. 후보 JSON은 참고 자료 후보일 뿐이며 새 출처의 주장을 기존 KB 프레임에 끼워 맞추지 않는다. 상위 1-4개 중 실제 관련성이 분명한 페이지만 읽고, 부족하면 qmd로 확장 검색 (`qmd vsearch "핵심 키워드" --json -n 5`)
 6. **Extract concepts** — 기사에서 개념/기술/패턴을 추출. 각 개념에 대해:
    - 기존 topic 페이지 있음→새 정보를 기존 페이지에 통합 (출처 추가, 내용 보강)
      - 6a. 새 출처 주장과 기존 내용 비교
@@ -103,11 +104,12 @@ LLM은 JSON 읽기만 수행. 페이지 직접 스캔 금지.
 
 kb/ 위키 기반 질문 답변.
 
-1. **Search** — qmd로 관련 페이지 검색: `qmd query "질문" --json -n 10`. qmd 실패 시 INDEX.md + Grep 폴백
-2. **Read pages** — 검색 결과 상위 페이지 읽음. 필요시 원본 Clipping 참조
-3. **Deep search** — 읽은 페이지에서 추가 관련 페이지 위키링크 발견 시, qmd로 2차 검색하여 확장
-4. **Synthesize** — 종합 답변 생성. 출처 명시
-5. **Optionally save** — "이 답변 kb 페이지로 저장?" 제안. 승인 시 적절한 타입으로 저장
+1. **Auto-context** — `cd scripts/kbtool && go run . context -mode query -n 4 -min-score 20 "<question>"` 실행. 기존 KB 후보는 결론을 정하는 근거가 아니라 recall aid다. 상위 1-4개 중 질문과 직접 관련된 페이지만 먼저 읽고, 사용자 질문·최신/1차 근거와 충돌하면 사용자 질문·최신/1차 근거를 우선한다
+2. **Search** — Auto-context가 부족하거나 질문이 넓으면 qmd로 확장 검색: `qmd query "질문" --json -n 10`. qmd 실패 시 INDEX.md + Grep 폴백
+3. **Read pages** — 검색 결과 상위 페이지 읽음. 필요시 원본 Clipping 참조
+4. **Deep search** — 읽은 페이지에서 추가 관련 페이지 위키링크 발견 시, `go run . context` 또는 qmd로 2차 검색하여 확장
+5. **Synthesize** — 종합 답변 생성. 출처 명시. 기존 KB 내용은 참고 자료로 사용하고, 답변의 결론은 현재 질문과 확인된 근거에 맞춰 다시 판단
+6. **Optionally save** — "이 답변 kb 페이지로 저장?" 제안. 승인 시 적절한 타입으로 저장
 
 ## Workflow: crystallize
 
@@ -119,7 +121,7 @@ kb/ 위키 기반 질문 답변.
 4. **Extract wiki-worthy knowledge** — SCHEMA.md 섹션 5 Hindsight 라우팅 테이블 기준으로 필터:
    - ✅ 추출: 프로젝트 무관 기술 지식, 범용 패턴, 재사용 가능한 해결 방법
    - ❌ 제외: 프로젝트 특정 맥락, 사용자 선호, 세션 특정 상태
-5. **Match existing** — qmd로 각 추출 개념 검색 (`qmd vsearch "개념" --json -n 5`). 기존 페이지 읽음
+5. **Match existing / Auto-context** — 각 추출 개념마다 `cd scripts/kbtool && go run . context -mode crystallize -n 4 -min-score 20 "<개념>"` 실행 후 상위 1-4개 중 직접 관련된 후보만 읽음. 기존 KB는 참고 자료이며, 세션 지식을 기존 페이지에 억지로 맞추지 않는다. 필요하면 qmd로 확장 (`qmd vsearch "개념" --json -n 5`)
 6. **Integrate** — ingest steps 6-7과 동일 (개념 추출, 페이지 생성/업데이트). 소스 형식만 다름:
    ```yaml
    kb-sources:

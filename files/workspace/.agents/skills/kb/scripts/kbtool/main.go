@@ -28,6 +28,7 @@ func vaultRoot() string {
 func usage() {
 	fmt.Fprintln(os.Stderr, "usage: kbtool <command>")
 	fmt.Fprintln(os.Stderr, "commands:")
+	fmt.Fprintln(os.Stderr, "  context         suggest kb pages to preload for a query or source")
 	fmt.Fprintln(os.Stderr, "  lint            run integrity + gap checks, emit JSON")
 	fmt.Fprintln(os.Stderr, "  rebuild-index   regenerate kb/INDEX.md")
 	fmt.Fprintln(os.Stderr, "  rebuild-sources regenerate kb/.sources")
@@ -40,6 +41,8 @@ func main() {
 	}
 	var err error
 	switch os.Args[1] {
+	case "context":
+		err = cmdContext(os.Args[2:])
 	case "lint":
 		err = cmdLint()
 	case "rebuild-index":
