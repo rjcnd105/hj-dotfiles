@@ -1,4 +1,9 @@
-{ lib, config, myOptions, ... }:
+{
+  lib,
+  config,
+  myOptions,
+  ...
+}:
 {
   environment.systemPath = [ "/opt/homebraw/bin" ];
   system.stateVersion = 6;

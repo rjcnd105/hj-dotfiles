@@ -3,6 +3,11 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgsPwgen.url = "github:nixos/nixpkgs/4533d9293756b63904b7238acb84ac8fe4c8c2c4";
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     home-manager = {
       url = "github:nix-community/home-manager/master";
@@ -29,6 +34,8 @@
     inputs@{
       self,
       nixpkgs,
+      nixpkgsPwgen,
+      treefmt-nix,
       home-manager,
       darwin,
       sops-nix,
@@ -50,6 +57,11 @@
         };
       };
       lib = nixpkgs.lib;
+      systems = [
+        "aarch64-darwin"
+        "x86_64-linux"
+      ];
+      eachSystem = lib.genAttrs systems;
       myLib = import ./config/lib.nix {
         inherit lib;
         pkgs = nixpkgs;
@@ -91,6 +103,14 @@
 
       nixpkgsConfig = system: {
         inherit system;
+        overlays = [
+          (_final: _prev: {
+            pwgen = nixpkgsPwgen.legacyPackages.${system}.pwgen;
+            direnv = _prev.direnv.overrideAttrs (old: {
+              doCheck = false;
+            });
+          })
+        ];
         config = {
           allowUnfreePredicate =
             pkg:
@@ -100,9 +120,32 @@
             ];
         };
       };
+
+      pkgsFor = system: import nixpkgs (nixpkgsConfig system);
+
+      treefmtModule =
+        { ... }:
+        {
+          projectRootFile = "flake.nix";
+
+          programs = {
+            nixfmt.enable = true;
+            taplo.enable = true;
+          };
+
+          settings.global.on-unmatched = "info";
+        };
+
+      treefmtEval = eachSystem (system: treefmt-nix.lib.evalModule (pkgsFor system) treefmtModule);
     in
     {
       _debug = { };
+
+      formatter = eachSystem (system: treefmtEval.${system}.config.build.wrapper);
+
+      checks = eachSystem (system: {
+        formatting = treefmtEval.${system}.config.build.check self;
+      });
 
       darwinConfigurations = lib.mapAttrs (
         key: config:
@@ -150,26 +193,20 @@
         }
       ) linuxHosts;
 
-      devShells =
-        lib.genAttrs
-          [
-            "aarch64-darwin"
-            "x86_64-linux"
-          ]
-          (
-            system:
-            let
-              pkgs = import nixpkgs { inherit system; };
-            in
-            {
-              default = pkgs.mkShell {
-                packages = with pkgs; [
-                  nixd
-                  nixfmt
-                ];
-              };
-            }
-          );
+      devShells = eachSystem (
+        system:
+        let
+          pkgs = pkgsFor system;
+        in
+        {
+          default = pkgs.mkShell {
+            packages = [
+              pkgs.nixd
+              treefmtEval.${system}.config.build.wrapper
+            ];
+          };
+        }
+      );
 
       templates = {
         phoenix = {

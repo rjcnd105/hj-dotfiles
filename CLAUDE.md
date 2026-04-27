@@ -6,7 +6,7 @@ Nix flake macOS dotfiles (nix-darwin + home-manager).
 
 - `just build_hj-workspace` — 빌드만 (검증용, 자율실행 OK)
 - `just darwin-switch` — 빌드+적용. **macOS 서비스 재시작 → 사용자 확인 필수**
-- `nixfmt <file>` — Nix 포맷팅
+- `nix fmt -- <path>` — treefmt-nix 기반 repo 포맷팅
 - `darwin-rebuild` 직접 호출 금지 — justfile 사용
 
 ## Architecture

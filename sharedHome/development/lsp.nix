@@ -5,7 +5,7 @@
   # PATH를 존중하는 모든 에디터가 동일 바이너리 사용.
   home.packages = with pkgs; [
     yaml-language-server # YAML LSP
-    taplo # TOML LSP (formatter + LSP)
+    taplo # TOML LSP; repo formatting is routed through treefmt-nix
     vscode-langservers-extracted # JSON/HTML/CSS/ESLint LSP 번들
   ];
 }
