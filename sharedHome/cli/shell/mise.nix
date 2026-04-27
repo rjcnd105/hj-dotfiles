@@ -1,8 +1,5 @@
-{ lib, pkgs, ... }:
+{ lib, ... }:
 {
-  # NixOS는 FHS 비호환으로 mise 바이너리 실행 불가 — darwin에서만 활성화
-  programs.mise = lib.mkIf pkgs.stdenv.isDarwin {
-    enable = true;
-    enableFishIntegration = true;
-  };
+  # mise는 Nix/Home Manager가 설치하거나 shell integration을 생성하지 않는다.
+  programs.mise.enable = lib.mkDefault false;
 }
