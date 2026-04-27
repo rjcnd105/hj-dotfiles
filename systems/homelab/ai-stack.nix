@@ -97,8 +97,8 @@ in
 {
   # ── Vulkan userspace for Radeon 890M (RDNA 3.5) ────────
   # hardware.graphics = Mesa radv + vulkan-loader 포함. amdvlk는 추가 X (radv와 ICD 충돌).
-  # kernel params: amdgpu가 GTT 통해 시스템 RAM 전체를 iGPU에 매핑 — dedicated VRAM(512MB) 제약 해제.
-  # amdgpu.gttsize=-1, ttm.pages_limit=-1 → 0.6B에선 기본값으로도 충분하나 모델 확장 대비.
+  # kernel params: amdgpu가 GTT 통해 시스템 RAM을 iGPU에 매핑 — dedicated VRAM(512MB) 제약 완화.
+  # ttm.pages_limit는 ulong이라 -1 사용 시 systemd-modules-load가 amdgpu 로드 중 EINVAL로 실패.
   # 참고: kernel params 변경은 다음 부팅부터 적용. userspace는 즉시 반영.
   hardware.graphics.enable = true;
   # amdgpu stage-2 강제 로드. udev auto-match 관측 실패 (lspci -k에 "Kernel modules: amdgpu"는
@@ -109,7 +109,6 @@ in
   boot.kernelModules = [ "amdgpu" ];
   boot.kernelParams = [
     "amdgpu.gttsize=-1"
-    "ttm.pages_limit=-1"
   ];
   environment.systemPackages = [ pkgs.vulkan-tools ];
 
