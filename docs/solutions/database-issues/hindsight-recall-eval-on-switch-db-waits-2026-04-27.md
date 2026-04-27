@@ -13,6 +13,8 @@ symptoms:
   - "Hindsight /health returned 200 while recall evaluation still failed"
   - "reranker proxy smoke test returned 200"
   - "Hindsight logs showed long DB waits and a stuck batch_retain task in retain.phase2.insert_facts"
+  - "Quadlet unit changes updated the generated unit but did not restart the active Hindsight container"
+  - "post-switch recall eval can start before the Hindsight API is ready"
 root_cause: async_timing
 resolution_type: documentation_update
 severity: high
@@ -28,6 +30,8 @@ tags:
   - homelab
   - batch-retain
   - database-waits
+  - quadlet
+  - systemd
   - unresolved-follow-up
 ---
 
@@ -128,6 +132,42 @@ The Hindsight container was configured to use the local reranker proxy:
 HINDSIGHT_API_RERANKER_COHERE_BASE_URL=http://127.0.0.1:8091/v1/rerank
 HINDSIGHT_API_RERANKER_COHERE_MODEL=qwen3-reranker
 ```
+
+## Follow-up Mitigations Applied
+
+Two deployment-adjacent issues were found while investigating the DB wait:
+
+1. The Hindsight Quadlet `.container` file was updated by `comin`, but the active generated `hindsight.service` kept running the old container process. Evidence: `systemctl cat hindsight.service` showed the new env, while `systemctl status hindsight.service` still showed `ActiveEnterTimestamp=Mon 2026-04-27 17:10:02 KST`, old PID `26120`, and worker logs still reported `slots=2/4`.
+2. After forcing a Hindsight restart, `recall-eval-on-switch.service` could still start before the Hindsight API was actually ready. Evidence: the 18:30 run started at the same second as `hindsight.service`, before the API logged startup, and immediately produced `hindsight unreachable`.
+
+Applied commits:
+
+```text
+08f24f2800fe fix(homelab): cap hindsight retain concurrency
+cb91ffecac07 fix(homelab): restart hindsight on quadlet changes
+30775418dd7c fix(homelab): wait for hindsight before recall eval
+```
+
+The runtime now verifies the intended deployment-side behavior:
+
+```text
+current system: /nix/store/54k7fqxfpnki7ybfkdnfk3vr1kn79r5c-nixos-system-homelab-26.05.20260422.0726a0e
+hindsight.service ActiveEnterTimestamp: Mon 2026-04-27 18:30:12 KST
+HINDSIGHT_API_WORKER_MAX_SLOTS=1
+HINDSIGHT_API_WORKER_CONSOLIDATION_MAX_SLOTS=1
+HINDSIGHT_API_RETAIN_MAX_CONCURRENT=1
+HINDSIGHT_API_RETAIN_CHUNK_BATCH_SIZE=25
+recall-eval-on-switch ExecStartPre=/nix/store/...-recall-eval-wait-for-hindsight-health
+```
+
+The core DB incident is still unresolved. The 18:33 post-switch eval waited for health, ran for about two minutes, and still ended with:
+
+```text
+mode=on-switch fixtures=10 hits=0/10 recall@5=0.00 p90_latency_ms=0 dead_ids=17 alerts=1
+recall-eval: hindsight unreachable; see alert for details
+```
+
+Hindsight logs after the deployment-side fixes still showed Postgres sessions stuck in `LWLock.BufferContent` for thousands of seconds and `pool ... waiters=16`. This means Hindsight config now limits new background work, but existing long-running DB sessions still need privileged cleanup or termination.
 
 ## Current Hypothesis
 
