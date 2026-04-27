@@ -143,17 +143,17 @@ _.path = [
   # "$HOME/.local/scripts"
 ]
 _.file = [
-  { path = "$PROJECT_PATH/secrets/shared/pub.enc.yaml", redact = true, read_only = true}
+  { path = "$PROJECT_PATH/secrets/shared/pub.enc.yaml", redact = true, read_only = true },
 ]
 SKILLIB = "$HOME/.local/agents/skills"
 HINDSIGHT_BANK_ID = "my"
 HINDSIGHT_BANK_USER = "hj"
-HINDSIGHT_API_KEY="$HINDSIGHT_API_TOKEN"
+HINDSIGHT_API_KEY = "$HINDSIGHT_API_TOKEN"
 
 MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3
-CLAUDE_CODE_COORDINATOR_MODE=1
+CLAUDE_CODE_COORDINATOR_MODE = 1
 CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING = 1
-ENABLE_LSP_TOOL="1"
+ENABLE_LSP_TOOL = "1"
 CLAUDE_CODE_AUTO_COMPACT_WINDOW = 400000
 
 # USER_TYPE = "ant"
