@@ -1,6 +1,7 @@
-# Harrier embedding prefix 주입 프록시.
-# Hindsight OpenAI embedding provider → 이 프록시 → llama-swap /v1/embeddings.
-# 쿼리 mode에서 Harrier instruct prefix를 input 앞에 붙여 전달한다.
+# Harrier embedding prefix and rerank input guard proxy.
+# Hindsight → this proxy → llama-swap.
+# Embedding queries get Harrier's required instruct prefix. Rerank documents are
+# capped so unbounded DB text cannot exceed llama.cpp's per-document limits.
 
 import os
 from contextlib import asynccontextmanager
@@ -16,6 +17,7 @@ QUERY_PREFIX = os.getenv(
     "Instruct: Given a query, retrieve relevant passages that answer the query\nQuery: ",
 )
 TIMEOUT_SECONDS = float(os.getenv("TIMEOUT_SECONDS", "60"))
+RERANK_DOCUMENT_MAX_CHARS = int(os.getenv("RERANK_DOCUMENT_MAX_CHARS", "1000"))
 
 _client: httpx.AsyncClient | None = None
 
@@ -45,6 +47,20 @@ def prepend_prefix(value: Any) -> Any:
     return value
 
 
+def truncate_rerank_documents(body: dict) -> dict:
+    documents = body.get("documents")
+    if not isinstance(documents, list):
+        return body
+
+    body["documents"] = [
+        item[:RERANK_DOCUMENT_MAX_CHARS]
+        if isinstance(item, str) and len(item) > RERANK_DOCUMENT_MAX_CHARS
+        else item
+        for item in documents
+    ]
+    return body
+
+
 async def forward(path: str, body: dict) -> JSONResponse:
     try:
         resp = await get_client().post(path, json=body)
@@ -65,6 +81,12 @@ async def embeddings_with_prefix(request: Request) -> JSONResponse:
 async def embeddings_raw(request: Request) -> JSONResponse:
     body = await request.json()
     return await forward("/v1/embeddings", body)
+
+
+@app.post("/v1/rerank")
+async def rerank_guarded(request: Request) -> JSONResponse:
+    body = truncate_rerank_documents(await request.json())
+    return await forward("/v1/rerank", body)
 
 
 @app.get("/health")

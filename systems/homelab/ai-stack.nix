@@ -3,10 +3,11 @@
 # TEI 2-컨테이너(≈8GB)를 Q8_0 GGUF 2-모델(≈1.3GB)로 교체.
 # llama-swap이 /v1/embeddings, /v1/rerank 경로별로 모델 스왑.
 # embed-prefix-proxy가 Harrier instruct prefix 주입 후 llama-swap에 forward.
+# rerank는 동일 proxy가 document 길이를 cap한 뒤 llama-swap에 forward.
 #
 # 토폴로지:
 #   Hindsight API ─ openai provider ─→ :8091 (prefix-proxy) ─→ :8090 (llama-swap) ─→ harrier
-#   Hindsight API ─ cohere provider ─→ :8090 (llama-swap) ─→ qwen3-reranker
+#   Hindsight API ─ cohere provider ─→ :8091 (input guard) ─→ :8090 (llama-swap) ─→ qwen3-reranker
 {
   pkgs,
   ...
@@ -63,9 +64,9 @@ let
           --reranking
           --n-gpu-layers 99
           --flash-attn on
-          --ctx-size 2048
-          --batch-size 512
-          --ubatch-size 512
+          --ctx-size 8192
+          --batch-size 1024
+          --ubatch-size 1024
           --parallel 8
           --no-mmap
           --threads 4
@@ -153,6 +154,7 @@ in
     environment = {
       UPSTREAM_URL = "http://127.0.0.1:8090";
       QUERY_PREFIX = "Instruct: Given a query, retrieve relevant passages that answer the query\nQuery: ";
+      RERANK_DOCUMENT_MAX_CHARS = "1000";
       TIMEOUT_SECONDS = "60";
     };
 

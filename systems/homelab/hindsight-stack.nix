@@ -3,7 +3,7 @@
 # hindsight (API, host network) ← hindsight-db (TimescaleDB, publish 127.0.0.1:5432)
 # Embedding/Reranker는 ai-stack.nix(호스트 systemd)의 llama-swap으로 위임.
 # - embedding: openai provider → 127.0.0.1:8091 (prefix-proxy) → :8090 (llama-swap) → harrier
-# - reranker:  cohere provider → 127.0.0.1:8090 (llama-swap) → qwen3-reranker
+# - reranker:  cohere provider → 127.0.0.1:8091 (input guard) → :8090 (llama-swap) → qwen3-reranker
 #
 # Container bridge 경유 호스트 접근은 환경별 firewall/NAT 경로가 복잡함 →
 # hindsight 컨테이너를 host network 모드로 두어 127.0.0.1로 직접 도달하게 단순화.
@@ -102,11 +102,11 @@ in
       Environment=HINDSIGHT_API_EMBEDDINGS_OPENAI_MODEL=harrier
       Environment=HINDSIGHT_API_EMBEDDINGS_OPENAI_API_KEY=sk-local
 
-      # Reranker → cohere provider → 127.0.0.1:8090 (host network)
+      # Reranker → cohere provider → 127.0.0.1:8091 (rerank input guard) → :8090 (llama-swap)
       # 0.5.2 CohereCrossEncoder는 base_url을 그대로 rerank_url로 사용 (path append 없음).
       # Azure AI Foundry 호환 분기와 동일 — full endpoint URL 필수.
       Environment=HINDSIGHT_API_RERANKER_PROVIDER=cohere
-      Environment=HINDSIGHT_API_RERANKER_COHERE_BASE_URL=http://127.0.0.1:8090/v1/rerank
+      Environment=HINDSIGHT_API_RERANKER_COHERE_BASE_URL=http://127.0.0.1:8091/v1/rerank
       Environment=HINDSIGHT_API_RERANKER_COHERE_MODEL=qwen3-reranker
       Environment=HINDSIGHT_API_RERANKER_COHERE_API_KEY=sk-local
 

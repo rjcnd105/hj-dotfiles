@@ -86,6 +86,40 @@ def test_raw_path_still_hits_upstream_v1_embeddings(mock_upstream):
     assert captured["url"].endswith("/v1/embeddings")
 
 
+def test_rerank_path_hits_upstream_v1_rerank(mock_upstream):
+    main, captured = mock_upstream
+    client = TestClient(main.app)
+    r = client.post(
+        "/v1/rerank",
+        json={
+            "model": "qwen3-reranker",
+            "query": "hello",
+            "documents": ["hello world"],
+        },
+    )
+    assert r.status_code == 200
+    assert captured["url"].endswith("/v1/rerank")
+    assert captured["body"]["documents"] == ["hello world"]
+
+
+def test_rerank_documents_are_truncated(mock_upstream, monkeypatch):
+    main, captured = mock_upstream
+    monkeypatch.setattr(main, "RERANK_DOCUMENT_MAX_CHARS", 8)
+
+    client = TestClient(main.app)
+    r = client.post(
+        "/v1/rerank",
+        json={
+            "model": "qwen3-reranker",
+            "query": "hello",
+            "documents": ["short", "0123456789abcdef", 42],
+        },
+    )
+
+    assert r.status_code == 200
+    assert captured["body"]["documents"] == ["short", "01234567", 42]
+
+
 def test_empty_input_field_missing_passthrough(mock_upstream):
     # input 키가 없어도 upstream이 에러 처리하도록 그대로 전달한다.
     main, captured = mock_upstream
