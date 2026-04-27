@@ -11,6 +11,7 @@
 # 비밀 env는 sops.templates."services.env" 경유, 비밀 아닌 env는 environment 맵에 직접.
 {
   config,
+  pkgs,
   ...
 }:
 let
@@ -26,6 +27,37 @@ in
   system.activationScripts.hindsightDbVolumePath = ''
     mkdir -p ${legacyDbVolumePath}
   '';
+
+  system.activationScripts.hindsightQuadletRefresh = {
+    deps = [
+      "etc"
+      "specialfs"
+    ];
+    text = ''
+      unit_file=/etc/containers/systemd/hindsight.container
+      state_dir=/var/lib/hindsight-stack
+      marker=$state_dir/hindsight.container.sha256
+
+      if [ -e "$unit_file" ]; then
+        mkdir -p "$state_dir"
+        new_hash="$(${pkgs.coreutils}/bin/sha256sum "$unit_file" | ${pkgs.coreutils}/bin/cut -d ' ' -f1)"
+        old_hash="$(${pkgs.coreutils}/bin/cat "$marker" 2>/dev/null || true)"
+
+        if [ "$new_hash" != "$old_hash" ]; then
+          ${pkgs.systemd}/bin/systemctl daemon-reload || true
+          if ${pkgs.systemd}/bin/systemctl is-active --quiet hindsight.service; then
+            if ${pkgs.systemd}/bin/systemctl restart hindsight.service; then
+              printf '%s\n' "$new_hash" > "$marker"
+            else
+              echo "warning: failed to restart hindsight.service after Quadlet change" >&2
+            fi
+          else
+            printf '%s\n' "$new_hash" > "$marker"
+          fi
+        fi
+      fi
+    '';
+  };
 
   environment.etc = {
     # Keep the existing Docker volume data in place while moving runtime ownership to Podman.

@@ -107,6 +107,9 @@ in
     text = ''
       ${pkgs.systemd}/bin/systemctl start --no-block recall-eval-on-switch.service || true
     '';
-    deps = [ "specialfs" ];
+    deps = [
+      "specialfs"
+      "hindsightQuadletRefresh"
+    ];
   };
 }
