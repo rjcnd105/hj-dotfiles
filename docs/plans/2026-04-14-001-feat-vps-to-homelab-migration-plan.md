@@ -1,7 +1,7 @@
 ---
 title: VPS hindsight 스택을 homelab으로 이전 (NixOS 선언형)
 type: feat
-status: active
+status: superseded
 date: 2026-04-14
 origin: docs/ideation/2026-04-14-vps-to-homelab-migration-ideation.md
 ---
@@ -11,6 +11,8 @@ origin: docs/ideation/2026-04-14-vps-to-homelab-migration-ideation.md
 ## Overview
 
 VPS에서 돌고 있는 hindsight RAG 스택(arcane + caddy + hindsight + hindsight-db + 외부 LLM API)을 homelab(NixOS, AMD HX 370 + Radeon 890M)으로 이전한다. 동시에 imperative 도구(arcane, caddy)를 제거하고 NixOS 선언형 모듈로 재구성하며, embedding·reranker를 외부 API에서 로컬 TEI(CPU)로 전환한다. Jina API 토큰 소진으로 reranker 로컬화가 로드맵 Phase 2에서 로드맵 Phase 1(이 플랜)로 앞당겨짐.
+
+**Superseded note (2026-04-27):** This broad migration plan was replaced by the narrower cutover plan `docs/plans/2026-04-17-002-feat-hindsight-data-migration-cutover-plan.md`, the llama-swap plan `docs/plans/2026-04-17-001-feat-homelab-llamaswap-embedding-reranker-plan.md`, and the Podman/Quadlet solution note `docs/solutions/tooling-decisions/homelab-podman-quadlet-runtime-migration-2026-04-27.md`. Treat remaining unchecked units below as historical, not current backlog.
 
 ### 용어: 로드맵 Phase vs 이 플랜 내부 Sub-phase
 

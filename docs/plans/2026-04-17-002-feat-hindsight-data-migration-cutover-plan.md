@@ -349,6 +349,8 @@ flowchart LR
 
 **Goal:** 7일+ grace period 동안 homelab 단독 운영 안정성 확인. 롤백 조건 명확화.
 
+**Current observation (2026-04-27):** Unit 6 cannot be closed yet. Manual `boot` activation of comin generation 48 succeeded and homelab now reports `26.05.20260422.0726a0e` at `/run/current-system`. After `/run/current-system/activate`, decrypted secrets exist, `hindsight-db.service`, `hindsight.service`, `cloudflared-tunnel-a19003a7-293f-4872-b8a5-1db544878f45.service`, `llama-swap.service`, and `embed-prefix-proxy.service` are active, failed units are empty, and local `/health` returns 200. Remaining blocker is recall smoke: Hindsight rerank calls can return llama.cpp 400 when DB candidate text exceeds per-document limits. Follow-up fix: deploy the rerank input guard in `embed-prefix-proxy` and rerun recall.
+
 **Requirements:** R7
 
 **Dependencies:** Unit 5 완료

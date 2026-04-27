@@ -1,7 +1,7 @@
 ---
 title: "refactor: homelab에서 mise 제거 후 Nix 패키지 전환"
 type: refactor
-status: active
+status: completed
 date: 2026-04-13
 ---
 
@@ -10,6 +10,8 @@ date: 2026-04-13
 ## Overview
 
 homelab(NixOS)에서 mise를 비활성화하고, 필요한 개발 도구를 Nix 패키지로 설치한다. NixOS는 FHS를 따르지 않아 mise가 다운로드한 동적 링크 바이너리 실행과 소스 빌드 모두 실패하므로, Nix 패키지 관리로 전환하여 호환성 문제를 근본적으로 해결한다.
+
+**Status note (2026-04-27):** Implemented in `sharedHome/cli/shell/mise.nix` (`programs.mise.enable = lib.mkDefault false`) and `homes/homelab/default.nix` (`erlang`, `elixir`, `python3`, `nodejs_24`, `rustc`, `cargo`, `gleam`, `zig`, `bun`, `usage`). Home Manager no longer owns mise shell integration; existing workspace mise config remains a dotfile, not an HM-managed program.
 
 ## Problem Frame
 
@@ -60,7 +62,7 @@ mise는 macOS(workspace)에서는 잘 동작하지만, NixOS(homelab)에서는 3
 
 ## Implementation Units
 
-- [ ] **Unit 1: mise를 homelab에서 비활성화**
+- [x] **Unit 1: mise를 homelab에서 비활성화**
 
 **Goal:** sharedHome의 mise 설정을 오버라이드 가능하게 변경하고, homelab에서 비활성화
 
@@ -89,7 +91,7 @@ mise는 macOS(workspace)에서는 잘 동작하지만, NixOS(homelab)에서는 3
 - workspace 빌드가 기존과 동일하게 성공
 - homelab 빌드에서 mise 관련 설정이 포함되지 않음
 
-- [ ] **Unit 2: 개발 도구를 Nix 패키지로 설치**
+- [x] **Unit 2: 개발 도구를 Nix 패키지로 설치**
 
 **Goal:** homelab에 필요한 개발 런타임과 도구를 Nix 패키지로 추가
 

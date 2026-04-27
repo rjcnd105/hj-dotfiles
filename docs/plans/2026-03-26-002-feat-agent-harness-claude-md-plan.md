@@ -1,7 +1,7 @@
 ---
 title: "feat: nix-dots 프로젝트용 에이전트 하네스 (CLAUDE.md) 구축"
 type: feat
-status: active
+status: completed
 date: 2026-03-26
 ---
 
@@ -10,6 +10,8 @@ date: 2026-03-26
 ## Overview
 
 nix-dots 저장소에서 AI 에이전트가 효과적으로 작업할 수 있도록 프로젝트 루트 `CLAUDE.md` 단일 파일을 구축한다. 에이전트의 실제 실수를 방지하는 지시에 집중하고, 에이전트가 코드에서 직접 파악 가능한 정보는 제외한다.
+
+**Status note (2026-04-27):** `CLAUDE.md` exists at repo root and contains the intended build/apply boundary, module resolution, secret handling, and plan naming rules. This plan is closed; future changes should edit `CLAUDE.md` directly.
 
 ## Problem Frame
 
@@ -85,7 +87,7 @@ nix-dots 저장소에서 AI 에이전트가 효과적으로 작업할 수 있도
 
 ## Implementation Units
 
-- [ ] **Unit 1: 프로젝트 루트 CLAUDE.md 작성**
+- [x] **Unit 1: 프로젝트 루트 CLAUDE.md 작성**
 
 **Goal:** 에이전트가 이 프로젝트에서 실수하지 않기 위한 필수 컨텍스트를 단일 파일로 제공
 

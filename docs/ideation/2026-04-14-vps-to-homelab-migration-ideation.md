@@ -175,7 +175,7 @@ homelab (NixOS, AMD HX 370, Radeon 890M)
 
 ## 열린 질문 (후속 확인 필요)
 
-1. **homelab RAM 실제 인식값** — dmidecode 재빌드 후 BIOS 인식/iGPU UMA 예약량 확인. 현재 커널 인식 ~16GB이나 실제 ~36GB 설치. BIOS UMA 설정 조정으로 회수 가능 여부 판단. concurrency 튜닝 기준에도 영향
+1. **homelab RAM 실제 인식값** — 2026-04-27 `free -h` 기준 커널 인식은 약 **30GiB** (`MemTotal: 31938304 kB`)로, 과거 `~16GB` 인식 문제는 현재 상태에서 재현되지 않음. 물리 슬롯/DIMM 정보와 BIOS UMA 예약량은 `sudo dmidecode -t memory`가 필요하지만 비대화식 SSH에서는 sudo password prompt 때문에 미확인. concurrency 튜닝은 일단 30GiB 기준으로 잡고, BIOS 세부값은 다음 대화형 점검에서 확인.
 
 ## 해결된 질문 (참고용)
 

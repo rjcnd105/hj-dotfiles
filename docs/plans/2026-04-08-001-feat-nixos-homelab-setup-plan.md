@@ -11,6 +11,8 @@ date: 2026-04-08
 
 기존 nix-darwin 전용 flake를 확장하여 SER9 Pro HX370 mini PC에 NixOS 홈서버를 설치한다. headless 서버로 Docker + llama.cpp를 운영하며, macOS와 home-manager 설정 및 dotfiles(`files/workspace/`)를 공유한다.
 
+**Status note (2026-04-27):** Plan status was already `completed`; unchecked unit boxes were stale. Current repo contains `homelab_hj`, `systems/homelab/`, `homes/homelab/`, homelab secrets wiring, and `just build_hj-homelab`.
+
 ## Scope Boundaries
 
 - GUI/데스크탑 환경 없음 (headless)
@@ -56,7 +58,7 @@ date: 2026-04-08
 
 ## Implementation Units
 
-- [ ] **Unit 1: Flake 인프라 확장**
+- [x] **Unit 1: Flake 인프라 확장**
 
   **Goal:** hosts 맵에 homelab을 추가하고, darwin/nixos 설정을 분리된 output으로 빌드할 수 있게 한다
 
@@ -80,7 +82,7 @@ date: 2026-04-08
   - `nix eval .#nixosConfigurations.homelab_hj` 가 에러 없이 평가됨
   - `nix eval .#darwinConfigurations.workspace_hj` 가 기존과 동일하게 동작
 
-- [ ] **Unit 2: systems/ 모듈 리팩터링 + NixOS 모듈 생성**
+- [x] **Unit 2: systems/ 모듈 리팩터링 + NixOS 모듈 생성**
 
   **Goal:** `systems/default.nix`를 cross-platform으로 정리하고, NixOS 전용 시스템 모듈을 생성한다
 
@@ -124,7 +126,7 @@ date: 2026-04-08
   - `nix build .#darwinConfigurations.workspace_hj.system` 가 기존과 동일하게 빌드됨
   - `nix eval .#nixosConfigurations.homelab_hj.config.networking.hostName` 이 `"homelab"` 반환
 
-- [ ] **Unit 3: homes/ 공유 및 cross-platform 호환**
+- [x] **Unit 3: homes/ 공유 및 cross-platform 호환**
 
   **Goal:** homelab이 기존 workspace의 home-manager 설정과 dotfiles를 공유하되, darwin 전용 코드가 NixOS에서 에러를 일으키지 않게 한다
 
@@ -157,7 +159,7 @@ date: 2026-04-08
   - NixOS 빌드 시 darwin 전용 옵션이 평가되지 않음
   - `files/workspace/`의 dotfiles가 homelab에서도 심링크됨
 
-- [ ] **Unit 4: Secrets + 빌드 설정**
+- [x] **Unit 4: Secrets + 빌드 설정**
 
   **Goal:** homelab에서 기존 sops-nix secrets를 복호화할 수 있게 하고, 빌드/배포 명령을 justfile에 추가한다
 
