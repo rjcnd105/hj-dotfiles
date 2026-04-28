@@ -74,8 +74,8 @@ source_type = "local"
 source = "/Users/hj/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [marketplaces.compound-engineering-plugin]
-last_updated = "2026-04-27T04:41:33Z"
-last_revision = "4b5f28da9746aae8f2c5dd715d7029d0ab2758a6"
+last_updated = "2026-04-28T03:34:47Z"
+last_revision = "41e7f72ab697b3aee9b4a740794daa55317f44d1"
 source_type = "git"
 source = "https://github.com/EveryInc/compound-engineering-plugin.git"
 
