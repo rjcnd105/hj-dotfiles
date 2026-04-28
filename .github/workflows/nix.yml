@@ -1,0 +1,25 @@
+name: Nix
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: DeterminateSystems/determinate-nix-action@v3
+
+      - name: Evaluate root flake outputs
+        run: nix flake check --all-systems --no-build --show-trace
+
+      - name: Evaluate Phoenix template flake outputs
+        run: nix flake check ./templates/phoenix --all-systems --no-build --show-trace
+
+      - name: Check root formatting
+        run: nix build .#checks.x86_64-linux.formatting --show-trace
