@@ -11,4 +11,5 @@ _.file = [
   { path = "./secrets/shared/pub.enc.yaml", redact = true, read_only = true },
 ]
 
-HINDSIGHT_DYNAMIC_BANK_ID = false
+HINDSIGHT_DYNAMIC_BANK_ID = "false"
+HINDSIGHT_BANK_ID = "nix-dots"
