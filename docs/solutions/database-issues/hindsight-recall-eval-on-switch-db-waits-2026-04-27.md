@@ -2,7 +2,7 @@
 title: Hindsight recall-eval on-switch reports unreachable during DB waits
 date: 2026-04-27
 status: unresolved
-last_verified: 2026-04-27
+last_verified: 2026-04-28
 category: database-issues
 module: nix-dots homelab switch automation
 problem_type: database_issue
@@ -13,6 +13,8 @@ symptoms:
   - "Hindsight /health returned 200 while recall evaluation still failed"
   - "reranker proxy smoke test returned 200"
   - "Hindsight logs showed long DB waits and a stuck batch_retain task in retain.phase2.insert_facts"
+  - "2026-04-28 follow-up showed direct embedding and reranker smoke tests succeeding"
+  - "2026-04-28 follow-up showed Hindsight worker queue pending with pool waiters and no active worker task"
   - "Quadlet unit changes updated the generated unit but did not restart the active Hindsight container"
   - "post-switch recall eval can start before the Hindsight API is ready"
 root_cause: async_timing
@@ -41,7 +43,7 @@ tags:
 
 After the homelab deploy for `96853d75726444002fea45386e45460f9c6459f0`, `comin` successfully built and switched the NixOS generation, and the `recall-eval-on-switch.service` credential path problem was fixed. The post-switch recall regression probe now runs, but it reports Hindsight as unreachable even though the Hindsight health endpoint and reranker proxy are healthy.
 
-This is an unresolved follow-up report. Do not treat this document as a completed fix. The evidence points away from deployment, systemd credential loading, and reranker availability, and toward Hindsight/Postgres recall-path contention or a stuck async retain operation.
+This is an unresolved follow-up report. Do not treat this document as a completed fix. The evidence points away from deployment, systemd credential loading, reranker availability, and the old rerank input-length guard. Current evidence points toward Hindsight/Postgres recall-path contention or a stuck async retain/worker-pool state.
 
 ## Symptoms
 
@@ -169,11 +171,59 @@ recall-eval: hindsight unreachable; see alert for details
 
 Hindsight logs after the deployment-side fixes still showed Postgres sessions stuck in `LWLock.BufferContent` for thousands of seconds and `pool ... waiters=16`. This means Hindsight config now limits new background work, but existing long-running DB sessions still need privileged cleanup or termination.
 
+## 2026-04-28 Follow-up
+
+Current live state:
+
+```text
+current system: /nix/store/q5qkrn0sn6qlmifmd1ic2mj53v3601ji-nixos-system-homelab-26.05.20260422.0726a0e
+hindsight-db.service: active
+hindsight.service: active since Mon 2026-04-27 19:12:03 KST
+llama-swap.service: active since Mon 2026-04-27 17:41:04 KST
+embed-prefix-proxy.service: active since Mon 2026-04-27 17:41:04 KST
+recall-eval-on-switch.service: inactive, last logged runs from 2026-04-27
+systemctl list-units --failed: 0 loaded units listed
+```
+
+The direct health and retrieval-model paths are currently healthy:
+
+```text
+GET http://127.0.0.1:8888/health
+-> {"status":"healthy","database":"connected"}
+
+POST http://127.0.0.1:8091/v1/embeddings model=harrier input="hello world"
+-> 200 with embedding payload
+
+POST http://127.0.0.1:8091/v1/rerank model=qwen3-reranker query="cat"
+-> 200 with relevance_score values 0.7385354042053223 and 0.0002792279119603336
+```
+
+This rules out the previous Unit 6 blocker class where long rerank candidates hit llama.cpp `/v1/rerank` 400s. The remaining blocker is no longer the proxy input guard. It is Hindsight recall/eval quality and worker or DB-pool progress.
+
+The current Hindsight logs no longer show the original `DB_WAITS`/`STUCK` lines in the sampled 2026-04-28 window, but they repeatedly show a stuck-looking worker/pool state:
+
+```text
+[WORKER_STATS] worker=homelab slots=0/1 (consolidation=0/1) | available=0 (consolidation=1) | global: pending=6 (schemas: default) | others: none | pool: size=1 limits=2-20 idle=1 in_use=0 waiters=20 | proc: rss_mb=393 | my_active: none
+[PENDING_BREAKDOWN] batch_retain: total=3 claimable=0 payload_null=3 retry_blocked=0 assigned=0 | retain: total=3 claimable=3 payload_null=0 retry_blocked=0 assigned=0
+```
+
+Interpretation: the API is alive and direct model calls work, but Hindsight has pending retain work that is not being assigned while the DB pool reports waiters. This needs privileged DB/container inspection before changing more Nix-side concurrency knobs.
+
+The current SSH user cannot perform the privileged checks or rerun the system unit non-interactively:
+
+```text
+sudo -n podman exec ... -> sudo: 암호가 필요합니다
+sudo -n systemctl start recall-eval-on-switch.service -> sudo: 암호가 필요합니다
+systemctl start recall-eval-on-switch.service -> Access denied
+```
+
 ## Current Hypothesis
 
-The remaining failure is probably inside Hindsight recall execution, not in the Nix switch, systemd credentials, service activation, or basic reranker availability.
+The remaining failure is probably inside Hindsight recall execution or worker/pool scheduling, not in the Nix switch, systemd credentials, service activation, basic embedding, or basic reranker availability.
 
-The strongest current hypothesis is that recall requests are entering Hindsight but timing out because Hindsight/Postgres is blocked or severely delayed by long-running database work, especially a `batch_retain` operation stuck at `retain.phase2.insert_facts`. The repeated `LWLock.BufferContent` waits suggest buffer/page contention or a long-running insert/query workload affecting shared DB resources.
+The original strongest hypothesis was that recall requests entered Hindsight but timed out because Hindsight/Postgres was blocked or severely delayed by long-running database work, especially a `batch_retain` operation stuck at `retain.phase2.insert_facts`. The repeated `LWLock.BufferContent` waits suggested buffer/page contention or a long-running insert/query workload affecting shared DB resources.
+
+The 2026-04-28 follow-up narrows the current state: direct embedding and rerank calls work, and the sampled logs show pending retain work plus DB pool waiters rather than the old visible `DB_WAITS` lines. The next confirmation step is privileged `pg_stat_activity` and async-operation inspection.
 
 This root cause is not confirmed. The `root_cause: async_timing` frontmatter value is only the closest available schema value for an unresolved async worker/DB contention report.
 
@@ -234,7 +284,7 @@ Inspect Postgres activity. Adjust the container/user command if the deployed aut
 
 ```bash
 ssh homelab 'sh -lc '\''
-podman exec hindsight-db psql -U hindsight -d hindsight -c "
+sudo podman exec hindsight-db psql -U hindsight -d hindsight -c "
 select
   now(),
   pid,
@@ -254,7 +304,7 @@ Inspect locks:
 
 ```bash
 ssh homelab 'sh -lc '\''
-podman exec hindsight-db psql -U hindsight -d hindsight -c "
+sudo podman exec hindsight-db psql -U hindsight -d hindsight -c "
 select
   locktype,
   mode,
@@ -286,6 +336,7 @@ Do not start by changing reranker flags again. The direct reranker smoke and pro
 More likely areas:
 
 - stuck or slow `batch_retain` operation lifecycle
+- worker slot or DB pool waiter state stuck despite `my_active: none`
 - retained batch size or chunk batch size causing large DB insert phases
 - retain DB concurrency too high for current homelab Postgres/HNSW workload
 - recall DB connection budget competing with retain writes

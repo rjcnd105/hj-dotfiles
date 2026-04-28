@@ -32,7 +32,7 @@ file, and posts changes to Telegram.
 2. **Pull state to workspace** — `just recall-eval-pull-state` copies the latest
    `alert-state.json` and `history.jsonl` tail to `~/.local/state/recall-eval/`.
 3. **Triage by metric:**
-   - `recall_unreachable` → `ssh homelab systemctl status hindsight.service hindsight-db.service`. Reranker cold-start or DB connect failure are the usual suspects. Check `journalctl -u hindsight.service --since "10 min ago"` and `podman logs hindsight`.
+   - `recall_unreachable` → `ssh homelab systemctl status hindsight.service hindsight-db.service`. Reranker cold-start or DB connect failure are the usual suspects. Check `journalctl -u hindsight.service --since "10 min ago"` for `DB_WAITS`, `STUCK`, `WORKER_STATS`, and pool `waiters`. If `/health` and direct `:8091` embedding/rerank smoke both pass, inspect Hindsight worker queue and Postgres activity before changing reranker flags.
    - `p90_latency_ms` → likely reranker cold-start or CPU-only fallback. Cross-reference `docs/solutions/performance-issues/hindsight-recall-hook-silent-timeout-2026-04-21.md` §4 (timeout tuning) and §5 (reranker selection).
    - `recall@5 < 0.90` → a specific fixture missed. Open `history.jsonl` tail; look at the matching `dead_ids`. If the expected id was deleted (intentional), update `secrets/homelab/recall-eval-fixtures.yaml` and re-encrypt. If the rank dropped (still in corpus), investigate embedding/reranker drift.
    - `fixture_liveness` (warning) → an expected id no longer appears in any top-10. Fixture rot; replace or delete.
@@ -65,6 +65,7 @@ history.jsonl is a content sha256 — changes automatically on any edit.
 | `fixtures.yaml: no such file or directory` | LoadCredential failed | `systemctl status recall-eval-gate.service`; sops secret may not be decrypted. Check `systemctl status sops-install-secrets.service` |
 | alert fires but no Telegram | `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` empty in sops | `sops secrets/homelab/services.yaml` → set both |
 | `recall_unreachable` persists after hindsight restart | dns/network inside container, not eval | tail `podman logs hindsight` for actual error |
+| `/health` and direct rerank pass, but eval still alerts | recall read path is blocked by Hindsight worker/DB pool state | inspect `journalctl -u hindsight.service` for `pool ... waiters`, `PENDING_BREAKDOWN`, and `my_active`; then check Postgres with privileged `podman exec hindsight-db psql` |
 
 ## Security notes
 
@@ -75,4 +76,5 @@ history.jsonl is a content sha256 — changes automatically on any edit.
 ## Related
 
 - `docs/solutions/performance-issues/hindsight-recall-hook-silent-timeout-2026-04-21.md` — the class of regression this eval is designed to catch.
+- `docs/solutions/database-issues/hindsight-recall-eval-on-switch-db-waits-2026-04-27.md` — DB wait and worker queue triage when health/reranker smoke pass.
 - `docs/solutions/developer-experience/kbtool-go-migration-2026-04-22.md` — the Go-CLI doctrine this project follows.

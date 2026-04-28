@@ -7,7 +7,7 @@ date: 2026-04-17
 
 # feat: homelab llama-swap 기반 embedding/reranker 전환
 
-**Current state (2026-04-27):** Code exists in `systems/homelab/ai-stack.nix`, `systems/homelab/embed-prefix-proxy/`, `systems/homelab/hindsight-stack.nix`, and `systems/homelab/default.nix`. Manual `boot` activation of comin generation 48 succeeded; homelab now boots `/nix/store/ayysplqir7dqh4mirlblsb5ilabybj91-nixos-system-homelab-26.05.20260422.0726a0e` (`26.05.20260422.0726a0e`). After `/run/current-system/activate`, `hindsight-db.service`, `hindsight.service`, `cloudflared-tunnel-a19003a7-293f-4872-b8a5-1db544878f45.service`, `llama-swap.service`, and `embed-prefix-proxy.service` are active, `systemctl list-units --failed` is empty, `/run/secrets/rendered/services.env` and `/run/secrets/cloudflared-credentials` exist, and `curl http://127.0.0.1:8888/health` returns 200. Remaining Unit 6 blocker: Hindsight recall still hits llama.cpp `/v1/rerank` 400 on long candidate text. Follow-up fix: route rerank through `embed-prefix-proxy`, cap each `documents[]` string before forwarding to llama-swap, and raise qwen reranker context/batch because live `--ctx-size 2048 --parallel 8` exposes only 256 tokens per rerank sequence.
+**Current state (2026-04-28):** Code exists in `systems/homelab/ai-stack.nix`, `systems/homelab/embed-prefix-proxy/`, `systems/homelab/hindsight-stack.nix`, and `systems/homelab/default.nix`. homelab now runs `/nix/store/q5qkrn0sn6qlmifmd1ic2mj53v3601ji-nixos-system-homelab-26.05.20260422.0726a0e`. `hindsight-db.service`, `hindsight.service`, `llama-swap.service`, and `embed-prefix-proxy.service` are active, `systemctl list-units --failed` is empty, and `curl http://127.0.0.1:8888/health` returns 200. Direct Harrier embedding and Qwen3 rerank smoke tests through `embed-prefix-proxy` return 200, so the old long-candidate `/v1/rerank` 400 blocker is resolved. Remaining Unit 6 blocker: Hindsight recall-eval quality/latency is still not accepted; latest completed evals on 2026-04-27 were partial (`hits=4/10`, `recall@5=0.40`, `p90_latency_ms` about 7.3s), and 2026-04-28 Hindsight logs show pending retain work with DB pool waiters. See `docs/solutions/database-issues/hindsight-recall-eval-on-switch-db-waits-2026-04-27.md`.
 
 ## Overview
 
@@ -376,7 +376,7 @@ docs/plans/
 
 ---
 
-- [ ] **Unit 6: 배포 + smoke test (blocked pending rerank input guard deployment)**
+- [ ] **Unit 6: 배포 + smoke test (blocked pending recall-eval quality/worker queue investigation)**
 
 **Goal:** homelab에 적용 후 embedding, reranking, hindsight recall이 실제로 동작하는지 확인.
 
