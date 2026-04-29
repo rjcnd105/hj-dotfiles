@@ -11,6 +11,7 @@
     ./ai-stack.nix
     ./hindsight-stack.nix
     ./app-containers.nix
+    ./app-admissions.nix
     ./recall-eval.nix
   ];
 

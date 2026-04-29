@@ -43,6 +43,23 @@
         "type": "github"
       }
     },
+    "deopjibRuntime": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1777455465,
+        "narHash": "sha256-OX62lkD1jjgl2Y1rR/2IP/v+aGbhMop7ioXVRLdU5xY=",
+        "owner": "rjcnd105",
+        "repo": "my-app",
+        "rev": "93135c168150d6eef3b61d16860e22f83ff43329",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rjcnd105",
+        "ref": "feat/deopjib-runtime-contract",
+        "repo": "my-app",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -132,6 +149,7 @@
       "inputs": {
         "comin": "comin",
         "darwin": "darwin",
+        "deopjibRuntime": "deopjibRuntime",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs_2",
         "nixpkgsPwgen": "nixpkgsPwgen",

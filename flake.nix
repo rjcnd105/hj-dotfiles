@@ -28,6 +28,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    deopjibRuntime = {
+      url = "github:rjcnd105/my-app/feat/deopjib-runtime-contract";
+      flake = false;
+    };
+
   };
 
   outputs =
@@ -40,6 +45,7 @@
       darwin,
       sops-nix,
       comin,
+      deopjibRuntime,
     }:
     let
       # 형태는 ${host}_${username}
