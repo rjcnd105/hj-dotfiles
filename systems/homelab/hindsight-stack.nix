@@ -19,7 +19,7 @@ let
   legacyDbVolumePath = "/var/lib/docker/volumes/hindsight-db-data/_data";
 
   images = {
-    hindsight = "ghcr.io/vectorize-io/hindsight:0.5.2-slim";
+    hindsight = "ghcr.io/vectorize-io/hindsight:0.5.6-slim";
     db = "timescale/timescaledb-ha:pg18";
   };
 
@@ -199,7 +199,7 @@ in
       Environment=HINDSIGHT_API_RECALL_BUDGET_FIXED_LOW=100
       Environment=HINDSIGHT_API_LAZY_RERANKER=true
 
-      Environment=HINDSIGHT_API_LLM_MAX_RETRIES=5
+      Environment=HINDSIGHT_API_LLM_MAX_RETRIES=3
       Environment=HINDSIGHT_API_SKIP_LLM_VERIFICATION=true
 
       Environment=HINDSIGHT_API_HOST=0.0.0.0
