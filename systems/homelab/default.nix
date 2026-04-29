@@ -10,6 +10,7 @@
     ./cloudflared.nix
     ./ai-stack.nix
     ./hindsight-stack.nix
+    ./app-containers.nix
     ./recall-eval.nix
   ];
 
