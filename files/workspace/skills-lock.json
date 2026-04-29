@@ -166,6 +166,12 @@
       "sourceType": "github",
       "computedHash": "4ef99f861cc70d0eb55085cc37939a3c2d6a498efa374f12259a7fe49ee93c4c"
     },
+    "create-agentsmd": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/create-agentsmd/SKILL.md",
+      "computedHash": "bfbdbb76b17cca970d1d624e36ce72b6847860d740581c8865da796c1fef8552"
+    },
     "create-pr": {
       "source": "charon-fan/agent-playbook",
       "sourceType": "github",
