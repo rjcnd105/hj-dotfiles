@@ -1,12 +1,10 @@
 model = "gpt-5.5"
-model_reasoning_effort = "high"
+model_reasoning_effort = "xhigh"
 personality = 'pragmatic'
 
-notify = [
-  "/Users/hj/.codex/plugins/cache/openai-bundled/computer-use/1.0.755/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient",
-  "turn-ended",
-]
 approvals_reviewer = "user"
+
+notify = ["/Users/hj/.codex/plugins/cache/openai-bundled/computer-use/1.0.758/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
 
 [projects]
 [projects.'/Users/hj/work/gm/gentle-renewal']
@@ -66,10 +64,13 @@ enabled = true
 enabled = true
 
 [plugins."coding-tutor@compound-engineering-plugin"]
-enabled = true
+enabled = false
 
 [plugins."browser-use@openai-bundled"]
 enabled = true
+
+[plugins."documents@openai-primary-runtime"]
+enabled = false
 
 [marketplaces.openai-bundled]
 last_updated = "2026-04-28T07:00:29Z"
@@ -77,10 +78,15 @@ source_type = "local"
 source = "/Users/hj/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [marketplaces.compound-engineering-plugin]
-last_updated = "2026-04-28T05:19:47Z"
-last_revision = "8cc07acb5299db5331c359395738d5fe32df50c5"
+last_updated = "2026-04-29T07:00:10Z"
+last_revision = "e5b397c9d1883354f03e338dd00f98be3da39f9f"
 source_type = "git"
 source = "https://github.com/EveryInc/compound-engineering-plugin.git"
+
+[marketplaces.openai-primary-runtime]
+last_updated = "2026-04-28T07:59:17Z"
+source_type = "local"
+source = "/Users/hj/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
 [mcp_servers.chrome-devtools]
 command = "npx"
