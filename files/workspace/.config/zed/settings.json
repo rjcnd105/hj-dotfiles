@@ -10,6 +10,7 @@
       "program": "/etc/profiles/per-user/hj/bin/fish"
     }
   },
+  "code_lens": "on",
   "edit_predictions": {
     "provider": "zed",
     "open_ai_compatible_api": {
