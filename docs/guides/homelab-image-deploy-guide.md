@@ -24,7 +24,9 @@ add a separate app catalog repo in between unless this decision is reopened.
 - Do not enable registry auto-update for services that run schema migrations on
   start.
 - Keep new contracts close to Kubernetes primitives: image, service, secret env,
-  volume, route, health, migration, update policy.
+  volume, route, health, migration, update policy, release channel.
+- Do not add app-specific homelab deploy scripts to app repos. App repos publish
+  images; `nix-dots` deploys admitted apps through `homelab-appctl`.
 
 ## Ownership Boundary
 
@@ -39,6 +41,25 @@ add a separate app catalog repo in between unless this decision is reopened.
 | Persistent volume location and backup policy | `nix-dots` | App may request a volume; host chooses storage. |
 | Runtime backend | `nix-dots` | Podman/Quadlet now, k3s later. |
 | Migration safety policy | app repo declares, host enforces | Host may reject unsafe auto-update combinations. |
+| Release command | app repo | Example: `mise run my-app:release-dev --minor`; starts app CI/release only. |
+| Host deploy command | `nix-dots` | `homelab-appctl deploy/smoke/rollback <app> <channel>`. |
+| OCI release manifest | app repo, optional | Provenance or audit artifact only; not the homelab deploy ABI. |
+
+## Portability Boundary
+
+`homelab-appctl` is a `nix-dots` homelab adapter, not a public deploy platform.
+It assumes this host's NixOS, Podman/Quadlet, Caddy, Cloudflared, sops, and
+systemd boundaries.
+
+The portable output of an app repo is the OCI image plus documented runtime
+needs: image refs, env, secret names, ports, routes, health paths, volumes,
+migration command, and release channel tags. Non-Nix users should consume those
+images through their own Docker Compose, Podman, Kubernetes, or platform-specific
+deployment layer.
+
+For this homelab, app contributors can trigger app releases if they have app repo
+permissions, but only the homelab-side runner applies the published image to the
+server. This keeps host secrets and runtime policy out of app repos.
 
 ## Change Authority
 
@@ -83,6 +104,7 @@ Optional top-level fields:
 | Field | Type | Default | Meaning |
 |---|---|---|---|
 | `migrations` | attrset | `{ mode = "none"; }` | Migration command and safety policy. |
+| `release` | attrset | `{ versioning = "external"; channels = { }; }` | Host deploy channel metadata. |
 | `volumes` | attrset volume | `{ }` | Persistent storage requests keyed by stable volume id. |
 | `notes` | string | `""` | Human/operator notes. |
 
@@ -128,11 +150,29 @@ Migration fields:
 | `service` | string | if mode != `none` | Service image used for migration. |
 | `command` | list string | if mode != `none` | Command argv. |
 
+Release fields:
+
+| Field | Type | Required | Meaning |
+|---|---|---:|---|
+| `versioning` | enum | no | Must be `external`; app CI owns versioning. |
+| `channels` | attrset channel | no | Deploy channels keyed by `dev`, `prod`, etc. |
+
+Release channel fields:
+
+| Field | Type | Required | Meaning |
+|---|---|---:|---|
+| `tag` | string | yes | Channel pointer tag such as `dev-current`. |
+| `mode` | enum | no | `manual`, `auto`, or `approved`; current runner is host-local. |
+| `strategy` | enum | no | Current value: `coordinated`. |
+| `smokePaths` | list string | no | Paths checked through Caddy after deploy. |
+| `migrate` | enum | no | `none` or `manual`; `manual` requires manual migrations. |
+| `rollback` | enum | no | Current value: `record-only`. |
+
 Host policy:
 
 - `registry-auto` is not allowed on the service named by `migrations.service`.
-- `preStart` or `job` may be added later, but the current Podman renderer must
-  reject them until it actually renders the matching systemd units.
+- Manual migrations render a host-local one-shot unit, but are never run during
+  NixOS activation or by background registry auto-update.
 - Every public service must have either `healthPath` or an explicit documented
   reason why health checks are unavailable.
 
@@ -200,6 +240,21 @@ Host policy:
     mode = "manual";
     service = "api";
     command = [ "/app/bin/migrate" ];
+  };
+
+  release = {
+    versioning = "external";
+    channels.dev = {
+      tag = "dev-current";
+      mode = "manual";
+      strategy = "coordinated";
+      smokePaths = [
+        "/health"
+        "/"
+      ];
+      migrate = "manual";
+      rollback = "record-only";
+    };
   };
 
   volumes.app-data = {
@@ -310,7 +365,9 @@ When implementing the Podman/Quadlet renderer in `nix-dots`, it must:
 - order private registry image pulls after `sops-install-secrets.service`
 - add finite systemd start timeouts
 - add activation refresh logic for new or changed Quadlet files
-- reject unsupported migration modes until matching units are rendered
+- render manual migration one-shot units
+- render `/etc/homelab-apps/<app>/<channel>.json` metadata for host commands
+- provide `homelab-appctl deploy/smoke/rollback <app> <channel>`
 - reject `registry-auto` on the service named by `migrations.service`
 - keep Hindsight special until its host-network dependencies are deliberately
   migrated
@@ -320,6 +377,47 @@ Renderer output should be inspectable with:
 ```sh
 nix eval --raw '.#nixosConfigurations.homelab_hj.config.environment.etc."<quadlet-path>".text'
 ```
+
+## Release Automation
+
+The comfortable app-side button lives in the app repo:
+
+```sh
+mise run my-app:release-dev --minor
+```
+
+That command should create the release PR, run CI, publish OCI images, and move
+the channel tag such as `dev-current`. It must not SSH into homelab and must not
+carry app-specific host deploy logic.
+
+The homelab applies published images through the generic runner generated by
+`nix-dots`:
+
+```sh
+homelab-appctl list
+homelab-appctl status my-app dev
+homelab-appctl smoke my-app dev
+homelab-appctl deploy my-app dev --dry-run
+homelab-appctl deploy my-app dev
+homelab-appctl rollback my-app dev
+```
+
+Deploy order:
+
+1. Read `/etc/homelab-apps/<app>/<channel>.json`.
+2. Pull image units and record local image IDs.
+3. Run the manual migration unit if the contract declares one.
+4. Restart generated app service units.
+5. Smoke-test declared paths through Caddy loopback with the public Host header.
+6. Write a deploy record under `/var/lib/homelab-appctl/<app>/<channel>/`.
+
+Rollback is intentionally conservative in the current Podman phase. The command
+exists and reports the previous image records, but automatic image restoration is
+enabled only after that path is proven safe for the app and its migrations.
+
+OCI release manifests may exist in app CI for audit/provenance, but they are not
+the deploy ABI. The deploy ABI is the app-owned runtime contract plus the host
+metadata generated by `nix-dots`.
 
 ## Future k3s Path
 
@@ -358,9 +456,11 @@ When asked to add a new homelab app:
    - allow `registry-auto` for stateless services
    - prefer `manual` for DB-backed services
    - reject registry auto-update on the migration service
+   - keep release channel rollback as `record-only` unless automatic image
+     restore has been proven on homelab
 7. Add or update only the host binding in `nix-dots`.
-8. Evaluate generated Quadlet/Caddy/sops output.
-9. Run the smoke checks after deployment.
+8. Evaluate generated Quadlet/Caddy/sops/app metadata output.
+9. Run `homelab-appctl smoke <app> <channel>` after deployment.
 
 ## Podman Smoke Checks
 
@@ -371,7 +471,7 @@ systemctl is-active podman-auto-update.timer
 systemctl list-units --no-legend --plain '*my-app*'
 find /etc/containers/systemd -maxdepth 1 -iname '*my-app*' -print
 podman auto-update --dry-run
-curl -fsS https://my-app.example.com/health
+homelab-appctl smoke my-app dev
 ```
 
 Expected result:
@@ -393,4 +493,5 @@ Before a change is ready:
 - every public route is intentionally exposed
 - migration and update policy do not conflict
 - generated runtime output is evaluated
+- generated app metadata is evaluated
 - live deployment smoke checks are documented

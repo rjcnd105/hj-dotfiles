@@ -69,6 +69,28 @@ let
 
   envTemplateNameFor = app: serviceName: "${unitPrefixFor app}-${serviceName}.env";
 
+  releaseChannelFor =
+    app:
+    if builtins.hasAttr app.contract.channel app.contract.release.channels then
+      app.contract.release.channels.${app.contract.channel}
+    else
+      null;
+
+  smokePathsFor =
+    app:
+    let
+      releaseChannel = releaseChannelFor app;
+      serviceHealthPaths = builtins.filter (path: path != null) (
+        mapAttrsToList (_serviceName: service: service.healthPath) app.contract.services
+      );
+    in
+    if releaseChannel != null && releaseChannel.smokePaths != [ ] then
+      releaseChannel.smokePaths
+    else if serviceHealthPaths != [ ] then
+      unique serviceHealthPaths
+    else
+      [ "/" ];
+
   serviceEnvContent =
     app: service:
     let
@@ -191,6 +213,10 @@ let
     app: mount:
     "${unitPrefixFor app}-${mount.volume}.volume:${mount.mountPath}${optionalString mount.readOnly ":ro"}";
 
+  podmanMountLineFor =
+    app: mount:
+    "${unitPrefixFor app}-${mount.volume}:${mount.mountPath}${optionalString mount.readOnly ":ro"}";
+
   containerUnitFor =
     app: serviceName: service:
     let
@@ -251,16 +277,375 @@ let
       '';
     };
 
+  migrationServiceFor =
+    _appName: app:
+    let
+      contract = app.contract;
+      migrationServiceName = contract.migrations.service;
+      unitPrefix = unitPrefixFor app;
+      service = contract.services.${migrationServiceName};
+      envTemplate = config.sops.templates.${envTemplateNameFor app migrationServiceName}.path;
+      imageRef = imageRefFor app service;
+      networkService = "${unitPrefix}-network.service";
+      imageService = "${unitPrefix}-${migrationServiceName}-image.service";
+      volumeServices = map (mount: "${unitPrefix}-${mount.volume}-volume.service") service.volumeMounts;
+      volumeArgs = concatStringsSep " " (
+        map (mount: "--volume ${lib.escapeShellArg (podmanMountLineFor app mount)}") service.volumeMounts
+      );
+    in
+    nameValuePair "${unitPrefix}-migrate" {
+      description = "Run ${contract.name} ${contract.channel} manual migration";
+      requires = [
+        "sops-install-secrets.service"
+        "network-online.target"
+        networkService
+        imageService
+      ]
+      ++ volumeServices;
+      after = [
+        "sops-install-secrets.service"
+        "network-online.target"
+        networkService
+        imageService
+      ]
+      ++ volumeServices;
+      serviceConfig.Type = "oneshot";
+      script = ''
+        ${pkgs.podman}/bin/podman rm -f ${lib.escapeShellArg "${unitPrefix}-migrate"} >/dev/null 2>&1 || true
+        exec ${pkgs.podman}/bin/podman run --rm --pull=never --name ${lib.escapeShellArg "${unitPrefix}-migrate"} --env-file ${lib.escapeShellArg envTemplate} --network ${lib.escapeShellArg unitPrefix} ${volumeArgs} ${lib.escapeShellArg imageRef} ${lib.escapeShellArgs contract.migrations.command}
+      '';
+    };
+
+  migrationServices = listToAttrs (
+    mapAttrsToList migrationServiceFor (
+      filterAttrs (_appName: app: app.contract.migrations.mode == "manual") enabledApps
+    )
+  );
+
+  serviceMetadataFor =
+    app: serviceName: service:
+    let
+      unitPrefix = unitPrefixFor app;
+      servicePorts = portMapFor app.contract.services app.host.loopbackPortBase;
+    in
+    {
+      name = serviceName;
+      imageKey = service.image;
+      imageRef = imageRefFor app service;
+      imageUnit = "${unitPrefix}-${serviceName}-image.service";
+      serviceUnit = "${unitPrefix}-${serviceName}.service";
+      containerName = "${unitPrefix}-${serviceName}";
+      internalPort = service.internalPort;
+      loopbackPort = servicePorts.${serviceName};
+      healthPath = service.healthPath;
+      updatePolicy = service.updatePolicy;
+    };
+
+  appMetadataFor =
+    appName: app:
+    let
+      releaseChannel = releaseChannelFor app;
+      unitPrefix = unitPrefixFor app;
+      caddyPort = caddyPortFor app;
+    in
+    {
+      appKey = appName;
+      name = app.contract.name;
+      channel = app.contract.channel;
+      unitPrefix = unitPrefix;
+      domain = app.host.domain;
+      caddyUrl = "http://127.0.0.1:${toString caddyPort}";
+      smokePaths = smokePathsFor app;
+      services = mapAttrsToList (serviceMetadataFor app) app.contract.services;
+      migration =
+        if app.contract.migrations.mode == "manual" then
+          {
+            mode = "manual";
+            service = app.contract.migrations.service;
+            unit = "${unitPrefix}-migrate.service";
+            command = app.contract.migrations.command;
+          }
+        else
+          {
+            mode = "none";
+            service = null;
+            unit = null;
+            command = [ ];
+          };
+      release =
+        if releaseChannel == null then
+          null
+        else
+          {
+            tag = releaseChannel.tag;
+            mode = releaseChannel.mode;
+            strategy = releaseChannel.strategy;
+            migrate = releaseChannel.migrate;
+            rollback = releaseChannel.rollback;
+            smokePaths = releaseChannel.smokePaths;
+          };
+    };
+
+  metadataEtcFor =
+    appName: app:
+    nameValuePair "homelab-apps/${app.contract.name}/${app.contract.channel}.json" {
+      text = builtins.toJSON (appMetadataFor appName app) + "\n";
+    };
+
   appEtc =
-    app:
+    appName: app:
     [
       (networkUnitFor app)
+      (metadataEtcFor appName app)
     ]
     ++ mapAttrsToList (volumeUnitFor app) app.contract.volumes
     ++ mapAttrsToList (imageUnitFor app) app.contract.services
     ++ mapAttrsToList (containerUnitFor app) app.contract.services;
 
-  etcEntries = listToAttrs (flatten (mapAttrsToList (_appName: app: appEtc app) enabledApps));
+  etcEntries = listToAttrs (flatten (mapAttrsToList appEtc enabledApps));
+
+  homelabAppctl = pkgs.writeShellApplication {
+    name = "homelab-appctl";
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.curl
+      pkgs.findutils
+      pkgs.gnugrep
+      pkgs.jq
+      pkgs.podman
+      pkgs.systemd
+    ];
+    text = ''
+      set -euo pipefail
+
+      metadata_root=/etc/homelab-apps
+      state_root=/var/lib/homelab-appctl
+
+      usage() {
+        cat <<'EOF'
+      Usage:
+        homelab-appctl list
+        homelab-appctl status <app> <channel>
+        homelab-appctl smoke <app> <channel>
+        homelab-appctl deploy <app> <channel> [--dry-run]
+        homelab-appctl rollback <app> <channel>
+        homelab-appctl logs <app> <channel>
+      EOF
+      }
+
+      die() {
+        echo "homelab-appctl: $*" >&2
+        exit 1
+      }
+
+      metadata_path() {
+        local app=$1
+        local channel=$2
+        printf '%s/%s/%s.json\n' "$metadata_root" "$app" "$channel"
+      }
+
+      require_metadata() {
+        local app=$1
+        local channel=$2
+        local path
+        path=$(metadata_path "$app" "$channel")
+        [ -f "$path" ] || die "missing metadata: $path"
+        printf '%s\n' "$path"
+      }
+
+      service_units() {
+        jq -r '.services[].serviceUnit' "$1"
+      }
+
+      image_units() {
+        jq -r '.services[].imageUnit' "$1"
+      }
+
+      smoke_paths() {
+        jq -r '.smokePaths[]?' "$1"
+      }
+
+      snapshot_images() {
+        local meta=$1
+        jq -r '.services[] | [.name, .imageRef] | @tsv' "$meta" |
+          while IFS=$'\t' read -r name image_ref; do
+            image_id=$(podman image inspect "$image_ref" --format '{{.Id}}' 2>/dev/null || true)
+            printf '%s\t%s\t%s\n' "$name" "$image_ref" "$image_id"
+          done
+      }
+
+      cmd_list() {
+        if [ ! -d "$metadata_root" ]; then
+          return 0
+        fi
+
+        find "$metadata_root" -mindepth 2 -maxdepth 2 -name '*.json' -print |
+          sort |
+          while IFS= read -r meta; do
+            jq -r '[.name, .channel, .domain, .unitPrefix] | @tsv' "$meta"
+          done
+      }
+
+      cmd_status() {
+        local meta=$1
+        mapfile -t units < <(service_units "$meta")
+        [ "''${#units[@]}" -gt 0 ] || die "metadata has no service units"
+        systemctl --no-pager status "''${units[@]}"
+      }
+
+      cmd_logs() {
+        local meta=$1
+        local unit
+        local args=()
+        mapfile -t units < <(service_units "$meta")
+        [ "''${#units[@]}" -gt 0 ] || die "metadata has no service units"
+        for unit in "''${units[@]}"; do
+          args+=(-u "$unit")
+        done
+        journalctl --no-pager -n 200 "''${args[@]}"
+      }
+
+      cmd_smoke() {
+        local meta=$1
+        local domain caddy_url path
+        domain=$(jq -r '.domain' "$meta")
+        caddy_url=$(jq -r '.caddyUrl' "$meta")
+        mapfile -t paths < <(smoke_paths "$meta")
+        [ "''${#paths[@]}" -gt 0 ] || die "metadata has no smoke paths"
+
+        for path in "''${paths[@]}"; do
+          echo "smoke: $domain $path"
+          curl -fsS --max-time 10 -H "Host: $domain" "$caddy_url$path" >/dev/null
+        done
+      }
+
+      cmd_deploy() {
+        local app=$1
+        local channel=$2
+        local meta=$3
+        local dry_run=$4
+        local migration_unit record_dir record_path
+
+        migration_unit=$(jq -r '.migration.unit // empty' "$meta")
+
+        if [ "$dry_run" = 1 ]; then
+          echo "metadata: $meta"
+          echo "image units:"
+          image_units "$meta" | sed 's/^/  /'
+          if [ -n "$migration_unit" ]; then
+            echo "migration unit:"
+            echo "  $migration_unit"
+          else
+            echo "migration unit: none"
+          fi
+          echo "service units:"
+          service_units "$meta" | sed 's/^/  /'
+          echo "smoke paths:"
+          smoke_paths "$meta" | sed 's/^/  /'
+          return 0
+        fi
+
+        record_dir="$state_root/$app/$channel"
+        record_path="$record_dir/$(date -u +%Y%m%dT%H%M%SZ)"
+        mkdir -p "$record_path"
+        cp "$meta" "$record_path/metadata.json"
+        sha256sum "$meta" > "$record_path/metadata.sha256"
+        snapshot_images "$meta" > "$record_path/before-images.tsv"
+
+        systemctl daemon-reload
+
+        while IFS= read -r image_unit; do
+          echo "pull: $image_unit"
+          systemctl start "$image_unit"
+        done < <(image_units "$meta")
+
+        if [ -n "$migration_unit" ]; then
+          echo "migrate: $migration_unit"
+          systemctl start "$migration_unit"
+        fi
+
+        while IFS= read -r service_unit; do
+          echo "restart: $service_unit"
+          systemctl restart "$service_unit"
+        done < <(service_units "$meta")
+
+        snapshot_images "$meta" > "$record_path/after-images.tsv"
+
+        if cmd_smoke "$meta"; then
+          printf 'ok\n' > "$record_path/result"
+          ln -sfn "$record_path" "$record_dir/latest"
+          echo "deploy record: $record_path"
+        else
+          printf 'smoke-failed\n' > "$record_path/result"
+          ln -sfn "$record_path" "$record_dir/latest"
+          echo "smoke failed; rollback record: $record_path" >&2
+          echo "run: homelab-appctl rollback $app $channel" >&2
+          return 1
+        fi
+      }
+
+      cmd_rollback() {
+        local app=$1
+        local channel=$2
+        local record_dir latest
+
+        record_dir="$state_root/$app/$channel"
+        latest="$record_dir/latest"
+        [ -e "$latest" ] || die "no deploy record found for $app $channel"
+
+        echo "automatic rollback is not enabled yet for $app $channel"
+        echo "latest deploy record: $(readlink "$latest" || printf '%s' "$latest")"
+        echo "previous images:"
+        cat "$latest/before-images.tsv"
+        return 2
+      }
+
+      command=''${1:-}
+      case "$command" in
+        list)
+          [ "$#" -eq 1 ] || die "list takes no arguments"
+          cmd_list
+          ;;
+        status|smoke|logs|rollback)
+          [ "$#" -eq 3 ] || {
+            usage >&2
+            exit 1
+          }
+          app=$2
+          channel=$3
+          meta=$(require_metadata "$app" "$channel")
+          case "$command" in
+            status) cmd_status "$meta" ;;
+            smoke) cmd_smoke "$meta" ;;
+            logs) cmd_logs "$meta" ;;
+            rollback) cmd_rollback "$app" "$channel" ;;
+          esac
+          ;;
+        deploy)
+          [ "$#" -eq 3 ] || [ "$#" -eq 4 ] || {
+            usage >&2
+            exit 1
+          }
+          app=$2
+          channel=$3
+          dry_run=0
+          if [ "$#" -eq 4 ]; then
+            [ "$4" = "--dry-run" ] || die "unknown deploy option: $4"
+            dry_run=1
+          fi
+          meta=$(require_metadata "$app" "$channel")
+          cmd_deploy "$app" "$channel" "$meta" "$dry_run"
+          ;;
+        -h|--help|help|"")
+          usage
+          ;;
+        *)
+          usage >&2
+          exit 1
+          ;;
+      esac
+    '';
+  };
 
   appServiceNames =
     app:
@@ -321,6 +706,7 @@ let
       imageNames = builtins.attrNames contract.images;
       volumeNames = builtins.attrNames contract.volumes;
       hostVolumeNames = builtins.attrNames app.host.volumes;
+      releaseChannels = contract.release.channels;
       migrationMode = contract.migrations.mode;
       migrationService = contract.migrations.service;
       registryAutoServices = filterAttrs (
@@ -370,6 +756,25 @@ let
         message = "homelab.apps.${appName}: registry-auto is not allowed on the migration service.";
       }
     ]
+    ++ flatten (
+      mapAttrsToList (
+        channelName: channel:
+        [
+          {
+            assertion = validId channelName;
+            message = "homelab.apps.${appName}: release channel ${channelName} must match ^[a-z0-9][a-z0-9-]*$.";
+          }
+          {
+            assertion = channel.migrate != "manual" || migrationMode == "manual";
+            message = "homelab.apps.${appName}: release channel ${channelName} cannot request manual migration when contract.migrations.mode is not manual.";
+          }
+        ]
+        ++ map (path: {
+          assertion = builtins.match "^/.*" path != null;
+          message = "homelab.apps.${appName}: release channel ${channelName} smoke path ${path} must start with '/'.";
+        }) channel.smokePaths
+      ) releaseChannels
+    )
     ++ map (route: {
       assertion = builtins.elem route.service serviceNames;
       message = "homelab.apps.${appName}: route ${route.path} must reference contract.services.";
@@ -504,6 +909,54 @@ in
                     };
                     default = { };
                   };
+                  release = mkOption {
+                    type = types.submodule {
+                      options = {
+                        versioning = mkOption {
+                          type = types.enum [ "external" ];
+                          default = "external";
+                        };
+                        channels = mkOption {
+                          type = types.attrsOf (
+                            types.submodule {
+                              options = {
+                                tag = mkOption { type = types.str; };
+                                mode = mkOption {
+                                  type = types.enum [
+                                    "manual"
+                                    "auto"
+                                    "approved"
+                                  ];
+                                  default = "manual";
+                                };
+                                strategy = mkOption {
+                                  type = types.enum [ "coordinated" ];
+                                  default = "coordinated";
+                                };
+                                smokePaths = mkOption {
+                                  type = types.listOf types.str;
+                                  default = [ ];
+                                };
+                                migrate = mkOption {
+                                  type = types.enum [
+                                    "none"
+                                    "manual"
+                                  ];
+                                  default = "none";
+                                };
+                                rollback = mkOption {
+                                  type = types.enum [ "record-only" ];
+                                  default = "record-only";
+                                };
+                              };
+                            }
+                          );
+                          default = { };
+                        };
+                      };
+                    };
+                    default = { };
+                  };
                   volumes = mkOption {
                     type = types.attrsOf (
                       types.submodule {
@@ -604,6 +1057,9 @@ in
     services.cloudflared.tunnels.${cloudflareTunnelId}.ingress = appIngress;
 
     environment.etc = etcEntries;
+    environment.systemPackages = [ homelabAppctl ];
+
+    systemd.services = migrationServices;
 
     system.activationScripts.homelabAppContainersRefresh = {
       deps = [
