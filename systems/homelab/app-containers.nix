@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  myOptions,
   pkgs,
   ...
 }:
@@ -438,6 +439,26 @@ let
         exit 1
       }
 
+      require_id() {
+        local label=$1
+        local value=$2
+        [[ "$value" =~ ^[a-z0-9][a-z0-9-]*$ ]] ||
+          die "$label must match ^[a-z0-9][a-z0-9-]*$: $value"
+      }
+
+      require_app_channel() {
+        require_id app "$1"
+        require_id channel "$2"
+      }
+
+      require_root() {
+        local action=$1
+        shift
+        if [ "$(id -u)" -ne 0 ]; then
+          die "$action requires root because it writes $state_root and controls system services; run: sudo -n homelab-appctl $action $*"
+        fi
+      }
+
       metadata_path() {
         local app=$1
         local channel=$2
@@ -448,6 +469,7 @@ let
         local app=$1
         local channel=$2
         local path
+        require_app_channel "$app" "$channel"
         path=$(metadata_path "$app" "$channel")
         [ -f "$path" ] || die "missing metadata: $path"
         printf '%s\n' "$path"
@@ -545,6 +567,8 @@ let
           return 0
         fi
 
+        require_root deploy "$app" "$channel"
+
         record_dir="$state_root/$app/$channel"
         record_path="$record_dir/$(date -u +%Y%m%dT%H%M%SZ)"
         mkdir -p "$record_path"
@@ -579,7 +603,7 @@ let
           printf 'smoke-failed\n' > "$record_path/result"
           ln -sfn "$record_path" "$record_dir/latest"
           echo "smoke failed; rollback record: $record_path" >&2
-          echo "run: homelab-appctl rollback $app $channel" >&2
+          echo "run: sudo -n homelab-appctl rollback $app $channel" >&2
           return 1
         fi
       }
@@ -588,6 +612,8 @@ let
         local app=$1
         local channel=$2
         local record_dir latest
+
+        require_root rollback "$app" "$channel"
 
         record_dir="$state_root/$app/$channel"
         latest="$record_dir/latest"
@@ -1059,7 +1085,31 @@ in
     environment.etc = etcEntries;
     environment.systemPackages = [ homelabAppctl ];
 
+    security.sudo.extraRules = [
+      {
+        users = [ myOptions.userName ];
+        runAs = "root";
+        commands =
+          let
+            allowedCommand = command: {
+              inherit command;
+              options = [ "NOPASSWD" ];
+            };
+          in
+          [
+            (allowedCommand "${homelabAppctl}/bin/homelab-appctl deploy *")
+            (allowedCommand "${homelabAppctl}/bin/homelab-appctl rollback *")
+            (allowedCommand "/run/current-system/sw/bin/homelab-appctl deploy *")
+            (allowedCommand "/run/current-system/sw/bin/homelab-appctl rollback *")
+          ];
+      }
+    ];
+
     systemd.services = migrationServices;
+
+    systemd.tmpfiles.rules = [
+      "d /var/lib/homelab-appctl 0750 root root - -"
+    ];
 
     system.activationScripts.homelabAppContainersRefresh = {
       deps = [

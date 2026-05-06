@@ -96,12 +96,14 @@ homelab-appctl list
 homelab-appctl status <app> <channel>
 homelab-appctl smoke <app> <channel>
 homelab-appctl deploy <app> <channel> --dry-run
-homelab-appctl deploy <app> <channel>
-homelab-appctl rollback <app> <channel>
+sudo -n homelab-appctl deploy <app> <channel>
+sudo -n homelab-appctl rollback <app> <channel>
 ```
 
 `homelab-appctl` is a `nix-dots` homelab adapter, not a public deploy platform.
 Portable app output is the OCI image plus documented runtime needs.
+`deploy` and `rollback` are root operations with a narrow passwordless sudo
+rule for the homelab operator user.
 
 ## Safety Rules
 

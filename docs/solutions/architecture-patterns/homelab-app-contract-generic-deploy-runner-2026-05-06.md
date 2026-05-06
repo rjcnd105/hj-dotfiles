@@ -90,14 +90,19 @@ homelab-appctl list
 homelab-appctl status <app> <channel>
 homelab-appctl smoke <app> <channel>
 homelab-appctl deploy <app> <channel> --dry-run
-homelab-appctl deploy <app> <channel>
-homelab-appctl rollback <app> <channel>
+sudo -n homelab-appctl deploy <app> <channel>
+sudo -n homelab-appctl rollback <app> <channel>
 ```
 
 `homelab-appctl` reads generated metadata under
 `/etc/homelab-apps/<app>/<channel>.json`. That path is a host adapter detail,
 not a public app ABI. The portable app output remains the OCI image plus the
 documented runtime needs.
+
+`deploy` and `rollback` are root operations because they write
+`/var/lib/homelab-appctl` and control system services. Keep the sudo surface
+narrow: the homelab operator may run only those two subcommands without a
+password.
 
 Do not make the optional OCI release manifest the deploy ABI. It is useful for
 audit and provenance, but the host should deploy from admitted app metadata and

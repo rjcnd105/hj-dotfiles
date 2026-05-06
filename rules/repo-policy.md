@@ -43,8 +43,8 @@ homelab-appctl list
 homelab-appctl status <app> <channel>
 homelab-appctl smoke <app> <channel>
 homelab-appctl deploy <app> <channel> --dry-run
-homelab-appctl deploy <app> <channel>
-homelab-appctl rollback <app> <channel>
+sudo -n homelab-appctl deploy <app> <channel>
+sudo -n homelab-appctl rollback <app> <channel>
 ```
 
 `homelab-appctl` reads generated metadata from:
@@ -54,6 +54,9 @@ homelab-appctl rollback <app> <channel>
 ```
 
 Do not make the app repo depend on this path. This path is a host adapter detail.
+`deploy` and `rollback` require root because they write deploy records and
+control system services; this repo grants only those subcommands through a
+narrow passwordless sudo rule for the homelab operator user.
 
 ## Kubernetes Migration Boundary
 

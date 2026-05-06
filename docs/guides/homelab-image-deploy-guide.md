@@ -398,8 +398,8 @@ homelab-appctl list
 homelab-appctl status my-app dev
 homelab-appctl smoke my-app dev
 homelab-appctl deploy my-app dev --dry-run
-homelab-appctl deploy my-app dev
-homelab-appctl rollback my-app dev
+sudo -n homelab-appctl deploy my-app dev
+sudo -n homelab-appctl rollback my-app dev
 ```
 
 Deploy order:
@@ -410,6 +410,11 @@ Deploy order:
 4. Restart generated app service units.
 5. Smoke-test declared paths through Caddy loopback with the public Host header.
 6. Write a deploy record under `/var/lib/homelab-appctl/<app>/<channel>/`.
+
+`deploy` and `rollback` are root operations because they write
+`/var/lib/homelab-appctl` and control system services. `nix-dots` installs a
+narrow passwordless sudo rule for the homelab operator user that allows only
+`homelab-appctl deploy *` and `homelab-appctl rollback *`.
 
 Rollback is intentionally conservative in the current Podman phase. The command
 exists and reports the previous image records, but automatic image restoration is
@@ -472,6 +477,7 @@ systemctl list-units --no-legend --plain '*my-app*'
 find /etc/containers/systemd -maxdepth 1 -iname '*my-app*' -print
 podman auto-update --dry-run
 homelab-appctl smoke my-app dev
+sudo -n homelab-appctl deploy my-app dev --dry-run
 ```
 
 Expected result:
