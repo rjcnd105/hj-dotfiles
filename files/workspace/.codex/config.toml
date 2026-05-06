@@ -82,8 +82,8 @@ source_type = "local"
 source = "/Users/hj/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [marketplaces.compound-engineering-plugin]
-last_updated = "2026-04-29T07:00:10Z"
-last_revision = "e5b397c9d1883354f03e338dd00f98be3da39f9f"
+last_updated = "2026-05-06T02:01:21Z"
+last_revision = "52e8f868b950d950722d829148eb4940134ccd10"
 source_type = "git"
 source = "https://github.com/EveryInc/compound-engineering-plugin.git"
 
@@ -91,6 +91,11 @@ source = "https://github.com/EveryInc/compound-engineering-plugin.git"
 last_updated = "2026-04-28T07:59:17Z"
 source_type = "local"
 source = "/Users/hj/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
+
+[marketplaces.caveman-repo]
+last_updated = "2026-05-06T02:12:41Z"
+source_type = "local"
+source = "/Users/hj/.codex/caveman"
 
 [mcp_servers.chrome-devtools]
 command = "npx"
