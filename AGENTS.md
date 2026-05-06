@@ -9,6 +9,9 @@ macOS through nix-darwin and the homelab through NixOS. Key surfaces are:
 - `systems/` for NixOS and nix-darwin system modules.
 - `homes/` and `files/` for Home Manager and linked user configuration.
 - `docs/guides/` and `docs/solutions/` for durable operational decisions.
+  `docs/solutions/` is organized by category with YAML frontmatter such as
+  `module`, `tags`, and `problem_type`, useful when implementing or debugging in
+  documented areas.
 
 ## Core Workflow
 
