@@ -84,7 +84,8 @@ jobs:
         run: |
           set -euo pipefail
           appctl=/run/current-system/sw/bin/homelab-appctl
-          sudo -n "$appctl" deploy "$APP" "$CHANNEL" --target "$TARGET"
+          sudo=/run/wrappers/bin/sudo
+          "$sudo" -n "$appctl" deploy "$APP" "$CHANNEL" --target "$TARGET"
           "$appctl" smoke "$APP" "$CHANNEL"
         env:
           APP: ${{ inputs.app }}

@@ -28,7 +28,6 @@
       coreutils
       curl
       jq
-      sudo
       systemd
     ];
 
