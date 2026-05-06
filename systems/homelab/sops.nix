@@ -26,7 +26,11 @@ in
     OPENROUTER_API_KEY.mode = "0400";
     GROQ_API_KEY.mode = "0400";
     HINDSIGHT_API_TENANT_API_KEY.mode = "0400";
-    GITHUB_RUNNER_HJ_DOTFILES_TOKEN.mode = "0400";
+    GITHUB_RUNNER_HJ_DOTFILES_TOKEN = {
+      mode = "0400";
+      owner = "github-runner-homelab";
+      group = "github-runner-homelab";
+    };
   };
 
   # oci-container environmentFiles에 주입할 dotenv 렌더 파일.
