@@ -45,10 +45,19 @@ jobs:
               ;;
           esac
 
-          release_id='^deopjib-v[0-9]+\.[0-9]+\.[0-9]+$'
+          stable_release_id='^deopjib-v[0-9]+\.[0-9]+\.[0-9]+$'
+          dev_snapshot_id='^deopjib-v0\.0\.0-dev\.[0-9a-f]{7,40}$'
           source_sha='^[0-9a-f]{40}$'
 
-          if printf '%s' "$TARGET" | grep -Eq "$release_id"; then
+          if printf '%s' "$TARGET" | grep -Eq "$stable_release_id"; then
+            exit 0
+          fi
+
+          if printf '%s' "$TARGET" | grep -Eq "$dev_snapshot_id"; then
+            if [ "$CHANNEL" = prod ]; then
+              echo "::error::prod dispatch requires a stable release id target, not a dev snapshot" >&2
+              exit 1
+            fi
             exit 0
           fi
 
@@ -63,7 +72,7 @@ jobs:
           if [ "$CHANNEL" = prod ]; then
             echo "::error::prod target must be a Deopjib release id like deopjib-v0.0.1" >&2
           else
-            echo "::error::target must be a Deopjib release id like deopjib-v0.0.1 or a transitional full lowercase source SHA" >&2
+            echo "::error::target must be a Deopjib release id like deopjib-v0.0.1, a dev snapshot like deopjib-v0.0.0-dev.abcdef0, or a transitional full lowercase source SHA" >&2
           fi
           exit 1
         env:
