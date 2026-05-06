@@ -529,15 +529,24 @@ let
 
       cmd_smoke() {
         local meta=$1
-        local domain caddy_url path
+        local domain caddy_url path attempt max_attempts
         domain=$(jq -r '.domain' "$meta")
         caddy_url=$(jq -r '.caddyUrl' "$meta")
+        max_attempts=12
         mapfile -t paths < <(smoke_paths "$meta")
         [ "''${#paths[@]}" -gt 0 ] || die "metadata has no smoke paths"
 
         for path in "''${paths[@]}"; do
           echo "smoke: $domain $path"
-          curl -fsS --max-time 10 -H "Host: $domain" "$caddy_url$path" >/dev/null
+          attempt=1
+          until curl -fsS --connect-timeout 2 --max-time 5 -H "Host: $domain" "$caddy_url$path" >/dev/null; do
+            if [ "$attempt" -ge "$max_attempts" ]; then
+              return 1
+            fi
+            attempt=$((attempt + 1))
+            echo "smoke retry: $domain $path attempt $attempt/$max_attempts" >&2
+            sleep 2
+          done
         done
       }
 
