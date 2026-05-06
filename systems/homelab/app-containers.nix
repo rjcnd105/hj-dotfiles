@@ -705,7 +705,7 @@ let
 
         while IFS= read -r image_unit; do
           echo "pull: $image_unit"
-          if ! systemctl start "$image_unit"; then
+          if ! systemctl restart "$image_unit"; then
             finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" pull-failed "$migration_result" "$smoke_result"
             return 1
           fi
