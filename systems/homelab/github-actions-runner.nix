@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }:
@@ -31,10 +32,17 @@
       systemd
     ];
 
-    # Deploy crosses into host mutation only through narrow sudo rules.
+    # GitHub runner defaults are hardened for unprivileged CI. This runner
+    # executes host-owned deploy workflows through a narrow sudo allowlist.
     serviceOverrides = {
+      CapabilityBoundingSet = lib.mkForce [ "~" ];
       NoNewPrivileges = false;
+      PrivateMounts = false;
       PrivateUsers = false;
+      ProtectSystem = false;
+      RestrictNamespaces = false;
+      RestrictSUIDSGID = false;
+      SystemCallFilter = lib.mkForce [ ];
     };
   };
 
