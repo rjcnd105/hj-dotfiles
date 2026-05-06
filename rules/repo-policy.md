@@ -42,8 +42,8 @@ The host-side deploy interface is:
 homelab-appctl list
 homelab-appctl status <app> <channel>
 homelab-appctl smoke <app> <channel>
-homelab-appctl deploy <app> <channel> --dry-run
-sudo -n homelab-appctl deploy <app> <channel>
+homelab-appctl deploy <app> <channel> --dry-run --target <identifier>
+sudo -n homelab-appctl deploy <app> <channel> --target <identifier>
 sudo -n homelab-appctl rollback <app> <channel>
 ```
 
@@ -57,6 +57,18 @@ Do not make the app repo depend on this path. This path is a host adapter detail
 `deploy` and `rollback` require root because they write deploy records and
 control system services; this repo grants only those subcommands through a
 narrow passwordless sudo rule for the homelab operator user.
+
+When `deploy` receives `--target <identifier>`, it compares that identifier
+with the most recent deploy record. Prefer app release identifiers such as
+`deopjib-v0.0.1`; full source SHAs are a transition format. Matching targets are
+no-ops only when the most recent record is successful; newer failed records
+allow retry. Different targets run the normal pull, migration, restart, smoke,
+and record sequence.
+
+External app repos may dispatch `.github/workflows/deploy-homelab-app.yml`, but
+the workflow must stay host-owned, input-validated, and homelab-runner-only. Do
+not put SSH, systemd, Caddy, secret, migration, or direct `homelab-appctl`
+implementation details in app repos.
 
 ## Kubernetes Migration Boundary
 

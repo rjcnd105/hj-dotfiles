@@ -89,8 +89,8 @@ deploy script.
 homelab-appctl list
 homelab-appctl status <app> <channel>
 homelab-appctl smoke <app> <channel>
-homelab-appctl deploy <app> <channel> --dry-run
-sudo -n homelab-appctl deploy <app> <channel>
+homelab-appctl deploy <app> <channel> --dry-run --target <identifier>
+sudo -n homelab-appctl deploy <app> <channel> --target <identifier>
 sudo -n homelab-appctl rollback <app> <channel>
 ```
 
@@ -172,12 +172,17 @@ The host-side deploy path should be predictable and metadata-driven:
 
 ```text
 read generated metadata
+compare release target with the most recent deploy record
 pull/resolve service images
 run manual migration unit if declared
 restart rendered service units
 smoke through Caddy using the public Host header
-record before/after image state
+record target, before/after image state, migration result, smoke result, and final result
 ```
+
+When the most recent deploy record is successful and already has the requested
+target, deploy may no-op. A newer failed record must allow retry even when an
+older successful record has the same target.
 
 `rollback = "record-only"` is intentionally conservative. Until image restore
 and migration rollback are proven, rollback should report the prior image state
