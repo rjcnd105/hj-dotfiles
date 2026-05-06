@@ -428,7 +428,7 @@ let
         homelab-appctl list
         homelab-appctl status <app> <channel>
         homelab-appctl smoke <app> <channel>
-        homelab-appctl deploy <app> <channel> [--dry-run]
+        homelab-appctl deploy <app> <channel> [--dry-run] [--target <identifier>]
         homelab-appctl rollback <app> <channel>
         homelab-appctl logs <app> <channel>
       EOF
@@ -444,6 +444,12 @@ let
         local value=$2
         [[ "$value" =~ ^[a-z0-9][a-z0-9-]*$ ]] ||
           die "$label must match ^[a-z0-9][a-z0-9-]*$: $value"
+      }
+
+      require_target() {
+        local value=$1
+        [[ "$value" =~ ^[A-Za-z0-9._:-]+$ ]] ||
+          die "target must match ^[A-Za-z0-9._:-]+$: $value"
       }
 
       require_app_channel() {
@@ -494,6 +500,88 @@ let
             image_id=$(podman image inspect "$image_ref" --format '{{.Id}}' 2>/dev/null || true)
             printf '%s\t%s\t%s\n' "$name" "$image_ref" "$image_id"
           done
+      }
+
+      images_json() {
+        local path=$1
+        if [ ! -s "$path" ]; then
+          printf '[]\n'
+          return 0
+        fi
+
+        jq -R -s '
+          split("\n")
+          | map(select(length > 0))
+          | map(split("\t") | {
+              name: .[0],
+              imageRef: .[1],
+              imageId: (.[2] // "")
+            })
+        ' "$path"
+      }
+
+      write_record_summary() {
+        local record_path=$1
+        local app=$2
+        local channel=$3
+        local target=$4
+        local result=$5
+        local migration_result=$6
+        local smoke_result=$7
+        local deployed_at
+
+        deployed_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+        jq -n \
+          --arg app "$app" \
+          --arg channel "$channel" \
+          --arg target "$target" \
+          --arg deployedAt "$deployed_at" \
+          --arg result "$result" \
+          --arg migrationResult "$migration_result" \
+          --arg smokeResult "$smoke_result" \
+          --argjson beforeImages "$(images_json "$record_path/before-images.tsv")" \
+          --argjson afterImages "$(images_json "$record_path/after-images.tsv")" \
+          '{
+            app: $app,
+            channel: $channel,
+            target: (if $target == "" then null else $target end),
+            deployedAt: $deployedAt,
+            result: $result,
+            images: {
+              before: $beforeImages,
+              after: $afterImages
+            },
+            migration: {
+              result: $migrationResult
+            },
+            smoke: {
+              result: $smokeResult
+            }
+          }' > "$record_path/summary.json"
+      }
+
+      finish_record() {
+        local record_dir=$1
+        local record_path=$2
+        local app=$3
+        local channel=$4
+        local target=$5
+        local result=$6
+        local migration_result=$7
+        local smoke_result=$8
+
+        printf '%s\n' "$result" > "$record_path/result"
+        write_record_summary "$record_path" "$app" "$channel" "$target" "$result" "$migration_result" "$smoke_result"
+        ln -sfnT "$record_path" "$record_dir/latest"
+      }
+
+      current_target() {
+        local app=$1
+        local channel=$2
+        local latest="$state_root/$app/$channel/latest"
+        if [ -e "$latest/target" ] && [ -e "$latest/result" ] && [ "$(cat "$latest/result")" = ok ]; then
+          cat "$latest/target"
+        fi
       }
 
       cmd_list() {
@@ -555,12 +643,24 @@ let
         local channel=$2
         local meta=$3
         local dry_run=$4
+        local target=$5
+        local current
         local migration_unit record_dir record_path
+        local migration_result smoke_result image_unit service_unit
 
         migration_unit=$(jq -r '.migration.unit // empty' "$meta")
+        current=$(current_target "$app" "$channel" 2>/dev/null || true)
 
         if [ "$dry_run" = 1 ]; then
           echo "metadata: $meta"
+          if [ -n "$target" ]; then
+            echo "target: $target"
+            if [ "$current" = "$target" ]; then
+              echo "action: no-op; target already deployed"
+            else
+              echo "action: deploy; current target: ''${current:-none}"
+            fi
+          fi
           echo "image units:"
           image_units "$meta" | sed 's/^/  /'
           if [ -n "$migration_unit" ]; then
@@ -578,39 +678,67 @@ let
 
         require_root deploy "$app" "$channel"
 
+        if [ -n "$target" ] && [ "$current" = "$target" ]; then
+          echo "target already deployed: $target"
+          return 0
+        fi
+
         record_dir="$state_root/$app/$channel"
         record_path="$record_dir/$(date -u +%Y%m%dT%H%M%SZ)"
         mkdir -p "$record_path"
         cp "$meta" "$record_path/metadata.json"
         sha256sum "$meta" > "$record_path/metadata.sha256"
+        if [ -n "$target" ]; then
+          printf '%s\n' "$target" > "$record_path/target"
+        fi
+        migration_result=skipped
+        if [ -n "$migration_unit" ]; then
+          migration_result=not-run
+        fi
+        smoke_result=not-run
         snapshot_images "$meta" > "$record_path/before-images.tsv"
 
-        systemctl daemon-reload
+        if ! systemctl daemon-reload; then
+          finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" restart-failed "$migration_result" "$smoke_result"
+          return 1
+        fi
 
         while IFS= read -r image_unit; do
           echo "pull: $image_unit"
-          systemctl start "$image_unit"
+          if ! systemctl start "$image_unit"; then
+            finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" pull-failed "$migration_result" "$smoke_result"
+            return 1
+          fi
         done < <(image_units "$meta")
 
         if [ -n "$migration_unit" ]; then
           echo "migrate: $migration_unit"
-          systemctl start "$migration_unit"
+          if systemctl start "$migration_unit"; then
+            migration_result=ok
+          else
+            migration_result=failed
+            finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" migration-failed "$migration_result" "$smoke_result"
+            return 1
+          fi
         fi
 
         while IFS= read -r service_unit; do
           echo "restart: $service_unit"
-          systemctl restart "$service_unit"
+          if ! systemctl restart "$service_unit"; then
+            finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" restart-failed "$migration_result" "$smoke_result"
+            return 1
+          fi
         done < <(service_units "$meta")
 
         snapshot_images "$meta" > "$record_path/after-images.tsv"
 
         if cmd_smoke "$meta"; then
-          printf 'ok\n' > "$record_path/result"
-          ln -sfn "$record_path" "$record_dir/latest"
+          smoke_result=ok
+          finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" ok "$migration_result" "$smoke_result"
           echo "deploy record: $record_path"
         else
-          printf 'smoke-failed\n' > "$record_path/result"
-          ln -sfn "$record_path" "$record_dir/latest"
+          smoke_result=failed
+          finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" smoke-failed "$migration_result" "$smoke_result"
           echo "smoke failed; rollback record: $record_path" >&2
           echo "run: sudo -n homelab-appctl rollback $app $channel" >&2
           return 1
@@ -657,19 +785,34 @@ let
           esac
           ;;
         deploy)
-          [ "$#" -eq 3 ] || [ "$#" -eq 4 ] || {
+          [ "$#" -ge 3 ] || {
             usage >&2
             exit 1
           }
           app=$2
           channel=$3
           dry_run=0
-          if [ "$#" -eq 4 ]; then
-            [ "$4" = "--dry-run" ] || die "unknown deploy option: $4"
-            dry_run=1
-          fi
+          target=""
+          shift 3
+          while [ "$#" -gt 0 ]; do
+            case "$1" in
+              --dry-run)
+                dry_run=1
+                shift
+                ;;
+              --target)
+                [ "$#" -ge 2 ] || die "--target requires a value"
+                require_target "$2"
+                target=$2
+                shift 2
+                ;;
+              *)
+                die "unknown deploy option: $1"
+                ;;
+            esac
+          done
           meta=$(require_metadata "$app" "$channel")
-          cmd_deploy "$app" "$channel" "$meta" "$dry_run"
+          cmd_deploy "$app" "$channel" "$meta" "$dry_run" "$target"
           ;;
         -h|--help|help|"")
           usage
