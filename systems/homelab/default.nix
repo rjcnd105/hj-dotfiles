@@ -12,6 +12,7 @@
     ./hindsight-stack.nix
     ./app-containers.nix
     ./app-admissions.nix
+    ./github-actions-runner.nix
     ./recall-eval.nix
   ];
 

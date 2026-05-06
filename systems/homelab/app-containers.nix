@@ -1239,7 +1239,10 @@ in
 
     security.sudo.extraRules = [
       {
-        users = [ myOptions.userName ];
+        users = [
+          myOptions.userName
+          "github-runner-homelab"
+        ];
         runAs = "root";
         commands =
           let
