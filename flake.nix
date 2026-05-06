@@ -143,6 +143,23 @@
         };
 
       treefmtEval = eachSystem (system: treefmt-nix.lib.evalModule (pkgsFor system) treefmtModule);
+
+      homelabAppctlDeployInvariants =
+        system:
+        let
+          pkgs = pkgsFor system;
+        in
+        pkgs.runCommand "homelab-appctl-deploy-invariants" { } ''
+          app_containers=${./systems/homelab/app-containers.nix}
+
+          ${pkgs.gnugrep}/bin/grep -F 'systemctl restart "$image_unit"' "$app_containers" >/dev/null
+          if ${pkgs.gnugrep}/bin/grep -F 'systemctl start "$image_unit"' "$app_containers" >/dev/null; then
+            echo 'homelab-appctl deploy must restart image pull units; start is a no-op for active oneshot .image units' >&2
+            exit 1
+          fi
+
+          touch "$out"
+        '';
     in
     {
       _debug = { };
@@ -151,6 +168,7 @@
 
       checks = eachSystem (system: {
         formatting = treefmtEval.${system}.config.build.check self;
+        homelab-appctl-deploy-invariants = homelabAppctlDeployInvariants system;
       });
 
       darwinConfigurations = lib.mapAttrs (
