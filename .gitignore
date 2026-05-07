@@ -14,5 +14,5 @@ templates/**/.pre-commit-config.yaml
 
 files/**/profiles/session/*
 
-# graphify AST cache — regenerable, not source
-graphify-out/cache/
+# graphify outputs — generated local graph/report artifacts
+graphify-out/
