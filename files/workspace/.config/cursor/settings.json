@@ -319,5 +319,6 @@
   "workbench.editor.highlightModifiedTabs": true,
   "workbench.editor.closeOnFileDelete": true,
   "workbench.editor.limit.enabled": true,
-  "workbench.editor.limit.perEditorGroup": true
+  "workbench.editor.limit.perEditorGroup": true,
+  "window.autoDetectColorScheme": false
 }

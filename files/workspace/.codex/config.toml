@@ -8,7 +8,6 @@ notify = [
   "/Users/hj/.codex/plugins/cache/openai-bundled/computer-use/1.0.758/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient",
   "turn-ended",
 ]
-service_tier = "fast"
 
 [projects]
 [projects.'/Users/hj/work/gm/gentle-renewal']
@@ -83,8 +82,8 @@ source_type = "local"
 source = "/Users/hj/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [marketplaces.compound-engineering-plugin]
-last_updated = "2026-05-06T02:01:21Z"
-last_revision = "52e8f868b950d950722d829148eb4940134ccd10"
+last_updated = "2026-05-07T01:53:30Z"
+last_revision = "d299868b8f09e53d9936ee734df714d749d33e7e"
 source_type = "git"
 source = "https://github.com/EveryInc/compound-engineering-plugin.git"
 
