@@ -238,6 +238,9 @@
       }
     },
     "elixir-ls": {
+      "binary": {
+        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-elixir-ls"
+      },
       "settings": {
         "dialyzerEnabled": true,
         "incrementalDialyzer": true,
@@ -249,10 +252,21 @@
       }
     },
     "expert": {
+      "binary": {
+        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-expert",
+        "arguments": [
+          "--stdio"
+        ]
+      },
       "settings": {
         "workspaceSymbols": {
           "minQueryLength": 0
         }
+      }
+    },
+    "rust-analyzer": {
+      "binary": {
+        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-rust-analyzer"
       }
     },
     "emmet-language-server": {
@@ -393,7 +407,9 @@
       "show_whitespaces": "selection",
       "language_servers": [
         "elixir-ls",
-        "!expert",
+        "expert",
+        "!next-ls",
+        "!lexical",
         "html-language-server",
         "tailwindcss-language-server"
       ],
@@ -416,6 +432,9 @@
       "format_on_save": "on",
       "language_servers": [
         "elixir-ls",
+        "expert",
+        "!next-ls",
+        "!lexical",
         "html-language-server",
         "tailwindcss-language-server",
         "emmet-language-server"

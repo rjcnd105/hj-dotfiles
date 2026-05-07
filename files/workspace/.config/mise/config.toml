@@ -65,6 +65,10 @@ version = "latest"
 
 [tools.rust]
 version = "latest"
+components = "rust-analyzer,rust-src"
+
+[tools.expert]
+version = "latest"
 
 [tools.elixir-ls]
 version = "latest"
