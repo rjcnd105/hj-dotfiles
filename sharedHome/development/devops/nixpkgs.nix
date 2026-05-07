@@ -13,7 +13,6 @@ in
   home.packages = with pkgs; [
     deploy-rs
     nixd
-    nil
     nix-prefetch-git
     inputs.self.formatter.${system}
   ];

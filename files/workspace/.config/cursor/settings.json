@@ -94,7 +94,7 @@
   },
   "explorer.fileNesting.enabled": true,
   "nix.enableLanguageServer": true,
-  "nix.serverPath": "nil",
+  "nix.serverPath": "/etc/profiles/per-user/hj/bin/lspmux-nix-nixd",
   "nix.serverSettings": {
     "nixd": {
       "formatting": {
@@ -102,9 +102,6 @@
           "nixfmt"
         ]
       }
-    },
-    "nil": {
-      "formatting": { "command": ["nixfmt"] }
     }
   },
   "editor.codeActionsOnSave": {
@@ -127,7 +124,6 @@
   "elixirLS.languageServerOverridePath": "/Users/hj/.local/share/lspmux/cursor-elixir-ls-release-shim",
   "expert.server.enabled": true,
   "expert.server.releasePathOverride": "/etc/profiles/per-user/hj/bin/lspmux-mise-expert",
-  "expert.server.startupFlagsOverride": "--stdio",
   "expert.server.workspaceSymbols.minQueryLength": 0,
   "cursor.composer.cmdPFilePicker2": true,
   "cursor.composer.renderPillsInsteadOfBlocks": true,
@@ -248,7 +244,8 @@
   },
   "editor.experimental.preferTreeSitter.css": true,
   "tailwindCSS.emmetCompletions": true,
-  "evenBetterToml.taplo.path": "",
+  "evenBetterToml.taplo.bundled": false,
+  "evenBetterToml.taplo.path": "/etc/profiles/per-user/hj/bin/lspmux-mise-taplo",
   "evenBetterToml.formatter.indentTables": true,
   "evenBetterToml.formatter.inlineTableExpand": true,
   "evenBetterToml.formatter.reorderInlineTables": false,

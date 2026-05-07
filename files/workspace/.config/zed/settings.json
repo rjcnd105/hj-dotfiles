@@ -213,6 +213,9 @@
   },
   "lsp": {
     "nixd": {
+      "binary": {
+        "path": "/etc/profiles/per-user/hj/bin/lspmux-nix-nixd"
+      },
       "settings": {
         "formatting": {
           "command": [
@@ -253,10 +256,7 @@
     },
     "expert": {
       "binary": {
-        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-expert",
-        "arguments": [
-          "--stdio"
-        ]
+        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-expert"
       },
       "settings": {
         "workspaceSymbols": {
@@ -269,7 +269,50 @@
         "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-rust-analyzer"
       }
     },
+    "vtsls": {
+      "binary": {
+        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-vtsls"
+      }
+    },
+    "vscode-html-language-server": {
+      "binary": {
+        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-html-language-server"
+      }
+    },
+    "css-language-server": {
+      "binary": {
+        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-css-language-server"
+      }
+    },
+    "json-language-server": {
+      "binary": {
+        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-json-language-server"
+      }
+    },
+    "markdown-language-server": {
+      "binary": {
+        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-markdown-language-server"
+      }
+    },
+    "yaml-language-server": {
+      "binary": {
+        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-yaml-language-server"
+      }
+    },
+    "taplo": {
+      "binary": {
+        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-taplo"
+      }
+    },
+    "biome": {
+      "binary": {
+        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-biome"
+      }
+    },
     "emmet-language-server": {
+      "binary": {
+        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-emmet-language-server"
+      },
       "settings": {
         "emmet": {
           "includeLanguages": {
@@ -283,6 +326,9 @@
       }
     },
     "eslint": {
+      "binary": {
+        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-eslint-language-server"
+      },
       "settings": {
         "codeActionOnSave": {
           "rules": [
@@ -292,6 +338,9 @@
       }
     },
     "gopls": {
+      "binary": {
+        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-gopls"
+      },
       "initialization_options": {
         "usePlaceholders": true,
         "completeUnimported": true,
@@ -327,6 +376,9 @@
       }
     },
     "tailwindcss-language-server": {
+      "binary": {
+        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-tailwindcss-language-server"
+      },
       "settings": {
         "classFunctions": [
           "tw",
@@ -385,6 +437,10 @@
       }
     },
     "CSS": {
+      "language_servers": [
+        "css-language-server",
+        "tailwindcss-language-server"
+      ],
       "formatter": {
         "language_server": {
           "name": "biome"
@@ -410,7 +466,7 @@
         "expert",
         "!next-ls",
         "!lexical",
-        "html-language-server",
+        "vscode-html-language-server",
         "tailwindcss-language-server"
       ],
       "format_on_save": "on"
@@ -435,7 +491,7 @@
         "expert",
         "!next-ls",
         "!lexical",
-        "html-language-server",
+        "vscode-html-language-server",
         "tailwindcss-language-server",
         "emmet-language-server"
       ]
