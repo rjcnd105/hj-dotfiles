@@ -73,6 +73,24 @@ nix eval .#nixosConfigurations.homelab_hj.config.networking.hostName
 nix flake check --all-systems --no-build --show-trace
 ```
 
+## Nix Analysis In Codex
+
+`nixd` and `nil` are installed for editor use, and this repo's Zed/Cursor
+settings prefer `nixd` where configured. Codex does not currently expose the
+Claude `LSP` deferred tool or `claude-code-lsps` plugin surface in this repo.
+
+For Codex sessions:
+
+- Do not claim LSP-backed answers unless a live Codex LSP/MCP tool is actually
+  visible in the current tool list.
+- Use repo files plus `nix eval`, `nix flake check`, and `just check` as the
+  authoritative Nix verification path.
+- Use `nixd --version` only to verify the language server binary exists; it is
+  not by itself an agent-callable code intelligence tool.
+- Treat tree-sitter as syntax/AST support only. Local graphify detection does
+  not classify `.nix` files as code, so graphify is not a Nix module AST
+  substitute here.
+
 ## Homelab App Deployments
 
 Read `docs/guides/homelab-image-deploy-guide.md` before changing homelab app
