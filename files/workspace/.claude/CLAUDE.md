@@ -21,3 +21,6 @@ plan mode에서 요구사항을 파악할 때는 다음 원칙을 따른다:
    ```
 
 @RTK.md
+# graphify
+- **graphify** (`~/.claude/skills/graphify/SKILL.md`) - any input to knowledge graph. Trigger: `/graphify`
+When the user types `/graphify`, invoke the Skill tool with `skill: "graphify"` before doing anything else.

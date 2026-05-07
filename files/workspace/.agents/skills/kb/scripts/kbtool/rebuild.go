@@ -94,10 +94,11 @@ func cmdRebuildIndex() error {
 	if err != nil {
 		return err
 	}
+	indexPages := publicIndexPages(pages)
 
 	// Classify and group pages.
 	grouped := map[string][]*Page{}
-	for _, p := range pages {
+	for _, p := range indexPages {
 		s := classify(p)
 		grouped[s] = append(grouped[s], p)
 	}
@@ -122,7 +123,7 @@ func cmdRebuildIndex() error {
 	// Render.
 	var buf strings.Builder
 	buf.WriteString("---\n")
-	buf.WriteString("publish: false\n")
+	buf.WriteString("publish: true\n")
 	fmt.Fprintf(&buf, "created: %s\n", indexCreated)
 	fmt.Fprintf(&buf, "modified: %s\n", now.Format("2006-01-02T15:04:05Z"))
 	buf.WriteString("tags:\n")
@@ -183,8 +184,20 @@ func cmdRebuildIndex() error {
 	if err := atomicWrite(outPath, []byte(buf.String())); err != nil {
 		return err
 	}
-	fmt.Printf("wrote %s (%d pages across %d sections)\n", outPath, len(pages), sectionsRendered)
+	fmt.Printf("wrote %s (%d indexed pages, %d total pages across %d sections)\n",
+		outPath, len(indexPages), len(pages), sectionsRendered)
 	return nil
+}
+
+func publicIndexPages(pages []*Page) []*Page {
+	out := make([]*Page, 0, len(pages))
+	for _, p := range pages {
+		if p.publishPresent && !p.Publish {
+			continue
+		}
+		out = append(out, p)
+	}
+	return out
 }
 
 type healthStats struct {

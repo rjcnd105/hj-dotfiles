@@ -14,6 +14,130 @@ let
   # Nix path (path + string = path) — store로 복사되어 빌드 샌드박스에서 접근 가능
   host_secrets_path = ../../secrets + "/${myOptions.hostName}/secrets.yaml";
   last30days_secrets_path = ../../secrets + "/${myOptions.hostName}/last30days.enc.yaml";
+  rendered_env_dir = "${config.home.homeDirectory}/.config/sops-nix/secrets/rendered";
+
+  # Single source of truth for env-var names and backing sops secret keys.
+  # Adding a key here automatically creates both the sops secret entry and the
+  # per-secret rendered env file under ${rendered_env_dir}/env/.
+  env_bindings = {
+    GITHUB_MASTER_TOKEN = "github_master_token";
+    ANTHROPIC_KEY = "anthropic_key";
+    ANTHROPIC_API_KEY = "anthropic_key";
+    GOOGLE_SEARCH = "google_search";
+    OPENAI_GPT_KEY = "openai_gpt_key";
+    OPENAI_API_KEY = "openai_gpt_key";
+    OPENROUTER_API_KEY = "OPENROUTER_API_KEY";
+    BRAVE_API_KEY = "BRAVE_API_KEY";
+    CURSOR_BACKGROUND = "cursor_background";
+    EXA_API_KEY = "EXA_API_KEY";
+    CONTEXT7_API_KEY = "CONTEXT7_API_KEY";
+    GEMINI_API_KEY_FREE = "GEMINI_API_KEY_FREE";
+    GEMINI_API_KEY = "GEMINI_API_KEY_FREE";
+    TELEGRAM_BOT_HJSAGENTBOT = "TELEGRAM_BOT_hjsAgentBot";
+    FIGMA_READ_API_KEY = "FIGMA_READ_API_KEY";
+    GROQ_API_KEY = "GROQ_API_KEY";
+    SCRAPECREATORS_API_KEY = "SCRAPECREATORS_API_KEY";
+    AUTH_TOKEN = "AUTH_TOKEN";
+    CT0 = "CT0";
+    BSKY_HANDLE = "BSKY_HANDLE";
+    BSKY_APP_PASSWORD = "BSKY_APP_PASSWORD";
+  };
+
+  workspace_env_vars = [
+    "GITHUB_MASTER_TOKEN"
+    "ANTHROPIC_KEY"
+    "GOOGLE_SEARCH"
+    "OPENAI_GPT_KEY"
+    "OPENROUTER_API_KEY"
+    "BRAVE_API_KEY"
+    "CURSOR_BACKGROUND"
+    "EXA_API_KEY"
+    "CONTEXT7_API_KEY"
+    "GEMINI_API_KEY_FREE"
+    "TELEGRAM_BOT_HJSAGENTBOT"
+    "FIGMA_READ_API_KEY"
+  ];
+
+  llm_env_vars = [
+    "OPENAI_API_KEY"
+    "ANTHROPIC_API_KEY"
+    "OPENROUTER_API_KEY"
+    "EXA_API_KEY"
+    "GEMINI_API_KEY"
+    "GROQ_API_KEY"
+  ];
+
+  last30days_env_vars = [
+    "SCRAPECREATORS_API_KEY"
+    "OPENAI_API_KEY"
+    "BRAVE_API_KEY"
+    "OPENROUTER_API_KEY"
+    "AUTH_TOKEN"
+    "CT0"
+    "BSKY_HANDLE"
+    "BSKY_APP_PASSWORD"
+  ];
+
+  last30days_secret_names = [
+    "BSKY_HANDLE"
+    "BSKY_APP_PASSWORD"
+    "SCRAPECREATORS_API_KEY"
+    "AUTH_TOKEN"
+    "CT0"
+  ];
+
+  mkEnvLine =
+    envVar:
+    let
+      secret = builtins.getAttr envVar env_bindings;
+    in
+    "${envVar}=${builtins.getAttr secret config.sops.placeholder}";
+
+  mkEnvContent = envVars: ''
+    ${builtins.concatStringsSep "\n" (map mkEnvLine envVars)}
+  '';
+
+  env_var_names = builtins.attrNames env_bindings;
+  secret_names = builtins.attrNames (
+    builtins.listToAttrs (
+      map (envVar: {
+        name = builtins.getAttr envVar env_bindings;
+        value = true;
+      }) env_var_names
+    )
+  );
+
+  mkSecretConfig = secret: {
+    name = secret;
+    value = {
+      mode = "600";
+    }
+    // (
+      if builtins.elem secret last30days_secret_names then
+        { sopsFile = last30days_secrets_path; }
+      else
+        { }
+    );
+  };
+
+  sops_secret_configs = builtins.listToAttrs (map mkSecretConfig secret_names);
+
+  mkSingleSecretEnvTemplate =
+    envVar:
+    let
+      secret = builtins.getAttr envVar env_bindings;
+    in
+    {
+      name = "env/${envVar}.env";
+      value = {
+        path = "${rendered_env_dir}/env/${envVar}.env";
+        content = ''
+          ${envVar}=${builtins.getAttr secret config.sops.placeholder}
+        '';
+      };
+    };
+
+  single_secret_env_templates = builtins.listToAttrs (map mkSingleSecretEnvTemplate env_var_names);
 in
 {
 
@@ -31,6 +155,8 @@ in
     SOPS_AGE_KEY_FILE = age_key_file;
     WORKSPACE_SECRETS_ENV = config.sops.templates."workspace-secrets.env".path;
     WORKSPACE_LLM_ENV = config.sops.templates."llm.env".path;
+    WORKSPACE_CONTEXT7_ENV = config.sops.templates."env/CONTEXT7_API_KEY.env".path;
+    WORKSPACE_SINGLE_SECRET_ENV_DIR = "${rendered_env_dir}/env";
   };
 
   sops = {
@@ -41,96 +167,21 @@ in
     };
     defaultSopsFile = host_secrets_path;
 
-    # secrets 정의
-    secrets = {
-      # 개인용 github token
-      "github_master_token" = {
-        mode = "600";
-        # 기본 경로: ~/.config/sops/secrets/github-token
-      };
-      "anthropic_key".mode = "600";
-      "google_search".mode = "600";
-      "openai_gpt_key".mode = "600";
-      "OPENROUTER_API_KEY".mode = "600";
-      "BRAVE_API_KEY".mode = "600";
-      "cursor_background".mode = "600";
-      "EXA_API_KEY".mode = "600";
-      "CONTEXT7_API_KEY".mode = "600";
-      "GEMINI_API_KEY_FREE".mode = "600";
-      "TELEGRAM_BOT_hjsAgentBot".mode = "600";
-      "FIGMA_READ_API_KEY".mode = "600";
-      "GROQ_API_KEY".mode = "600";
-
-      "BSKY_HANDLE" = {
-        mode = "600";
-        sopsFile = last30days_secrets_path;
-      };
-      "BSKY_APP_PASSWORD" = {
-        mode = "600";
-        sopsFile = last30days_secrets_path;
-      };
-      "SCRAPECREATORS_API_KEY" = {
-        mode = "600";
-        sopsFile = last30days_secrets_path;
-      };
-      "AUTH_TOKEN" = {
-        mode = "600";
-        sopsFile = last30days_secrets_path;
-      };
-      "CT0" = {
-        mode = "600";
-        sopsFile = last30days_secrets_path;
-      };
-
-    };
+    secrets = sops_secret_configs;
 
     templates = {
-      "workspace-secrets.env".content = ''
-        GITHUB_MASTER_TOKEN=${config.sops.placeholder.github_master_token}
-        ANTHROPIC_KEY=${config.sops.placeholder.anthropic_key}
-        GOOGLE_SEARCH=${config.sops.placeholder.google_search}
-        OPENAI_GPT_KEY=${config.sops.placeholder.openai_gpt_key}
-        OPENROUTER_API_KEY=${config.sops.placeholder."OPENROUTER_API_KEY"}
-        BRAVE_API_KEY=${config.sops.placeholder."BRAVE_API_KEY"}
-        CURSOR_BACKGROUND=${config.sops.placeholder.cursor_background}
-        EXA_API_KEY=${config.sops.placeholder."EXA_API_KEY"}
-        CONTEXT7_API_KEY=${config.sops.placeholder."CONTEXT7_API_KEY"}
-        GEMINI_API_KEY_FREE=${config.sops.placeholder."GEMINI_API_KEY_FREE"}
-        TELEGRAM_BOT_HJSAGENTBOT=${config.sops.placeholder."TELEGRAM_BOT_hjsAgentBot"}
-        FIGMA_READ_API_KEY=${config.sops.placeholder."FIGMA_READ_API_KEY"}
-      '';
+      "workspace-secrets.env".content = mkEnvContent workspace_env_vars;
 
-      "llm.env".content = ''
-        OPENAI_API_KEY=${config.sops.placeholder.openai_gpt_key}
-        ANTHROPIC_API_KEY=${config.sops.placeholder.anthropic_key}
-        OPENROUTER_API_KEY=${config.sops.placeholder."OPENROUTER_API_KEY"}
-        EXA_API_KEY=${config.sops.placeholder."EXA_API_KEY"}
-        GEMINI_API_KEY=${config.sops.placeholder."GEMINI_API_KEY_FREE"}
-        GROQ_API_KEY=${config.sops.placeholder."GROQ_API_KEY"}
-      '';
+      "llm.env".content = mkEnvContent llm_env_vars;
+
+      "context7.env".content = mkEnvContent [ "CONTEXT7_API_KEY" ];
 
       "last30days.env" = {
         path = "${config.home.homeDirectory}/.config/last30days/.env";
         mode = "600";
-        content = ''
-          # Reddit + TikTok + Instagram (one key, all three) - scrapecreators.com
-          SCRAPECREATORS_API_KEY=${config.sops.placeholder."SCRAPECREATORS_API_KEY"}
-          # optional - legacy Reddit fallback if using `codex login`
-          OPENAI_API_KEY=${config.sops.placeholder.openai_gpt_key}
-          # optional - Brave search
-          BRAVE_API_KEY=${config.sops.placeholder."BRAVE_API_KEY"}
-          # optional - OpenRouter search
-          OPENROUTER_API_KEY=${config.sops.placeholder."OPENROUTER_API_KEY"}
-          # recommended for X search - copy once from x.com cookies
-          AUTH_TOKEN=${config.sops.placeholder."AUTH_TOKEN"}
-          # recommended for X search - copy once from x.com cookies
-          CT0=${config.sops.placeholder."CT0"}
-          # optional - Bluesky search (create app password below)
-          BSKY_HANDLE=${config.sops.placeholder."BSKY_HANDLE"}
-          # optional - bsky.app/settings/app-passwords
-          BSKY_APP_PASSWORD=${config.sops.placeholder."BSKY_APP_PASSWORD"}
-        '';
+        content = mkEnvContent last30days_env_vars;
       };
-    };
+    }
+    // single_secret_env_templates;
   };
 }
