@@ -14,13 +14,15 @@ import (
 
 // Page is a parsed kb/*.md page.
 type Page struct {
-	Name             string   // file stem without extension
-	Path             string   // absolute path
-	KBType           string   // kb-type
+	Name             string // file stem without extension
+	Path             string // absolute path
+	KBType           string // kb-type
 	Created          time.Time
 	CreatedRaw       string
 	Modified         time.Time
 	ModifiedRaw      string
+	Publish          bool
+	publishPresent   bool
 	Tags             []string
 	KBSources        []string // nil if absent, empty slice if declared empty
 	kbSourcesPresent bool
@@ -30,12 +32,12 @@ type Page struct {
 
 // pageAnnotations are derived per-page facts used by lint + rebuild-index.
 type pageAnnotations struct {
-	EmptySource      bool
-	SingleSource     bool
-	HasConflict      bool
-	StaleRecent      bool
-	StaleSections    []string
-	WikilinkTargets  []string
+	EmptySource     bool
+	SingleSource    bool
+	HasConflict     bool
+	StaleRecent     bool
+	StaleSections   []string
+	WikilinkTargets []string
 }
 
 var (
@@ -168,6 +170,9 @@ func parseFrontmatter(page *Page, lines []string) {
 		case "modified":
 			page.ModifiedRaw = unquote(value)
 			page.Modified = parseTime(page.ModifiedRaw)
+		case "publish":
+			page.Publish = parseBool(value)
+			page.publishPresent = true
 		case "kb-contradictions":
 			n, err := strconv.Atoi(unquote(value))
 			if err == nil {
@@ -189,6 +194,15 @@ func parseFrontmatter(page *Page, lines []string) {
 			continue
 		}
 		i++
+	}
+}
+
+func parseBool(s string) bool {
+	switch strings.ToLower(strings.TrimSpace(unquote(s))) {
+	case "true", "yes", "1":
+		return true
+	default:
+		return false
 	}
 }
 

@@ -73,6 +73,16 @@ nix eval .#nixosConfigurations.homelab_hj.config.networking.hostName
 nix flake check --all-systems --no-build --show-trace
 ```
 
+## Technical Documentation Lookup
+
+- For library/framework/API documentation, prefer Context7 MCP when the
+  `context7` MCP server is visible in the current Codex tool list.
+- If the MCP tool is not available, use `ctx7 library <name> <query>` to resolve
+  the library ID, then `ctx7 docs <libraryId> <query>` before falling back to
+  web search.
+- Keep source-specific claims tied to the fetched docs, and cite the source URL
+  when using external documentation in a final answer.
+
 ## Nix Analysis In Codex
 
 `nixd` and `nil` are installed for editor use, and this repo's Zed/Cursor
@@ -87,9 +97,11 @@ For Codex sessions:
   authoritative Nix verification path.
 - Use `nixd --version` only to verify the language server binary exists; it is
   not by itself an agent-callable code intelligence tool.
-- Treat tree-sitter as syntax/AST support only. Local graphify detection does
-  not classify `.nix` files as code, so graphify is not a Nix module AST
-  substitute here.
+- Tree-sitter can be used as a Codex-native syntax/AST layer for `.nix` files
+  when `tree-sitter-nix` is wired explicitly. It can support structural search,
+  import/attribute extraction, and graph building, but it does not replace
+  nixd's semantic evaluation, option typing, package completion, or cross-file
+  Nixpkgs/module resolution.
 
 ## Homelab App Deployments
 
@@ -146,5 +158,9 @@ Rules:
   files.
 - If `graphify-out/graph.json` or `GRAPH_REPORT.md` is missing, say the graph is
   not built yet and fall back to normal repo inspection.
+- For cross-module "how does X relate to Y" questions, prefer
+  `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or
+  `graphify explain "<concept>"` over grep. These traverse the graph's
+  EXTRACTED and INFERRED edges instead of scanning files.
 - After modifying code files in this session, run `graphify update .` to keep
   the graph current only when `graphify-out/graph.json` already exists.
