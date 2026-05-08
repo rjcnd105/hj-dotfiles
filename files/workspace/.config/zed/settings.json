@@ -376,9 +376,6 @@
       }
     },
     "tailwindcss-language-server": {
-      "binary": {
-        "path": "/etc/profiles/per-user/hj/bin/lspmux-mise-tailwindcss-language-server"
-      },
       "settings": {
         "classFunctions": [
           "tw",

@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  myOptions,
   pkgs,
   ...
 }:
@@ -18,6 +19,7 @@ let
       "PATH",
       "HOME",
       "USER",
+      "USER_HOST",
       "LOGNAME",
       "SHELL",
       "TMPDIR",
@@ -231,8 +233,10 @@ let
         "lsp"
         "stdio"
       ];
+      callerProvidesServerArgs = true;
       versionFromMiseTool = "aqua:tamasfe/taplo";
       languages = [ "toml" ];
+      notes = "Cursor Even Better TOML already passes `lsp stdio`; Zed can use the configured default args.";
     }
     {
       name = "biome";
@@ -255,11 +259,18 @@ let
       wrapperName,
       server,
       serverArgs ? [ ],
+      callerProvidesServerArgs ? false,
       versionFromMiseTool ? null,
       ...
     }:
     let
       serverArgsText = lib.escapeShellArgs serverArgs;
+      callerProvidesServerArgsBranch = lib.optionalString callerProvidesServerArgs ''
+        if [ "$#" -gt 0 ]; then
+          exec "$mise_bin" exec -- ${lib.getExe pkgs.lspmux} client \
+            --server-path ${lib.escapeShellArg server} -- "$@"
+        fi
+      '';
       versionProbe = lib.optionalString (versionFromMiseTool != null) ''
         version="$("$mise_bin" current ${lib.escapeShellArg versionFromMiseTool} 2>/dev/null || true)"
         if [ -n "$version" ]; then
@@ -280,10 +291,20 @@ let
           exit 127
         fi
 
+        # GUI apps can launch wrappers with a sparse env; mise needs these to load project config.
+        export HOME="''${HOME:-${config.home.homeDirectory}}"
+        export USER="''${USER:-${config.home.username}}"
+        export USER_HOST="''${USER_HOST:-${myOptions.hostName}}"
+        export LOGNAME="''${LOGNAME:-${config.home.username}}"
+        export PROJECT_PATH="''${PROJECT_PATH:-${myOptions.absoluteProjectPath}}"
+        export SOPS_AGE_KEY_FILE="''${SOPS_AGE_KEY_FILE:-${config.xdg.configHome}/sops/age/keys.txt}"
+
         if [ "''${1:-}" = "--version" ] || [ "''${1:-}" = "-V" ]; then
           ${versionProbe}
           exec "$mise_bin" exec -- ${lib.escapeShellArg server} "$@"
         fi
+
+        ${callerProvidesServerArgsBranch}
 
         exec "$mise_bin" exec -- ${lib.getExe pkgs.lspmux} client \
           --server-path ${lib.escapeShellArg server} -- ${serverArgsText} "$@"
@@ -340,6 +361,7 @@ let
         ;
       server = server.server or server.serverPath;
       serverArgs = server.serverArgs or [ ];
+      callerProvidesServerArgs = server.callerProvidesServerArgs or false;
       wrapper = "${profileBin}/${server.wrapperName}";
       miseTool = server.versionFromMiseTool or null;
       notes = server.notes or "";
