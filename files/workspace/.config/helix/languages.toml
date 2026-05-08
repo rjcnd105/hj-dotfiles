@@ -1,24 +1,32 @@
 [[language]]
 name = "elixir"
 language-id = "phoenix-heex"
-language-servers = ["tailwind-heex", "elixir-ls"]
+language-servers = ["tailwind-heex", "elixir-ls", "expert"]
 auto-format = true
 
 [[language]]
 name = "heex"
 language-id = "phoenix-heex"
-language-servers = ["tailwind-heex", "elixir-ls"]
+language-servers = ["tailwind-heex", "elixir-ls", "expert"]
 auto-format = true
 
 
 [language-server.tailwind-heex]
-command = "tailwindcss-language-server"
-args = ["--stdio"]
+command = "/etc/profiles/per-user/hj/bin/lspmux-mise-tailwindcss-language-server"
+
+[language-server.elixir-ls]
+command = "/etc/profiles/per-user/hj/bin/lspmux-mise-elixir-ls"
+
+[language-server.expert]
+command = "/etc/profiles/per-user/hj/bin/lspmux-mise-expert"
 
 [[language]]
 name = "go"
 auto-format = true
 language-servers = ["gopls"]
+
+[language-server.gopls]
+command = "/etc/profiles/per-user/hj/bin/lspmux-mise-gopls"
 
 [language-server.gopls.config]
 usePlaceholders = true
@@ -44,3 +52,11 @@ constantValues = true
 functionTypeParameters = true
 parameterNames = true
 rangeVariableTypes = true
+
+[[language]]
+name = "nix"
+auto-format = true
+language-servers = ["nixd"]
+
+[language-server.nixd]
+command = "/etc/profiles/per-user/hj/bin/lspmux-nix-nixd"

@@ -65,11 +65,45 @@ version = "latest"
 
 [tools.rust]
 version = "latest"
+components = "rust-analyzer,rust-src"
+
+[tools.expert]
+version = "latest"
 
 [tools.elixir-ls]
 version = "latest"
 
 [tools.gleam]
+version = "latest"
+
+[tools."npm:@vtsls/language-server"]
+version = "latest"
+
+[tools."npm:vscode-langservers-extracted"]
+version = "latest"
+
+[tools."npm:@tailwindcss/language-server"]
+version = "latest"
+
+[tools."npm:@olrtg/emmet-language-server"]
+version = "latest"
+
+[tools."go:golang.org/x/tools/gopls"]
+version = "latest"
+
+[tools."npm:yaml-language-server"]
+version = "latest"
+
+[tools."npm:bash-language-server"]
+version = "latest"
+
+[tools."npm:dockerfile-language-server-nodejs"]
+version = "latest"
+
+[tools."aqua:tamasfe/taplo"]
+version = "latest"
+
+[tools."aqua:biomejs/biome"]
 version = "latest"
 
 
