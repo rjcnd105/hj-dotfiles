@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Container Query Card</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      color: #18212f;
+      background: #edf1f4;
+    }
+
+    .demo {
+      width: min(100%, 760px);
+      resize: horizontal;
+      overflow: auto;
+      min-width: 280px;
+      max-width: 100%;
+      padding: 4px;
+    }
+
+    .card {
+      container-type: inline-size;
+      display: grid;
+      gap: 18px;
+      border-radius: 8px;
+      padding: 18px;
+      background: #ffffff;
+      box-shadow: 0 16px 46px rgba(24, 33, 47, 0.16);
+    }
+
+    .media {
+      min-height: 180px;
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(24, 33, 47, 0.04), rgba(24, 33, 47, 0)),
+        repeating-linear-gradient(135deg, #dce7e5 0 12px, #c9d9d6 12px 24px);
+    }
+
+    .copy {
+      display: grid;
+      gap: 12px;
+      align-content: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      line-height: 1.15;
+    }
+
+    p {
+      margin: 0;
+      color: #4e5b68;
+      line-height: 1.5;
+    }
+
+    a {
+      width: fit-content;
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: white;
+      background: #334e68;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    @container (min-width: 34rem) {
+      .card {
+        grid-template-columns: minmax(180px, 0.8fr) minmax(0, 1fr);
+        align-items: stretch;
+      }
+
+      .media {
+        min-height: 260px;
+      }
+
+      h1 {
+        font-size: clamp(1.5rem, 5cqi, 2.4rem);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="demo" aria-label="Resizable container query demo">
+    <article class="card">
+      <div class="media" aria-hidden="true"></div>
+      <div class="copy">
+        <h1>Layout follows the card, not the viewport</h1>
+        <p>Resize the outer container. The card switches from stacked to split when its own inline size crosses the query.</p>
+        <a href="#container-query-card">Inspect pattern</a>
+      </div>
+    </article>
+  </main>
+</body>
+</html>

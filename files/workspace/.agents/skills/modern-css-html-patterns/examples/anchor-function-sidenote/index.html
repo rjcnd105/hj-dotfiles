@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Anchor Function Sidenote</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      font-family: Georgia, "Times New Roman", serif;
+      color: #161b22;
+      background: #f2f3f0;
+    }
+
+    main {
+      width: min(100% - 32px, 980px);
+      margin-inline: auto;
+      padding-block: 48px;
+    }
+
+    article {
+      position: relative;
+      max-width: 64ch;
+    }
+
+    h1 {
+      margin: 0 0 24px;
+      font-size: clamp(2rem, 8vw, 4rem);
+      line-height: 1;
+      text-wrap: balance;
+    }
+
+    p {
+      margin: 0 0 20px;
+      font-size: 1.15rem;
+      line-height: 1.7;
+    }
+
+    .note-marker {
+      anchor-name: --sidenote-one;
+      font: 700 0.75rem/1 ui-sans-serif, system-ui, sans-serif;
+      color: #0f5c6b;
+    }
+
+    .sidenote {
+      display: block;
+      margin: 8px 0 22px;
+      border-left: 3px solid #8ab6c1;
+      padding: 8px 0 8px 12px;
+      font: 0.95rem/1.5 ui-sans-serif, system-ui, sans-serif;
+      color: #4c5a61;
+    }
+
+    @media (min-width: 860px) {
+      @supports (top: anchor(--sidenote-one top, 0px)) {
+        .sidenote {
+          position: absolute;
+          position-anchor: --sidenote-one;
+          inset-inline-start: calc(100% + 36px);
+          top: anchor(--sidenote-one top, 0px);
+          width: 220px;
+          margin: 0;
+        }
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <article>
+      <h1>Readable sidenotes without layout scripts</h1>
+      <p>
+        The note starts in the reading flow, then moves into the margin when anchor positioning is available
+        <sup class="note-marker" aria-hidden="true">1</sup>.
+      </p>
+      <aside class="sidenote">1. Unsupported and narrow layouts keep this note inline, so the annotation remains readable.</aside>
+      <p>That fallback-first structure makes the modern layout a progressive enhancement instead of a hard dependency.</p>
+    </article>
+  </main>
+</body>
+</html>

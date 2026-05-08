@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sequential Custom Property Animation</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      color: #18212f;
+      background: #f2f4f7;
+    }
+
+    .stack {
+      width: min(100%, 440px);
+      display: grid;
+      gap: 10px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .stack li {
+      --step-delay: calc(var(--i) * 85ms);
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: #ffffff;
+      border: 1px solid #d8e0e8;
+      box-shadow: 0 10px 28px rgba(24, 33, 47, 0.1);
+      animation: reveal 460ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      animation-delay: var(--step-delay);
+    }
+
+    @keyframes reveal {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    span {
+      color: #53616f;
+      line-height: 1.45;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .stack li {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main aria-label="Sequential animation demo">
+    <ul class="stack">
+      <li style="--i: 0"><strong>Source</strong><span>Record the pattern source and support document.</span></li>
+      <li style="--i: 1"><strong>Catalog</strong><span>Add one validated JSONL entry with fallback notes.</span></li>
+      <li style="--i: 2"><strong>Example</strong><span>Keep the runnable HTML small and self-contained.</span></li>
+      <li style="--i: 3"><strong>Verify</strong><span>Check states, viewport behavior, and reduced motion.</span></li>
+    </ul>
+  </main>
+</body>
+</html>

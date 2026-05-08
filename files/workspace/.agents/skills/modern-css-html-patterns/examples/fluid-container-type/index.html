@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fluid Container Type</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      color: #151a1f;
+      background: #f0f3f4;
+    }
+
+    .frame {
+      width: min(100%, 780px);
+      resize: horizontal;
+      overflow: auto;
+      min-width: 280px;
+      max-width: 100%;
+      padding: 4px;
+    }
+
+    .story {
+      container-type: inline-size;
+      border-radius: 8px;
+      padding: clamp(20px, 6vw, 44px);
+      background: #ffffff;
+      box-shadow: 0 18px 48px rgba(21, 26, 31, 0.15);
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(1.75rem, 9vw, 4rem);
+      line-height: 1.05;
+      text-wrap: balance;
+    }
+
+    @supports (font-size: 1cqi) {
+      h1 {
+        font-size: clamp(1.75rem, 10cqi, 4.5rem);
+      }
+    }
+
+    p {
+      margin: 0;
+      max-width: 62ch;
+      color: #4b5963;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <main class="frame" aria-label="Resizable fluid type demo">
+    <article class="story">
+      <h1>Type scales with the measure it lives in</h1>
+      <p>The heading uses rem bounds and container query units, so it responds to this panel instead of blindly following the viewport width.</p>
+    </article>
+  </main>
+</body>
+</html>
