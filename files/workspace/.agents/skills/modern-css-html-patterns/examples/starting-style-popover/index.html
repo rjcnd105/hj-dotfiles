@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Starting Style Popover</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      color: #17201d;
+      background: #eff4f2;
+    }
+
+    .panel {
+      width: min(100%, 440px);
+      display: grid;
+      gap: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      line-height: 1.15;
+    }
+
+    button {
+      width: fit-content;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      color: white;
+      background: #235c4b;
+      cursor: pointer;
+    }
+
+    button:focus-visible {
+      outline: 3px solid #88d4bf;
+      outline-offset: 3px;
+    }
+
+    [popover] {
+      width: min(92vw, 360px);
+      border: 0;
+      border-radius: 8px;
+      padding: 22px;
+      color: #17201d;
+      background: #ffffff;
+      box-shadow: 0 24px 70px rgba(15, 32, 28, 0.28);
+      opacity: 0;
+      transform: translateY(10px) scale(0.98);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    [popover]:popover-open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    @starting-style {
+      [popover]:popover-open {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+      }
+    }
+
+    [popover]::backdrop {
+      background: rgba(12, 24, 21, 0);
+      transition: background 180ms ease;
+    }
+
+    [popover]:popover-open::backdrop {
+      background: rgba(12, 24, 21, 0.2);
+    }
+
+    @supports (transition-behavior: allow-discrete) {
+      [popover] {
+        transition:
+          opacity 180ms ease,
+          transform 180ms ease,
+          overlay 180ms ease allow-discrete,
+          display 180ms ease allow-discrete;
+      }
+    }
+
+    .popover-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .popover-stack p {
+      margin: 0;
+      line-height: 1.5;
+      color: #40514c;
+    }
+  </style>
+</head>
+<body>
+  <main class="panel">
+    <h1>Native popover with an entry transition</h1>
+    <button popovertarget="details-popover">Open details</button>
+  </main>
+
+  <aside id="details-popover" popover>
+    <div class="popover-stack">
+      <h2>Platform primitive first</h2>
+      <p>The popover opens natively. Modern CSS only improves the entry and backdrop transition.</p>
+      <button popovertarget="details-popover" popovertargetaction="hide">Close</button>
+    </div>
+  </aside>
+</body>
+</html>

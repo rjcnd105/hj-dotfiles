@@ -1,0 +1,12 @@
+interface:
+  display_name: "Modern CSS/HTML Patterns"
+  short_description: "Modern CSS/HTML platform pattern lookup"
+  default_prompt: "Use modern-css-html-patterns to choose a current CSS/HTML platform pattern, explain support and fallbacks, and adapt the runnable example."
+  input_hint: "Describe UI behavior, browser support target, fallback tolerance, and whether HTML primitives such as popover or dialog are allowed."
+policy:
+  allow_implicit_invocation: true
+  preferred_outputs:
+    - "short recommendation"
+    - "support and fallback notes"
+    - "adapted HTML/CSS"
+    - "source references"
