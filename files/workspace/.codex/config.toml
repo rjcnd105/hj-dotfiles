@@ -1,5 +1,5 @@
 model = "gpt-5.5"
-model_reasoning_effort = "high"
+model_reasoning_effort = "xhigh"
 personality = 'pragmatic'
 
 approvals_reviewer = "user"
@@ -74,7 +74,7 @@ enabled = false
 enabled = true
 
 [plugins."documents@openai-primary-runtime"]
-enabled = false
+enabled = true
 
 [marketplaces.openai-bundled]
 last_updated = "2026-04-30T01:20:18Z"
@@ -82,8 +82,8 @@ source_type = "local"
 source = "/Users/hj/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [marketplaces.compound-engineering-plugin]
-last_updated = "2026-05-07T06:02:16Z"
-last_revision = "d316971b20d734ab914cb81093c56810c3b14fa7"
+last_updated = "2026-05-08T00:45:37Z"
+last_revision = "0bb53dfad0a502d39727d2392c5038ff2a0d99ae"
 source_type = "git"
 source = "https://github.com/EveryInc/compound-engineering-plugin.git"
 

@@ -17,6 +17,7 @@ Exit codes:
   0 — always (graceful degradation on any error)
 """
 
+import io
 import json
 import os
 import re
@@ -109,6 +110,12 @@ def recall_skip_reason(prompt, config):
 
 
 def main():
+    if os.name == "nt":
+        if hasattr(sys.stdout, "buffer"):
+            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+        if hasattr(sys.stderr, "buffer"):
+            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+
     config = load_config()
 
     if not config.get("autoRecall"):
@@ -170,11 +177,13 @@ def main():
     query = truncate_recall_query(query, prompt, recall_max_query_chars)
     if len(query) > recall_max_query_chars:
         query = query[:recall_max_query_chars]
+    query = query.encode("utf-8", errors="ignore").decode("utf-8")
 
     current_time = format_current_time()
     preamble = config.get("recallPromptPreamble", "")
+    recall_timeout = config.get("recallTimeout", 10)
 
-    debug_log(config, f"Recalling from bank '{bank_id}', query length: {len(query)}")
+    debug_log(config, f"Recalling from bank '{bank_id}', query length: {len(query)}, timeout: {recall_timeout}s")
     try:
         response = client.recall(
             bank_id=bank_id,
@@ -182,7 +191,7 @@ def main():
             max_tokens=config.get("recallMaxTokens", 1024),
             budget=config.get("recallBudget", "mid"),
             types=config.get("recallTypes"),
-            timeout=10,
+            timeout=recall_timeout,
         )
     except Exception as e:
         print(f"[Hindsight] Recall failed: {e}", file=sys.stderr)
