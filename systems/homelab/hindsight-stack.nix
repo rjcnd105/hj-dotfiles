@@ -19,7 +19,7 @@ let
   legacyDbVolumePath = "/var/lib/docker/volumes/hindsight-db-data/_data";
 
   images = {
-    hindsight = "ghcr.io/vectorize-io/hindsight:0.5.6-slim";
+    hindsight = "ghcr.io/vectorize-io/hindsight:0.6.0-slim";
     db = "timescale/timescaledb-ha:pg18";
   };
 
