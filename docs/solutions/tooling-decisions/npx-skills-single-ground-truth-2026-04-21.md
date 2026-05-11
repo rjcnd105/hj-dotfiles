@@ -9,7 +9,7 @@ severity: low
 applies_when:
   - "npx skills CLI로 agent skill 설치 관리 중"
   - ".claude 외 여러 provider(.augment, .codebuddy, .junie 등) 디렉토리가 저절로 생겼을 때"
-  - "단일 AI 도구(Claude Code)만 사용하는 dotfiles 환경"
+  - "Claude Code/Codex처럼 .agents-compatible active tools만 쓰는 dotfiles 환경"
 tags: [npx-skills, agent-skills, ai-providers, symlinks, dotfiles, workspace]
 ---
 
@@ -26,7 +26,7 @@ tags: [npx-skills, agent-skills, ai-providers, symlinks, dotfiles, workspace]
 .windsurf .zencoder
 ```
 
-각 디렉토리 안에 `skills/` 서브가 있고 그 안의 모든 항목이 `../../.agents/skills/<name>`으로 가는 심링크. CLI 입장에선 "어떤 AI 도구를 쓰든 동일 skill 경로 인식"을 의도한 설계지만, **Claude + `.agents`만 쓰는 환경에서는 27~28개 provider 미러가 전부 dead weight**.
+각 디렉토리 안에 `skills/` 서브가 있고 그 안의 모든 항목이 `../../.agents/skills/<name>`으로 가는 심링크. CLI 입장에선 "어떤 AI 도구를 쓰든 동일 skill 경로 인식"을 의도한 설계지만, **Claude Code/Codex + `.agents`만 쓰는 환경에서는 27~28개 provider 미러가 전부 dead weight**.
 
 사용자 관찰: "왜 자꾸 저렇게 다른 AI provider들까지 다 추가되는 걸까?"
 
@@ -79,7 +79,7 @@ done
 ## When to Apply
 
 - `npx skills` CLI를 쓰는 레포에서 최초 skill 설치 후 `.augment` 등 낯선 dotdir 등장 시
-- 사용자가 Claude Code(또는 `.agents/` 호환 단일 도구)만 쓰는 경우
+- 사용자가 Claude Code/Codex처럼 `.agents/` 호환 active tools만 쓰는 경우
 - dotfiles 레포의 VCS diff에 dotdir 심링크 수백 개가 보일 때
 
 ## Examples
