@@ -42,9 +42,10 @@ Add a new catalog entry only when the candidate has a distinct feature set, inte
 2. Add the source to `references/source-seeds.jsonl` if it should remain part of the durable source queue.
 3. Add or update the matching `## <source_event_id>` note in `references/source-details.md`.
 4. Add or update the catalog line in `references/index.jsonl`.
-5. Create the pattern doc under `references/patterns/<pattern-id>.md`.
-6. Create the runnable example under `examples/<pattern-id>/index.html`.
-7. Run the validator:
+5. Add or update the matching `## <pattern-id>` digest in `references/example-digests.md`.
+6. Create the pattern doc under `references/patterns/<pattern-id>.md`.
+7. Create the runnable example under `examples/<pattern-id>/index.html`.
+8. Run the validator:
 
 ```sh
 go run scripts/validate_index.go
@@ -81,7 +82,7 @@ sh scripts/open_examples.sh examples/<pattern-id>
 ## Source Rules
 
 - X/Twitter, videos, screenshots, and social posts are `source_kind: inspiration` unless exact code is independently accessible.
-- MDN, web.dev, specifications, and browser docs are preferred for `support_source_ref`.
+- `support_source_ref` must point to an accepted, accessible `support-doc` or `docs` source event. Prefer MDN, web.dev, specifications, and browser docs.
 - Article/demo pages can be `example_source_ref` only when the resulting example is extracted or clearly reconstructed.
 - Blocked sources still belong in `logs/ingest.jsonl` with `access_status: blocked` or `partial`.
 - `source-details.md` must state what was actually accessible, what was reconstructed, and when the source should be rechecked. Do not depend on a social URL remaining readable later.
@@ -89,7 +90,7 @@ sh scripts/open_examples.sh examples/<pattern-id>
 ## Support Rules
 
 - Use broad Baseline labels such as `baseline-2024`, `baseline-2025`, `baseline-2026`, `widely-available`, or `non-baseline`.
-- Use `browserslist_query: null` for limited or experimental features.
+- Use a non-empty `browserslist_query` for `baseline` patterns. Use `browserslist_query: null` for limited, experimental, or deprecated features.
 - If `support.status` is `limited` or `experimental`, include a real fallback, fallback test method, and fallback result.
 - Do not mark a pattern `verified` unless the example behavior was checked, not merely rendered.
 
@@ -99,3 +100,4 @@ sh scripts/open_examples.sh examples/<pattern-id>
 - Put fallback behavior first, then progressive enhancement inside `@supports`, `@container`, media queries, or feature-specific guards.
 - Include mobile and desktop viewport expectations in `checked_viewports`.
 - For interaction or HTML primitive examples, record checked states and accessibility notes.
+- Add a concise `example-digests.md` entry so future queries can shortlist patterns without reading runnable HTML. Each digest section must include `Shows`, `Best for`, `Key CSS` or `Key CSS/HTML`, and `Read full HTML when`, and stay within 8 non-empty lines.

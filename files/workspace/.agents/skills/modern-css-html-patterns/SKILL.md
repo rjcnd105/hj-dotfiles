@@ -33,9 +33,10 @@ Parse the user's request into a subcommand:
 - Treat CSS as the primary surface, but include HTML primitives such as `popover`, `dialog`, anchors, forms, and inert states when they are part of the pattern contract.
 - Use `references/index.jsonl` as the canonical catalog. Do not rely on pattern prose alone.
 - Prefer verified MDN, web.dev Baseline, article, or demo sources for support claims. X/Twitter sources are inspiration unless independently reconstructed or verified.
-- Use the recorded `support.browserslist_query` and `support.requires` before recommending a pattern.
+- Use the recorded `support.browserslist_query` when present and always check `support.requires` before recommending a pattern.
 - When a pattern is `limited`, `experimental`, or `limited-fallback-only`, present the fallback and the known caveats with the code.
-- Keep examples minimal and runnable. Every catalog entry must point to an `examples/<pattern-slug>/index.html` file.
+- Keep examples minimal and runnable. Every catalog entry must point to an `examples/<pattern-id>/index.html` file.
+- Do not read example HTML files during recommendation. Use `references/index.jsonl`, selected `references/example-digests.md` sections, and selected pattern docs for shortlisting; open runnable HTML only after one final pattern is chosen for adaptation, verification, or bug fixing.
 - Do not add duplicate patterns. Check aliases, CSS features, HTML features, and related patterns before creating a new entry.
 
 ## Tools
@@ -44,16 +45,17 @@ Mechanical validation/scaffolding is delegated to small stdlib-only helpers. The
 
 | Tool | Role |
 | --- | --- |
-| `go run scripts/validate_index.go` | Validate JSONL schema, source refs, pattern docs, example paths, support/fallback invariants. |
+| `go run scripts/validate_index.go` | Validate JSONL schema, source refs, support-source role/status, digest quality, pattern docs, example paths, and support/fallback invariants. |
 | `go run scripts/new_pattern.go <pattern-id> "<Pattern Title>"` | Create doc/example placeholders after the add workflow has chosen a new pattern ID/title. Refuses overwrite. |
 | `sh scripts/open_examples.sh [examples/<pattern-id>]` | Open all examples or one example folder in Finder. |
 
 ## Workflow: query
 
 1. Search `references/index.jsonl` by requirement terms, category, CSS feature, HTML feature, support target, and fallback needs.
-2. Open the matching file under `references/patterns/` for usage notes and adaptation guidance.
-3. Open the linked `example_path` and adapt the example instead of writing from scratch.
-4. If support freshness matters, re-check the linked `support_source_ref` URLs and update `last_checked`, `support.query_verified`, and `logs/ingest.jsonl`.
+2. Read only the relevant `## <pattern-id>` sections of `references/example-digests.md`; use `rg`/line ranges instead of opening the whole digest file when the corpus is large.
+3. For recommendation-only answers, stop at catalog + digest + support/fallback notes. Do not open runnable HTML.
+4. For adaptation, open the matching file under `references/patterns/` for usage notes, choose one final pattern, then open only that pattern's linked `example_path`.
+5. If support freshness matters, re-check the linked `support_source_ref` URLs and update `last_checked`, `support.query_verified`, and `logs/ingest.jsonl`.
 
 ## Workflow: add
 
@@ -113,6 +115,7 @@ sh "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/modern-css-html-patter
 - `references/schema.md`: schema, enums, validation rules, and update policy.
 - `references/adding-patterns.md`: checklist, source rules, support rules, and scaffold workflow for adding future tips or patterns.
 - `references/index.jsonl`: canonical pattern catalog.
+- `references/example-digests.md`: token-light summaries of runnable examples keyed by catalog ID.
 - `references/source-seeds.jsonl`: durable source queue and accepted seed list.
 - `references/source-details.md`: human-readable provenance notes keyed by `source_event_id`.
 - `references/backlog.jsonl`: candidates intentionally not included in the current runnable catalog.

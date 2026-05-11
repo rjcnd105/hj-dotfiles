@@ -2,7 +2,9 @@
 
 Schema version: `1.0.0`
 
-`references/index.jsonl` is the canonical current catalog. `logs/ingest.jsonl` is append-only source history. Pattern docs and runnable examples are derived artifacts that must point back to catalog IDs.
+`references/index.jsonl` is the canonical current catalog. `logs/ingest.jsonl` is append-only source history. `references/example-digests.md` is the token-light example routing layer. Pattern docs and runnable examples are derived artifacts that must point back to catalog IDs.
+
+Recommendation should not require reading example HTML files. Agents should shortlist from `index.jsonl`, selected `example-digests.md` sections, and selected pattern docs. Open runnable HTML only after choosing one final pattern for adaptation, verification, or bug fixing.
 
 `source_refs` are stable source event IDs. Resolve them in this order:
 
@@ -29,7 +31,7 @@ Required fields:
 - `fallback`: fallback strategy summary.
 - `fallback_test_method`: how the fallback was checked.
 - `verification_mode`: how the example was checked.
-- `example_path`: relative path to the runnable HTML file.
+- `example_path`: exact relative path `examples/<id>/index.html`.
 - `states_demonstrated`: states visible in the example.
 - `checked_states`: states checked during verification.
 - `checked_viewports`: viewport sizes checked or targeted.
@@ -42,18 +44,20 @@ Required fields:
 - `related_patterns`: related catalog IDs.
 - `last_checked`: ISO date.
 
+Every catalog ID in `references/index.jsonl` must also have exactly one matching `## <catalog_id>` heading in `references/example-digests.md`. Digest sections must stay token-light: at most 8 non-empty lines and required lines for `Shows`, `Best for`, `Key CSS` or `Key CSS/HTML`, and `Read full HTML when`. Orphan digest headings are invalid.
+
 ## Support Object
 
 Required fields:
 
 - `status`: one of `baseline`, `limited`, `experimental`, `deprecated`.
 - `baseline_target`: broad target such as `baseline-2024`, `baseline-2025`, `baseline-2026`, `non-baseline`, or `widely-available`.
-- `browserslist_query`: query string following Browserslist Baseline syntax when known, otherwise `null`.
+- `browserslist_query`: non-empty query string following Browserslist Baseline syntax for `baseline` support, otherwise `null`.
 - `query_verified`: boolean.
 - `requires`: concrete browser or runtime requirements.
 - `caveats`: known support or behavior caveats.
 
-Use broad Baseline labels by default. Add browser-specific caveats only when needed for correctness.
+Use broad Baseline labels by default. Add browser-specific caveats only when needed for correctness. `support_source_ref` must point to an accepted, accessible `docs` or `support-doc` source event.
 
 ## Source Event
 
@@ -130,8 +134,13 @@ The validator must reject:
 - missing `schema_version`
 - missing `example_path`
 - missing pattern docs
+- catalog entries missing from `references/example-digests.md`
+- duplicate or orphan headings in `references/example-digests.md`
+- digest sections that miss required labels or exceed the token-light line limit
 - source refs not present in `logs/ingest.jsonl`
+- source refs that point to rejected source events
 - source events missing from `references/source-details.md`
+- support refs that are not accepted, accessible docs/support-doc source events
 - support claims without `support_source_ref`
 - limited or experimental patterns without fallback notes
 - interactive or HTML primitive patterns without checked states and accessibility notes
