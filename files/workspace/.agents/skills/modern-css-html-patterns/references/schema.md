@@ -46,7 +46,7 @@ Required fields:
 - `related_patterns`: related catalog IDs.
 - `last_checked`: ISO date.
 
-Every catalog ID in `references/index.jsonl` must also have exactly one matching `## <catalog_id>` heading in `references/example-digests.md` and one matching `references/code-kernels/<catalog_id>.md` file referenced by `code_kernel_path`. Digest sections must stay token-light: at most 8 non-empty lines and required lines for `Shows`, `Best for`, `Key CSS` or `Key CSS/HTML`, and `Read full HTML when`. Code kernel files must include a fenced code block and stay token-light: at most 80 non-empty lines. Kernels are adaptation snippets, not canonical full examples; if they conflict with the runnable example, update the kernel. Orphan digest headings or orphan code-kernel files are invalid.
+Every catalog ID in `references/index.jsonl` must also have exactly one matching `## <catalog_id>` heading in `references/example-digests.md` and one matching `references/code-kernels/<catalog_id>.md` file referenced by `code_kernel_path`. Digest sections must stay token-light: at most 7 non-empty lines and required lines for `Shows`, `Best for`, `Key CSS` or `Key CSS/HTML`, and `Read full HTML when`. Do not duplicate `code_kernel_path` inside digest sections. Code kernel files must include a fenced code block and stay token-light: at most 80 non-empty lines. Kernels are adaptation snippets, not canonical full examples; if they conflict with the runnable example, update the kernel. Orphan digest headings or orphan code-kernel files are invalid.
 
 Do not recreate a single aggregate `references/code-kernels.md` file. Sharding kernels by pattern keeps first-pass code suggestions bounded when the catalog grows past 50 entries.
 

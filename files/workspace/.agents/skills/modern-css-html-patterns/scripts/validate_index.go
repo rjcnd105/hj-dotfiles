@@ -423,8 +423,8 @@ func (v *validator) validateDigestSection(patternID string, lines []string) {
 		v.errorf("example-digests:%s: section must not be empty", patternID)
 		return
 	}
-	if len(nonEmpty) > 8 {
-		v.errorf("example-digests:%s: section must stay token-light; got %d non-empty lines, max 8", patternID, len(nonEmpty))
+	if len(nonEmpty) > 7 {
+		v.errorf("example-digests:%s: section must stay token-light; got %d non-empty lines, max 7", patternID, len(nonEmpty))
 	}
 	required := []string{
 		"- Shows:",
@@ -438,6 +438,9 @@ func (v *validator) validateDigestSection(patternID string, lines []string) {
 	}
 	if !hasLinePrefix(nonEmpty, "- Key CSS:") && !hasLinePrefix(nonEmpty, "- Key CSS/HTML:") {
 		v.errorf("example-digests:%s: missing key CSS/HTML line", patternID)
+	}
+	if hasLinePrefix(nonEmpty, "- Code kernel:") {
+		v.errorf("example-digests:%s: do not duplicate code_kernel_path in digest", patternID)
 	}
 }
 

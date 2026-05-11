@@ -102,7 +102,7 @@ sh scripts/open_examples.sh examples/<pattern-id>
 - Put fallback behavior first, then progressive enhancement inside `@supports`, `@container`, media queries, or feature-specific guards.
 - Include mobile and desktop viewport expectations in `checked_viewports`.
 - For interaction or HTML primitive examples, record checked states and accessibility notes.
-- Add a concise `example-digests.md` entry so future queries can shortlist patterns without reading runnable HTML. Each digest section must include `Shows`, `Best for`, `Key CSS` or `Key CSS/HTML`, and `Read full HTML when`, and stay within 8 non-empty lines.
+- Add a concise `example-digests.md` entry so future queries can shortlist patterns without reading runnable HTML. Each digest section must include `Shows`, `Best for`, `Key CSS` or `Key CSS/HTML`, and `Read full HTML when`, and stay within 7 non-empty lines. Do not duplicate `code_kernel_path` in the digest.
 - Add a concise `references/code-kernels/<pattern-id>.md` file so future code suggestions can adapt the core CSS/HTML without reading runnable HTML or scanning an aggregate snippet file. Each kernel should be enough to generate a useful answer, but not a full page. It is an adaptation snippet, not the canonical verified source.
 
 ## Example Quality Standard

@@ -9,7 +9,6 @@ The digest is the token-light map from requirement to example. Open `examples/<p
 - Shows: elevated card edge built from layered shadows and inset highlights without extra DOM.
 - Best for: surface depth, hairline borders, cards that need a richer edge treatment than `border`.
 - Key CSS: `box-shadow`, inset shadows, optional `color-mix()`, `@supports` fallback.
-- Code kernel: `references/code-kernels/layered-shadow-border.md`.
 - Read full HTML when: adapting the exact shadow stack or hover treatment.
 
 ## starting-style-popover
@@ -17,7 +16,6 @@ The digest is the token-light map from requirement to example. Open `examples/<p
 - Shows: native popover opening with entry motion and backdrop styling.
 - Best for: lightweight panels, menus, and callouts that need native open/close behavior.
 - Key CSS/HTML: `popover`, `popovertarget`, `:popover-open`, `@starting-style`, `transition-behavior`, `::backdrop`.
-- Code kernel: `references/code-kernels/starting-style-popover.md`.
 - Read full HTML when: adapting the trigger, close control, or animation timing.
 
 ## scroll-state-sticky-header
@@ -26,7 +24,6 @@ The digest is the token-light map from requirement to example. Open `examples/<p
 - Best for: grouped lists, queues, documentation sections, and dashboards with scrollable panes.
 - Key CSS: `position: sticky`, `container-type: scroll-state`, `@container scroll-state(stuck: top)`.
 - Stability note: sticky containers keep a fixed block size; stuck state changes use paint/composite properties instead of layout-changing padding or height.
-- Code kernel: `references/code-kernels/scroll-state-sticky-header.md`.
 - Read full HTML when: adapting the sequential sections or debugging sticky boundary behavior.
 
 ## container-query-card
@@ -34,7 +31,6 @@ The digest is the token-light map from requirement to example. Open `examples/<p
 - Shows: card layout that switches from stacked to split based on its own container width.
 - Best for: reusable components that cannot rely on viewport media queries.
 - Key CSS: `container-type: inline-size`, `@container`, container query units.
-- Code kernel: `references/code-kernels/container-query-card.md`.
 - Read full HTML when: adapting the component layout breakpoints.
 
 ## anchor-tooltip-popover
@@ -42,7 +38,6 @@ The digest is the token-light map from requirement to example. Open `examples/<p
 - Shows: native popover help text progressively positioned against an anchored trigger.
 - Best for: help bubbles, tooltips, attached contextual hints, and settings affordances.
 - Key CSS/HTML: `popover`, `popovertarget`, `anchor-name`, `position-anchor`, `position-area`, `@position-try`.
-- Code kernel: `references/code-kernels/anchor-tooltip-popover.md`.
 - Read full HTML when: adapting anchor placement, fallback placement, or popover controls.
 
 ## fluid-container-type
@@ -50,7 +45,6 @@ The digest is the token-light map from requirement to example. Open `examples/<p
 - Shows: headline sizing that follows component width with bounded `clamp()` values.
 - Best for: cards, panels, and embedded components where viewport-based fluid type is too broad.
 - Key CSS: `container-type: inline-size`, `cqi`, `clamp()`, `text-wrap: balance`.
-- Code kernel: `references/code-kernels/fluid-container-type.md`.
 - Read full HTML when: tuning min/max type scale or container measures.
 
 ## css-if-style-query
@@ -58,7 +52,6 @@ The digest is the token-light map from requirement to example. Open `examples/<p
 - Shows: experimental CSS `if()` branch guarded by complete fallback custom properties.
 - Best for: tracking emerging conditional CSS syntax while keeping production visuals stable.
 - Key CSS: `if()`, `style()`, custom properties, fallback-first declarations.
-- Code kernel: `references/code-kernels/css-if-style-query.md`.
 - Read full HTML when: testing browser-channel behavior or updating experimental syntax.
 
 ## sequential-custom-property-animation
@@ -66,7 +59,6 @@ The digest is the token-light map from requirement to example. Open `examples/<p
 - Shows: ordered row reveal using per-item custom-property indices.
 - Best for: low-JS staggered content reveals where DOM order should remain semantic.
 - Key CSS: `--i`, `animation-delay`, `calc()`, `prefers-reduced-motion`.
-- Code kernel: `references/code-kernels/sequential-custom-property-animation.md`.
 - Read full HTML when: adapting timing, item count, or reduced-motion behavior.
 
 ## anchor-function-sidenote
@@ -74,7 +66,6 @@ The digest is the token-light map from requirement to example. Open `examples/<p
 - Shows: sidenotes that remain inline by default and promote to margin notes with CSS anchors on wide layouts.
 - Best for: articles, documentation, annotations, and editorial side comments.
 - Key CSS/HTML: `aside`, `anchor-name`, `position-anchor`, `anchor()`, wide-layout `@supports`.
-- Code kernel: `references/code-kernels/anchor-function-sidenote.md`.
 - Read full HTML when: adapting note placement or inline fallback copy.
 
 ## previous-sibling-has-combinator
@@ -82,7 +73,6 @@ The digest is the token-light map from requirement to example. Open `examples/<p
 - Shows: styling an item before the current one using `:has(+ ...)`.
 - Best for: step indicators, timelines, and compact lists where previous-state classes would be redundant.
 - Key CSS: `:has()`, adjacent sibling combinator, `@supports selector()`.
-- Code kernel: `references/code-kernels/previous-sibling-has-combinator.md`.
 - Read full HTML when: adapting selector scope or list semantics.
 
 ## cross-document-view-transition
@@ -90,7 +80,6 @@ The digest is the token-light map from requirement to example. Open `examples/<p
 - Shows: same-origin multi-page navigation opt-in with `@view-transition`.
 - Best for: MPA detail/list transitions where normal links must remain the fallback.
 - Key CSS/HTML: `@view-transition { navigation: auto; }`, same-origin links, `::view-transition-old(root)`, `::view-transition-new(root)`.
-- Code kernel: `references/code-kernels/cross-document-view-transition.md`.
 - Read full HTML when: adapting both pages or changing transition keyframes.
 
 ## scroll-progress-counter-label
@@ -98,5 +87,4 @@ The digest is the token-light map from requirement to example. Open `examples/<p
 - Shows: a scroll timeline animates a typed custom property that feeds a CSS counter and moves a label.
 - Best for: decorative article progress rails, onboarding completion markers, and no-JS visual progress cues.
 - Key CSS: `@property`, `animation-timeline: scroll(root block)`, `counter()`, `counter-reset`, `cqh`.
-- Code kernel: `references/code-kernels/scroll-progress-counter-label.md`.
 - Read full HTML when: adapting fallback text, scroll range, or the container-height label translation.

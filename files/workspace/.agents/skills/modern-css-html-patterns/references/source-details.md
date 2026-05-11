@@ -1,6 +1,6 @@
 # Source Details
 
-This file makes `source_refs` durable enough for later review. Each heading must match a `source_event_id` from `logs/ingest.jsonl` and `references/source-seeds.jsonl`.
+This file makes `source_refs` durable enough for later review. Each heading must match a `source_event_id` from `logs/ingest.jsonl`. `references/source-seeds.jsonl` is only an optional intake/recheck queue.
 
 The JSONL rows are the machine-readable source log. This file is the human-readable retrieval note: what was actually accessible, what was extracted or reconstructed, and what should be rechecked before relying on the source again.
 
