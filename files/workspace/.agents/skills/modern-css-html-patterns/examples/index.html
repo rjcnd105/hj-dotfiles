@@ -31,7 +31,7 @@
 
     h1 {
       margin: 0;
-      font-size: clamp(2rem, 6vw, 4rem);
+      font-size: 3.25rem;
       line-height: 1;
       text-wrap: balance;
     }
@@ -93,6 +93,17 @@
       font-weight: 800;
       text-decoration-thickness: 2px;
       text-underline-offset: 3px;
+    }
+
+    @media (max-width: 560px) {
+      main {
+        width: min(100% - 24px, 1120px);
+        padding-block: 28px;
+      }
+
+      h1 {
+        font-size: 2.35rem;
+      }
     }
   </style>
 </head>
@@ -169,6 +180,12 @@
         <p>Same-origin page navigation opts into @view-transition while keeping ordinary links as fallback.</p>
         <a href="./cross-document-view-transition/index.html">Open example</a>
         <div class="meta"><span class="tag">limited</span><span class="tag">@view-transition</span></div>
+      </article>
+      <article>
+        <h2>Scroll progress counter label</h2>
+        <p>A scroll timeline animates a typed custom property that drives a generated counter label.</p>
+        <a href="./scroll-progress-counter-label/index.html">Open example</a>
+        <div class="meta"><span class="tag">limited</span><span class="tag">scroll timeline</span></div>
       </article>
     </section>
   </main>

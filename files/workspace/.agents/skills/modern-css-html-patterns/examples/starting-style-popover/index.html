@@ -32,6 +32,33 @@
       line-height: 1.15;
     }
 
+    .summary,
+    .note {
+      margin: 0;
+      color: #40514c;
+      line-height: 1.55;
+    }
+
+    .technique {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .technique li {
+      border-left: 3px solid #88b6a8;
+      padding-left: 10px;
+      color: #374842;
+      line-height: 1.45;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.92em;
+    }
+
     button {
       width: fit-content;
       border: 0;
@@ -98,6 +125,12 @@
       gap: 12px;
     }
 
+    h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      line-height: 1.2;
+    }
+
     .popover-stack p {
       margin: 0;
       line-height: 1.5;
@@ -108,7 +141,14 @@
 <body>
   <main class="panel">
     <h1>Native popover with an entry transition</h1>
+    <p class="summary">The button and popover work without the animation. Modern CSS only improves the opening and backdrop transition.</p>
+    <ul class="technique" aria-label="Technique checkpoints">
+      <li><code>@starting-style</code> defines the first rendered open frame.</li>
+      <li><code>transition-behavior: allow-discrete</code> lets display and overlay join the transition.</li>
+      <li>The close button keeps the native <code>popovertargetaction</code> path.</li>
+    </ul>
     <button popovertarget="details-popover">Open details</button>
+    <p class="note">Production note: use <code>dialog</code>, not popover, when the task requires modal semantics.</p>
   </main>
 
   <aside id="details-popover" popover>

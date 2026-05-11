@@ -2,15 +2,16 @@
 
 Schema version: `1.0.0`
 
-`references/index.jsonl` is the canonical current catalog. `logs/ingest.jsonl` is append-only source history. `references/example-digests.md` is the token-light example routing layer. Pattern docs and runnable examples are derived artifacts that must point back to catalog IDs.
+`references/index.jsonl` is the canonical current catalog. `logs/ingest.jsonl` is the append-only source-event authority. `references/example-digests.md` is the token-light example routing layer. `references/code-kernels.md` is the token-light code suggestion layer. Pattern docs and runnable examples are derived artifacts that must point back to catalog IDs.
 
-Recommendation should not require reading example HTML files. Agents should shortlist from `index.jsonl`, selected `example-digests.md` sections, and selected pattern docs. Open runnable HTML only after choosing one final pattern for adaptation, verification, or bug fixing.
+Recommendation should not require reading example HTML files. Agents should shortlist from `index.jsonl`, selected `example-digests.md` sections, selected `code-kernels.md` sections, and selected pattern docs. Open runnable HTML only after choosing one final pattern for deeper adaptation, verification, or bug fixing.
 
-`source_refs` are stable source event IDs. Resolve them in this order:
+`source_refs` are stable source event IDs. Resolve them from:
 
-1. `logs/ingest.jsonl` for the append-only machine-readable access event.
-2. `references/source-seeds.jsonl` for the durable source queue.
-3. `references/source-details.md` for human-readable retrieval notes, reconstruction notes, and recheck triggers.
+1. `logs/ingest.jsonl` for the machine-readable access event and acceptance state.
+2. `references/source-details.md` for human-readable retrieval notes, reconstruction notes, and recheck triggers.
+
+`references/source-seeds.jsonl` is an optional intake/recheck queue. It may mirror accepted sources for convenience, but it is not a source-ref authority.
 
 ## Catalog Entry
 
@@ -44,7 +45,7 @@ Required fields:
 - `related_patterns`: related catalog IDs.
 - `last_checked`: ISO date.
 
-Every catalog ID in `references/index.jsonl` must also have exactly one matching `## <catalog_id>` heading in `references/example-digests.md`. Digest sections must stay token-light: at most 8 non-empty lines and required lines for `Shows`, `Best for`, `Key CSS` or `Key CSS/HTML`, and `Read full HTML when`. Orphan digest headings are invalid.
+Every catalog ID in `references/index.jsonl` must also have exactly one matching `## <catalog_id>` heading in `references/example-digests.md` and `references/code-kernels.md`. Digest sections must stay token-light: at most 8 non-empty lines and required lines for `Shows`, `Best for`, `Key CSS` or `Key CSS/HTML`, and `Read full HTML when`. Code kernel sections must include a fenced code block and stay token-light: at most 80 non-empty lines. Kernels are adaptation snippets, not canonical full examples; if they conflict with the runnable example, update the kernel. Orphan digest or code-kernel headings are invalid.
 
 ## Support Object
 
@@ -137,6 +138,9 @@ The validator must reject:
 - catalog entries missing from `references/example-digests.md`
 - duplicate or orphan headings in `references/example-digests.md`
 - digest sections that miss required labels or exceed the token-light line limit
+- catalog entries missing from `references/code-kernels.md`
+- duplicate or orphan headings in `references/code-kernels.md`
+- code kernel sections that lack fenced code or exceed the token-light line limit
 - source refs not present in `logs/ingest.jsonl`
 - source refs that point to rejected source events
 - source events missing from `references/source-details.md`

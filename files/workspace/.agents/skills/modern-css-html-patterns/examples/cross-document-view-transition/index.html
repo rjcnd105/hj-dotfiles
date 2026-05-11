@@ -40,7 +40,7 @@
 
     h1 {
       margin: 0 0 10px;
-      font-size: clamp(1.8rem, 7vw, 3.2rem);
+      font-size: 2.6rem;
       line-height: 1;
       text-wrap: balance;
     }
@@ -75,6 +75,26 @@
       text-decoration: none;
       font-weight: 800;
       white-space: nowrap;
+    }
+
+    .technique {
+      display: grid;
+      gap: 8px;
+      margin: 18px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .technique li {
+      border-left: 3px solid #8aaec0;
+      padding-left: 10px;
+      color: #42515f;
+      line-height: 1.45;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.92em;
     }
 
     @keyframes move-out {
@@ -113,6 +133,20 @@
         animation: none;
       }
     }
+
+    @media (max-width: 560px) {
+      body {
+        padding: 16px;
+      }
+
+      h1 {
+        font-size: 2.15rem;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -120,6 +154,11 @@
     <section class="panel">
       <h1>Release dashboard</h1>
       <p>These are ordinary links. Supporting browsers can animate the same-origin navigation through @view-transition.</p>
+      <ul class="technique" aria-label="Technique checkpoints">
+        <li>Both documents opt in with <code>@view-transition { navigation: auto; }</code>.</li>
+        <li>The link remains a real same-origin navigation.</li>
+        <li><code>prefers-reduced-motion</code> disables the custom transition animation.</li>
+      </ul>
     </section>
 
     <article class="row">

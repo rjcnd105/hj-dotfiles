@@ -21,9 +21,22 @@
     }
 
     .stack {
-      width: min(100%, 520px);
+      width: min(100%, 640px);
       display: grid;
       gap: 12px;
+    }
+
+    header {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    header p {
+      margin: 0;
+      max-width: 62ch;
+      color: #4d5b66;
+      line-height: 1.55;
     }
 
     .notice {
@@ -56,8 +69,14 @@
     }
 
     h1 {
+      margin: 0;
+      font-size: 1.55rem;
+      line-height: 1.2;
+    }
+
+    h2 {
       margin: 0 0 10px;
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       line-height: 1.2;
     }
 
@@ -65,17 +84,49 @@
       margin: 0;
       line-height: 1.5;
     }
+
+    .technique {
+      display: grid;
+      gap: 8px;
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .technique li {
+      border-left: 3px solid currentColor;
+      padding-left: 10px;
+      line-height: 1.45;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.92em;
+    }
   </style>
 </head>
 <body>
   <main class="stack">
+    <header>
+      <h1>CSS if() branch with static fallback</h1>
+      <p>The production UI is complete before the experimental branch runs. Supporting browsers can derive the same colors from <code>--tone</code>.</p>
+    </header>
+
     <article class="notice" data-tone="success">
-      <h1>Sync healthy</h1>
+      <h2>Sync healthy</h2>
       <p>The production color comes from fallback custom properties. Experimental CSS if() can branch from the same tone value when supported.</p>
+      <ul class="technique" aria-label="Success technique checkpoints">
+        <li>Fallback custom properties define the real colors.</li>
+        <li><code>@supports</code> isolates the experimental <code>if()</code> syntax.</li>
+      </ul>
     </article>
     <article class="notice" data-tone="warning">
-      <h1>Import attention needed</h1>
+      <h2>Import attention needed</h2>
       <p>The warning state is also complete without if(), so unsupported browsers still get the intended UI.</p>
+      <ul class="technique" aria-label="Warning technique checkpoints">
+        <li><code>data-tone</code> changes one semantic state value.</li>
+        <li>No production behavior depends on experimental support.</li>
+      </ul>
     </article>
   </main>
 </body>

@@ -32,19 +32,23 @@
     .story {
       container-type: inline-size;
       border-radius: 8px;
-      padding: clamp(20px, 6vw, 44px);
+      padding: 28px;
       background: #ffffff;
       box-shadow: 0 18px 48px rgba(21, 26, 31, 0.15);
     }
 
     h1 {
       margin: 0 0 14px;
-      font-size: clamp(1.75rem, 9vw, 4rem);
+      font-size: 2.25rem;
       line-height: 1.05;
       text-wrap: balance;
     }
 
     @supports (font-size: 1cqi) {
+      .story {
+        padding: clamp(20px, 6cqi, 44px);
+      }
+
       h1 {
         font-size: clamp(1.75rem, 10cqi, 4.5rem);
       }
@@ -57,6 +61,41 @@
       font-size: 1rem;
       line-height: 1.6;
     }
+
+    .technique {
+      display: grid;
+      gap: 8px;
+      margin: 18px 0 0;
+      padding: 0;
+      list-style: none;
+      font: 0.95rem/1.45 Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .technique li {
+      border-left: 3px solid #90b4c0;
+      padding-left: 10px;
+      color: #44515c;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.92em;
+    }
+
+    @media (max-width: 560px) {
+      body {
+        padding: 16px;
+      }
+
+      .frame {
+        resize: none;
+        min-width: 0;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -64,6 +103,11 @@
     <article class="story">
       <h1>Type scales with the measure it lives in</h1>
       <p>The heading uses rem bounds and container query units, so it responds to this panel instead of blindly following the viewport width.</p>
+      <ul class="technique" aria-label="Technique checkpoints">
+        <li><code>container-type</code> makes this panel the sizing context.</li>
+        <li><code>cqi</code> scales the headline from the component measure.</li>
+        <li>Fixed fallback sizes keep text readable when container units are unavailable.</li>
+      </ul>
     </article>
   </main>
 </body>

@@ -10,6 +10,16 @@ Support: cataloged as Baseline 2026 target. Older browsers keep the sticky fallb
 
 Source refs: `ev-x-kara-scroll-state-20260508`, `ev-mdn-scroll-state-queries-20260508`.
 
+## Technique
+
+- Put `container-type: scroll-state` on each sticky header.
+- Keep the sticky header block size stable before and after it becomes stuck.
+- Use `@container scroll-state(stuck: top)` to change descendant paint, shadow, color, and transform only while stuck.
+
+## Accessibility
+
+This is visual state, not application state. Preserve real section headings and make custom scroll regions focusable when they need keyboard inspection.
+
 Example: `examples/scroll-state-sticky-header/index.html`.
 
 Notes:

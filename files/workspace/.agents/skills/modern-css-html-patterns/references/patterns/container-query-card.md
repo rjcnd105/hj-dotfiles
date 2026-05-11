@@ -10,6 +10,16 @@ Support: cataloged as Baseline 2024. The fallback is a readable single-column ca
 
 Source refs: `ev-x-kara-container-query-20260508`, `ev-mdn-container-queries-20260508`.
 
+## Technique
+
+- Put `container-type: inline-size` on the component that owns the layout decision.
+- Make the base layout complete and stacked before the `@container` rule.
+- In the query branch, change grid tracks and media sizing based on component width, not viewport width.
+
+## Accessibility
+
+The DOM order remains media then copy. If the visual order changes in future variants, keep keyboard and reading order aligned with the intended content flow.
+
 Example: `examples/container-query-card/index.html`.
 
 Notes:

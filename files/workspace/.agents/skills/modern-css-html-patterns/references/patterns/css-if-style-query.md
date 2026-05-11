@@ -10,6 +10,16 @@ Support: recorded as experimental and non-Baseline. The catalog marks this patte
 
 Source refs: `ev-css-tip-if-trick-20260508`, `ev-mdn-css-if-20260508`.
 
+## Technique
+
+- Define production colors with ordinary fallback custom properties.
+- Use a semantic state variable such as `--tone` or `data-tone`.
+- Put `if()` declarations behind `@supports` so unsupported browsers never parse the experimental branch as required behavior.
+
+## Accessibility
+
+Do not use `if()` for critical state until the target browser set explicitly supports it. Text, status labels, and form validation must remain correct without the experimental branch.
+
 Example: `examples/css-if-style-query/index.html`.
 
 Notes:

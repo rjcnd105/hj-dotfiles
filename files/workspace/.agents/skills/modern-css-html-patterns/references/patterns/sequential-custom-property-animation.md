@@ -10,6 +10,16 @@ Support: broadly available CSS custom properties and animation. Reduced-motion f
 
 Source refs: `ev-css-tip-sequential-animations-20260508`.
 
+## Technique
+
+- Store a small per-item index in `--i`.
+- Calculate `animation-delay` from that index so no JavaScript timers are needed.
+- Keep DOM order identical to visual order and remove the animation under `prefers-reduced-motion`.
+
+## Accessibility
+
+Use this for short supporting clusters only. Critical content should be visible immediately, and reduced-motion users should not wait for delayed reveals.
+
 Example: `examples/sequential-custom-property-animation/index.html`.
 
 Notes:

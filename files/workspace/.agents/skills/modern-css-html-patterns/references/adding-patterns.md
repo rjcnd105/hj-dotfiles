@@ -20,7 +20,7 @@ Add a new catalog entry only when the candidate has a distinct feature set, inte
 ## Agent Add Sequence
 
 1. Read `references/schema.md`.
-2. Read `references/index.jsonl`, `references/source-seeds.jsonl`, `references/backlog.jsonl`, and the most relevant existing pattern docs.
+2. Read `references/index.jsonl`, relevant digest/kernel sections, `references/backlog.jsonl`, and the most relevant existing pattern docs.
 3. Check the new source:
    - For ordinary web/docs pages, fetch the current page.
    - For X/Twitter, record direct access status separately from metadata extraction.
@@ -32,20 +32,21 @@ Add a new catalog entry only when the candidate has a distinct feature set, inte
    - reject the source with a `rejected_reason`
 5. If creating a new pattern, choose a stable kebab-case `id`, category, support status, fallback, and verification target.
 6. Optionally run the scaffold helper to create placeholder doc/example files.
-7. Edit JSONL, pattern doc, and example HTML.
+7. Edit source log, catalog, digest, code kernel, pattern doc, and example HTML.
 8. Run validation and affected-example browser smoke.
 9. Report the catalog ID, support status, fallback, and any remaining caveats.
 
 ## Required File Updates
 
 1. Record the source access event in `logs/ingest.jsonl`.
-2. Add the source to `references/source-seeds.jsonl` if it should remain part of the durable source queue.
+2. Optionally add the source to `references/source-seeds.jsonl` if it should remain in the intake/recheck queue. Do not use this file as source-ref authority.
 3. Add or update the matching `## <source_event_id>` note in `references/source-details.md`.
 4. Add or update the catalog line in `references/index.jsonl`.
 5. Add or update the matching `## <pattern-id>` digest in `references/example-digests.md`.
-6. Create the pattern doc under `references/patterns/<pattern-id>.md`.
-7. Create the runnable example under `examples/<pattern-id>/index.html`.
-8. Run the validator:
+6. Add or update the matching `## <pattern-id>` code kernel in `references/code-kernels.md`.
+7. Create the pattern doc under `references/patterns/<pattern-id>.md`.
+8. Create the runnable example under `examples/<pattern-id>/index.html`.
+9. Run the validator:
 
 ```sh
 go run scripts/validate_index.go
@@ -86,6 +87,7 @@ sh scripts/open_examples.sh examples/<pattern-id>
 - Article/demo pages can be `example_source_ref` only when the resulting example is extracted or clearly reconstructed.
 - Blocked sources still belong in `logs/ingest.jsonl` with `access_status: blocked` or `partial`.
 - `source-details.md` must state what was actually accessible, what was reconstructed, and when the source should be rechecked. Do not depend on a social URL remaining readable later.
+- `logs/ingest.jsonl` is the source event authority. `source-seeds.jsonl` is only an intake/recheck aid.
 
 ## Support Rules
 
@@ -101,3 +103,16 @@ sh scripts/open_examples.sh examples/<pattern-id>
 - Include mobile and desktop viewport expectations in `checked_viewports`.
 - For interaction or HTML primitive examples, record checked states and accessibility notes.
 - Add a concise `example-digests.md` entry so future queries can shortlist patterns without reading runnable HTML. Each digest section must include `Shows`, `Best for`, `Key CSS` or `Key CSS/HTML`, and `Read full HTML when`, and stay within 8 non-empty lines.
+- Add a concise `code-kernels.md` entry so future code suggestions can adapt the core CSS/HTML without reading runnable HTML. Each kernel should be enough to generate a useful answer, but not a full page. It is an adaptation snippet, not the canonical verified source.
+
+## Example Quality Standard
+
+Runnable examples should make the applied production pattern obvious without requiring the source post. Each example should include:
+
+- a realistic component or workflow, not only a decorative snippet
+- visible technique checkpoints naming the exact CSS/HTML features being demonstrated. These are example-only developer notes; do not copy them into production UI suggestions unless the user asks for instructional UI.
+- a fallback or production note when support is limited, experimental, or the effect is only visual
+- stable dimensions for fixed-format UI such as rails, sticky headers, cards, rows, and controls
+- mobile and desktop behavior that does not depend on viewport-width font scaling
+
+Keep the richer explanation in the pattern doc, digest, and code kernel. Do not make future recommendation flows read full example HTML until a single pattern has been selected for deeper adaptation or verification.

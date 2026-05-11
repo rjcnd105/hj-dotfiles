@@ -10,6 +10,16 @@ Support: non-Baseline / limited. Both the current and destination documents must
 
 Source refs: `ev-mdn-view-transition-at-rule-20260508`.
 
+## Technique
+
+- Keep navigation as ordinary same-origin links.
+- Add `@view-transition { navigation: auto; }` to both documents.
+- Animate `::view-transition-old(root)` and `::view-transition-new(root)` while leaving unsupported browsers with normal page loads.
+
+## Accessibility
+
+Respect `prefers-reduced-motion`. Do not replace links with client-side routing only to obtain transition motion.
+
 Example: `examples/cross-document-view-transition/index.html`.
 
 Notes:

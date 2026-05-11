@@ -20,8 +20,32 @@
       background: #f2f4f7;
     }
 
-    .stack {
+    .panel {
       width: min(100%, 440px);
+      display: grid;
+      gap: 16px;
+    }
+
+    header {
+      display: grid;
+      gap: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.55rem;
+      line-height: 1.15;
+    }
+
+    header p,
+    .note {
+      margin: 0;
+      color: #53616f;
+      line-height: 1.55;
+    }
+
+    .stack,
+    .technique {
       display: grid;
       gap: 10px;
       padding: 0;
@@ -61,6 +85,18 @@
       line-height: 1.45;
     }
 
+    .technique li {
+      border-left: 3px solid #8aa4c0;
+      padding-left: 10px;
+      color: #3f4d5b;
+      line-height: 1.45;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.92em;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .stack li {
         animation: none;
@@ -69,13 +105,23 @@
   </style>
 </head>
 <body>
-  <main aria-label="Sequential animation demo">
+  <main class="panel" aria-label="Sequential animation demo">
+    <header>
+      <h1>Indexed custom-property sequence</h1>
+      <p>Each row owns a small index. CSS calculates the delay, so the DOM order remains the real reading order.</p>
+    </header>
     <ul class="stack">
       <li style="--i: 0"><strong>Source</strong><span>Record the pattern source and support document.</span></li>
       <li style="--i: 1"><strong>Catalog</strong><span>Add one validated JSONL entry with fallback notes.</span></li>
       <li style="--i: 2"><strong>Example</strong><span>Keep the runnable HTML small and self-contained.</span></li>
       <li style="--i: 3"><strong>Verify</strong><span>Check states, viewport behavior, and reduced motion.</span></li>
     </ul>
+    <ul class="technique" aria-label="Technique checkpoints">
+      <li><code>--i</code> is per-item data, not JavaScript timing state.</li>
+      <li><code>animation-delay: calc(var(--i) * 85ms)</code> creates the sequence.</li>
+      <li><code>prefers-reduced-motion</code> removes the reveal while preserving content.</li>
+    </ul>
+    <p class="note">Production note: keep this for short supporting clusters. Long lists should not delay critical reading.</p>
   </main>
 </body>
 </html>

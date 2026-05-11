@@ -116,6 +116,7 @@ func main() {
 	indexRows := v.readJSONL(filepath.Join(root, "references", "index.jsonl"))
 	v.validateCatalog(indexRows, ingestSources)
 	v.validateExampleDigests(indexRows)
+	v.validateCodeKernels(indexRows)
 	v.validateBacklog()
 
 	if len(v.errors) > 0 {
@@ -340,6 +341,55 @@ func (v *validator) validateExampleDigests(catalogRows []row) {
 		if !catalogIDs[patternID] {
 			v.errorf("example-digests: orphan heading for %s", patternID)
 		}
+	}
+}
+
+func (v *validator) validateCodeKernels(catalogRows []row) {
+	path := filepath.Join(v.root, "references", "code-kernels.md")
+	content, err := os.ReadFile(path)
+	if err != nil {
+		v.errorf("missing code kernels file: %s", v.rel(path))
+		return
+	}
+	sections := v.markdownSections(path, string(content))
+	catalogIDs := map[string]bool{}
+	for _, item := range catalogRows {
+		patternID := stringValue(item["id"])
+		if patternID == "" {
+			continue
+		}
+		catalogIDs[patternID] = true
+		lines, ok := sections[patternID]
+		if !ok {
+			v.errorf("code-kernels: missing heading for %s", patternID)
+			continue
+		}
+		v.validateCodeKernelSection(patternID, lines)
+	}
+	for patternID := range sections {
+		if !catalogIDs[patternID] {
+			v.errorf("code-kernels: orphan heading for %s", patternID)
+		}
+	}
+}
+
+func (v *validator) validateCodeKernelSection(patternID string, lines []string) {
+	nonEmpty := compactLines(lines)
+	if len(nonEmpty) == 0 {
+		v.errorf("code-kernels:%s: section must not be empty", patternID)
+		return
+	}
+	if len(nonEmpty) > 80 {
+		v.errorf("code-kernels:%s: section must stay token-light; got %d non-empty lines, max 80", patternID, len(nonEmpty))
+	}
+	fences := 0
+	for _, line := range nonEmpty {
+		if strings.HasPrefix(line, "```") {
+			fences++
+		}
+	}
+	if fences < 2 {
+		v.errorf("code-kernels:%s: section must include a fenced code block", patternID)
 	}
 }
 

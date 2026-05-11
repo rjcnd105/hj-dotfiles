@@ -36,8 +36,20 @@ Parse the user's request into a subcommand:
 - Use the recorded `support.browserslist_query` when present and always check `support.requires` before recommending a pattern.
 - When a pattern is `limited`, `experimental`, or `limited-fallback-only`, present the fallback and the known caveats with the code.
 - Keep examples minimal and runnable. Every catalog entry must point to an `examples/<pattern-id>/index.html` file.
-- Do not read example HTML files during recommendation. Use `references/index.jsonl`, selected `references/example-digests.md` sections, and selected pattern docs for shortlisting; open runnable HTML only after one final pattern is chosen for adaptation, verification, or bug fixing.
+- Do not read example HTML files during recommendation or first-pass code suggestions. Use `references/index.jsonl`, selected digest sections, selected code-kernel sections, then pattern docs for caveats. Open runnable HTML only for deeper adaptation, verification, or bug fixing.
 - Do not add duplicate patterns. Check aliases, CSS features, HTML features, and related patterns before creating a new entry.
+
+## Context Budget Model
+
+This skill follows a KB-style recall-aid model: indexed material helps routing, but it does not decide the answer by itself. Start with the smallest useful layer and only deepen when the task requires it.
+
+1. `references/index.jsonl` chooses candidate patterns and support/fallback constraints.
+2. `references/example-digests.md` explains when a candidate fits.
+3. `references/code-kernels.md` provides compact adaptation snippets for code suggestions.
+4. `references/patterns/<id>.md` adds caveats and usage notes.
+5. `examples/<id>/index.html` is the verified full source; open it only for exact adaptation, debugging, or browser verification.
+
+If a compact layer conflicts with a deeper layer, prefer the deeper verified artifact and update the compact layer after validation.
 
 ## Tools
 
@@ -45,7 +57,7 @@ Mechanical validation/scaffolding is delegated to small stdlib-only helpers. The
 
 | Tool | Role |
 | --- | --- |
-| `go run scripts/validate_index.go` | Validate JSONL schema, source refs, support-source role/status, digest quality, pattern docs, example paths, and support/fallback invariants. |
+| `go run scripts/validate_index.go` | Validate JSONL schema, source refs, support-source role/status, digest quality, code kernels, pattern docs, example paths, and support/fallback invariants. |
 | `go run scripts/new_pattern.go <pattern-id> "<Pattern Title>"` | Create doc/example placeholders after the add workflow has chosen a new pattern ID/title. Refuses overwrite. |
 | `sh scripts/open_examples.sh [examples/<pattern-id>]` | Open all examples or one example folder in Finder. |
 
@@ -54,15 +66,16 @@ Mechanical validation/scaffolding is delegated to small stdlib-only helpers. The
 1. Search `references/index.jsonl` by requirement terms, category, CSS feature, HTML feature, support target, and fallback needs.
 2. Read only the relevant `## <pattern-id>` sections of `references/example-digests.md`; use `rg`/line ranges instead of opening the whole digest file when the corpus is large.
 3. For recommendation-only answers, stop at catalog + digest + support/fallback notes. Do not open runnable HTML.
-4. For adaptation, open the matching file under `references/patterns/` for usage notes, choose one final pattern, then open only that pattern's linked `example_path`.
-5. If support freshness matters, re-check the linked `support_source_ref` URLs and update `last_checked`, `support.query_verified`, and `logs/ingest.jsonl`.
+4. For code suggestions, read only the selected `## <pattern-id>` sections in `references/code-kernels.md` before touching full examples.
+5. For deeper adaptation, read the matching pattern doc for usage notes, then open only that pattern's linked `example_path` if the kernel is insufficient or verification is needed.
+6. If support freshness matters, re-check the linked `support_source_ref` URLs and update `last_checked`, `support.query_verified`, and `logs/ingest.jsonl`.
 
 ## Workflow: add
 
 Add a CSS/HTML example, tip, method, or pattern to the skill corpus. This is the skill-level ingest workflow, analogous to `$kb ingest`.
 
 1. Read `references/schema.md` and `references/adding-patterns.md`.
-2. Inspect `references/index.jsonl` and `references/backlog.jsonl` for duplicates or near-duplicates.
+2. Inspect `references/index.jsonl`, `references/example-digests.md`, `references/code-kernels.md`, and `references/backlog.jsonl` for duplicates or near-duplicates.
 3. Fetch/check the provided source URL or source description. Use current primary docs for browser support when the feature is modern or support-sensitive.
 4. Decide whether to update an existing pattern, add a backlog item, or create a new catalog entry.
 5. For a new entry, optionally use the scaffold helper to create only the initial doc/example files:
@@ -71,7 +84,7 @@ Add a CSS/HTML example, tip, method, or pattern to the skill corpus. This is the
 go run files/workspace/.agents/skills/modern-css-html-patterns/scripts/new_pattern.go <pattern-id> "<Pattern Title>"
 ```
 
-6. Edit the JSONL catalog, source logs, pattern doc, and runnable example directly.
+6. Edit the source log, catalog, digest, code kernel, pattern doc, and runnable example directly.
 7. Run the validator and browser smoke for the affected example.
 8. Report what was added, support status, fallback behavior, and verification.
 
@@ -116,7 +129,8 @@ sh "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/modern-css-html-patter
 - `references/adding-patterns.md`: checklist, source rules, support rules, and scaffold workflow for adding future tips or patterns.
 - `references/index.jsonl`: canonical pattern catalog.
 - `references/example-digests.md`: token-light summaries of runnable examples keyed by catalog ID.
-- `references/source-seeds.jsonl`: durable source queue and accepted seed list.
+- `references/code-kernels.md`: token-light adaptation snippets keyed by catalog ID; useful for first-pass code suggestions, not a substitute for the verified example.
+- `references/source-seeds.jsonl`: optional intake/recheck queue. It is not the source authority; `logs/ingest.jsonl` is.
 - `references/source-details.md`: human-readable provenance notes keyed by `source_event_id`.
 - `references/backlog.jsonl`: candidates intentionally not included in the current runnable catalog.
 - `logs/ingest.jsonl`: append-only source access and indexing log.
