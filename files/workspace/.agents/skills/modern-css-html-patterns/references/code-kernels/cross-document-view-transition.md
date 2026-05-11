@@ -1,8 +1,5 @@
 # cross-document-view-transition
 
-Adaptation snippet for `cross-document-view-transition`. Use after shortlisting from `references/index.jsonl` and `references/example-digests.md`. This is not the canonical full example; trust the linked runnable example for verification.
-
-
 ```css
 @view-transition {
   navigation: auto;

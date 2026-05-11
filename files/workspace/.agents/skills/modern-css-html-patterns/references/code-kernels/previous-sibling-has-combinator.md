@@ -1,8 +1,5 @@
 # previous-sibling-has-combinator
 
-Adaptation snippet for `previous-sibling-has-combinator`. Use after shortlisting from `references/index.jsonl` and `references/example-digests.md`. This is not the canonical full example; trust the linked runnable example for verification.
-
-
 ```html
 <ol class="steps">
   <li>Draft</li>

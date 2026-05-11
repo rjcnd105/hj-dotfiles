@@ -1,8 +1,5 @@
 # anchor-function-sidenote
 
-Adaptation snippet for `anchor-function-sidenote`. Use after shortlisting from `references/index.jsonl` and `references/example-digests.md`. This is not the canonical full example; trust the linked runnable example for verification.
-
-
 ```html
 <p>
   The note starts in the reading flow

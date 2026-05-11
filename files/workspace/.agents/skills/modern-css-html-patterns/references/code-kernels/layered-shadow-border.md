@@ -1,8 +1,5 @@
 # layered-shadow-border
 
-Adaptation snippet for `layered-shadow-border`. Use after shortlisting from `references/index.jsonl` and `references/example-digests.md`. This is not the canonical full example; trust the linked runnable example for verification.
-
-
 ```css
 .surface {
   border-radius: 8px;

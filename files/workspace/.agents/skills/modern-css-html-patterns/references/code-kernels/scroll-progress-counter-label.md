@@ -1,8 +1,5 @@
 # scroll-progress-counter-label
 
-Adaptation snippet for `scroll-progress-counter-label`. Use after shortlisting from `references/index.jsonl` and `references/example-digests.md`. This is not the canonical full example; trust the linked runnable example for verification.
-
-
 ```css
 @property --complete {
   syntax: "<integer>";

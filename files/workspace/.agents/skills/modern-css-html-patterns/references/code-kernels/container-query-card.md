@@ -1,8 +1,5 @@
 # container-query-card
 
-Adaptation snippet for `container-query-card`. Use after shortlisting from `references/index.jsonl` and `references/example-digests.md`. This is not the canonical full example; trust the linked runnable example for verification.
-
-
 ```html
 <article class="card">
   <div class="media" aria-hidden="true"></div>

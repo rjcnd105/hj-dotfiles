@@ -1,8 +1,5 @@
 # fluid-container-type
 
-Adaptation snippet for `fluid-container-type`. Use after shortlisting from `references/index.jsonl` and `references/example-digests.md`. This is not the canonical full example; trust the linked runnable example for verification.
-
-
 ```css
 .story {
   container-type: inline-size;

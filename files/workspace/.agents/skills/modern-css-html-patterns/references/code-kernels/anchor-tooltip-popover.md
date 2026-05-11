@@ -1,8 +1,5 @@
 # anchor-tooltip-popover
 
-Adaptation snippet for `anchor-tooltip-popover`. Use after shortlisting from `references/index.jsonl` and `references/example-digests.md`. This is not the canonical full example; trust the linked runnable example for verification.
-
-
 ```html
 <button class="help" popovertarget="hint" aria-label="Show format guidance">?</button>
 <div id="hint" popover>Use JSON when another system imports the export.</div>

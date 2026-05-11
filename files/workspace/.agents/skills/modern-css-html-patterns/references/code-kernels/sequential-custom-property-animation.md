@@ -1,8 +1,5 @@
 # sequential-custom-property-animation
 
-Adaptation snippet for `sequential-custom-property-animation`. Use after shortlisting from `references/index.jsonl` and `references/example-digests.md`. This is not the canonical full example; trust the linked runnable example for verification.
-
-
 ```html
 <ul class="stack">
   <li style="--i: 0">Source</li>

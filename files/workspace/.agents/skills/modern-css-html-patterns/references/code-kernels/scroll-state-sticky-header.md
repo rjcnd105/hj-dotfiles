@@ -1,8 +1,5 @@
 # scroll-state-sticky-header
 
-Adaptation snippet for `scroll-state-sticky-header`. Use after shortlisting from `references/index.jsonl` and `references/example-digests.md`. This is not the canonical full example; trust the linked runnable example for verification.
-
-
 ```html
 <section class="section">
   <header class="section-header">
