@@ -180,8 +180,9 @@ in
 
       # 2026-04-27: two concurrent batch_retain jobs reached retain.phase2.insert_facts
       # and saturated DB pool waiters while /health and reranker stayed healthy.
-      # Serialize background write work so recall-eval and prompt-time recall keep headroom.
-      Environment=HINDSIGHT_API_WORKER_MAX_SLOTS=1
+      # Keep one shared worker slot for retain work; the consolidation reservation
+      # below consumes one slot by itself.
+      Environment=HINDSIGHT_API_WORKER_MAX_SLOTS=2
       Environment=HINDSIGHT_API_WORKER_CONSOLIDATION_MAX_SLOTS=1
       Environment=HINDSIGHT_API_RETAIN_MAX_CONCURRENT=1
       Environment=HINDSIGHT_API_RETAIN_CHUNK_BATCH_SIZE=25
