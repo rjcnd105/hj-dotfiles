@@ -20,7 +20,7 @@ Add a new catalog entry only when the candidate has a distinct feature set, inte
 ## Agent Add Sequence
 
 1. Read `references/schema.md`.
-2. Read `references/index.jsonl`, relevant digest/kernel sections, `references/backlog.jsonl`, and the most relevant existing pattern docs.
+2. Read `references/index.jsonl`, relevant digest sections, relevant `code_kernel_path` files, `references/backlog.jsonl`, and the most relevant existing pattern docs.
 3. Check the new source:
    - For ordinary web/docs pages, fetch the current page.
    - For X/Twitter, record direct access status separately from metadata extraction.
@@ -32,7 +32,7 @@ Add a new catalog entry only when the candidate has a distinct feature set, inte
    - reject the source with a `rejected_reason`
 5. If creating a new pattern, choose a stable kebab-case `id`, category, support status, fallback, and verification target.
 6. Optionally run the scaffold helper to create placeholder doc/example files.
-7. Edit source log, catalog, digest, code kernel, pattern doc, and example HTML.
+7. Edit source log, catalog, digest, per-pattern code kernel, pattern doc, and example HTML.
 8. Run validation and affected-example browser smoke.
 9. Report the catalog ID, support status, fallback, and any remaining caveats.
 
@@ -43,7 +43,7 @@ Add a new catalog entry only when the candidate has a distinct feature set, inte
 3. Add or update the matching `## <source_event_id>` note in `references/source-details.md`.
 4. Add or update the catalog line in `references/index.jsonl`.
 5. Add or update the matching `## <pattern-id>` digest in `references/example-digests.md`.
-6. Add or update the matching `## <pattern-id>` code kernel in `references/code-kernels.md`.
+6. Add or update the matching code kernel at `references/code-kernels/<pattern-id>.md`, and make sure the catalog line has `code_kernel_path`.
 7. Create the pattern doc under `references/patterns/<pattern-id>.md`.
 8. Create the runnable example under `examples/<pattern-id>/index.html`.
 9. Run the validator:
@@ -103,7 +103,7 @@ sh scripts/open_examples.sh examples/<pattern-id>
 - Include mobile and desktop viewport expectations in `checked_viewports`.
 - For interaction or HTML primitive examples, record checked states and accessibility notes.
 - Add a concise `example-digests.md` entry so future queries can shortlist patterns without reading runnable HTML. Each digest section must include `Shows`, `Best for`, `Key CSS` or `Key CSS/HTML`, and `Read full HTML when`, and stay within 8 non-empty lines.
-- Add a concise `code-kernels.md` entry so future code suggestions can adapt the core CSS/HTML without reading runnable HTML. Each kernel should be enough to generate a useful answer, but not a full page. It is an adaptation snippet, not the canonical verified source.
+- Add a concise `references/code-kernels/<pattern-id>.md` file so future code suggestions can adapt the core CSS/HTML without reading runnable HTML or scanning an aggregate snippet file. Each kernel should be enough to generate a useful answer, but not a full page. It is an adaptation snippet, not the canonical verified source.
 
 ## Example Quality Standard
 

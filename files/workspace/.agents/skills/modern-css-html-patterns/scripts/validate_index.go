@@ -56,6 +56,7 @@ var catalogRequired = set(
 	"fallback_test_method",
 	"verification_mode",
 	"example_path",
+	"code_kernel_path",
 	"states_demonstrated",
 	"checked_states",
 	"checked_viewports",
@@ -345,42 +346,65 @@ func (v *validator) validateExampleDigests(catalogRows []row) {
 }
 
 func (v *validator) validateCodeKernels(catalogRows []row) {
-	path := filepath.Join(v.root, "references", "code-kernels.md")
-	content, err := os.ReadFile(path)
+	legacyPath := filepath.Join(v.root, "references", "code-kernels.md")
+	if fileExists(legacyPath) {
+		v.errorf("code-kernels: legacy aggregate file must not exist: %s", v.rel(legacyPath))
+	}
+
+	dir := filepath.Join(v.root, "references", "code-kernels")
+	entries, err := os.ReadDir(dir)
 	if err != nil {
-		v.errorf("missing code kernels file: %s", v.rel(path))
+		v.errorf("missing code kernels directory: %s", v.rel(dir))
 		return
 	}
-	sections := v.markdownSections(path, string(content))
-	catalogIDs := map[string]bool{}
+
+	expectedPaths := map[string]string{}
 	for _, item := range catalogRows {
 		patternID := stringValue(item["id"])
 		if patternID == "" {
 			continue
 		}
-		catalogIDs[patternID] = true
-		lines, ok := sections[patternID]
-		if !ok {
-			v.errorf("code-kernels: missing heading for %s", patternID)
+		expectedPath := filepath.ToSlash(filepath.Join("references", "code-kernels", patternID+".md"))
+		actualPath := stringValue(item["code_kernel_path"])
+		itemLabel := "index:" + patternID
+		if actualPath != expectedPath {
+			v.errorf("%s: code_kernel_path must be %s", itemLabel, expectedPath)
 			continue
 		}
-		v.validateCodeKernelSection(patternID, lines)
+		expectedPaths[actualPath] = patternID
+
+		fullPath := filepath.Join(v.root, actualPath)
+		content, err := os.ReadFile(fullPath)
+		if err != nil {
+			v.errorf("%s: missing code kernel file %s", itemLabel, actualPath)
+			continue
+		}
+		v.validateCodeKernelFile(patternID, actualPath, string(content))
 	}
-	for patternID := range sections {
-		if !catalogIDs[patternID] {
-			v.errorf("code-kernels: orphan heading for %s", patternID)
+
+	for _, entry := range entries {
+		if entry.IsDir() || filepath.Ext(entry.Name()) != ".md" {
+			continue
+		}
+		relPath := filepath.ToSlash(filepath.Join("references", "code-kernels", entry.Name()))
+		if _, ok := expectedPaths[relPath]; !ok {
+			v.errorf("code-kernels: orphan file %s", relPath)
 		}
 	}
 }
 
-func (v *validator) validateCodeKernelSection(patternID string, lines []string) {
+func (v *validator) validateCodeKernelFile(patternID, relPath, content string) {
+	lines := strings.Split(content, "\n")
 	nonEmpty := compactLines(lines)
 	if len(nonEmpty) == 0 {
-		v.errorf("code-kernels:%s: section must not be empty", patternID)
+		v.errorf("%s: code kernel must not be empty", relPath)
 		return
 	}
 	if len(nonEmpty) > 80 {
-		v.errorf("code-kernels:%s: section must stay token-light; got %d non-empty lines, max 80", patternID, len(nonEmpty))
+		v.errorf("%s: code kernel must stay token-light; got %d non-empty lines, max 80", relPath, len(nonEmpty))
+	}
+	if nonEmpty[0] != "# "+patternID {
+		v.errorf("%s: first heading must be %q", relPath, "# "+patternID)
 	}
 	fences := 0
 	for _, line := range nonEmpty {
@@ -389,7 +413,7 @@ func (v *validator) validateCodeKernelSection(patternID string, lines []string) 
 		}
 	}
 	if fences < 2 {
-		v.errorf("code-kernels:%s: section must include a fenced code block", patternID)
+		v.errorf("%s: code kernel must include a fenced code block", relPath)
 	}
 }
 

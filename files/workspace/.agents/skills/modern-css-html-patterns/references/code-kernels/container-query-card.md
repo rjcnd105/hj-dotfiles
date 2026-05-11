@@ -1,0 +1,33 @@
+# container-query-card
+
+Adaptation snippet for `container-query-card`. Use after shortlisting from `references/index.jsonl` and `references/example-digests.md`. This is not the canonical full example; trust the linked runnable example for verification.
+
+
+```html
+<article class="card">
+  <div class="media" aria-hidden="true"></div>
+  <div class="copy">
+    <h2>Layout follows the card</h2>
+    <p>The base layout is stacked.</p>
+  </div>
+</article>
+```
+
+```css
+.card {
+  container-type: inline-size;
+  display: grid;
+  gap: 18px;
+}
+
+@container (min-width: 34rem) {
+  .card {
+    grid-template-columns: minmax(180px, 0.8fr) minmax(0, 1fr);
+  }
+
+  .media {
+    min-height: 260px;
+  }
+}
+```
+

@@ -2,9 +2,9 @@
 
 Schema version: `1.0.0`
 
-`references/index.jsonl` is the canonical current catalog. `logs/ingest.jsonl` is the append-only source-event authority. `references/example-digests.md` is the token-light example routing layer. `references/code-kernels.md` is the token-light code suggestion layer. Pattern docs and runnable examples are derived artifacts that must point back to catalog IDs.
+`references/index.jsonl` is the canonical current catalog. `logs/ingest.jsonl` is the append-only source-event authority. `references/example-digests.md` is the token-light example routing layer. `references/code-kernels/<id>.md` files are the token-light code suggestion layer. Pattern docs and runnable examples are derived artifacts that must point back to catalog IDs.
 
-Recommendation should not require reading example HTML files. Agents should shortlist from `index.jsonl`, selected `example-digests.md` sections, selected `code-kernels.md` sections, and selected pattern docs. Open runnable HTML only after choosing one final pattern for deeper adaptation, verification, or bug fixing.
+Recommendation should not require reading example HTML files or aggregate snippet files. Agents should shortlist from `index.jsonl`, selected `example-digests.md` sections, the selected entry's `code_kernel_path`, and selected pattern docs. Open runnable HTML only after choosing one final pattern for deeper adaptation, verification, or bug fixing.
 
 `source_refs` are stable source event IDs. Resolve them from:
 
@@ -33,6 +33,7 @@ Required fields:
 - `fallback_test_method`: how the fallback was checked.
 - `verification_mode`: how the example was checked.
 - `example_path`: exact relative path `examples/<id>/index.html`.
+- `code_kernel_path`: exact relative path `references/code-kernels/<id>.md`.
 - `states_demonstrated`: states visible in the example.
 - `checked_states`: states checked during verification.
 - `checked_viewports`: viewport sizes checked or targeted.
@@ -45,7 +46,9 @@ Required fields:
 - `related_patterns`: related catalog IDs.
 - `last_checked`: ISO date.
 
-Every catalog ID in `references/index.jsonl` must also have exactly one matching `## <catalog_id>` heading in `references/example-digests.md` and `references/code-kernels.md`. Digest sections must stay token-light: at most 8 non-empty lines and required lines for `Shows`, `Best for`, `Key CSS` or `Key CSS/HTML`, and `Read full HTML when`. Code kernel sections must include a fenced code block and stay token-light: at most 80 non-empty lines. Kernels are adaptation snippets, not canonical full examples; if they conflict with the runnable example, update the kernel. Orphan digest or code-kernel headings are invalid.
+Every catalog ID in `references/index.jsonl` must also have exactly one matching `## <catalog_id>` heading in `references/example-digests.md` and one matching `references/code-kernels/<catalog_id>.md` file referenced by `code_kernel_path`. Digest sections must stay token-light: at most 8 non-empty lines and required lines for `Shows`, `Best for`, `Key CSS` or `Key CSS/HTML`, and `Read full HTML when`. Code kernel files must include a fenced code block and stay token-light: at most 80 non-empty lines. Kernels are adaptation snippets, not canonical full examples; if they conflict with the runnable example, update the kernel. Orphan digest headings or orphan code-kernel files are invalid.
+
+Do not recreate a single aggregate `references/code-kernels.md` file. Sharding kernels by pattern keeps first-pass code suggestions bounded when the catalog grows past 50 entries.
 
 ## Support Object
 
@@ -138,9 +141,11 @@ The validator must reject:
 - catalog entries missing from `references/example-digests.md`
 - duplicate or orphan headings in `references/example-digests.md`
 - digest sections that miss required labels or exceed the token-light line limit
-- catalog entries missing from `references/code-kernels.md`
-- duplicate or orphan headings in `references/code-kernels.md`
-- code kernel sections that lack fenced code or exceed the token-light line limit
+- missing or invalid `code_kernel_path`
+- catalog entries missing from `references/code-kernels/<id>.md`
+- orphan files in `references/code-kernels/`
+- a legacy aggregate `references/code-kernels.md` file
+- code kernel files that lack fenced code or exceed the token-light line limit
 - source refs not present in `logs/ingest.jsonl`
 - source refs that point to rejected source events
 - source events missing from `references/source-details.md`
