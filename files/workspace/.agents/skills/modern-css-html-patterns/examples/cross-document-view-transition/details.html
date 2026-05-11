@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>View Transition Detail</title>
+  <style>
+    @view-transition {
+      navigation: auto;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      color: #17202a;
+      background: #f0f4f2;
+    }
+
+    main {
+      width: min(100%, 680px);
+      border-radius: 8px;
+      padding: 24px;
+      background: #ffffff;
+      box-shadow: 0 18px 48px rgba(23, 32, 42, 0.15);
+      view-transition-name: project-panel;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(1.8rem, 7vw, 3.2rem);
+      line-height: 1;
+      text-wrap: balance;
+    }
+
+    p {
+      margin: 0 0 16px;
+      color: #53616f;
+      line-height: 1.55;
+    }
+
+    dl {
+      display: grid;
+      gap: 10px;
+      margin: 0 0 20px;
+    }
+
+    div {
+      border: 1px solid #d7e1e8;
+      border-radius: 8px;
+      padding: 12px;
+      background: #f8fafb;
+    }
+
+    dt {
+      font-weight: 800;
+    }
+
+    dd {
+      margin: 4px 0 0;
+      color: #53616f;
+    }
+
+    a {
+      display: inline-block;
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: #ffffff;
+      background: #2f5f72;
+      text-decoration: none;
+      font-weight: 800;
+    }
+
+    @keyframes move-out {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+    }
+
+    @keyframes move-in {
+      from {
+        opacity: 0;
+        transform: translateY(-18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    ::view-transition-old(root) {
+      animation: 180ms ease both move-out;
+    }
+
+    ::view-transition-new(root) {
+      animation: 220ms ease both move-in;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Design system refresh</h1>
+    <p>The destination page also opts into @view-transition, so same-origin navigation can animate without replacing links with client-side routing.</p>
+    <dl>
+      <div><dt>Status</dt><dd>Ready for stakeholder review</dd></div>
+      <div><dt>Owner</dt><dd>Frontend platform</dd></div>
+      <div><dt>Fallback</dt><dd>Unsupported browsers perform a normal page load.</dd></div>
+    </dl>
+    <a href="./index.html">Back to dashboard</a>
+  </main>
+</body>
+</html>

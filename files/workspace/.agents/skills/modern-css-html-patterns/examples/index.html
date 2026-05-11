@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Modern CSS/HTML Pattern Examples</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      color: #151a21;
+      background: #eef2f4;
+    }
+
+    main {
+      width: min(100% - 32px, 1120px);
+      margin-inline: auto;
+      padding-block: 36px;
+    }
+
+    header {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 6vw, 4rem);
+      line-height: 1;
+      text-wrap: balance;
+    }
+
+    header p {
+      margin: 0;
+      max-width: 72ch;
+      color: #4f5d68;
+      line-height: 1.6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+      gap: 14px;
+    }
+
+    article {
+      display: grid;
+      gap: 12px;
+      border: 1px solid #d8e0e7;
+      border-radius: 8px;
+      padding: 18px;
+      background: #ffffff;
+      box-shadow: 0 10px 30px rgba(21, 26, 33, 0.08);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      line-height: 1.2;
+    }
+
+    p {
+      margin: 0;
+      color: #53616e;
+      line-height: 1.5;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: auto;
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 4px 8px;
+      color: #27435a;
+      background: #e8f0f4;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    a {
+      width: fit-content;
+      color: #0f5c6b;
+      font-weight: 800;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 3px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Modern CSS/HTML pattern examples</h1>
+      <p>Each example is a runnable fallback-first UI slice. The catalog records provenance, support target, caveats, and verification state.</p>
+    </header>
+
+    <section class="grid" aria-label="Pattern example gallery">
+      <article>
+        <h2>Sequential sticky section headers</h2>
+        <p>Multiple sticky headers use scroll-state queries to change appearance only while stuck.</p>
+        <a href="./scroll-state-sticky-header/index.html">Open example</a>
+        <div class="meta"><span class="tag">Baseline 2026</span><span class="tag">scroll-state</span></div>
+      </article>
+      <article>
+        <h2>Popover entry transition</h2>
+        <p>Native popover behavior with @starting-style and discrete transition enhancement.</p>
+        <a href="./starting-style-popover/index.html">Open example</a>
+        <div class="meta"><span class="tag">Baseline 2024</span><span class="tag">popover</span></div>
+      </article>
+      <article>
+        <h2>Anchor-positioned tooltip</h2>
+        <p>Native popover tooltip that follows a trigger when anchor positioning is available.</p>
+        <a href="./anchor-tooltip-popover/index.html">Open example</a>
+        <div class="meta"><span class="tag">limited</span><span class="tag">anchor positioning</span></div>
+      </article>
+      <article>
+        <h2>Progressive anchor() sidenotes</h2>
+        <p>Article notes stay in source order and move to the margin on wide supported layouts.</p>
+        <a href="./anchor-function-sidenote/index.html">Open example</a>
+        <div class="meta"><span class="tag">Baseline 2026</span><span class="tag">anchor()</span></div>
+      </article>
+      <article>
+        <h2>Container query card</h2>
+        <p>A component changes layout from stacked to split based on its own container width.</p>
+        <a href="./container-query-card/index.html">Open example</a>
+        <div class="meta"><span class="tag">Baseline 2024</span><span class="tag">@container</span></div>
+      </article>
+      <article>
+        <h2>Fluid container type</h2>
+        <p>Display type scales with the component measure using cqi and bounded rem values.</p>
+        <a href="./fluid-container-type/index.html">Open example</a>
+        <div class="meta"><span class="tag">Baseline 2025</span><span class="tag">cqi</span></div>
+      </article>
+      <article>
+        <h2>Previous sibling with :has(+ ...)</h2>
+        <p>A stepper styles the item before the current step without adding another class.</p>
+        <a href="./previous-sibling-has-combinator/index.html">Open example</a>
+        <div class="meta"><span class="tag">Baseline 2023</span><span class="tag">:has</span></div>
+      </article>
+      <article>
+        <h2>CSS if() fallback branch</h2>
+        <p>Experimental conditional CSS is isolated behind a complete custom-property fallback.</p>
+        <a href="./css-if-style-query/index.html">Open example</a>
+        <div class="meta"><span class="tag">experimental</span><span class="tag">if()</span></div>
+      </article>
+      <article>
+        <h2>Layered shadow border</h2>
+        <p>Inset and outer shadows create a stable hairline edge without extra DOM.</p>
+        <a href="./layered-shadow-border/index.html">Open example</a>
+        <div class="meta"><span class="tag">widely available</span><span class="tag">box-shadow</span></div>
+      </article>
+      <article>
+        <h2>Sequential custom-property animation</h2>
+        <p>Small lists reveal in order using indexed custom properties and reduced-motion fallback.</p>
+        <a href="./sequential-custom-property-animation/index.html">Open example</a>
+        <div class="meta"><span class="tag">widely available</span><span class="tag">motion</span></div>
+      </article>
+      <article>
+        <h2>Cross-document view transition</h2>
+        <p>Same-origin page navigation opts into @view-transition while keeping ordinary links as fallback.</p>
+        <a href="./cross-document-view-transition/index.html">Open example</a>
+        <div class="meta"><span class="tag">limited</span><span class="tag">@view-transition</span></div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

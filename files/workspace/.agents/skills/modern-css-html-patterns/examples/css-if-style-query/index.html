@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CSS if() With Fallback</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      color: #1f2933;
+      background: #eef3f2;
+    }
+
+    .stack {
+      width: min(100%, 520px);
+      display: grid;
+      gap: 12px;
+    }
+
+    .notice {
+      --tone: success;
+      --fallback-bg: #eef8f1;
+      --fallback-border: #8fc8a1;
+      --fallback-ink: #17462a;
+
+      border: 1px solid var(--fallback-border);
+      border-radius: 8px;
+      padding: 22px;
+      color: var(--fallback-ink);
+      background: var(--fallback-bg);
+      box-shadow: 0 16px 42px rgba(31, 41, 51, 0.13);
+    }
+
+    .notice[data-tone="warning"] {
+      --tone: warning;
+      --fallback-bg: #fff7e6;
+      --fallback-border: #d6a94f;
+      --fallback-ink: #5b3d0b;
+    }
+
+    @supports (color: if(style(--tone: success): green; else: blue)) {
+      .notice {
+        color: if(style(--tone: success): #17462a; else: #5b3d0b);
+        border-color: if(style(--tone: success): #8fc8a1; else: #d6a94f);
+        background: if(style(--tone: success): #eef8f1; else: #fff7e6);
+      }
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 1.3rem;
+      line-height: 1.2;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <main class="stack">
+    <article class="notice" data-tone="success">
+      <h1>Sync healthy</h1>
+      <p>The production color comes from fallback custom properties. Experimental CSS if() can branch from the same tone value when supported.</p>
+    </article>
+    <article class="notice" data-tone="warning">
+      <h1>Import attention needed</h1>
+      <p>The warning state is also complete without if(), so unsupported browsers still get the intended UI.</p>
+    </article>
+  </main>
+</body>
+</html>

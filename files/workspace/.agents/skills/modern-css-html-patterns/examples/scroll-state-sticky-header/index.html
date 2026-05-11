@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scroll-State Sticky Header</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      color: #111827;
+      background: #f1f3f5;
+    }
+
+    .scrollbox {
+      width: min(100%, 620px);
+      max-height: min(620px, 82svh);
+      overflow: auto;
+      scroll-padding-block-start: 64px;
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 18px 48px rgba(30, 41, 59, 0.16);
+    }
+
+    .section {
+      border-bottom: 1px solid #e3e8ee;
+    }
+
+    .section:nth-of-type(1) {
+      --sticky-layer: 1;
+    }
+
+    .section:nth-of-type(2) {
+      --sticky-layer: 2;
+    }
+
+    .section:nth-of-type(3) {
+      --sticky-layer: 3;
+    }
+
+    .section-header {
+      position: sticky;
+      top: 0;
+      z-index: var(--sticky-layer, 1);
+      block-size: 64px;
+      container-type: scroll-state;
+      container-name: sticky-hd;
+    }
+
+    .header-shell {
+      min-block-size: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 20px;
+      border-bottom: 1px solid #d8dee6;
+      background: #ffffff;
+      box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+      color: #111827;
+      transition:
+        background-color 180ms ease,
+        border-color 180ms ease,
+        color 180ms ease,
+        box-shadow 180ms ease;
+    }
+
+    @container sticky-hd scroll-state(stuck: top) {
+      .header-shell {
+        background: #102a43;
+        border-color: #102a43;
+        color: #ffffff;
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.22);
+      }
+
+      .title-stack {
+        transform: translateY(-1px) scale(0.96);
+      }
+
+      .count {
+        transform: scale(0.96);
+      }
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+      font-size: 1.15rem;
+      line-height: 1.2;
+    }
+
+    .title-stack {
+      display: grid;
+      gap: 2px;
+      transform-origin: left center;
+      transition: transform 180ms ease;
+    }
+
+    .kicker {
+      color: #6b7280;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      transition: color 180ms ease;
+    }
+
+    @container sticky-hd scroll-state(stuck: top) {
+      .kicker {
+        color: #bfdbfe;
+      }
+    }
+
+    .count {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 4px 9px;
+      color: inherit;
+      background: rgba(125, 149, 172, 0.18);
+      font-size: 0.78rem;
+      font-weight: 800;
+      transform-origin: right center;
+      transition: transform 180ms ease;
+    }
+
+    .items {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .item {
+      min-height: 84px;
+      border-radius: 8px;
+      padding: 16px;
+      background: #f4f8fa;
+      border: 1px solid #d8e6eb;
+    }
+
+    .item strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .item p {
+      margin: 0;
+      line-height: 1.45;
+      color: #46515c;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .header-shell,
+      .title-stack,
+      .kicker,
+      .count {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="scrollbox" tabindex="0" aria-label="Scrollable section list with sticky headings">
+    <section class="section">
+      <header class="section-header">
+        <div class="header-shell">
+          <div class="title-stack">
+            <span class="kicker">Sticky state 01</span>
+            <h1>Design queue</h1>
+          </div>
+          <span class="count">3 items</span>
+        </div>
+      </header>
+      <div class="items">
+        <article class="item"><strong>Navigation states</strong><p>The first heading sticks, then changes color only while stuck.</p></article>
+        <article class="item"><strong>Popover motion</strong><p>Fallback layout remains readable without scroll-state support.</p></article>
+        <article class="item"><strong>Anchor notes</strong><p>Each section owns its own sticky container.</p></article>
+      </div>
+    </section>
+
+    <section class="section">
+      <header class="section-header">
+        <div class="header-shell">
+          <div class="title-stack">
+            <span class="kicker">Sticky state 02</span>
+            <h2>Build queue</h2>
+          </div>
+          <span class="count">4 items</span>
+        </div>
+      </header>
+      <div class="items">
+        <article class="item"><strong>Container query card</strong><p>Scroll further and this header replaces the first at the top edge.</p></article>
+        <article class="item"><strong>Sequential animation</strong><p>The stuck query styles only descendants of the current header.</p></article>
+        <article class="item"><strong>Range control</strong><p>No JavaScript scroll listener is involved.</p></article>
+        <article class="item"><strong>Conditional radius</strong><p>Use this as a styling state, not business state.</p></article>
+      </div>
+    </section>
+
+    <section class="section">
+      <header class="section-header">
+        <div class="header-shell">
+          <div class="title-stack">
+            <span class="kicker">Sticky state 03</span>
+            <h2>Review queue</h2>
+          </div>
+          <span class="count">3 items</span>
+        </div>
+      </header>
+      <div class="items">
+        <article class="item"><strong>Fallback check</strong><p>Without support, the headers still stick with a divider.</p></article>
+        <article class="item"><strong>Keyboard scroll</strong><p>The scroll region is focusable for keyboard-driven inspection.</p></article>
+        <article class="item"><strong>Support notes</strong><p>The catalog records this as a Baseline 2026 target.</p></article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
