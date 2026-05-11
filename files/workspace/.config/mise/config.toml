@@ -58,7 +58,7 @@ postinstall = "corepack enable"
 version = "latest"
 
 [tools."pipx:graphifyy"]
-version = "0.7.8"
+version = "latest"
 
 [tools.usage]
 version = "latest"
@@ -183,6 +183,7 @@ _.path = [
 # `mise env --redacted` filters to redacted vars; it does not mask values.
 _.file = [
   { path = "$HOME/.config/sops-nix/secrets/rendered/env/CONTEXT7_API_KEY.env", redact = true, read_only = true },
+  { path = "$HOME/.config/sops-nix/secrets/rendered/env/GITHUB_TOKEN.env", redact = true, read_only = true },
   { path = "$PROJECT_PATH/secrets/shared/pub.enc.yaml", redact = true, read_only = true },
 ]
 SKILLIB = "$HOME/.local/agents/skills"

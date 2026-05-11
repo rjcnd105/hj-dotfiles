@@ -21,6 +21,7 @@ let
   # per-secret rendered env file under ${rendered_env_dir}/env/.
   env_bindings = {
     GITHUB_MASTER_TOKEN = "github_master_token";
+    GITHUB_TOKEN = "GITHUB_TOKEN";
     ANTHROPIC_KEY = "anthropic_key";
     ANTHROPIC_API_KEY = "anthropic_key";
     GOOGLE_SEARCH = "google_search";
