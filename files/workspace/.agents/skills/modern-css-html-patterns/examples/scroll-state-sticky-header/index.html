@@ -20,6 +20,29 @@
       background: #f1f3f5;
     }
 
+    .page {
+      width: min(100%, 680px);
+      display: grid;
+      gap: 16px;
+    }
+
+    .intro {
+      display: grid;
+      gap: 8px;
+    }
+
+    .intro h1 {
+      margin: 0;
+      font-size: 1.65rem;
+      line-height: 1.15;
+    }
+
+    .intro p {
+      margin: 0;
+      color: #4f5b66;
+      line-height: 1.55;
+    }
+
     .scrollbox {
       width: min(100%, 620px);
       max-height: min(620px, 82svh);
@@ -97,6 +120,13 @@
       line-height: 1.2;
     }
 
+    .section h2,
+    .section h3 {
+      margin: 0;
+      font-size: 1.15rem;
+      line-height: 1.2;
+    }
+
     .title-stack {
       display: grid;
       gap: 2px;
@@ -137,6 +167,28 @@
       padding: 16px;
     }
 
+    .technique {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 16px;
+      list-style: none;
+      border-top: 1px solid #e3e8ee;
+      background: #f8fafc;
+    }
+
+    .technique li {
+      border-left: 3px solid #7aa7c7;
+      padding-left: 10px;
+      color: #3f4b57;
+      line-height: 1.45;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.92em;
+    }
+
     .item {
       min-height: 84px;
       border-radius: 8px;
@@ -164,61 +216,88 @@
         transition: none;
       }
     }
+
+    @media (max-width: 560px) {
+      body {
+        padding: 16px;
+      }
+
+      .scrollbox {
+        max-height: 78svh;
+      }
+
+      .header-shell {
+        padding-inline: 14px;
+      }
+    }
   </style>
 </head>
 <body>
-  <main class="scrollbox" tabindex="0" aria-label="Scrollable section list with sticky headings">
-    <section class="section">
-      <header class="section-header">
-        <div class="header-shell">
-          <div class="title-stack">
-            <span class="kicker">Sticky state 01</span>
-            <h1>Design queue</h1>
-          </div>
-          <span class="count">3 items</span>
-        </div>
-      </header>
-      <div class="items">
-        <article class="item"><strong>Navigation states</strong><p>The first heading sticks, then changes color only while stuck.</p></article>
-        <article class="item"><strong>Popover motion</strong><p>Fallback layout remains readable without scroll-state support.</p></article>
-        <article class="item"><strong>Anchor notes</strong><p>Each section owns its own sticky container.</p></article>
-      </div>
-    </section>
+  <main class="page">
+    <header class="intro">
+      <h1>Sequential sticky section headers</h1>
+      <p>Scroll the panel. Each header keeps a stable sticky height and only changes paint/composite state while it is stuck.</p>
+    </header>
 
-    <section class="section">
-      <header class="section-header">
-        <div class="header-shell">
-          <div class="title-stack">
-            <span class="kicker">Sticky state 02</span>
-            <h2>Build queue</h2>
+    <div class="scrollbox" tabindex="0" aria-label="Scrollable section list with sticky headings">
+      <section class="section">
+        <header class="section-header">
+          <div class="header-shell">
+            <div class="title-stack">
+              <span class="kicker">Sticky state 01</span>
+              <h2>Design queue</h2>
+            </div>
+            <span class="count">3 items</span>
           </div>
-          <span class="count">4 items</span>
+        </header>
+        <div class="items">
+          <article class="item"><strong>Navigation states</strong><p>The first heading sticks, then changes color only while stuck.</p></article>
+          <article class="item"><strong>Popover motion</strong><p>Fallback layout remains readable without scroll-state support.</p></article>
+          <article class="item"><strong>Anchor notes</strong><p>Each section owns its own sticky container.</p></article>
         </div>
-      </header>
-      <div class="items">
-        <article class="item"><strong>Container query card</strong><p>Scroll further and this header replaces the first at the top edge.</p></article>
-        <article class="item"><strong>Sequential animation</strong><p>The stuck query styles only descendants of the current header.</p></article>
-        <article class="item"><strong>Range control</strong><p>No JavaScript scroll listener is involved.</p></article>
-        <article class="item"><strong>Conditional radius</strong><p>Use this as a styling state, not business state.</p></article>
-      </div>
-    </section>
+      </section>
 
-    <section class="section">
-      <header class="section-header">
-        <div class="header-shell">
-          <div class="title-stack">
-            <span class="kicker">Sticky state 03</span>
-            <h2>Review queue</h2>
+      <section class="section">
+        <header class="section-header">
+          <div class="header-shell">
+            <div class="title-stack">
+              <span class="kicker">Sticky state 02</span>
+              <h2>Build queue</h2>
+            </div>
+            <span class="count">4 items</span>
           </div>
-          <span class="count">3 items</span>
+        </header>
+        <div class="items">
+          <article class="item"><strong>Container query card</strong><p>Scroll further and this header replaces the first at the top edge.</p></article>
+          <article class="item"><strong>Sequential animation</strong><p>The stuck query styles only descendants of the current header.</p></article>
+          <article class="item"><strong>Range control</strong><p>No JavaScript scroll listener is involved.</p></article>
+          <article class="item"><strong>Conditional radius</strong><p>Use this as a styling state, not business state.</p></article>
         </div>
-      </header>
-      <div class="items">
-        <article class="item"><strong>Fallback check</strong><p>Without support, the headers still stick with a divider.</p></article>
-        <article class="item"><strong>Keyboard scroll</strong><p>The scroll region is focusable for keyboard-driven inspection.</p></article>
-        <article class="item"><strong>Support notes</strong><p>The catalog records this as a Baseline 2026 target.</p></article>
-      </div>
-    </section>
+      </section>
+
+      <section class="section">
+        <header class="section-header">
+          <div class="header-shell">
+            <div class="title-stack">
+              <span class="kicker">Sticky state 03</span>
+              <h2>Review queue</h2>
+            </div>
+            <span class="count">3 items</span>
+          </div>
+        </header>
+        <div class="items">
+          <article class="item"><strong>Fallback check</strong><p>Without support, the headers still stick with a divider.</p></article>
+          <article class="item"><strong>Keyboard scroll</strong><p>The scroll region is focusable for keyboard-driven inspection.</p></article>
+          <article class="item"><strong>Support notes</strong><p>The catalog records this as a Baseline 2026 target.</p></article>
+        </div>
+      </section>
+
+      <ul class="technique" aria-label="Technique checkpoints">
+        <li><code>container-type: scroll-state</code> lives on each sticky header.</li>
+        <li><code>@container scroll-state(stuck: top)</code> changes descendant paint while stuck.</li>
+        <li>Height, padding, and document flow stay stable to avoid sticky-boundary jitter.</li>
+      </ul>
+    </div>
   </main>
 </body>
 </html>

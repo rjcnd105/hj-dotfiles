@@ -10,6 +10,16 @@ Support: `+` is widely available; the modern part is `:has()`, cataloged as Base
 
 Source refs: `ev-x-mozdevnet-next-sibling-20260508`, `ev-mdn-next-sibling-combinator-20260508`, `ev-mdn-has-selector-20260508`.
 
+## Technique
+
+- Keep the canonical current-state class on the current item.
+- Use a scoped selector such as `li:has(+ .current)` to style exactly the previous sibling.
+- Wrap the enhancement in `@supports selector()` when the fallback state should stay explicit.
+
+## Accessibility
+
+The visual previous-state accent is supplemental. The list order and current item must remain clear without the relational selector.
+
 Example: `examples/previous-sibling-has-combinator/index.html`.
 
 Notes:

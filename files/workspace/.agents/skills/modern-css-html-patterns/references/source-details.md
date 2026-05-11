@@ -1,6 +1,6 @@
 # Source Details
 
-This file makes `source_refs` durable enough for later review. Each heading must match a `source_event_id` from `logs/ingest.jsonl` and `references/source-seeds.jsonl`.
+This file makes `source_refs` durable enough for later review. Each heading must match a `source_event_id` from `logs/ingest.jsonl`. `references/source-seeds.jsonl` is only an optional intake/recheck queue.
 
 The JSONL rows are the machine-readable source log. This file is the human-readable retrieval note: what was actually accessible, what was extracted or reconstructed, and what should be rechecked before relying on the source again.
 
@@ -203,3 +203,43 @@ The JSONL rows are the machine-readable source log. This file is the human-reada
 - Role: support and example source for `cross-document-view-transition`.
 - Durable note: the pattern requires same-origin navigation and remains `limited`; unsupported browsers should get normal navigation.
 - Recheck trigger: before changing support status or adding browser-specific caveats.
+
+## ev-x-jh3yy-scroll-counter-20260511
+
+- URL: https://x.com/jh3yy/status/1880430184299442180
+- Access: direct X returned 403 on 2026-05-11; fxtwitter metadata exposed the text about scroll-animating a custom property from 0 to 100, feeding `counter(complete)`, and translating a label with `1cqh`.
+- Role: inspiration and reconstruction source for `scroll-progress-counter-label`.
+- Durable note: treat this as a discovery pointer only. The durable technical basis is the local fallback-first example plus MDN `animation-timeline`, `@property`, `counter()`, and container query unit docs.
+- Recheck trigger: if quoting or reproducing the social post itself, refetch the post or find an independently accessible demo.
+
+## ev-mdn-animation-timeline-20260511
+
+- URL: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/animation-timeline
+- Access: MDN page was recorded as accessible on 2026-05-11.
+- Role: support source for `scroll-progress-counter-label`.
+- Durable note: MDN currently marks `animation-timeline` as Limited availability; use support guards and complete static fallback labels.
+- Recheck trigger: before changing the pattern from `limited` to a Baseline target or changing `scroll(root block)` syntax.
+
+## ev-mdn-at-property-20260511
+
+- URL: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/%40property
+- Access: MDN page was recorded as accessible on 2026-05-11.
+- Role: support source for the typed custom property used by `scroll-progress-counter-label`.
+- Durable note: use for `@property --complete { syntax: "<integer>"; ... }` and custom-property interpolation requirements.
+- Recheck trigger: if changing the animated custom property type or recommending this outside a progressive enhancement guard.
+
+## ev-mdn-counter-function-20260511
+
+- URL: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/counter
+- Access: MDN page was recorded as accessible on 2026-05-11.
+- Role: support source for generated percent text in `scroll-progress-counter-label`.
+- Durable note: the generated counter is visual; keep real status text in markup when progress is semantically important.
+- Recheck trigger: low priority unless counter syntax or generated-content accessibility behavior changes.
+
+## ev-mdn-container-query-units-20260511
+
+- URL: https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Containment/Container_queries
+- Access: MDN page was recorded as accessible on 2026-05-11.
+- Role: support source for the `cqh` label translation in `scroll-progress-counter-label`.
+- Durable note: `cqh` resolves against the query container height, so examples need a definite container block size.
+- Recheck trigger: if changing the container from `container-type: size` to inline-only containment or relying on fallback unit resolution.

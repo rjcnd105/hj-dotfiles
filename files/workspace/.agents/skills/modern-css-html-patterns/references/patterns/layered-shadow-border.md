@@ -10,6 +10,16 @@ Support: broadly available CSS shadows, with optional `color-mix()` enhancement.
 
 Source refs: `ev-x-nilseller-shadow-20260508`, `ev-mdn-cascade-layers-20260508`.
 
+## Technique
+
+- Compose the edge from multiple `box-shadow` layers instead of adding border wrapper DOM.
+- Put the hard inset edge, lower divider, small ambient shadow, and larger lift in one declaration.
+- Use fixed color shadows as the fallback and let `color-mix()` refine the color stack when available.
+
+## Accessibility
+
+The effect is decorative. Keep the component semantics in the underlying `article`, button, or form control and do not rely on elevation alone to communicate state.
+
 Example: `examples/layered-shadow-border/index.html`.
 
 Notes:

@@ -2,13 +2,16 @@
 
 Schema version: `1.0.0`
 
-`references/index.jsonl` is the canonical current catalog. `logs/ingest.jsonl` is append-only source history. Pattern docs and runnable examples are derived artifacts that must point back to catalog IDs.
+`references/index.jsonl` is the canonical current catalog. `logs/ingest.jsonl` is the append-only source-event authority. `references/example-digests.md` is the token-light example routing layer. `references/code-kernels/<id>.md` files are the token-light code suggestion layer. Pattern docs and runnable examples are derived artifacts that must point back to catalog IDs.
 
-`source_refs` are stable source event IDs. Resolve them in this order:
+Recommendation should not require reading example HTML files or aggregate snippet files. Agents should shortlist from `index.jsonl`, selected `example-digests.md` sections, the selected entry's `code_kernel_path`, and selected pattern docs. Open runnable HTML only after choosing one final pattern for deeper adaptation, verification, or bug fixing.
 
-1. `logs/ingest.jsonl` for the append-only machine-readable access event.
-2. `references/source-seeds.jsonl` for the durable source queue.
-3. `references/source-details.md` for human-readable retrieval notes, reconstruction notes, and recheck triggers.
+`source_refs` are stable source event IDs. Resolve them from:
+
+1. `logs/ingest.jsonl` for the machine-readable access event and acceptance state.
+2. `references/source-details.md` for human-readable retrieval notes, reconstruction notes, and recheck triggers.
+
+`references/source-seeds.jsonl` is an optional intake/recheck queue. It may mirror accepted sources for convenience, but it is not a source-ref authority.
 
 ## Catalog Entry
 
@@ -29,7 +32,8 @@ Required fields:
 - `fallback`: fallback strategy summary.
 - `fallback_test_method`: how the fallback was checked.
 - `verification_mode`: how the example was checked.
-- `example_path`: relative path to the runnable HTML file.
+- `example_path`: exact relative path `examples/<id>/index.html`.
+- `code_kernel_path`: exact relative path `references/code-kernels/<id>.md`.
 - `states_demonstrated`: states visible in the example.
 - `checked_states`: states checked during verification.
 - `checked_viewports`: viewport sizes checked or targeted.
@@ -42,18 +46,22 @@ Required fields:
 - `related_patterns`: related catalog IDs.
 - `last_checked`: ISO date.
 
+Every catalog ID in `references/index.jsonl` must also have exactly one matching `## <catalog_id>` heading in `references/example-digests.md` and one matching `references/code-kernels/<catalog_id>.md` file referenced by `code_kernel_path`. Digest sections must stay token-light: at most 7 non-empty lines and required lines for `Shows`, `Best for`, `Key CSS` or `Key CSS/HTML`, and `Read full HTML when`. Do not duplicate `code_kernel_path` inside digest sections. Code kernel files must include a fenced code block and stay token-light: at most 80 non-empty lines. Kernels are adaptation snippets, not canonical full examples; if they conflict with the runnable example, update the kernel. Orphan digest headings or orphan code-kernel files are invalid.
+
+Do not recreate a single aggregate `references/code-kernels.md` file. Sharding kernels by pattern keeps first-pass code suggestions bounded when the catalog grows past 50 entries.
+
 ## Support Object
 
 Required fields:
 
 - `status`: one of `baseline`, `limited`, `experimental`, `deprecated`.
 - `baseline_target`: broad target such as `baseline-2024`, `baseline-2025`, `baseline-2026`, `non-baseline`, or `widely-available`.
-- `browserslist_query`: query string following Browserslist Baseline syntax when known, otherwise `null`.
+- `browserslist_query`: non-empty query string following Browserslist Baseline syntax for `baseline` support, otherwise `null`.
 - `query_verified`: boolean.
 - `requires`: concrete browser or runtime requirements.
 - `caveats`: known support or behavior caveats.
 
-Use broad Baseline labels by default. Add browser-specific caveats only when needed for correctness.
+Use broad Baseline labels by default. Add browser-specific caveats only when needed for correctness. `support_source_ref` must point to an accepted, accessible `docs` or `support-doc` source event.
 
 ## Source Event
 
@@ -130,8 +138,18 @@ The validator must reject:
 - missing `schema_version`
 - missing `example_path`
 - missing pattern docs
+- catalog entries missing from `references/example-digests.md`
+- duplicate or orphan headings in `references/example-digests.md`
+- digest sections that miss required labels or exceed the token-light line limit
+- missing or invalid `code_kernel_path`
+- catalog entries missing from `references/code-kernels/<id>.md`
+- orphan files in `references/code-kernels/`
+- a legacy aggregate `references/code-kernels.md` file
+- code kernel files that lack fenced code or exceed the token-light line limit
 - source refs not present in `logs/ingest.jsonl`
+- source refs that point to rejected source events
 - source events missing from `references/source-details.md`
+- support refs that are not accepted, accessible docs/support-doc source events
 - support claims without `support_source_ref`
 - limited or experimental patterns without fallback notes
 - interactive or HTML primitive patterns without checked states and accessibility notes

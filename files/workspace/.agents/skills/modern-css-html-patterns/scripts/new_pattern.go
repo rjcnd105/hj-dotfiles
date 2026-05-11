@@ -47,6 +47,10 @@ func main() {
 			template: filepath.Join(root, "templates", "example.html"),
 			target:   filepath.Join(root, "examples", id, "index.html"),
 		},
+		{
+			template: filepath.Join(root, "templates", "code-kernel.md"),
+			target:   filepath.Join(root, "references", "code-kernels", id+".md"),
+		},
 	}
 
 	for _, item := range targets {
@@ -79,8 +83,9 @@ func main() {
 
 	fmt.Println()
 	fmt.Println("Next steps:")
-	fmt.Println("- Append source events to logs/ingest.jsonl and references/source-seeds.jsonl.")
-	fmt.Println("- Add one catalog line to references/index.jsonl.")
+	fmt.Println("- Append source events to logs/ingest.jsonl; optionally mirror intake items in references/source-seeds.jsonl.")
+	fmt.Println("- Add one catalog line to references/index.jsonl with code_kernel_path.")
+	fmt.Println("- Replace the code-kernel placeholder.")
 	fmt.Println("- Replace placeholder prose and HTML.")
 	fmt.Println("- Run: go run scripts/validate_index.go")
 }

@@ -10,6 +10,16 @@ Support: cataloged as Baseline 2024, with caveats around discrete `display` and 
 
 Source refs: `ev-x-kara-starting-style-20260508`, `ev-mdn-starting-style-20260508`, `ev-mdn-popover-api-20260508`.
 
+## Technique
+
+- Build the interaction with native `popover` and `popovertarget` first.
+- Apply opacity and transform transitions to `:popover-open`.
+- Use `@starting-style` for the opening frame and guard discrete `display`/`overlay` transitions with `@supports`.
+
+## Accessibility
+
+Use popover for lightweight non-modal panels. Choose `dialog` when the task needs modal semantics, focus trapping, or a blocking decision.
+
 Example: `examples/starting-style-popover/index.html`.
 
 Notes:
