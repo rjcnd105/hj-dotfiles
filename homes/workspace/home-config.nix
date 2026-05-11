@@ -48,7 +48,6 @@ in
   home.sessionPath = [
     "/usr/bin"
     "${config.home.homeDirectory}/.local/bin"
-    "${config.home.homeDirectory}/.local/share/mise/installs"
     "${config.home.homeDirectory}/.cache/.bun/bin"
     "${config.home.homeDirectory}/.local/scripts"
   ];

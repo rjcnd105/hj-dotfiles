@@ -20,6 +20,10 @@
         source $HOME/.config/fish/user-functions.fish
         fish_add_path -maP /usr/bin /usr/sbin /bin /sbin
 
+        if command -q mise
+          mise activate fish | source
+        end
+
         set -g fish_greeting
 
         # VIM 모드 커서 모양 설정
