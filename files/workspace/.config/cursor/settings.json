@@ -318,7 +318,7 @@
   "editor.experimental.preferTreeSitter.regex": true,
   "editor.lineHeight": 1.6,
   "workbench.editor.enablePreviewFromQuickOpen": true,
-  "workbench.editor.enablePreviewFromCodeNavigation": true,
+  "workbench.editor.enablePreviewFromCodeNavigation": false,
   "workbench.editor.highlightModifiedTabs": true,
   "workbench.editor.closeOnFileDelete": true,
   "workbench.editor.limit.enabled": true,

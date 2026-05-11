@@ -1,5 +1,5 @@
 model = "gpt-5.5"
-model_reasoning_effort = "xhigh"
+model_reasoning_effort = "high"
 personality = 'pragmatic'
 
 approvals_reviewer = "user"
@@ -8,6 +8,7 @@ notify = [
   "/Users/hj/.codex/plugins/cache/openai-bundled/computer-use/1.0.758/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient",
   "turn-ended",
 ]
+service_tier = "fast"
 
 [projects]
 [projects.'/Users/hj/work/gm/gentle-renewal']
@@ -32,6 +33,9 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/hj/Library/Mobile Documents/iCloud~md~obsidian/Documents/Brain/Philosophia"]
+trust_level = "trusted"
+
+[projects."/Users/hj/work/gm/gentle-renewal-2"]
 trust_level = "trusted"
 
 [notice]
@@ -84,8 +88,8 @@ source_type = "local"
 source = "/Users/hj/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [marketplaces.compound-engineering-plugin]
-last_updated = "2026-05-08T00:45:37Z"
-last_revision = "0bb53dfad0a502d39727d2392c5038ff2a0d99ae"
+last_updated = "2026-05-12T00:58:04Z"
+last_revision = "b07aac55b5dc6d5b940a7b194497ccd6121f62a5"
 source_type = "git"
 source = "https://github.com/EveryInc/compound-engineering-plugin.git"
 
