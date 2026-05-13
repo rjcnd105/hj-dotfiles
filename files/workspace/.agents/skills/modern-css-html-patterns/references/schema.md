@@ -144,6 +144,7 @@ The validator must reject:
 - missing or invalid `code_kernel_path`
 - catalog entries missing from `references/code-kernels/<id>.md`
 - orphan files in `references/code-kernels/`
+- catalog examples missing from `examples/index.html`
 - a legacy aggregate `references/code-kernels.md` file
 - code kernel files that lack fenced code or exceed the token-light line limit
 - source refs not present in `logs/ingest.jsonl`

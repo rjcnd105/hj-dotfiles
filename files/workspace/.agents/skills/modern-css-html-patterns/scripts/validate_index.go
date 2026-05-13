@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"html"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -15,6 +16,7 @@ import (
 const schemaVersion = "1.0.0"
 
 var idPattern = regexp.MustCompile(`^[a-z0-9]+(?:-[a-z0-9]+)*$`)
+var galleryAnchorHrefPattern = regexp.MustCompile(`(?is)<a\b[^>]*\bhref\s*=\s*(?:"([^"]*)"|'([^']*)')`)
 
 var categories = set(
 	"layout",
@@ -118,6 +120,7 @@ func main() {
 	v.validateCatalog(indexRows, ingestSources)
 	v.validateExampleDigests(indexRows)
 	v.validateCodeKernels(indexRows)
+	v.validateExampleGallery(indexRows)
 	v.validateBacklog()
 
 	if len(v.errors) > 0 {
@@ -414,6 +417,44 @@ func (v *validator) validateCodeKernelFile(patternID, relPath, content string) {
 	}
 	if fences < 2 {
 		v.errorf("%s: code kernel must include a fenced code block", relPath)
+	}
+}
+
+func (v *validator) validateExampleGallery(catalogRows []row) {
+	path := filepath.Join(v.root, "examples", "index.html")
+	content, err := os.ReadFile(path)
+	if err != nil {
+		v.errorf("missing example gallery file: %s", v.rel(path))
+		return
+	}
+
+	text := string(content)
+	galleryLinks := map[string]bool{}
+	for _, match := range galleryAnchorHrefPattern.FindAllStringSubmatch(text, -1) {
+		href := match[1]
+		if href == "" {
+			href = match[2]
+		}
+		galleryLinks[html.UnescapeString(href)] = true
+	}
+
+	expectedLinks := map[string]bool{}
+	for _, item := range catalogRows {
+		patternID := stringValue(item["id"])
+		if patternID == "" {
+			continue
+		}
+		href := "./" + patternID + "/index.html"
+		expectedLinks[href] = true
+		if !galleryLinks[href] {
+			v.errorf("examples/index.html: missing gallery link for %s", patternID)
+		}
+	}
+	for href := range galleryLinks {
+		if strings.HasPrefix(href, "./") && strings.HasSuffix(href, "/index.html") &&
+			!expectedLinks[href] {
+			v.errorf("examples/index.html: orphan gallery link %s", href)
+		}
 	}
 }
 

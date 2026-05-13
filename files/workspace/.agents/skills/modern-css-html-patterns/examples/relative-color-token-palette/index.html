@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Relative Color Token Palette</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      color: #19201c;
+      background:
+        linear-gradient(135deg, #f7f3ea 0%, #eef4f1 50%, #f1f2f6 100%);
+    }
+
+    main {
+      width: min(100%, 920px);
+      display: grid;
+      gap: 24px;
+      border-radius: 8px;
+      padding: 32px;
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: 0 18px 54px rgba(29, 35, 31, 0.14);
+    }
+
+    .intro {
+      display: grid;
+      gap: 12px;
+      max-width: 720px;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: #9d4f35;
+      font-size: 0.84rem;
+      font-weight: 760;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      margin: 0;
+      color: #18231f;
+      font-size: 2.7rem;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .intro p {
+      margin: 0;
+      color: #4d5a52;
+      line-height: 1.65;
+    }
+
+    .palette {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .tone-card {
+      --tone: #315eea;
+      --tone-strong: #1e348b;
+      --tone-soft: #eef3ff;
+      --tone-accent: #6a57d9;
+      --tone-border: rgba(49, 94, 234, 0.22);
+      --tone-shadow: rgba(49, 94, 234, 0.18);
+
+      min-height: 250px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
+      border: 1px solid var(--tone-border);
+      border-radius: 8px;
+      padding: 18px;
+      color: var(--tone-strong);
+      background: var(--tone-soft);
+      box-shadow: 0 18px 32px var(--tone-shadow);
+    }
+
+    .tone-card[data-tone="growth"] {
+      --tone: #247a50;
+      --tone-strong: #145336;
+      --tone-soft: #eaf7ef;
+      --tone-accent: #8a6534;
+      --tone-border: rgba(36, 122, 80, 0.22);
+      --tone-shadow: rgba(36, 122, 80, 0.18);
+    }
+
+    .tone-card[data-tone="warning"] {
+      --tone: #bd5434;
+      --tone-strong: #7c301d;
+      --tone-soft: #fff0e8;
+      --tone-accent: #9b4f86;
+      --tone-border: rgba(189, 84, 52, 0.22);
+      --tone-shadow: rgba(189, 84, 52, 0.18);
+    }
+
+    @supports (color: oklch(from red l c h)) {
+      .tone-card {
+        --tone-strong: oklch(from var(--tone) calc(l - 0.18) c h);
+        --tone-soft: oklch(from var(--tone) min(calc(l + 0.44), 0.96) calc(c * 0.3) h);
+        --tone-accent: oklch(from var(--tone) l c calc(h + 28));
+        --tone-border: rgb(from var(--tone) r g b / 0.22);
+        --tone-shadow: rgb(from var(--tone) r g b / 0.18);
+      }
+
+      .badge {
+        border-color: rgb(from currentColor r g b / 0.22);
+        background: oklch(from currentColor min(calc(l + 0.44), 0.96) calc(c * 0.28) h);
+      }
+    }
+
+    .tone-card h2 {
+      margin: 0;
+      color: var(--tone-strong);
+      font-size: 1.2rem;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .tone-card p {
+      margin: 0;
+      color: var(--tone-strong);
+      line-height: 1.55;
+    }
+
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .swatch {
+      min-height: 62px;
+      display: grid;
+      place-items: end start;
+      border-radius: 8px;
+      padding: 8px;
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 760;
+      line-height: 1.1;
+      background: var(--tone);
+    }
+
+    .swatch--strong {
+      background: var(--tone-strong);
+    }
+
+    .swatch--soft {
+      color: var(--tone-strong);
+      background: var(--tone-soft);
+      border: 1px solid var(--tone-border);
+    }
+
+    .swatch--accent {
+      background: var(--tone-accent);
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      border-top: 1px solid rgba(37, 46, 41, 0.14);
+      padding-top: 22px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      border: 1px solid rgba(49, 94, 234, 0.22);
+      border-radius: 999px;
+      padding: 0 14px;
+      color: #315eea;
+      background: #eef3ff;
+      font-size: 0.92rem;
+      font-weight: 760;
+      white-space: nowrap;
+    }
+
+    .badge:nth-child(2) {
+      color: #247a50;
+    }
+
+    .badge:nth-child(3) {
+      color: #bd5434;
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 16px;
+      }
+
+      main {
+        padding: 24px;
+      }
+
+      h1 {
+        font-size: 2.1rem;
+      }
+
+      .palette {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="intro" aria-labelledby="palette-title">
+      <p class="eyebrow">Derived component tokens</p>
+      <h1 id="palette-title">Relative color token palette</h1>
+      <p>
+        Each card starts with absolute fallback tokens. Browsers with relative color syntax
+        derive stronger text, softer surfaces, borders, shadows, and accents from one base
+        color.
+      </p>
+    </section>
+
+    <section class="palette" aria-label="Relative color palette examples">
+      <article class="tone-card">
+        <h2>Primary</h2>
+        <p>One base color drives surface, border, shadow, and accent tokens.</p>
+        <div class="swatches" role="group" aria-label="Primary derived colors">
+          <span class="swatch">base</span>
+          <span class="swatch swatch--strong">strong</span>
+          <span class="swatch swatch--soft">soft</span>
+          <span class="swatch swatch--accent">accent</span>
+        </div>
+      </article>
+
+      <article class="tone-card" data-tone="growth">
+        <h2>Growth</h2>
+        <p>The same relationships hold when the source hue changes.</p>
+        <div class="swatches" role="group" aria-label="Growth derived colors">
+          <span class="swatch">base</span>
+          <span class="swatch swatch--strong">strong</span>
+          <span class="swatch swatch--soft">soft</span>
+          <span class="swatch swatch--accent">accent</span>
+        </div>
+      </article>
+
+      <article class="tone-card" data-tone="warning">
+        <h2>Warning</h2>
+        <p>Fallback tokens remain in place for browsers without relative colors.</p>
+        <div class="swatches" role="group" aria-label="Warning derived colors">
+          <span class="swatch">base</span>
+          <span class="swatch swatch--strong">strong</span>
+          <span class="swatch swatch--soft">soft</span>
+          <span class="swatch swatch--accent">accent</span>
+        </div>
+      </article>
+    </section>
+
+    <div class="badge-row" role="group" aria-label="currentColor examples">
+      <span class="badge">currentColor border</span>
+      <span class="badge">currentColor surface</span>
+      <span class="badge">currentColor badge</span>
+    </div>
+  </main>
+</body>
+</html>
