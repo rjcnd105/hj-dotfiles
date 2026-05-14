@@ -19,7 +19,7 @@ let
   legacyDbVolumePath = "/var/lib/docker/volumes/hindsight-db-data/_data";
 
   images = {
-    hindsight = "ghcr.io/vectorize-io/hindsight:0.6.0-slim";
+    hindsight = "ghcr.io/vectorize-io/hindsight:0.6.1-slim";
     db = "timescale/timescaledb-ha:pg18";
   };
 
@@ -69,6 +69,13 @@ in
         if [ "$new_hash" != "$old_hash" ]; then
           ${pkgs.systemd}/bin/systemctl daemon-reload || true
           if ${pkgs.systemd}/bin/systemctl is-active --quiet hindsight.service; then
+            if ! ${pkgs.podman}/bin/podman image exists ${images.hindsight}; then
+              if ! ${pkgs.podman}/bin/podman pull ${images.hindsight}; then
+                echo "warning: not restarting hindsight.service; failed to pull ${images.hindsight}" >&2
+                exit 0
+              fi
+            fi
+
             if ${pkgs.systemd}/bin/systemctl restart hindsight.service; then
               printf '%s\n' "$new_hash" > "$marker"
             else
@@ -187,16 +194,13 @@ in
       Environment=HINDSIGHT_API_RETAIN_MAX_CONCURRENT=1
       Environment=HINDSIGHT_API_RETAIN_CHUNK_BATCH_SIZE=25
 
-      # Claude Code recall 훅 latency 튜닝 (2026-04-21 실측 fix + llama-swap groups).
-      # llama-swap groups.retrieval {swap:false, persistent:true} 이후 embedding
-      # warm path 15-175ms 복원. rerank 60 candidates = 3.84-4.37s (실측).
-      # `recall.py:153 timeout=10` 하드코딩이 실질 ceiling → 9s 내 진입 필요.
-      # MAX_CANDIDATES 60 → 100: 선형 외삽 ~6.8s 예상, 10s budget 여유 ~3s.
-      # BUDGET_FIXED_LOW 40 → 100 (default): latency knob 아닌 품질 knob.
-      #   pool 1200(=100×4methods×3types) → RRF fusion → top-100 rerank.
-      #   각 retrieval method 다양성 확보, RRF 품질 향상. pgvector HNSW 로그 스케일.
-      # UMA carve-out 16 GiB 해제 후 상향 검토 — 32 GB 풀파워 시 150 여유.
-      Environment=HINDSIGHT_API_RERANKER_MAX_CANDIDATES=100
+      # Claude Code recall 훅 latency 튜닝.
+      # 2026-05-15 실측: cap=100 warm recall은 server 7.3s/client 8.3s로
+      # `recall.py` 10s timeout에 너무 가깝다. cap=60은 2026-04-21 실측에서
+      # rerank 3.84-4.37s, client 4.72-5.52s로 훅 예산 안에 안정적으로 들어왔다.
+      # BUDGET_FIXED_LOW=100은 retrieval breadth/품질 knob로 유지하고, latency는
+      # 최종 rerank candidate cap만 줄여 제어한다.
+      Environment=HINDSIGHT_API_RERANKER_MAX_CANDIDATES=60
       Environment=HINDSIGHT_API_RECALL_BUDGET_FIXED_LOW=100
       Environment=HINDSIGHT_API_LAZY_RERANKER=true
 

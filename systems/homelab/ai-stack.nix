@@ -28,12 +28,35 @@ let
   llamaCppVulkan = pkgs.llama-cpp.override { vulkanSupport = true; };
   llamaServer = "${llamaCppVulkan}/bin/llama-server";
 
+  waitForRetrievalModels = pkgs.writeShellScript "llama-swap-wait-for-retrieval-models" ''
+    set -eu
+
+    url=http://127.0.0.1:8090/running
+
+    for attempt in $(${pkgs.coreutils}/bin/seq 1 180); do
+      if running="$(${pkgs.curl}/bin/curl -fsS --max-time 2 "$url" 2>/dev/null)"; then
+        if printf '%s' "$running" | ${pkgs.jq}/bin/jq -e '
+          ([.running[]? | select((.model == "harrier" or .model == "qwen3-reranker") and .state == "ready")] | length) == 2
+        ' >/dev/null; then
+          exit 0
+        fi
+      fi
+
+      ${pkgs.coreutils}/bin/sleep 1
+    done
+
+    echo "llama-swap retrieval models did not become ready in time" >&2
+    ${pkgs.curl}/bin/curl -fsS --max-time 2 "$url" >&2 || true
+    exit 1
+  '';
+
   # llama-swap 라우팅 설정.
   # ${PORT} = llama-swap이 backend에 할당한 동적 포트.
-  # ttl=600 → 10분 idle 후 언로드.
+  # hooks.on_startup.preload가 두 retrieval 모델을 startup에 올리고,
+  # ttl=0은 이후 idle unload 없이 resident 상태를 유지한다.
   # groups.retrieval: 두 모델 동시 load 허용 (swap 비활성화).
   #   기본 정책은 1모델만 resident → recall 호출마다 embed/rerank 번갈아 unload+reload
-  #   (cold load 5s × 2 = 10s 오버헤드). persistent:true로 본 그룹 영구 고정.
+  #   (cold load 5s × 2 = 10s 오버헤드).
   llamaSwapConfig = pkgs.writeText "llama-swap-config.yaml" ''
     healthCheckTimeout: 120
 
@@ -53,7 +76,7 @@ let
           --ubatch-size 512
           --threads 4
         proxy: http://127.0.0.1:''${PORT}
-        ttl: 600
+        ttl: 0
 
       qwen3-reranker:
         cmd: |
@@ -71,14 +94,19 @@ let
           --no-mmap
           --threads 4
         proxy: http://127.0.0.1:''${PORT}
-        ttl: 600
+        ttl: 0
 
     groups:
       retrieval:
         swap: false
         exclusive: false
-        persistent: true
         members:
+          - harrier
+          - qwen3-reranker
+
+    hooks:
+      on_startup:
+        preload:
           - harrier
           - qwen3-reranker
   '';
@@ -123,8 +151,10 @@ in
 
     serviceConfig = {
       ExecStart = "${pkgs.llama-swap}/bin/llama-swap --config ${llamaSwapConfig} --listen 0.0.0.0:8090";
+      ExecStartPost = "${waitForRetrievalModels}";
       Restart = "always";
       RestartSec = "5s";
+      TimeoutStartSec = "240s";
 
       DynamicUser = true;
       # Vulkan 접근: DynamicUser의 임시 UID가 /dev/dri/renderD128에 접근하려면
