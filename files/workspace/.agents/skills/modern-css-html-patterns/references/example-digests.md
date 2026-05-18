@@ -130,3 +130,10 @@ The digest is the token-light map from requirement to example. Open `examples/<p
 - Best for: galleries, editorial boards, and mixed-height card feeds where column-major visual flow is acceptable.
 - Key CSS/HTML: `ol`, `column-width`, `column-gap`, `break-inside: avoid`, `display: inline-block`.
 - Read full HTML when: tuning card width, generated column count, varied card heights, or ordering/a11y notes.
+
+## stepped-fluid-sizing-round
+
+- Shows: `round()` snapping fluid `clamp()` values to predictable typography, spacing, and media-size steps.
+- Best for: components that should remain fluid but align to a design scale or layout rhythm.
+- Key CSS: `round()`, `clamp()`, custom properties, `@supports`.
+- Read full HTML when: you need the comparison UI, step labels, or responsive smoke target.

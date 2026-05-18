@@ -409,3 +409,27 @@ The JSONL rows are the machine-readable source log. This file is the human-reada
 - Role: support and fragmentation source for `column-width-masonry-feed`.
 - Durable note: MDN records `break-inside` as Baseline widely available and shows `break-inside: avoid` keeping a figure from splitting across columns.
 - Recheck trigger: before changing card fragmentation guidance or multi-column fallback notes.
+
+## ev-ishadeed-css-round-20260518
+
+- URL: https://ishadeed.com/article/css-round/
+- Access: article HTML returned HTTP 200 on 2026-05-18.
+- Role: article and reconstruction source for `stepped-fluid-sizing-round`.
+- Durable note: records `round()` as a way to snap fluid `clamp()` output to predictable steps for typography, spacing, card sizing, type scales, and line-grid snapping. The `calc-size()` card-height variant is noted as a separate narrower-support path, not the baseline example.
+- Recheck trigger: before adding the `calc-size(auto)` height-snapping variant or copying the interactive demo behavior.
+
+## ev-mdn-css-round-20260518
+
+- URL: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/round
+- Access: MDN page returned HTTP 200 on 2026-05-18.
+- Role: support and syntax source for `stepped-fluid-sizing-round`.
+- Durable note: MDN records `round()` as Baseline 2024, newly available since May 2024, with `up`, `down`, `nearest`, and `to-zero` strategies. Use custom properties for the rounded value or interval; hardcoding both is usually redundant.
+- Recheck trigger: before changing the Baseline target, feature-query guidance, or rounding strategy notes.
+
+## ev-webdev-stepped-value-functions-20260518
+
+- URL: https://web.dev/blog/css-stepped-value-functions
+- Access: web.dev article returned HTTP 200 on 2026-05-18.
+- Role: secondary support source for `stepped-fluid-sizing-round`.
+- Durable note: web.dev records stepped value math functions `round()`, `mod()`, and `rem()` as Baseline 2024 and supported by all major browser engines.
+- Recheck trigger: before broadening this pattern to include `mod()` or `rem()`.
