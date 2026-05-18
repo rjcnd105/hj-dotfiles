@@ -172,6 +172,115 @@ hindsight-admin decommission-worker worker-1 --schema tenant_acme
 Worker IDs default to the hostname. In Kubernetes StatefulSets, this is the pod name (e.g., `hindsight-worker-0`). You can also set a custom ID with `HINDSIGHT_API_WORKER_ID` or `--worker-id`.
 :::
 
+
+### decommission-workers
+
+Release all currently-processing tasks from every worker, resetting them from "processing" back to "pending" status. Use this when one or more workers have crashed or been removed without graceful shutdown and you don't know which worker IDs to target.
+
+```bash
+hindsight-admin decommission-workers [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--schema`, `-s` | Database schema | `public` |
+| `--yes`, `-y` | Skip confirmation prompt | `false` |
+
+**Examples:**
+
+```bash
+# Release all processing tasks across all workers (with confirmation)
+hindsight-admin decommission-workers
+
+# Skip the confirmation prompt (useful in scripts)
+hindsight-admin decommission-workers --yes
+
+# Release tasks in a specific tenant schema
+hindsight-admin decommission-workers --schema tenant_acme
+```
+
+**When to Use:**
+
+- **Unknown dead workers**: Multiple workers crashed and you do not know their IDs
+- **Fleet-wide recovery**: After an infrastructure event where many workers went down
+- **"Just fix everything"**: A quick full-queue drain when per-worker cleanup is overkill
+
+:::warning Disruptive
+This releases **every** processing task regardless of worker, including tasks owned by healthy workers. Prefer `decommission-worker <WORKER_ID>` when you know which workers need cleanup.
+:::
+
+---
+
+### worker-status
+
+Show all currently-processing tasks grouped by worker, including operation type, bank, how long each task has been running, and when it was last updated. Useful for identifying orphaned tasks before decommissioning.
+
+```bash
+hindsight-admin worker-status [OPTIONS]
+```
+
+**Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--schema`, `-s` | Database schema | `public` |
+
+**Examples:**
+
+```bash
+# Show all processing tasks across all workers
+hindsight-admin worker-status
+
+# Show processing tasks for a specific tenant schema
+hindsight-admin worker-status --schema tenant_acme
+```
+
+**When to Use:**
+
+- **Before decommissioning**: Inspect which workers have stale tasks and how long they have been stuck
+- **Debugging throughput**: Diagnose why the queue is not draining (are tasks stuck in processing?)
+- **Worker health check**: Spot workers whose `last_update_ago` keeps growing, indicating a dead or unresponsive worker
+
+---
+
+## Recovering stuck or zombie operations
+
+A "zombie" operation is one stuck in `processing` indefinitely because the worker that claimed it is gone. The most common cause is an unstable `HINDSIGHT_API_WORKER_ID`: when it defaults to the container hostname, a Docker restart produces a new container ID, the new worker doesn't recognize the old worker's claims as its own, and those tasks are stranded.
+
+**How to spot them:**
+
+```bash
+# List processing tasks grouped by worker — workers with a growing last_update_ago are dead
+hindsight-admin worker-status
+
+# Bank-level counters; pending_consolidation that never decreases is the usual symptom
+curl -s http://localhost:8888/v1/default/banks/<bank_id>/stats
+```
+
+**How to recover:**
+
+```bash
+# You know which worker is dead (e.g. from worker-status):
+hindsight-admin decommission-worker <old-worker-id>
+
+# You don't know — release every processing task across the fleet:
+hindsight-admin decommission-workers
+```
+
+Both commands reset `processing` rows back to `pending` so a live worker can claim them on the next poll.
+
+**How to prevent it:**
+
+Set `HINDSIGHT_API_WORKER_ID` to a stable value so worker identity survives restarts:
+
+- **Docker**: pass `-e HINDSIGHT_API_WORKER_ID=hindsight-prod` (or per-replica names if running multiple containers)
+- **Kubernetes (Helm)**: the chart's StatefulSet uses the pod name automatically — no extra config needed
+- **Bare metal / pip**: pass `--worker-id <name>` or set the env var per process
+
+See [Installation - Docker](./installation#docker) and [Configuration - Distributed Workers](./configuration#distributed-workers).
+
 ---
 
 ## Environment Variables

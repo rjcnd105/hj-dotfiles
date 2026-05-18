@@ -19,7 +19,24 @@ Used for fact extraction, entity resolution, mental model consolidation, and ans
 
 **Supported providers:**
 
-<LLMProvidersGrid />
+- OpenAI
+- Anthropic
+- Google Gemini
+- Vertex AI
+- Groq
+- Ollama
+- LM Studio
+- llama.cpp
+- MiniMax
+- DeepSeek
+- z.ai
+- Volcano Engine
+- OpenRouter
+- OpenAI Codex
+- Claude Code
+- AWS Bedrock
+- OpenAI Compatible
+- LiteLLM (100+)
 
 Also supports **any OpenAI-compatible API** (e.g., Azure OpenAI, Together AI, Fireworks) and **100+ providers via LiteLLM** (e.g., AWS Bedrock, Azure OpenAI, Together AI).
 
@@ -43,6 +60,11 @@ See [Configuration](./configuration#built-in-llamacpp) for all options.
 Set `HINDSIGHT_API_LLM_PROVIDER=litellm` to use any model supported by [LiteLLM](https://docs.litellm.ai/docs/providers), including **Azure OpenAI**, **Together AI**, **Fireworks AI**, and many more. Model names use LiteLLM's provider prefix format (e.g., `azure/gpt-4o`).
 
 See [Configuration](./configuration#llm-provider) for setup examples.
+> **💡 LiteLLM Router (fallback chains, load-balancing, per-deployment limits)**
+> 
+Set `HINDSIGHT_API_LLM_PROVIDER=litellmrouter` to run the default LLM through [LiteLLM's Router](https://docs.litellm.ai/docs/routing) — ordered fallback across deployments, load-balanced same-tier routing, weighted picks, per-deployment `rpm`/`tpm` limits, and cooldowns are all available via the [`Router` config](https://docs.litellm.ai/docs/routing#fallbacks). Hindsight passes the JSON config through verbatim.
+
+See [Configuration](./configuration#llm-router-litellm-router) for setup.
 ### Benchmarks
 
 Not sure which model to use? The **[Model Leaderboard](https://benchmarks.hindsight.vectorize.io/)** benchmarks models across accuracy, speed, cost, and reliability for retain, reflect, and observation consolidation so you can pick the right trade-off for your use case.
@@ -79,17 +101,19 @@ Each provider has a recommended default model that's used when `HINDSIGHT_API_LL
 | `openai` | `gpt-4o-mini` |
 | `anthropic` | `claude-haiku-4-5-20251001` |
 | `gemini` | `gemini-2.5-flash` |
-| `groq` | `openai/gpt-oss-120b` |
-| `minimax` | `MiniMax-M2.7` |
-| `ollama` | `gemma3:12b` |
-| `llamacpp` | `gemma-4-e2b-it` (auto-downloaded GGUF) |
-| `lmstudio` | `local-model` |
 | `vertexai` | `gemini-2.0-flash-001` |
-| `openai-codex` | `gpt-5.2-codex` |
-| `claude-code` | `claude-sonnet-4-5-20250929` |
-| `bedrock` | `us.amazon.nova-2-lite-v1:0` |
+| `groq` | `openai/gpt-oss-120b` |
+| `ollama` | `gemma3:12b` |
+| `lmstudio` | `local-model` |
+| `llamacpp` | `gemma-4-e2b-it` (auto-downloaded GGUF) |
+| `minimax` | `MiniMax-M2.7` |
+| `deepseek` | `deepseek-v4-flash` |
+| `zai` | `glm-4.5-flash` |
 | `volcano` | `doubao-pro-32k` |
 | `openrouter` | `qwen/qwen3.5-9b` |
+| `openai-codex` | `gpt-5.4-mini` |
+| `claude-code` | `claude-sonnet-4-5-20250929` |
+| `bedrock` | `us.amazon.nova-2-lite-v1:0` |
 | `litellm` | `gpt-4o-mini` |
 
 **Example:** Setting just the provider uses its default model:
@@ -171,6 +195,16 @@ export HINDSIGHT_API_LLM_PROVIDER=minimax
 export HINDSIGHT_API_LLM_API_KEY=your-minimax-api-key
 export HINDSIGHT_API_LLM_MODEL=MiniMax-M2.7
 
+# DeepSeek (https://api.deepseek.com)
+export HINDSIGHT_API_LLM_PROVIDER=deepseek
+export HINDSIGHT_API_LLM_API_KEY=sk-xxxxxxxxxxxx
+export HINDSIGHT_API_LLM_MODEL=deepseek-v4-flash  # or deepseek-v4-pro / deepseek-chat / deepseek-reasoner
+
+# z.ai (Zhipu GLM series, OpenAI-compatible, https://z.ai)
+export HINDSIGHT_API_LLM_PROVIDER=zai
+export HINDSIGHT_API_LLM_API_KEY=your-zai-api-key
+export HINDSIGHT_API_LLM_MODEL=glm-4.5-flash  # or glm-4.5-air for the paid tier
+
 # Vertex AI (Google Cloud)
 export HINDSIGHT_API_LLM_PROVIDER=vertexai
 export HINDSIGHT_API_LLM_MODEL=gemini-2.0-flash-001
@@ -214,7 +248,7 @@ Use your ChatGPT Plus or Pro subscription for Hindsight without separate OpenAI 
 4. **Configure Hindsight:**
    ```bash
    export HINDSIGHT_API_LLM_PROVIDER=openai-codex
-   # export HINDSIGHT_API_LLM_MODEL=gpt-5.1-codex  # defaults to gpt-5.2-codex
+   # export HINDSIGHT_API_LLM_MODEL=gpt-5.3-codex  # defaults to gpt-5.4-mini
    # No API key needed - reads from ~/.codex/auth.json automatically
    ```
 
@@ -377,6 +411,7 @@ Converts text into dense vector representations for semantic similarity search.
 | `google` | Google embeddings (Gemini API or Vertex AI) | Production, multilingual, high quality |
 | `tei` | HuggingFace Text Embeddings Inference | Production, self-hosted |
 | `litellm` | LiteLLM proxy (unified gateway) | Multi-provider setups |
+| `litellm-sdk` | LiteLLM SDK (direct API, no proxy) | Multi-provider, simpler setup |
 
 ### Local Models
 
@@ -446,6 +481,11 @@ export HINDSIGHT_API_EMBEDDINGS_TEI_URL=http://localhost:8080
 export HINDSIGHT_API_EMBEDDINGS_PROVIDER=litellm
 export HINDSIGHT_API_LITELLM_API_BASE=http://localhost:4000
 export HINDSIGHT_API_EMBEDDINGS_LITELLM_MODEL=text-embedding-3-small
+
+# LiteLLM SDK (direct, no proxy)
+export HINDSIGHT_API_EMBEDDINGS_PROVIDER=litellm-sdk
+export HINDSIGHT_API_EMBEDDINGS_LITELLM_SDK_API_KEY=sk-xxxxxxxxxxxx
+export HINDSIGHT_API_EMBEDDINGS_LITELLM_SDK_MODEL=openai/text-embedding-3-small
 ```
 
 See [Configuration](./configuration#embeddings) for all options including Azure OpenAI and custom endpoints.
@@ -565,3 +605,4 @@ export HINDSIGHT_API_RERANKER_PROVIDER=rrf
 ```
 
 See [Configuration](./configuration#reranker) for all options including Azure-hosted endpoints and batch settings.
+

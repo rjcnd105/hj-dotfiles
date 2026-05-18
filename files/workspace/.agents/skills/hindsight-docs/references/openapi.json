@@ -10,7 +10,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version": "0.5.3"
+    "version": "0.6.2"
   },
   "paths": {
     "/health": {
@@ -162,6 +162,38 @@
               "type": "string",
               "default": "all_strict",
               "title": "Tags Match"
+            }
+          },
+          {
+            "name": "document_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Document Id"
+            }
+          },
+          {
+            "name": "chunk_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Chunk Id"
             }
           },
           {
@@ -738,6 +770,18 @@
               "default": "7d",
               "title": "Period"
             }
+          },
+          {
+            "name": "time_field",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Timestamp column to bucket on. `created_at` (default) = ingest time; `mentioned_at` / `occurred_start` = event time, useful for migrated corpora where ingest time is a single point and doesn't reflect the underlying knowledge timeline. Unknown values fall back to `created_at`.",
+              "default": "created_at",
+              "title": "Time Field"
+            },
+            "description": "Timestamp column to bucket on. `created_at` (default) = ingest time; `mentioned_at` / `occurred_start` = event time, useful for migrated corpora where ingest time is a single point and doesn't reflect the underlying knowledge timeline. Unknown values fall back to `created_at`."
           },
           {
             "name": "authorization",
@@ -2183,6 +2227,169 @@
         }
       }
     },
+    "/v1/default/banks/{bank_id}/documents/{document_id}/chunks": {
+      "get": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "List document chunks",
+        "description": "List all chunks for a given document, ordered by chunk index.",
+        "operationId": "list_document_chunks",
+        "parameters": [
+          {
+            "name": "bank_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Bank Id"
+            }
+          },
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Document Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "Maximum number of chunks to return",
+              "default": 100,
+              "title": "Limit"
+            },
+            "description": "Maximum number of chunks to return"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Offset for pagination",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Offset for pagination"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListChunksResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/default/banks/{bank_id}/documents/{document_id}/reprocess": {
+      "post": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Reprocess document",
+        "description": "Re-run the retain pipeline on an existing document without changing its content. This deletes the existing memory units and re-extracts facts using the current engine configuration. Useful when the LLM model, chunking strategy, or extraction settings have changed.",
+        "operationId": "reprocess_document",
+        "parameters": [
+          {
+            "name": "bank_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Bank Id"
+            }
+          },
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Document Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReprocessDocumentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/default/banks/{bank_id}/documents/{document_id}": {
       "get": {
         "tags": [
@@ -2399,7 +2606,7 @@
           "Memory"
         ],
         "summary": "List tags",
-        "description": "List all unique tags in a memory bank with usage counts. Supports wildcard search using '*' (e.g., 'user:*', '*-fred', 'tag*-2'). Case-insensitive.",
+        "description": "List all unique tags in a memory bank with usage counts. Supports wildcard search using '*' (e.g., 'user:*', '*-fred', 'tag*-2'). Case-insensitive. Use `source=mental_models` to list tags used on mental models instead of memories.",
         "operationId": "list_tags",
         "parameters": [
           {
@@ -2428,6 +2635,22 @@
               "title": "Q"
             },
             "description": "Wildcard pattern to filter tags (e.g., 'user:*' for user:alice, '*-admin' for role-admin). Use '*' as wildcard. Case-insensitive."
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "memories",
+                "mental_models"
+              ],
+              "type": "string",
+              "description": "Where to read tags from: 'memories' (memory_units, default) or 'mental_models'.",
+              "default": "memories",
+              "title": "Source"
+            },
+            "description": "Where to read tags from: 'memories' (memory_units, default) or 'mental_models'."
           },
           {
             "name": "limit",
@@ -2584,10 +2807,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Filter by status: pending, completed, or failed",
+              "description": "Filter by status: pending, processing, completed, failed, or cancelled",
               "title": "Status"
             },
-            "description": "Filter by status: pending, completed, or failed"
+            "description": "Filter by status: pending, processing, completed, failed, or cancelled"
           },
           {
             "name": "type",
@@ -2633,6 +2856,18 @@
               "title": "Offset"
             },
             "description": "Number of operations to skip"
+          },
+          {
+            "name": "exclude_parents",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Exclude parent batch operations from results",
+              "default": false,
+              "title": "Exclude Parents"
+            },
+            "description": "Exclude parent batch operations from results"
           },
           {
             "name": "authorization",
@@ -2895,7 +3130,7 @@
           "Banks"
         ],
         "summary": "Get memory bank profile",
-        "description": "Get disposition traits and mission for a memory bank. Auto-creates agent with defaults if not exists.",
+        "description": "Get disposition traits and mission for a memory bank. Returns 404 if the bank does not exist.",
         "operationId": "get_bank_profile",
         "deprecated": true,
         "parameters": [
@@ -5098,6 +5333,22 @@
               }
             ],
             "title": "Updated At"
+          },
+          "fact_count": {
+            "type": "integer",
+            "title": "Fact Count",
+            "default": 0
+          },
+          "last_document_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Document At"
           }
         },
         "type": "object",
@@ -5106,7 +5357,7 @@
           "disposition"
         ],
         "title": "BankListItem",
-        "description": "Bank list item with profile summary."
+        "description": "Bank list item with profile summary and stats."
       },
       "BankListResponse": {
         "properties": {
@@ -5134,6 +5385,8 @@
                 "literalism": 3,
                 "skepticism": 3
               },
+              "fact_count": 156,
+              "last_document_at": "2024-01-16T14:20:00Z",
               "mission": "I am a software engineer helping my team ship quality code",
               "name": "Alice",
               "updated_at": "2024-01-16T14:20:00Z"
@@ -5255,7 +5508,7 @@
             },
             "type": "object",
             "title": "Operations By Status",
-            "description": "Async operations grouped by status (pending, in_progress, completed, failed, cancelled)."
+            "description": "Async operations grouped by status (pending, processing, completed, failed, cancelled)."
           },
           "last_consolidated_at": {
             "anyOf": [
@@ -6825,6 +7078,21 @@
             "type": "integer",
             "title": "Memory Unit Count"
           },
+          "nodes_by_fact_type": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nodes By Fact Type",
+            "description": "Memory count per fact type (world, experience, observation)"
+          },
           "tags": {
             "items": {
               "type": "string"
@@ -7461,6 +7729,38 @@
         "title": "IncludeOptions",
         "description": "Options for including additional data in recall results."
       },
+      "ListChunksResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ChunkResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "ListChunksResponse",
+        "description": "Response model for listing chunks of a document."
+      },
       "ListDocumentsResponse": {
         "properties": {
           "items": {
@@ -7628,6 +7928,12 @@
             "type": "string",
             "title": "Trunc",
             "description": "Bucket granularity: minute, hour, day."
+          },
+          "time_field": {
+            "type": "string",
+            "title": "Time Field",
+            "description": "Timestamp column used to assign each row to a bucket. `created_at` shows ingest time; `mentioned_at` / `occurred_start` show event time (falls back to `created_at` per row when null).",
+            "default": "created_at"
           },
           "buckets": {
             "items": {
@@ -8329,6 +8635,30 @@
               }
             ],
             "title": "Error Message"
+          },
+          "retry_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retry Count",
+            "description": "Number of times this operation has been retried after failure."
+          },
+          "next_retry_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Retry At",
+            "description": "When the worker will next attempt this operation. For a pending operation, a value in the future indicates the task is waiting rather than available for immediate pickup \u2014 for example, an extension may have raised DeferOperation to park the task until some backpressure window opens. Always null for completed tasks."
           }
         },
         "type": "object",
@@ -8346,6 +8676,7 @@
           "created_at": "2024-01-15T10:30:00Z",
           "id": "550e8400-e29b-41d4-a716-446655440000",
           "items_count": 5,
+          "retry_count": 0,
           "status": "pending",
           "task_type": "retain"
         }
@@ -8360,8 +8691,10 @@
             "type": "string",
             "enum": [
               "pending",
+              "processing",
               "completed",
               "failed",
+              "cancelled",
               "not_found"
             ],
             "title": "Status"
@@ -8420,6 +8753,30 @@
               }
             ],
             "title": "Error Message"
+          },
+          "retry_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retry Count",
+            "description": "Number of times this operation has been retried after failure."
+          },
+          "next_retry_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Retry At",
+            "description": "When the worker will next attempt this operation. For a pending operation, a value in the future indicates the task is parked (e.g. by an extension raising DeferOperation) rather than awaiting immediate pickup."
           },
           "result_metadata": {
             "anyOf": [
@@ -9559,6 +9916,30 @@
         "type": "object",
         "title": "ReflectTrace",
         "description": "Execution trace of LLM and tool calls during reflection."
+      },
+      "ReprocessDocumentResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "operation_id": {
+            "type": "string",
+            "title": "Operation Id"
+          },
+          "items_count": {
+            "type": "integer",
+            "title": "Items Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "operation_id",
+          "items_count"
+        ],
+        "title": "ReprocessDocumentResponse",
+        "description": "Response model for reprocess document endpoint."
       },
       "RetainRequest": {
         "properties": {
