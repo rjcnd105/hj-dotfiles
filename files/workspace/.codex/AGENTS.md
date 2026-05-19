@@ -33,8 +33,13 @@ Before finalizing:
 <!-- BIGIN JJ MAP -->
 ## VCS Priority
 
-If project root contains `.jj`, use Jujutsu (`jj`) before Git. Prefer `jj commit`, `jj describe`, `jj log`, `jj diff`, etc. Use `git` only for
-tasks unsupported by `jj`.
+Use `VCS_KIND` as the VCS switch. If `VCS_KIND=jj`, use Jujutsu (`jj`) before
+Git. Prefer `jj commit`, `jj describe`, `jj log`, `jj diff`, etc. Use `git`
+only for tasks unsupported by `jj`. If `VCS_KIND=git`, use Git.
+
+If `VCS_KIND` is absent, establish it once from the current worktree with
+`jj root >/dev/null 2>&1`: exit 0 means `VCS_KIND=jj`, otherwise
+`VCS_KIND=git`.
 <!-- END JJ MAP -->
 
 <!-- BEGIN COMPOUND CODEX TOOL MAP -->

@@ -4,12 +4,15 @@
 [settings.sops]
 age_key_file = "{{env.SOPS_AGE_KEY_FILE}}"
 
+[tools]
+jj = "0.41.0"
 
 [env]
 _.file = [
   { path = "./secrets/$USER_HOST:workspace/secrets.yaml", redact = true, read_only = true },
   { path = "./secrets/shared/pub.enc.yaml", redact = true, read_only = true },
 ]
+_.source = { path = "./scripts/mise-vcs-env.sh", tools = true }
 
 HINDSIGHT_DYNAMIC_BANK_ID = "false"
 HINDSIGHT_BANK_ID = "nix-dots"
