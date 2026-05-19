@@ -15,7 +15,9 @@ macOS through nix-darwin and the homelab through NixOS. Key surfaces are:
 
 ## Core Workflow
 
-- Prefer `jj` commands because this repo has `.jj`.
+- Use `VCS_KIND` as the VCS switch. If `VCS_KIND=jj`, prefer `jj`
+  commands; if `VCS_KIND=git`, use Git. If `VCS_KIND` is absent, establish it
+  once with `jj root >/dev/null 2>&1`.
 - Preserve unrelated dirty work. Do not revert user edits.
 - Use `rg` / `rg --files` for search.
 - Read [rules/README.md](rules/README.md) before making non-trivial Nix,

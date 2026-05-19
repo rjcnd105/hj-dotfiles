@@ -4,7 +4,13 @@ If the data is insufficient to draw conclusions, say so rather than speculating.
 
 ## VCS 우선순위
 
-프로젝트 루트에 `.jj` 폴더가 있으면 git 대신 jj(Jujutsu)를 사용한다. `jj commit`, `jj describe`, `jj log`, `jj diff` 등 jj 명령어를 우선으로 쓰고, git 명령어는 jj가 지원하지 않는 작업에만 사용한다.
+`VCS_KIND` 값을 VCS switch로 사용한다. `VCS_KIND=jj`이면 git 대신
+jj(Jujutsu)를 우선 사용한다. `jj commit`, `jj describe`, `jj log`,
+`jj diff` 등 jj 명령어를 먼저 쓰고, git 명령어는 jj가 지원하지 않는
+작업에만 사용한다. `VCS_KIND=git`이면 git을 사용한다.
+
+`VCS_KIND`가 없으면 현재 worktree에서 `jj root >/dev/null 2>&1`를 한 번만
+실행해 exit 0이면 `VCS_KIND=jj`, 아니면 `VCS_KIND=git`으로 판단한다.
 
 ## Plan Mode 행동 지침
 

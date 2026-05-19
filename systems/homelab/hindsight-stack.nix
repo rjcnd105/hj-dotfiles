@@ -150,13 +150,13 @@ in
       Environment=HINDSIGHT_API_TEXT_SEARCH_EXTENSION=pg_textsearch
 
       Environment=HINDSIGHT_API_LLM_PROVIDER=openrouter
-      Environment=HINDSIGHT_API_LLM_MODEL=google/gemma-4-31b-it
+      Environment=HINDSIGHT_API_LLM_MODEL=deepseek/deepseek-v4-flash
       Environment=HINDSIGHT_API_RETAIN_LLM_PROVIDER=openrouter
-      Environment=HINDSIGHT_API_RETAIN_LLM_MODEL=google/gemma-4-31b-it
+      Environment=HINDSIGHT_API_RETAIN_LLM_MODEL=deepseek/deepseek-v4-flash
       Environment=HINDSIGHT_API_REFLECT_LLM_PROVIDER=groq
       Environment=HINDSIGHT_API_REFLECT_LLM_MODEL=openai/gpt-oss-20b
       Environment=HINDSIGHT_API_CONSOLIDATION_LLM_PROVIDER=openrouter
-      Environment=HINDSIGHT_API_CONSOLIDATION_LLM_MODEL=google/gemma-4-31b-it
+      Environment=HINDSIGHT_API_CONSOLIDATION_LLM_MODEL=deepseek/deepseek-v4-flash
 
       # Embedding → openai provider → 127.0.0.1:8091 (host network)
       Environment=HINDSIGHT_API_EMBEDDINGS_PROVIDER=openai
