@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/hj/.local/share/mise/installs/pipx-graphifyy/0.7.8/graphifyy/bin/graphify hook-check"
+            "command": "if command -v graphify >/dev/null 2>&1; then graphify hook-check; elif [ -x \"$HOME/.local/share/mise/installs/pipx-graphifyy/latest/bin/graphify\" ]; then \"$HOME/.local/share/mise/installs/pipx-graphifyy/latest/bin/graphify\" hook-check; fi"
           }
         ]
       }
