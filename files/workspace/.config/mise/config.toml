@@ -16,6 +16,9 @@ hk = "latest"
 [tools.acli]
 version = "latest"
 
+[tools.expert]
+version = "latest"
+
 [tools.opencode]
 version = "latest"
 
@@ -66,9 +69,6 @@ version = "latest"
 [tools.rust]
 version = "latest"
 components = "rust-analyzer,rust-src"
-
-[tools."github:expert-lsp/expert"]
-version = "latest"
 
 [tools.elixir-ls]
 version = "latest"
