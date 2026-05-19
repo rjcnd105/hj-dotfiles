@@ -47,10 +47,10 @@
       "flake": false,
       "locked": {
         "lastModified": 1778043520,
-        "narHash": "sha256-Ibrxd5SZ1Oj5pfdOwZwCKXDUqjH1w5/oFQ7rHgQQqwk=",
+        "narHash": "sha256-yxdGhNNjaNpMBv7i+VKBtzqsmT//pgObUIY9GED6qqQ=",
         "owner": "rjcnd105",
         "repo": "my-app",
-        "rev": "c569c1129c9fb4031ecf08a6d5735b2897cf5cb0",
+        "rev": "a2e2763f1efbd9258b4e47e43a065b64b2b90792",
         "type": "github"
       },
       "original": {
