@@ -58,7 +58,7 @@ let
   #   기본 정책은 1모델만 resident → recall 호출마다 embed/rerank 번갈아 unload+reload
   #   (cold load 5s × 2 = 10s 오버헤드).
   llamaSwapConfig = pkgs.writeText "llama-swap-config.yaml" ''
-    healthCheckTimeout: 120
+    healthCheckTimeout: 240
 
     models:
       harrier:
@@ -75,6 +75,7 @@ let
           --batch-size 512
           --ubatch-size 512
           --threads 4
+          --no-warmup
         proxy: http://127.0.0.1:''${PORT}
         ttl: 0
 
@@ -93,6 +94,7 @@ let
           --parallel 8
           --no-mmap
           --threads 4
+          --no-warmup
         proxy: http://127.0.0.1:''${PORT}
         ttl: 0
 
@@ -100,6 +102,7 @@ let
       retrieval:
         swap: false
         exclusive: false
+        persistent: true
         members:
           - harrier
           - qwen3-reranker
@@ -154,7 +157,7 @@ in
       ExecStartPost = "${waitForRetrievalModels}";
       Restart = "always";
       RestartSec = "5s";
-      TimeoutStartSec = "240s";
+      TimeoutStartSec = "300s";
 
       DynamicUser = true;
       # Vulkan 접근: DynamicUser의 임시 UID가 /dev/dri/renderD128에 접근하려면
