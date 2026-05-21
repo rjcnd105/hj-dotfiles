@@ -86,6 +86,15 @@ in
     (mkLinkFolders {
       scanPath = scanBasePath;
       linkPath = linkBasePath;
-    });
+    })
+    //
+      lib.optionalAttrs
+        (pkgs.stdenv.isDarwin && builtins.pathExists (scanBasePath + "/.config/ghostty/config"))
+        {
+          "Library/Application Support/com.mitchellh.ghostty/config" = {
+            source = config.lib.file.mkOutOfStoreSymlink (linkBasePath + "/.config/ghostty/config");
+            force = true;
+          };
+        };
 
 }
