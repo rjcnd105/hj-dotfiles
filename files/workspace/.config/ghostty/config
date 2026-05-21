@@ -4,6 +4,7 @@ macos-option-as-alt = true
 theme = Arcoiris
 command = /Users/hj/.config/ghostty/ghostty-nix-env.sh
 shell-integration = fish
+font-family = "Menlo"
 font-size = 11
 
 # split 경계선 가시성
