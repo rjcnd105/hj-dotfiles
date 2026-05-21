@@ -148,9 +148,6 @@ trusted_hash = "sha256:5fe1131af977983dd4e3e6f16b69352c4da889e47add55674b79c140d
 [hooks.state."/Users/hj/.codex/hooks.json:user_prompt_submit:0:0"]
 trusted_hash = "sha256:73eca65d5362d3ff7c8bc55a2d664787dfd7b6945dccc07abe1fec813d86b6b8"
 
-[hooks.state."/Users/hj/dot/nix-dots/.codex/hooks.json:pre_tool_use:0:0"]
-trusted_hash = "sha256:0d9bc5a605046701ab9a9218e6f2048dbec86619dd2d238551ae37ad3115ba50"
-
 [hooks.state."/Users/hj/study_ex/my-backend/deopjib/client/.codex/hooks.json:pre_tool_use:0:0"]
 trusted_hash = "sha256:3aaabbb23f1450f30fc69a4ed303f1330540d84308173c73d78e151519304e96"
 
