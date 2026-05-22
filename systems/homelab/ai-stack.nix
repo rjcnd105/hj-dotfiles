@@ -70,6 +70,7 @@ let
           --embeddings
           --pooling last
           --n-gpu-layers 99
+          --flash-attn off
           --no-mmap
           --ctx-size 4096
           --batch-size 512
