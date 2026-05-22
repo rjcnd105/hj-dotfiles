@@ -1,6 +1,10 @@
 {
   "recallBudget": "low",
   "recallMaxTokens": 512,
+  "recallContextTurns": 3,
+  "recallRequireQueryAnchor": true,
+  "recallFilterResultsByAnchor": true,
   "recallSkipShortPrompts": true,
-  "recallSkipMaxChars": 40
+  "recallSkipMaxChars": 40,
+  "retainToolCalls": false
 }

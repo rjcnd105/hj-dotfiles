@@ -35,26 +35,34 @@ _MAX_TOOL_OUTPUT_CHARS = 2000
 
 
 def strip_memory_tags(content: str) -> str:
-    """Remove <hindsight_memories> and <relevant_memories> blocks.
+    """Remove injected memory/citation blocks.
 
-    Prevents retain feedback loop — these were injected during recall and
-    should not be re-stored.
+    Prevents retain/recall feedback loops. Memory blocks are injected during
+    recall, and oai memory citations are final-answer metadata for this
+    runtime; neither should become future memory context.
     """
     content = re.sub(r"<hindsight_memories>[\s\S]*?</hindsight_memories>", "", content)
     content = re.sub(r"<relevant_memories>[\s\S]*?</relevant_memories>", "", content)
+    content = re.sub(r"<oai-mem-citation>[\s\S]*?</oai-mem-citation>", "", content)
     return content
 
 
 def is_synthetic_codex_user_message(content: str) -> bool:
-    """Detect Codex startup instructions captured as user transcript text."""
+    """Detect runtime-injected Codex messages captured as user transcript text."""
     if not isinstance(content, str):
         return False
     stripped = content.lstrip()
-    return (
+    if (
         stripped.startswith("# AGENTS.md instructions for ")
         and "<INSTRUCTIONS>" in stripped
         and "</INSTRUCTIONS>" in stripped
-    )
+    ):
+        return True
+    if stripped.startswith("<environment_context>") and "</environment_context>" in stripped:
+        return True
+    if stripped.startswith("<turn_aborted>") and "</turn_aborted>" in stripped:
+        return True
+    return False
 
 
 # ---------------------------------------------------------------------------

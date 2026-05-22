@@ -20,6 +20,8 @@ DEFAULTS = {
     "recallRoles": ["user", "assistant"],
     "recallSkipShortPrompts": True,
     "recallSkipMaxChars": 40,
+    "recallRequireQueryAnchor": False,
+    "recallFilterResultsByAnchor": False,
     "recallPromptPreamble": (
         "Relevant memories from past conversations (prioritize recent when "
         "conflicting). Only use memories that are directly useful to continue "
@@ -73,6 +75,8 @@ ENV_OVERRIDES = {
     "HINDSIGHT_RECALL_CONTEXT_TURNS": ("recallContextTurns", int),
     "HINDSIGHT_RECALL_SKIP_SHORT_PROMPTS": ("recallSkipShortPrompts", bool),
     "HINDSIGHT_RECALL_SKIP_MAX_CHARS": ("recallSkipMaxChars", int),
+    "HINDSIGHT_RECALL_REQUIRE_QUERY_ANCHOR": ("recallRequireQueryAnchor", bool),
+    "HINDSIGHT_RECALL_FILTER_RESULTS_BY_ANCHOR": ("recallFilterResultsByAnchor", bool),
     "HINDSIGHT_API_PORT": ("apiPort", int),
     "HINDSIGHT_DAEMON_IDLE_TIMEOUT": ("daemonIdleTimeout", int),
     "HINDSIGHT_EMBED_VERSION": ("embedVersion", str),
