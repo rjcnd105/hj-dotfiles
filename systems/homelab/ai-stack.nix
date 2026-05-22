@@ -33,7 +33,7 @@ let
 
     url=http://127.0.0.1:8090/running
 
-    for attempt in $(${pkgs.coreutils}/bin/seq 1 180); do
+    for attempt in $(${pkgs.coreutils}/bin/seq 1 600); do
       if running="$(${pkgs.curl}/bin/curl -fsS --max-time 2 "$url" 2>/dev/null)"; then
         if printf '%s' "$running" | ${pkgs.jq}/bin/jq -e '
           ([.running[]? | select((.model == "harrier" or .model == "qwen3-reranker") and .state == "ready")] | length) == 2
@@ -45,9 +45,9 @@ let
       ${pkgs.coreutils}/bin/sleep 1
     done
 
-    echo "llama-swap retrieval models did not become ready in time" >&2
+    echo "llama-swap retrieval models did not become ready in time; leaving service running" >&2
     ${pkgs.curl}/bin/curl -fsS --max-time 2 "$url" >&2 || true
-    exit 1
+    exit 0
   '';
 
   # llama-swap 라우팅 설정.
@@ -58,7 +58,7 @@ let
   #   기본 정책은 1모델만 resident → recall 호출마다 embed/rerank 번갈아 unload+reload
   #   (cold load 5s × 2 = 10s 오버헤드).
   llamaSwapConfig = pkgs.writeText "llama-swap-config.yaml" ''
-    healthCheckTimeout: 240
+    healthCheckTimeout: 600
 
     models:
       harrier:
@@ -152,12 +152,20 @@ in
     after = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
 
+    environment = {
+      # Keep Mesa/RADV shader cache stable across DynamicUser restarts. Without this,
+      # cold Vulkan startup can outlive systemd readiness checks and trigger a loop.
+      XDG_CACHE_HOME = "/var/cache/llama-swap";
+      MESA_SHADER_CACHE_DIR = "/var/cache/llama-swap/mesa-shader-cache";
+    };
+
     serviceConfig = {
       ExecStart = "${pkgs.llama-swap}/bin/llama-swap --config ${llamaSwapConfig} --listen 0.0.0.0:8090";
       ExecStartPost = "${waitForRetrievalModels}";
       Restart = "always";
       RestartSec = "5s";
-      TimeoutStartSec = "300s";
+      TimeoutStartSec = "720s";
+      CacheDirectory = "llama-swap";
 
       DynamicUser = true;
       # Vulkan 접근: DynamicUser의 임시 UID가 /dev/dri/renderD128에 접근하려면
