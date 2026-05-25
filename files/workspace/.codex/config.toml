@@ -1,5 +1,5 @@
 model = "gpt-5.5"
-model_reasoning_effort = "high"
+model_reasoning_effort = "xhigh"
 personality = 'pragmatic'
 
 approvals_reviewer = "user"
@@ -36,6 +36,15 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/hj/work/gm/gentle-renewal-2"]
+trust_level = "trusted"
+
+[projects."/Users/hj/Library/Mobile Documents/com~apple~CloudDocs/중요"]
+trust_level = "trusted"
+
+[projects."/Users/hj/study/quartz-syncer"]
+trust_level = "trusted"
+
+[projects."/Users/hj/study/dg-quartz"]
 trust_level = "trusted"
 
 [notice]
@@ -88,8 +97,8 @@ source_type = "local"
 source = "/Users/hj/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [marketplaces.compound-engineering-plugin]
-last_updated = "2026-05-18T23:15:05Z"
-last_revision = "f61d1b33eaba7be6e75902e31e49e022abdca3a0"
+last_updated = "2026-05-25T07:37:52Z"
+last_revision = "673dcfacb8089476961a0f7d5d1b3a7ac2a84c37"
 source_type = "git"
 source = "https://github.com/EveryInc/compound-engineering-plugin.git"
 
@@ -153,3 +162,6 @@ trusted_hash = "sha256:3aaabbb23f1450f30fc69a4ed303f1330540d84308173c73d78e15151
 
 [hooks.state."/Users/hj/work/gm/gentle-renewal/.codex/hooks.json:pre_tool_use:0:0"]
 trusted_hash = "sha256:f8e26717444448b6d6c9584f1509381ba10aa3b6969f6cdbfac7eb1a3beddabd"
+
+[hooks.state."/Users/hj/study_ex/my-backend/deopjib/backend/.codex/hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:3aaabbb23f1450f30fc69a4ed303f1330540d84308173c73d78e151519304e96"

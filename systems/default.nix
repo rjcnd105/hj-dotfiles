@@ -29,6 +29,7 @@
     # nerd-fonts list
     # https://github.com/NixOS/nixpkgs/blob/master/pkgs/data/fonts/nerd-fonts/manifests/fonts.json
     fonts.packages = [
+      pkgs.sarasa-gothic
       pkgs.nerd-fonts.d2coding
       pkgs.nerd-fonts.jetbrains-mono
     ];

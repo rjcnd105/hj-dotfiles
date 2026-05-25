@@ -41,6 +41,11 @@
         "when": "editorTextFocus && !editorReadonly"
     },
     {
+        "key": "cmd+shift+1",
+        "command": "macros.showFileAndFocus",
+        "when": "editorTextFocus && !editorReadonly"
+    },
+    {
         "key": "ctrl+`",
         "command": "-workbench.action.selectTheme"
     },
@@ -75,6 +80,11 @@
         "key": "ctrl+j",
         "command": "-editor.action.showHover",
         "when": "editorTextFocus"
+    },
+    {
+        "key": "alt+enter",
+        "command": "editor.action.quickFix",
+        "when": "editorHasCodeActionsProvider && editorTextFocus && !editorReadonly"
     },
     {
       "key": "alt+cmd+s",

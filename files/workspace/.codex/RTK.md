@@ -4,7 +4,10 @@
 
 ## Rule
 
-Always prefix shell commands with `rtk`.
+Use `rtk` for high-output shell commands when summarized output is acceptable.
+Use raw commands when exact stdout/stderr, exit codes, TTY behavior, streaming,
+shell syntax, or tool debugging matters. If `rtk` is unavailable, use raw
+commands and continue.
 
 Examples:
 

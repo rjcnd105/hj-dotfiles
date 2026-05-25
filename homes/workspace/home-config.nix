@@ -87,6 +87,7 @@ in
       lima # macOS 전용 Linux VM
     ]
     ++ [
+      pkgs.sarasa-gothic
       pkgs.nerd-fonts.d2coding
       pkgs.nerd-fonts.jetbrains-mono
       # 필요한 다른 폰트들...

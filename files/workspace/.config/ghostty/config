@@ -5,6 +5,7 @@ theme = Arcoiris
 command = /Users/hj/.config/ghostty/ghostty-nix-env.sh
 shell-integration = fish
 font-family = "Menlo"
+font-codepoint-map = U+1100-U+11FF,U+3130-U+318F,U+A960-U+A97F,U+AC00-U+D7AF,U+D7B0-U+D7FF=Sarasa Mono K
 font-size = 11
 
 # split 경계선 가시성
