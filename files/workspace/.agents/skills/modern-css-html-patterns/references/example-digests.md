@@ -88,3 +88,52 @@ The digest is the token-light map from requirement to example. Open `examples/<p
 - Best for: decorative article progress rails, onboarding completion markers, and no-JS visual progress cues.
 - Key CSS: `@property`, `animation-timeline: scroll(root block)`, `counter()`, `counter-reset`, `cqh`.
 - Read full HTML when: adapting fallback text, scroll range, or the container-height label translation.
+
+## safe-area-mobile-shell
+
+- Shows: a mobile app shell that keeps sticky chrome and floating actions inside safe areas.
+- Best for: edge-to-edge mobile screens, notch/home-indicator layouts, fixed CTAs, and bottom navigation.
+- Key CSS/HTML: `viewport-fit=cover`, `env(safe-area-inset-*)`, `max()`, `calc()`, fixed/sticky controls.
+- Read full HTML when: adapting simulated device insets, action placement, or safe-area spacing tokens.
+
+## animated-gradient-text-shine
+
+- Shows: readable text progressively enhanced into an animated clipped-gradient shine.
+- Best for: short celebratory labels, approval states, and headings where the effect is decorative.
+- Key CSS: `linear-gradient()`, `background-clip: text`, `background-position`, `@keyframes`, `prefers-reduced-motion`.
+- Read full HTML when: tuning gradient stops, animation speed, fallback color, or reduced-motion behavior.
+
+## relative-color-token-palette
+
+- Shows: one base color deriving strong text, soft surface, border, shadow, and accent tokens.
+- Best for: component palettes, themeable callouts, badges, and states where color relationships should stay coherent.
+- Key CSS: `oklch(from ...)`, `rgb(from ... / alpha)`, `currentColor`, `calc()`, `@supports`, custom properties.
+- Read full HTML when: tuning channel offsets, fallback tokens, color-space choice, or contrast checks.
+
+## animated-conic-gradient-border
+
+- Shows: a featured card with a rotating conic-gradient border and blurred glow layer.
+- Best for: one-off hero cards, launch panels, and decorative featured surfaces.
+- Key CSS: `@property`, `conic-gradient()`, `::before`, `::after`, `filter: blur()`, `@keyframes`, `prefers-reduced-motion`.
+- Read full HTML when: tuning border thickness, glow opacity, gradient stops, or reduced-motion behavior.
+
+## grid-height-transition
+
+- Shows: a disclosure panel animating natural content height through `grid-template-rows`.
+- Best for: accordions, dropdowns, and compact disclosures with dynamic content height.
+- Key CSS/HTML: `button`, `aria-expanded`, `aria-controls`, `display: grid`, `grid-template-rows: 0fr/1fr`, `overflow: hidden`.
+- Read full HTML when: adapting the state-sync script, clipping wrapper, transition timing, or reduced-motion fallback.
+
+## column-width-masonry-feed
+
+- Shows: a masonry-like feed using CSS multi-column layout and unsplit cards.
+- Best for: galleries, editorial boards, and mixed-height card feeds where column-major visual flow is acceptable.
+- Key CSS/HTML: `ol`, `column-width`, `column-gap`, `break-inside: avoid`, `display: inline-block`.
+- Read full HTML when: tuning card width, generated column count, varied card heights, or ordering/a11y notes.
+
+## stepped-fluid-sizing-round
+
+- Shows: `round()` snapping fluid `clamp()` values to predictable typography, spacing, and media-size steps.
+- Best for: components that should remain fluid but align to a design scale or layout rhythm.
+- Key CSS: `round()`, `clamp()`, custom properties, `@supports`.
+- Read full HTML when: you need the comparison UI, step labels, or responsive smoke target.

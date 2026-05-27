@@ -29,7 +29,7 @@ The user wants a durable, evolving skill for current and near-future CSS techniq
 - R6. Provide a minimal runnable `index.html` example for every initial pattern entry.
 - R7. Keep the skill maintainable through append-only ingest logs and a machine-readable index that future sessions can update.
 - R8. Avoid broad skill bloat: keep `SKILL.md` lean and route detailed pattern knowledge through reference files and examples.
-- R9. Bound v1 to a reproducible seed corpus: 8-12 runnable patterns, with remaining candidate sources recorded as backlog instead of expanding the implementation indefinitely.
+- R9. Bound the initial v1 launch to a reproducible seed corpus: 8-12 runnable patterns, with remaining candidate sources recorded as backlog instead of expanding the first implementation indefinitely. After v1 is validated, explicit `$modern-css-html-patterns add ...` requests may grow the catalog while preserving the same provenance, compact-retrieval, and validation rules.
 - R10. Make the corpus schema versioned and closed-enum validated so future updates do not invent incompatible category, source, verification, or support values.
 
 ---
@@ -89,7 +89,7 @@ The user wants a durable, evolving skill for current and near-future CSS techniq
 - Use separate support fields rather than a single support string: `support.status`, `support.baseline_target`, `support.browserslist_query`, and `support.query_verified` let Baseline entries, limited entries, and experimental entries coexist without pretending every feature has a valid Baseline query.
 - Keep every pattern example as plain HTML/CSS first: examples should be runnable without framework setup unless the specific pattern requires JavaScript or a browser API.
 - Treat MDN/web.dev as support-status authorities and social/example sites as pattern inspiration or demo sources.
-- Treat `references/index.jsonl` as the canonical current pattern catalog, `logs/ingest.jsonl` as the append-only source-access event log, and `references/patterns/*.md` as agent-readable narrative that must cross-reference the catalog ID.
+- Treat `references/index.jsonl` as the canonical current pattern catalog, `logs/ingest.jsonl` as the append-only source-access event authority, `references/example-digests.md` as the compact routing layer, `references/code-kernels/*.md` as the compact adaptation layer, `references/source-details.md` as the human-readable source notes, and `references/patterns/*.md` as agent-readable narrative that must cross-reference the catalog ID.
 
 ---
 
@@ -120,11 +120,16 @@ files/workspace/.agents/skills/modern-css-html-patterns/
 ├── references/
 │   ├── schema.md
 │   ├── index.jsonl
+│   ├── example-digests.md
 │   ├── source-seeds.jsonl
+│   ├── source-details.md
 │   ├── backlog.jsonl
+│   ├── code-kernels/
+│   │   └── <pattern-slug>.md
 │   └── patterns/
 │       └── <pattern-slug>.md
 ├── examples/
+│   ├── index.html
 │   └── <pattern-slug>/
 │       └── index.html
 ├── scripts/
@@ -144,7 +149,10 @@ flowchart LR
   Source[references/source-seeds.jsonl] --> Access[Access check]
   Access --> Record[logs/ingest.jsonl]
   Record --> Index[references/index.jsonl]
+  Record --> SourceDetails[references/source-details.md]
   Index --> Pattern[references/patterns/<slug>.md]
+  Index --> Digest[references/example-digests.md]
+  Index --> Kernel[references/code-kernels/<slug>.md]
   Index --> Example[examples/<slug>/index.html]
   Index --> Backlog[references/backlog.jsonl]
   Index --> Skill[SKILL.md lookup workflow]
@@ -203,19 +211,23 @@ The schema should let future sessions answer: "Which modern CSS/HTML platform pa
 **Files:**
 - Modify: `files/workspace/.agents/skills/modern-css-html-patterns/references/schema.md`
 - Modify: `files/workspace/.agents/skills/modern-css-html-patterns/references/index.jsonl`
+- Modify: `files/workspace/.agents/skills/modern-css-html-patterns/references/example-digests.md`
+- Modify: `files/workspace/.agents/skills/modern-css-html-patterns/references/code-kernels/*.md`
+- Modify: `files/workspace/.agents/skills/modern-css-html-patterns/references/source-details.md`
 - Modify: `files/workspace/.agents/skills/modern-css-html-patterns/references/source-seeds.jsonl`
 - Modify: `files/workspace/.agents/skills/modern-css-html-patterns/references/backlog.jsonl`
 - Modify: `files/workspace/.agents/skills/modern-css-html-patterns/logs/ingest.jsonl`
 
 **Approach:**
-- Define required catalog fields such as `schema_version`, `id`, `title`, `category`, `aliases`, `css_features`, `html_features`, `source_refs`, `support_source_ref`, `example_source_ref`, `verification_status`, `support.status`, `support.baseline_target`, `support.browserslist_query`, `support.query_verified`, `support.requires`, `support.caveats`, `fallback`, `fallback_test_method`, `verification_mode`, `example_path`, `states_demonstrated`, `checked_states`, `checked_viewports`, `a11y_checks`, `verification_evidence`, `example_verified_at`, `verification_target`, `expected_primary_result`, `fallback_result`, `related_patterns`, and `last_checked`.
-- Define per-source fields in `source-seeds.jsonl` and `logs/ingest.jsonl`: `source_event_id`, `source_id`, `url`, `source_kind`, `access_status`, `http_status`, `checked_at`, `captured_evidence`, `intended_pattern_ids`, `accepted`, and `rejected_reason`.
+- Define required catalog fields such as `schema_version`, `id`, `title`, `category`, `aliases`, `css_features`, `html_features`, `source_refs`, `support_source_ref`, `example_source_ref`, `verification_status`, `support.status`, `support.baseline_target`, `support.browserslist_query`, `support.query_verified`, `support.requires`, `support.caveats`, `fallback`, `fallback_test_method`, `verification_mode`, `example_path`, `code_kernel_path`, `states_demonstrated`, `checked_states`, `checked_viewports`, `a11y_checks`, `verification_evidence`, `example_verified_at`, `verification_target`, `expected_primary_result`, `fallback_result`, `related_patterns`, and `last_checked`.
+- Define per-source fields in the authoritative `logs/ingest.jsonl`: `source_event_id`, `source_id`, `url`, `source_kind`, `access_status`, `http_status`, `checked_at`, `captured_evidence`, `intended_pattern_ids`, `accepted`, and `rejected_reason`. `references/source-seeds.jsonl` may mirror these fields as an intake/recheck queue, but it is not the source-ref authority.
 - Make `source_refs`, `support_source_ref`, and `example_source_ref` point to exact evidence events by `source_event_id`, not only URL-level `source_id`.
 - Define closed enum tables for `source_kind`: `inspiration`, `article`, `docs`, `code`, `demo`, and `support-doc`.
 - Define closed enum tables for `verification_status`: `extracted`, `reconstructed`, `verified`, `needs-review`, and `limited-fallback-only`.
 - Define closed enum tables for `support.status`: `baseline`, `limited`, `experimental`, and `deprecated`.
 - Define closed enum tables for canonical categories: `layout`, `interaction`, `motion`, `state-query`, `visual-effect`, `typography`, `form-control`, and `html-primitive`, with aliases for search terms.
 - Include a duplicate policy based on feature set, interaction pattern, and visual outcome rather than URL alone.
+- Require every catalog entry to have one digest section, one compact `code_kernel_path`, one pattern doc, and one runnable example so agents can deepen from compact routing to full source only when needed.
 
 **Patterns to follow:**
 - `files/workspace/.agents/skills/kb/SKILL.md` source/index/log split
@@ -251,9 +263,9 @@ The schema should let future sessions answer: "Which modern CSS/HTML platform pa
 **Approach:**
 - Record the seed URLs from the Source Inventory section into `references/source-seeds.jsonl` before pattern selection.
 - Record access checks for all seed URLs, including duplicate URLs and CodePen 403 results.
-- Seed 8-12 runnable v1 pattern docs from the confirmed accessible groups: X/Twitter tweet text and media metadata, `css-tip.com` article pages, `webdevvisuals.com` public visual pages, MDN references, and web.dev Baseline pages.
+- Seed 8-12 runnable initial v1 pattern docs from the confirmed accessible groups: X/Twitter tweet text and media metadata, `css-tip.com` article pages, `webdevvisuals.com` public visual pages, MDN references, and web.dev Baseline pages. Later explicit add requests may expand the corpus beyond the launch cap.
 - Use this v1 selection matrix: include at least one Baseline 2024 pattern, one Baseline 2025 pattern, one Baseline 2026 target pattern, one limited/experimental pattern, one HTML-primitive companion pattern, one article/demo source, one support-doc source, and one inspiration source. Each backlog entry must record the reason it was deferred.
-- Treat these as candidate pattern families, then select a bounded 8-12 for v1 after duplicate detection: layered shadow borders, magnetic nav with anchor positioning, scroll-state containers, stacking context isolation, `@starting-style` entry transitions, container queries, CSS filters for icon variants, intrinsic block sizing with margin behavior, popover/dialog transitions, anchor-positioned tooltips, conditional border radius, range selection, sequential animations, CSS `if()` limited patterns, `sibling-count()`/`sibling-index()` limited patterns, custom highlight, view transition selectors, and 2026 font-relative units.
+- Treat these as candidate pattern families, then select a bounded 8-12 for the initial v1 after duplicate detection: layered shadow borders, magnetic nav with anchor positioning, scroll-state containers, stacking context isolation, `@starting-style` entry transitions, container queries, CSS filters for icon variants, intrinsic block sizing with margin behavior, popover/dialog transitions, anchor-positioned tooltips, conditional border radius, range selection, sequential animations, CSS `if()` limited patterns, `sibling-count()`/`sibling-index()` limited patterns, custom highlight, view transition selectors, and 2026 font-relative units.
 - Mark limited/experimental features as such even if they are trendy; record unselected candidates in `references/backlog.jsonl` rather than expanding v1.
 
 **Patterns to follow:**
@@ -326,10 +338,14 @@ The schema should let future sessions answer: "Which modern CSS/HTML platform pa
 - Create: `files/workspace/.agents/skills/modern-css-html-patterns/scripts/validate_index.go`
 - Modify: `files/workspace/.agents/skills/modern-css-html-patterns/SKILL.md`
 - Modify: `files/workspace/.agents/skills/modern-css-html-patterns/references/schema.md`
+- Modify: `files/workspace/.agents/skills/modern-css-html-patterns/references/example-digests.md`
+- Modify: `files/workspace/.agents/skills/modern-css-html-patterns/references/code-kernels/*.md`
+- Modify: `files/workspace/.agents/skills/modern-css-html-patterns/references/source-details.md`
+- Modify: `files/workspace/.agents/skills/modern-css-html-patterns/examples/index.html`
 
 **Approach:**
-- Add a small stdlib validator for JSONL parsing, required fields, pattern-doc existence, example-file existence, duplicate IDs, and ingest-log presence.
-- Add cross-field checks: every `source_refs` entry resolves to an ingest event by `source_event_id`, every pattern doc references a catalog ID, every example path exists, every interactive pattern lists `states_demonstrated`, `checked_states`, `checked_viewports`, `a11y_checks`, and `verification_evidence`, and limited patterns have explicit primary/fallback verification targets.
+- Add a small stdlib validator for JSONL parsing, required fields, pattern-doc existence, example-file existence, per-pattern code-kernel existence, digest coverage, duplicate IDs, and ingest-log presence.
+- Add cross-field checks: every `source_refs` entry resolves to an ingest event by `source_event_id`, every source event has a `source-details.md` heading, every pattern doc references a catalog ID, every example path exists, every `code_kernel_path` exists and stays token-light, every digest section stays token-light, every interactive pattern lists `states_demonstrated`, `checked_states`, `checked_viewports`, `a11y_checks`, and `verification_evidence`, and limited patterns have explicit primary/fallback verification targets.
 - Validate `schema_version` and reject unknown enum values for source kind, verification status, support status, and category.
 - Document the update workflow in `SKILL.md`: check access, classify source, update `index.jsonl`, write/adjust pattern doc, write/adjust example, append ingest log, update backlog if deferred, run validation.
 - Document SKILL.md flows for "recommend a pattern", "adapt an example", and "add/update a pattern", including how to handle limited support, duplicate candidates, and fallback-heavy choices.
@@ -346,6 +362,7 @@ The schema should let future sessions answer: "Which modern CSS/HTML platform pa
 - Error path: malformed JSONL fails validation with line number.
 - Error path: a pattern doc support note that contradicts the canonical `index.jsonl` support fields fails validation or is reported for manual correction.
 - Error path: a fallback claim without `fallback_test_method` and `verification_mode` fails validation.
+- Error path: a catalog entry missing a digest section, code kernel, source-detail heading, or example-gallery link is reported before the corpus is considered complete.
 
 **Verification:**
 - `go run scripts/validate_index.go` passes from the skill directory.
@@ -408,7 +425,7 @@ The schema should let future sessions answer: "Which modern CSS/HTML platform pa
 | Skill metadata bloats prompt context | Keep `SKILL.md` lean and move corpus detail into references and examples |
 | Duplicate trendy examples crowd the index | Use duplicate detection based on feature set, interaction pattern, and visual outcome |
 | Runtime skill visibility differs from repo file state | Verify prompt-visible surface separately with `codex debug prompt-input` |
-| v1 corpus expands without bound | Seed 8-12 runnable patterns and put the rest into `references/backlog.jsonl` |
+| v1 corpus expands without bound | Seed 8-12 runnable patterns for the initial launch, put deferred candidates into `references/backlog.jsonl`, and allow later explicit add requests to expand the validated catalog |
 | Pattern metadata drifts across files | Treat `index.jsonl` as canonical current catalog and validate pattern docs against it |
 | Append-only source evidence becomes ambiguous | Reference exact `source_event_id` values from catalog entries |
 | Schema evolves incompatibly | Require `schema_version` and closed-enum validation |
@@ -426,7 +443,7 @@ The schema should let future sessions answer: "Which modern CSS/HTML platform pa
 
 ## Source Inventory
 
-The implementation should transcribe these seeds into `references/source-seeds.jsonl` before selecting the bounded v1 corpus. Access status reflects checks performed on 2026-05-08 from this workspace.
+The implementation should transcribe these initial seeds into `references/source-seeds.jsonl` before selecting the bounded v1 launch corpus. This inventory is a 2026-05-08 seed snapshot, not the full future corpus. Access status reflects checks performed on 2026-05-08 from this workspace.
 
 | Source | Access result | Initial classification |
 |--------|---------------|------------------------|

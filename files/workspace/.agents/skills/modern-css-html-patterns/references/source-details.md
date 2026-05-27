@@ -243,3 +243,193 @@ The JSONL rows are the machine-readable source log. This file is the human-reada
 - Role: support source for the `cqh` label translation in `scroll-progress-counter-label`.
 - Durable note: `cqh` resolves against the query container height, so examples need a definite container block size.
 - Recheck trigger: if changing the container from `container-type: size` to inline-only containment or relying on fallback unit resolution.
+
+## ev-polypane-safe-area-insets-20260513
+
+- URL: https://polypane.app/blog/using-safe-area-inset-to-build-mobile-safe-layouts/
+- Access: Polypane article and page-data JSON returned HTTP 200 on 2026-05-13.
+- Role: article and reconstruction source for `safe-area-mobile-shell`.
+- Durable note: records the practical contract: opt into edge-to-edge with `viewport-fit=cover`, add normal spacing on top of `safe-area-inset-*`, expect desktop zero values, and avoid depending on `safe-area-max-inset-*`.
+- Recheck trigger: if adapting Polypane-specific screenshots or changing the max-inset caveat.
+
+## ev-mdn-env-safe-area-20260513
+
+- URL: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/env
+- Access: MDN page was recorded as accessible on 2026-05-13.
+- Role: support source for `safe-area-mobile-shell`.
+- Durable note: MDN records `env()` as Baseline widely available, documents `safe-area-inset-*`, fallback arguments, and examples that add bottom safe-area padding to sticky UI.
+- Recheck trigger: before changing support status, fallback syntax, or environment-variable names.
+
+## ev-mdn-viewport-fit-20260513
+
+- URL: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta/name/viewport
+- Access: MDN page was recorded as accessible on 2026-05-13.
+- Role: docs source for the `viewport-fit=cover` HTML contract.
+- Durable note: MDN describes `viewport-fit=cover` and recommends safe-area inset variables so important content does not end up outside the display.
+- Recheck trigger: before changing the meta viewport contract or adding keyboard viewport behavior.
+
+## ev-x-alicalimli-text-shine-20260514
+
+- URL: https://x.com/alicalimli_dev/status/2054485868002562063
+- Access: direct X returned an HTML shell and Twitter syndication returned an empty object; fxtwitter metadata returned the tweet text and video URL on 2026-05-14.
+- Role: inspiration and reconstruction source for `animated-gradient-text-shine`.
+- Durable note: treat this as a discovery pointer only. The durable technical basis is the local fallback-first example plus MDN `background-clip`, `@keyframes`, and `prefers-reduced-motion` docs.
+- Recheck trigger: if quoting or reproducing the social post itself, refetch the post or find an independently accessible demo.
+
+## ev-mdn-background-clip-text-20260514
+
+- URL: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/background-clip
+- Access: MDN page was recorded as accessible on 2026-05-14.
+- Role: support source for `animated-gradient-text-shine`.
+- Durable note: use for `background-clip: text`, the need for transparent text to reveal the clipped background, and the accessibility fallback/contrast cautions.
+- Recheck trigger: before changing support status, compatibility prefix guidance, or fallback guidance.
+
+## ev-mdn-keyframes-20260514
+
+- URL: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@keyframes
+- Access: MDN page was recorded as accessible on 2026-05-14.
+- Role: support source for the shine animation in `animated-gradient-text-shine`.
+- Durable note: use for the valid `@keyframes` at-rule shape that moves `background-position`.
+- Recheck trigger: low priority unless changing animation syntax or support status.
+
+## ev-mdn-prefers-reduced-motion-20260514
+
+- URL: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion
+- Access: MDN page was recorded as accessible on 2026-05-14.
+- Role: support source for the reduced-motion guard in `animated-gradient-text-shine`.
+- Durable note: decorative shine animation should become static when the user requests reduced motion.
+- Recheck trigger: before changing motion accessibility guidance.
+
+## ev-theosoti-relative-colors-20260514
+
+- URL: https://theosoti.com/blog/css-relative-colors/
+- Markdown alternate: https://theosoti.com/blog/css-relative-colors.md
+- Access: HTML and the linked Markdown alternate returned HTTP 200 on 2026-05-14.
+- Role: article and reconstruction source for `relative-color-token-palette`.
+- Durable note: the article frames relative colors as relationships derived from one base token, with `oklch(from ...)` for lightness, `rgb(from ... / alpha)` for translucent borders/shadows, and `currentColor` as an origin color.
+- Recheck trigger: if adapting the interactive article widgets or changing the source support percentage.
+
+## ev-mdn-relative-colors-20260514
+
+- URL: https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Colors/Using_relative_colors
+- Access: MDN page was recorded as accessible on 2026-05-14.
+- Role: syntax and support-query source for `relative-color-token-palette`.
+- Durable note: use for the general `color-function(from origin-color channel1 channel2 channel3 / alpha)` syntax, supported color functions, custom-property usage, channel math, and `@supports` testing caveats.
+- Recheck trigger: before changing relative color syntax, channel unit assumptions, or feature-query guidance.
+
+## ev-webdev-css-relative-color-baseline-20260514
+
+- URL: https://web.dev/css#baseline-newly-available-css-features
+- Access: web.dev CSS page returned HTTP 200 on 2026-05-14.
+- Role: Baseline support source for `relative-color-token-palette`.
+- Durable note: web.dev records CSS relative color syntax as Baseline Newly available in September 2024.
+- Recheck trigger: before changing the Baseline target or Browserslist query.
+
+## ev-theosoti-starting-style-20260514
+
+- URL: https://theosoti.com/blog/starting-style-css/
+- Markdown alternate: https://theosoti.com/blog/starting-style-css.md
+- Access: linked Markdown alternate returned HTTP 200 on 2026-05-14.
+- Role: article source for the existing `starting-style-popover` pattern.
+- Durable note: records the three-state mental model: closed state, open state, and the entry-only starting state. It also highlights that `@starting-style` applies to transitions, not keyframe animations.
+- Recheck trigger: before broadening the pattern beyond popovers/dialogs/toasts or changing cascade ordering guidance.
+
+## ev-theosoti-animated-gradient-borders-20260514
+
+- URL: https://theosoti.com/blog/animated-gradient-borders/
+- Markdown alternate: https://theosoti.com/blog/animated-gradient-borders.md
+- Access: linked Markdown alternate returned HTTP 200 on 2026-05-14.
+- Role: article and reconstruction source for `animated-conic-gradient-border`.
+- Durable note: records the pseudo-element border layer, `@property --angle`, conic gradient rotation, optional blurred glow layer, and reduced-motion guard.
+- Recheck trigger: if adapting the external CodePen or the landing-page live example.
+
+## ev-mdn-conic-gradient-20260514
+
+- URL: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/gradient/conic-gradient
+- Access: MDN page was recorded as accessible on 2026-05-14.
+- Role: support source for the conic gradient image used by `animated-conic-gradient-border`.
+- Durable note: MDN records `conic-gradient()` as Baseline widely available and describes gradients as image values usable in backgrounds.
+- Recheck trigger: before changing gradient syntax or support status.
+
+## ev-mdn-at-property-gradient-border-20260514
+
+- URL: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/%40property
+- Access: MDN page was recorded as accessible on 2026-05-14.
+- Role: support source for the registered angle custom property in `animated-conic-gradient-border`.
+- Durable note: use for `@property --border-angle { syntax: "<angle>"; ... }` and smooth custom-property interpolation.
+- Recheck trigger: before changing the Baseline target or replacing the registered custom property with untyped custom properties.
+
+## ev-theosoti-height-transition-20260514
+
+- URL: https://theosoti.com/blog/height-transition/
+- Markdown alternate: https://theosoti.com/blog/height-transition.md
+- Access: linked Markdown alternate returned HTTP 200 on 2026-05-14.
+- Role: article and reconstruction source for `grid-height-transition`.
+- Durable note: records why direct `height: auto` and guessed `max-height` transitions are brittle, and presents the grid `0fr` to `1fr` approach as the current practical technique.
+- Recheck trigger: before replacing the grid pattern with `calc-size(auto)` or another newer primitive.
+
+## ev-mdn-grid-template-rows-20260514
+
+- URL: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/grid-template-rows
+- Access: MDN page was recorded as accessible on 2026-05-14.
+- Role: support source for `grid-height-transition`.
+- Durable note: MDN records `grid-template-rows` as Baseline widely available and animatable for compatible length, percentage, or calc track lists; it does not independently prove the `0fr` to `1fr` disclosure interpolation used by the example.
+- Recheck trigger: before changing support status or claiming broader auto-size interpolation.
+
+## ev-theosoti-container-queries-20260514
+
+- URL: https://theosoti.com/blog/container-queries/
+- Markdown alternate: https://theosoti.com/blog/container-queries.md
+- Access: linked Markdown alternate returned HTTP 200 on 2026-05-14.
+- Role: article source for the existing `container-query-card` pattern.
+- Durable note: records the component-owned responsive-layout mental model, `container-type: inline-size`, named containers, and container query units.
+- Recheck trigger: before adding a separate named-container or container-unit pattern.
+
+## ev-theosoti-column-width-masonry-20260514
+
+- URL: https://theosoti.com/short/masonry-layout/
+- Markdown alternate: https://theosoti.com/short/masonry-layout.md
+- Access: linked Markdown alternate returned HTTP 200 on 2026-05-14.
+- Role: article and reconstruction source for `column-width-masonry-feed`.
+- Durable note: records the pure CSS `column-width` approach for masonry-like feeds, automatic column fitting, full-width media inside each generated column, and the reading-order caution for visual columns.
+- Recheck trigger: before replacing this with native CSS Grid masonry or adapting the linked CodePen.
+
+## ev-mdn-column-width-20260514
+
+- URL: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/column-width
+- Access: MDN page was recorded as accessible on 2026-05-14.
+- Role: support and syntax source for `column-width-masonry-feed`.
+- Durable note: MDN records `column-width` as Baseline widely available and describes it as an ideal multi-column width that lets the container fit as many columns as possible.
+- Recheck trigger: before changing the Baseline target, Browserslist query, or generated-column behavior claims.
+
+## ev-mdn-break-inside-20260514
+
+- URL: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/break-inside
+- Access: MDN page was recorded as accessible on 2026-05-14.
+- Role: support and fragmentation source for `column-width-masonry-feed`.
+- Durable note: MDN records `break-inside` as Baseline widely available and shows `break-inside: avoid` keeping a figure from splitting across columns.
+- Recheck trigger: before changing card fragmentation guidance or multi-column fallback notes.
+
+## ev-ishadeed-css-round-20260518
+
+- URL: https://ishadeed.com/article/css-round/
+- Access: article HTML returned HTTP 200 on 2026-05-18.
+- Role: article and reconstruction source for `stepped-fluid-sizing-round`.
+- Durable note: records `round()` as a way to snap fluid `clamp()` output to predictable steps for typography, spacing, card sizing, type scales, and line-grid snapping. The `calc-size()` card-height variant is noted as a separate narrower-support path, not the baseline example.
+- Recheck trigger: before adding the `calc-size(auto)` height-snapping variant or copying the interactive demo behavior.
+
+## ev-mdn-css-round-20260518
+
+- URL: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/round
+- Access: MDN page returned HTTP 200 on 2026-05-18.
+- Role: support and syntax source for `stepped-fluid-sizing-round`.
+- Durable note: MDN records `round()` as Baseline 2024, newly available since May 2024, with `up`, `down`, `nearest`, and `to-zero` strategies. Use custom properties for the rounded value or interval; hardcoding both is usually redundant.
+- Recheck trigger: before changing the Baseline target, feature-query guidance, or rounding strategy notes.
+
+## ev-webdev-stepped-value-functions-20260518
+
+- URL: https://web.dev/blog/css-stepped-value-functions
+- Access: web.dev article returned HTTP 200 on 2026-05-18.
+- Role: secondary support source for `stepped-fluid-sizing-round`.
+- Durable note: web.dev records stepped value math functions `round()`, `mod()`, and `rem()` as Baseline 2024 and supported by all major browser engines.
+- Recheck trigger: before broadening this pattern to include `mod()` or `rem()`.

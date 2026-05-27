@@ -29,6 +29,7 @@ Hindsight requires PostgreSQL 14+ with a vector extension for similarity search.
 - **pgvector** (default)
 - **pgvectorscale**
 - **vchord**
+- **scann** (AlloyDB)
 
 Configure which one to use with `HINDSIGHT_API_VECTOR_EXTENSION`. See [Configuration](./configuration) for details.
 
@@ -38,12 +39,31 @@ Configure which one to use with `HINDSIGHT_API_VECTOR_EXTENSION`. See [Configura
 - **Supabase** — Managed PostgreSQL with pgvector built-in
 - **Neon** — Serverless PostgreSQL with pgvector
 - **Azure Database for PostgreSQL** — With pgvector and pgvectorscale support
+- **Google AlloyDB** / **AlloyDB Omni** — With pgvector and ScaNN support
 - **AWS RDS** / **Cloud SQL** — With pgvector extension enabled
 - **Self-hosted** — PostgreSQL 14+ with your preferred vector extension
 
 ### LLM Provider
 
 You need an LLM API key for fact extraction, entity resolution, and answer generation. See [Models](./models) for supported providers, model recommendations, and configuration.
+
+### Hardware
+
+Hindsight is designed to run on commodity hardware. The footprint depends mainly on whether the **full** image (which bundles local embedding and reranker models) or the **slim** image (which delegates those to external providers) is used.
+
+| Component | Minimum RAM | Recommended RAM | Notes |
+|-----------|-------------|-----------------|-------|
+| **API — Full image** | 1.5 GB | 2 GB | Loads local BGE embedder (~130 MB) and MiniLM cross-encoder (~90 MB) into memory, plus PyTorch/ONNX runtime arenas. Idle RSS settles around 0.8–1.0 GB; expect 1.2–1.5 GB under load. |
+| **API — Slim image** | 512 MB | 1 GB | No local models. Steady-state RSS is dominated by Python runtime and DB connections. Requires [external embedding and reranker providers](./configuration#embeddings) (e.g. TEI, OpenAI, Cohere). |
+| **Control Plane (UI)** | 128 MB | 256 MB | Next.js process, lightweight. |
+| **Worker** (if separated) | Same as API image variant | Same as API image variant | Workers load the same models as the API server. |
+| **PostgreSQL** | 512 MB | 1 GB+ | Scales with the number of memories and indexes. |
+
+:::tip Reducing the footprint
+The bulk of the full image's memory comes from the bundled embedding and reranker models and their PyTorch/ONNX runtimes. To shrink the deployment to a few hundred MB of RAM, switch to the **slim** image and configure [external embedding and reranker providers](./configuration#embeddings).
+:::
+
+CPU vs GPU: 2 vCPUs on CPU-only is fine for development and basic workloads. For production traffic, the local reranker (cross-encoder) is the main bottleneck and typically benefits from a GPU to keep recall latency reasonable; alternatively, offload reranking to an [external reranker provider](./configuration#embeddings) (e.g. TEI, Cohere) on dedicated GPU hardware.
 
 ---
 
@@ -65,6 +85,14 @@ docker run --rm -it --pull always -p 8888:8888 -p 9999:9999 \
 - **API Server**: http://localhost:8888
 - **Control Plane** (Web UI): http://localhost:9999
 
+All published images are [signed with Cosign](#verifying-image-signatures) — verification is optional.
+
+:::tip Set a stable `HINDSIGHT_API_WORKER_ID` in production
+The worker uses the container hostname as its identity, which Docker sets to the container ID by default. That value changes on every restart, so any task that was being processed when the container went down stays parked under the old ID with no way for the new container to recognize it as its own.
+
+Set `HINDSIGHT_API_WORKER_ID` to a stable value (e.g., `-e HINDSIGHT_API_WORKER_ID=hindsight-prod`) so the worker keeps the same identity across restarts. This is recommended even for single-container deployments. For diagnosis and recovery commands, see [Admin CLI - Recovering stuck operations](./admin-cli#recovering-stuck-or-zombie-operations).
+:::
+
 ### Docker Image Variants
 
 | Variant | Size (AMD64) | Size (ARM64) | When to use |
@@ -73,6 +101,12 @@ docker run --rm -it --pull always -p 8888:8888 -p 9999:9999 \
 | **Slim** (`slim`) | ~500 MB | ~500 MB | Use when you already rely on external services for embeddings and reranking (OpenAI, Cohere, TEI). Significantly smaller image, faster deploys. Requires [external providers](./configuration#embeddings). |
 
 The slim image corresponds to the [`hindsight-api-slim`](#bare-metal-pip) pip package. See [Configuration](./configuration#embeddings) for external provider options.
+
+### Bundling Custom Models in a Custom Image
+
+:::tip Production deployments with non-default local models
+If you use a non-default local embedder or reranker, bake the models into a custom image at build time rather than enabling the Helm `modelCache` PVC. See [`docker/docker-compose/custom-models/`](https://github.com/vectorize-io/hindsight/tree/main/docker/docker-compose/custom-models) for a runnable example.
+:::
 
 ### Available Tags
 
@@ -89,6 +123,16 @@ ghcr.io/vectorize-io/hindsight-api:latest-slim
 
 # Control Plane only
 ghcr.io/vectorize-io/hindsight-control-plane:latest
+```
+
+### Verifying image signatures
+
+Images are signed with [Cosign](https://docs.sigstore.dev/cosign/signing/overview/) keyless OIDC. To verify any tag:
+
+```bash
+cosign verify ghcr.io/vectorize-io/hindsight:<tag> \
+  --certificate-identity-regexp '^https://github\.com/vectorize-io/hindsight/\.github/workflows/(sign-images|release)\.yml@.*' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
 ---
@@ -131,6 +175,8 @@ helm install hindsight oci://ghcr.io/vectorize-io/charts/hindsight \
   --set worker.enabled=true \
   --set worker.replicaCount=3
 ```
+
+The chart deploys workers as a StatefulSet, so each pod gets a stable name (e.g. `hindsight-worker-0`) that the worker uses as its `HINDSIGHT_API_WORKER_ID`. Tasks claimed by a pod are recognized as its own across restarts. If you swap the chart for a plain Deployment, set `HINDSIGHT_API_WORKER_ID` explicitly per replica — otherwise hostnames are randomized and previously-claimed tasks become orphaned. See [Admin CLI - Recovering stuck operations](./admin-cli#recovering-stuck-or-zombie-operations) for diagnosis.
 
 See [Services - Worker Service](./services#worker-service) for configuration details and architecture.
 
@@ -204,6 +250,7 @@ This connects to your running API server and provides a visual interface for man
 | `-p, --port` | `PORT` | 9999 | Port to listen on |
 | `-H, --hostname` | `HOSTNAME` | 0.0.0.0 | Hostname to bind to |
 | `-a, --api-url` | `HINDSIGHT_CP_DATAPLANE_API_URL` | http://localhost:8888 | Hindsight API URL |
+| | `HINDSIGHT_CP_ACCESS_KEY` | *(none)* | Access key to protect the Control Plane UI. When set, users must enter this key to log in. |
 
 #### Examples
 
@@ -277,6 +324,32 @@ hindsight-api
 :::tip
 You can also use the slim package (`pip install hindsight-api-slim`) if you configure external providers for embeddings and reranking. See [Configuration](./configuration#embeddings) for details.
 :::
+
+### Windows + China Network Notes
+
+If you are running on Windows behind China network restrictions:
+
+1. DeepSeek works well for `HINDSIGHT_API_LLM_PROVIDER`, but DeepSeek does not provide an embeddings endpoint.
+2. Use local embeddings (recommended for privacy and reliability in restricted networks).
+3. Set `HF_ENDPOINT=https://hf-mirror.com` before starting Hindsight so Hugging Face model downloads use a China-accessible mirror.
+
+```powershell
+set HF_ENDPOINT=https://hf-mirror.com
+
+set HINDSIGHT_API_LLM_PROVIDER=deepseek
+set HINDSIGHT_API_LLM_API_KEY=sk-your-deepseek-key
+set HINDSIGHT_API_LLM_MODEL=deepseek-v4-flash
+set HINDSIGHT_API_LLM_BASE_URL=https://api.deepseek.com
+
+set HINDSIGHT_API_EMBEDDINGS_PROVIDER=local
+set HINDSIGHT_API_EMBEDDINGS_LOCAL_MODEL=BAAI/bge-small-en-v1.5
+
+set HINDSIGHT_API_RERANKER_PROVIDER=flashrank
+
+hindsight-api
+```
+
+The `HF_ENDPOINT` variable is used by Hugging Face tooling (`huggingface_hub`), not by Hindsight itself.
 
 ---
 

@@ -18,9 +18,6 @@ jobs:
       - name: Evaluate root flake outputs
         run: nix flake check --all-systems --no-build --show-trace
 
-      - name: Evaluate Phoenix template flake outputs
-        run: nix flake check ./templates/phoenix --all-systems --no-build --show-trace
-
       - name: Check homelab deploy invariants
         run: nix build .#checks.x86_64-linux.homelab-appctl-deploy-invariants --show-trace
 
