@@ -28,6 +28,7 @@ let
       "XDG_*",
       "MISE_BIN",
       "MISE_*",
+      "SOPS_AGE_KEY_FILE",
       "ASDF_*",
       "ERL_*",
       "ELIXIR_*",
@@ -40,6 +41,17 @@ let
       "PROJECT_PATH",
       "NIX_*",
     ]
+  '';
+
+  miseGuiBootstrap = ''
+    # GUI apps can launch wrappers with a sparse env; mise needs these to load project config.
+    export PATH="/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin''${PATH:+:$PATH}"
+    export HOME="''${HOME:-${config.home.homeDirectory}}"
+    export USER="''${USER:-${config.home.username}}"
+    export USER_HOST="''${USER_HOST:-${myOptions.hostName}}"
+    export LOGNAME="''${LOGNAME:-${config.home.username}}"
+    export PROJECT_PATH="''${PROJECT_PATH:-${myOptions.absoluteProjectPath}}"
+    export SOPS_AGE_KEY_FILE="''${SOPS_AGE_KEY_FILE:-${config.xdg.configHome}/sops/age/keys.txt}"
   '';
 
   serverDefinitions = [
@@ -56,6 +68,7 @@ let
       wrapperName = "lspmux-mise-elixir-ls";
       provider = "mise";
       server = "elixir-ls";
+      shell = "/bin/bash";
       versionFromMiseTool = "elixir-ls";
       languages = [
         "elixir"
@@ -260,11 +273,15 @@ let
       server,
       serverArgs ? [ ],
       callerProvidesServerArgs ? false,
+      shell ? null,
       versionFromMiseTool ? null,
       ...
     }:
     let
       serverArgsText = lib.escapeShellArgs serverArgs;
+      shellExport = lib.optionalString (shell != null) ''
+        export SHELL=${lib.escapeShellArg shell}
+      '';
       callerProvidesServerArgsBranch = lib.optionalString callerProvidesServerArgs ''
         if [ "$#" -gt 0 ]; then
           exec "$mise_bin" exec -- ${lib.getExe pkgs.lspmux} client \
@@ -291,13 +308,8 @@ let
           exit 127
         fi
 
-        # GUI apps can launch wrappers with a sparse env; mise needs these to load project config.
-        export HOME="''${HOME:-${config.home.homeDirectory}}"
-        export USER="''${USER:-${config.home.username}}"
-        export USER_HOST="''${USER_HOST:-${myOptions.hostName}}"
-        export LOGNAME="''${LOGNAME:-${config.home.username}}"
-        export PROJECT_PATH="''${PROJECT_PATH:-${myOptions.absoluteProjectPath}}"
-        export SOPS_AGE_KEY_FILE="''${SOPS_AGE_KEY_FILE:-${config.xdg.configHome}/sops/age/keys.txt}"
+        ${miseGuiBootstrap}
+        ${shellExport}
 
         if [ "''${1:-}" = "--version" ] || [ "''${1:-}" = "-V" ]; then
           ${versionProbe}
@@ -380,6 +392,8 @@ let
         exit 127
       fi
 
+      ${miseGuiBootstrap}
+      export SHELL=/bin/bash
       exec "$mise_bin" exec -- elixir-ls-debugger "$@"
     '';
   };
