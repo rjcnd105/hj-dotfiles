@@ -43,6 +43,7 @@ in
     VISUAL = "/usr/local/bin/zed";
     OBSIDIAN = "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents";
     ZED_ALLOW_ROOT = "true";
+    TERMINFO_DIRS = "${config.home.profileDirectory}/share/terminfo:/run/current-system/sw/share/terminfo:/usr/share/terminfo";
   };
 
   home.sessionPath = [
