@@ -119,7 +119,7 @@
       "source": "anthropics/skills",
       "sourceType": "github",
       "skillPath": "skills/claude-api/SKILL.md",
-      "computedHash": "954ea4ccdb1aeb5c709f4b23961d4295a20c128b535ac4cbf33bf903f16d3fb4"
+      "computedHash": "9f19be17e56542510e93d2943227c776ecbbe978307fc43d660dd04b346ef395"
     },
     "claude-opus-4-5-migration": {
       "source": "anthropics/claude-code",
@@ -137,7 +137,7 @@
       "source": "vectorize-io/hindsight",
       "sourceType": "github",
       "skillPath": ".claude/skills/code-review/SKILL.md",
-      "computedHash": "a0f78c60c98d4322141df2d99e24eeb5ee64aa3c1fe40d24d3fee5f18a26c48a"
+      "computedHash": "ea338b02a6c8c61ab509a20721ecf4695fbf48618dea03bde4c2e8e37841307b"
     },
     "code-reviewer": {
       "source": "charon-fan/agent-playbook",
@@ -249,7 +249,7 @@
       "source": "anthropics/skills",
       "sourceType": "github",
       "skillPath": "skills/frontend-design/SKILL.md",
-      "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
+      "computedHash": "4eabc66183767153e404b39d1b839b1c37f2d82d86f0a0d7e880a579d8d62336"
     },
     "github-triage": {
       "source": "mattpocock/skills",
@@ -302,7 +302,7 @@
       "source": "vectorize-io/hindsight",
       "sourceType": "github",
       "skillPath": "skills/hindsight-docs/SKILL.md",
-      "computedHash": "839adaed6a743a5037cafb5b426c76ba4409d3a674d4b089468581a8846f5d5e"
+      "computedHash": "15d72952fbff9e2183eb2cfa53515cf8b4e9b535c5caf774df657a10505839cb"
     },
     "hindsight-local": {
       "source": "vectorize-io/hindsight",
@@ -386,7 +386,7 @@
       "source": "kepano/obsidian-skills",
       "sourceType": "github",
       "skillPath": "skills/obsidian-bases/SKILL.md",
-      "computedHash": "ed0a53502693e56c67575a9958daca9a3a1ac7ba483367f400b4cad9488bfb3c"
+      "computedHash": "65db029661f38daadc8b8eb755bd7b96011336f49bdc11e966ec7fd157d8f125"
     },
     "obsidian-cli": {
       "source": "kepano/obsidian-skills",
@@ -398,7 +398,7 @@
       "source": "kepano/obsidian-skills",
       "sourceType": "github",
       "skillPath": "skills/obsidian-markdown/SKILL.md",
-      "computedHash": "cacc9058a35ad3fd4985b4c31121bff8202f1337c39808c1326ded6a19a7915f"
+      "computedHash": "0f47297035d7824e7bf0f1984e8145a59a123e2258b5d54c9ac9642f9f77e177"
     },
     "obsidian-vault": {
       "source": "mattpocock/skills",
