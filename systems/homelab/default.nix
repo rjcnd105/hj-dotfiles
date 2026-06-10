@@ -14,6 +14,7 @@
     ./app-admissions.nix
     ./github-actions-runner.nix
     ./recall-eval.nix
+    ./thermal-alert.nix
   ];
 
   networking.hostName = "homelab";

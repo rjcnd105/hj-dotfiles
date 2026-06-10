@@ -160,16 +160,128 @@
 
           touch "$out"
         '';
+
+      homelabThermalAlertSmoke =
+        system:
+        let
+          pkgs = pkgsFor system;
+          thermalAlert = pkgs.writeShellApplication {
+            name = "homelab-thermal-alert";
+            runtimeInputs = [
+              pkgs.coreutils
+              pkgs.curl
+              pkgs.gawk
+            ];
+            text = builtins.readFile ./systems/homelab/thermal-alert.sh;
+          };
+        in
+        pkgs.runCommand "homelab-thermal-alert-smoke" { } ''
+          set -eu
+
+          export PATH=${pkgs.coreutils}/bin:${pkgs.gnugrep}/bin:$PATH
+
+          work="$TMPDIR/work"
+          mkdir -p "$work"/{credentials,hwmon/hwmon0,proc/sys/kernel,state,runtime,bin}
+          printf '%s' test-token > "$work/credentials/telegram-bot-token"
+          printf '%s' 123456 > "$work/credentials/telegram-chat-id"
+          printf '%s\n' homelab > "$work/proc/sys/kernel/hostname"
+          printf '%s\n' '1.00 0.50 0.25 1/100 1000' > "$work/proc/loadavg"
+
+          printf '%s\n' \
+            '#!${pkgs.runtimeShell}' \
+            'printf "%s\n" "99.0 postgres"' \
+            > "$work/bin/ps"
+          chmod +x "$work/bin/ps"
+
+          printf '%s\n' \
+            '#!${pkgs.runtimeShell}' \
+            'set -eu' \
+            'cat > "$CURL_STDIN_LOG"' \
+            'printf "%s\n" "$@" >> "$CURL_ARGV_LOG"' \
+            'output=' \
+            'while [ "$#" -gt 0 ]; do' \
+            '  case "$1" in' \
+            '    --output)' \
+            '      shift' \
+            '      output="$1"' \
+            '      ;;' \
+            '  esac' \
+            '  shift || true' \
+            'done' \
+            'if [ -n "$output" ]; then' \
+            '  printf "%s\n" "{\"ok\":true}" > "$output"' \
+            'fi' \
+            'printf "%s" "''${CURL_HTTP_CODE:-200}"' \
+            > "$work/bin/curl"
+          chmod +x "$work/bin/curl"
+
+          run_alert() {
+            CREDENTIALS_DIRECTORY="$work/credentials" \
+            HWMON_ROOT="$work/hwmon" \
+            PROC_ROOT="$work/proc" \
+            STATE_DIRECTORY="$work/state" \
+            RUNTIME_DIRECTORY="$work/runtime" \
+            CURL_BIN="$work/bin/curl" \
+            PS_BIN="$work/bin/ps" \
+            NOW_EPOCH="$1" \
+              ${thermalAlert}/bin/homelab-thermal-alert
+          }
+
+          set_sensor() {
+            printf '%s\n' k10temp > "$work/hwmon/hwmon0/name"
+            printf '%s\n' Tctl > "$work/hwmon/hwmon0/temp1_label"
+            printf '%s\n' "$1" > "$work/hwmon/hwmon0/temp1_input"
+          }
+
+          rm -f "$work/curl-argv.log" "$work/curl-stdin.log"
+          export CURL_ARGV_LOG="$work/curl-argv.log"
+          export CURL_STDIN_LOG="$work/curl-stdin.log"
+
+          set_sensor 84999
+          run_alert 2000
+          if [ -e "$CURL_ARGV_LOG" ]; then
+            echo "below-threshold run must not call curl" >&2
+            exit 1
+          fi
+
+          set_sensor 85000
+          run_alert 2000
+          grep -F -- '--data-urlencode' "$CURL_ARGV_LOG" >/dev/null
+          if grep -F 'test-token' "$CURL_ARGV_LOG" >/dev/null || grep -F '123456' "$CURL_ARGV_LOG" >/dev/null; then
+            echo "Telegram credentials must not appear in curl argv" >&2
+            exit 1
+          fi
+          grep -F 'test-token' "$CURL_STDIN_LOG" >/dev/null
+          test "$(cat "$work/state/last-alert-epoch")" = 2000
+
+          cp "$CURL_ARGV_LOG" "$work/curl-argv.first"
+          run_alert 2100
+          cmp "$work/curl-argv.first" "$CURL_ARGV_LOG"
+
+          rm -f "$work/hwmon/hwmon0/name" "$work/hwmon/hwmon0/temp1_label" "$work/hwmon/hwmon0/temp1_input"
+          if run_alert 4000 2>"$work/no-sensor.err"; then
+            echo "missing k10temp sensor must fail the unit" >&2
+            exit 1
+          fi
+          grep -F 'no k10temp CPU sensor found' "$work/no-sensor.err" >/dev/null
+
+          touch "$out"
+        '';
     in
     {
       _debug = { };
 
       formatter = eachSystem (system: treefmtEval.${system}.config.build.wrapper);
 
-      checks = eachSystem (system: {
-        formatting = treefmtEval.${system}.config.build.check self;
-        homelab-appctl-deploy-invariants = homelabAppctlDeployInvariants system;
-      });
+      checks =
+        let
+          baseChecks = eachSystem (system: {
+            formatting = treefmtEval.${system}.config.build.check self;
+            homelab-appctl-deploy-invariants = homelabAppctlDeployInvariants system;
+            homelab-thermal-alert-smoke = homelabThermalAlertSmoke system;
+          });
+        in
+        baseChecks;
 
       darwinConfigurations = lib.mapAttrs (
         key: config:
