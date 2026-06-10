@@ -151,11 +151,6 @@
       "skillPath": "skills/commit-helper/SKILL.md",
       "computedHash": "fef2b8a9a573a534c7f4e5b9df64d3e013e9a3de0de912f7b44e41d9cb5ab2df"
     },
-    "compress": {
-      "source": "juliusbrussee/caveman",
-      "sourceType": "github",
-      "computedHash": "05c97bc3120108acd0b80bdef7fb4fa7c224ba83c8d384ccbc97f92e8a065918"
-    },
     "context7": {
       "source": "intellectronica/agent-skills",
       "sourceType": "github",
@@ -222,11 +217,6 @@
       "skillPath": "skills/docx/SKILL.md",
       "computedHash": "6962db07127ee540a56e4677f65576d0727668a1d67f7da8bc978f10791c2bfe"
     },
-    "domain-model": {
-      "source": "mattpocock/skills",
-      "sourceType": "github",
-      "computedHash": "71fd7d7d8c96228d663fcc133843e06e16f211c1d4d1e781aabdc73a097a2d60"
-    },
     "edit-article": {
       "source": "mattpocock/skills",
       "sourceType": "github",
@@ -250,11 +240,6 @@
       "sourceType": "github",
       "skillPath": "skills/frontend-design/SKILL.md",
       "computedHash": "4eabc66183767153e404b39d1b839b1c37f2d82d86f0a0d7e880a579d8d62336"
-    },
-    "github-triage": {
-      "source": "mattpocock/skills",
-      "sourceType": "github",
-      "computedHash": "7963f970135cc69f951346e5a7123f5ba4c6fc9dcde8dbd068d583884cb143fe"
     },
     "gpt-image-2": {
       "source": "agentspace-so/agent-skills",
@@ -537,11 +522,6 @@
       "sourceType": "github",
       "skillPath": "skills/todoist-api/SKILL.md",
       "computedHash": "30f2cfcc3ff109671cac1a15f0ab96865b15074557500d5a20cd68166cce086e"
-    },
-    "triage-issue": {
-      "source": "mattpocock/skills",
-      "sourceType": "github",
-      "computedHash": "6834b87393bff8f529b3126b9f761c1c2b9706af8a784ad1061961c34bbdb4a9"
     },
     "ubiquitous-language": {
       "source": "mattpocock/skills",
