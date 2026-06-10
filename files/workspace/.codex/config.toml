@@ -7,7 +7,10 @@ approvals_reviewer = "user"
 
 service_tier = "default"
 
-notify = ["/Users/hj/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
+notify = [
+  "/Users/hj/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient",
+  "turn-ended",
+]
 
 [projects]
 [projects.'/Users/hj/work/gm/gentle-renewal']
