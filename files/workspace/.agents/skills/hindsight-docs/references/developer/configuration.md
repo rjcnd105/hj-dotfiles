@@ -24,6 +24,7 @@ The API service handles all memory operations (retain, recall, reflect).
 | `HINDSIGHT_API_MIGRATION_DATABASE_URL` | Direct PostgreSQL URL for running migrations, bypassing connection poolers (e.g. PgBouncer). When set, advisory locks and Alembic migrations use this URL instead of `DATABASE_URL`. | Falls back to `DATABASE_URL` |
 | `HINDSIGHT_API_DATABASE_SCHEMA` | PostgreSQL schema name for tables | `public` |
 | `HINDSIGHT_API_RUN_MIGRATIONS_ON_STARTUP` | Run database migrations on API startup | `true` |
+| `HINDSIGHT_API_MIGRATION_CONCURRENCY` | Number of tenant schemas to migrate concurrently (PostgreSQL only). Each schema runs in its own process; within a schema migrations are always sequential. Each worker has a fixed startup cost (~1–2s to boot a fresh interpreter), so this only pays off with **many** schemas (roughly tens or more) or slow/high-latency migrations — for a handful of schemas it is slower than sequential. Each worker uses ~3 database connections, so keep `concurrency × 3` within your database's spare `max_connections` (and any PgBouncer pool limit). `1` = fully sequential. Measured at 20k schemas: the per-restart no-op resweep dropped from ~60min to ~11min (≈5×) at `concurrency=12`. | `1` |
 | `HINDSIGHT_API_DATABASE_BACKEND` | Database engine backend: `postgresql` or `oracle` (Oracle 23ai) | `postgresql` |
 
 If not provided, the server uses embedded `pg0` — convenient for development but not recommended for production.
@@ -163,7 +164,7 @@ For non-English banks (especially CJK) and the language/extraction-language trad
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `HINDSIGHT_API_LLM_PROVIDER` | Provider: `openai`, `openai-codex`, `claude-code`, `anthropic`, `gemini`, `groq`, `minimax`, `deepseek`, `zai`, `opencode-go`, `fireworks`, `ollama`, `ollama-cloud`, `lmstudio`, `llamacpp`, `vertexai`, `bedrock`, `litellm`, `litellmrouter`, `volcano`, `openrouter`, `none` | `openai` |
+| `HINDSIGHT_API_LLM_PROVIDER` | Provider: `openai`, `openai-codex`, `claude-code`, `anthropic`, `gemini`, `groq`, `minimax`, `deepseek`, `zai`, `opencode-go`, `nous`, `fireworks`, `ollama`, `ollama-cloud`, `lmstudio`, `llamacpp`, `vertexai`, `bedrock`, `litellm`, `litellmrouter`, `volcano`, `openrouter`, `none` | `openai` |
 | `HINDSIGHT_API_LLM_API_KEY` | API key for LLM provider | - |
 | `HINDSIGHT_API_LLM_MODEL` | Model name | `gpt-5-mini` |
 | `HINDSIGHT_API_LLM_BASE_URL` | Custom LLM endpoint | Provider default |
@@ -173,8 +174,11 @@ For non-English banks (especially CJK) and the language/extraction-language trad
 | `HINDSIGHT_API_LLM_MAX_BACKOFF` | Max retry backoff cap in seconds | `60.0` |
 | `HINDSIGHT_API_LLM_TIMEOUT` | LLM request timeout in seconds | `120` |
 | `HINDSIGHT_API_LLM_REASONING_EFFORT` | Reasoning effort for providers/models that support it (for example `low`, `medium`, `high`, `xhigh`) | `low` |
+| `HINDSIGHT_API_LLM_SEND_BANK_AS_USER` | Tag outbound LLM and embedding calls with `user=<bank_id>` so gateways (OpenRouter usage accounting, LiteLLM, Helicone) can attribute spend per bank. When enabled, the bank id is transmitted to the upstream provider as the end-user identifier. | `false` |
 | `HINDSIGHT_API_LLM_GROQ_SERVICE_TIER` | Groq service tier: `on_demand`, `flex`, `auto` | `auto` |
 | `HINDSIGHT_API_LLM_OPENAI_SERVICE_TIER` | OpenAI service tier: `flex` for 50% cost savings (OpenAI Flex Processing) | None (default) |
+| `HINDSIGHT_API_LLM_BEDROCK_SERVICE_TIER` | Bedrock service tier: `flex` for 50% cost savings (best-effort inference), `priority` (guaranteed throughput), or `reserved` (provisioned capacity) | Unset (default tier) |
+| `HINDSIGHT_API_LLM_GEMINI_SERVICE_TIER` | Gemini service tier: `flex` for 50% cost savings (best-effort inference) | Unset (default tier) |
 | `HINDSIGHT_API_LLM_EXTRA_BODY` | JSON dict of extra request-body params (e.g. `temperature`, `top_p`, `max_tokens`) merged into every LLM call. Applied across the OpenAI-compatible, Fireworks, Anthropic, Gemini/VertexAI and LiteLLM (incl. Bedrock/Router) providers. Each provider merges them in its own native parameter space, so use that provider's field names (e.g. `max_tokens` for OpenAI/Anthropic vs `max_output_tokens` for Gemini). Also useful for custom model servers (e.g. vLLM `chat_template_kwargs`). | `null` |
 | `HINDSIGHT_API_LLM_DEFAULT_HEADERS` | JSON dict passed as `default_headers` to provider SDK clients. Used by operators routing through proxies / request-tracing middleware (e.g. Cloudflare AI Gateway, Helicone, corporate proxies). Currently wired into the Anthropic provider; other providers can opt in. | `null` |
 | `HINDSIGHT_API_LLM_STRICT_SCHEMA` | Grammar-enforce structured output via `json_schema` `strict: true` instead of the soft "schema-in-prompt + `json_object`" path. Use it with weaker self-hosted models that return prose preambles, markdown ` ```json ` fences, or invalid JSON — which otherwise fail to parse and wedge retain/consolidation. Applies to OpenAI-compatible backends (OpenAI, llama.cpp, vLLM) and LiteLLM; Gemini already enforces its native `response_schema` regardless, and providers without a strict mode ignore it. | `false` |
@@ -202,6 +206,8 @@ export HINDSIGHT_API_LLM_MODEL=gpt-4o
 export HINDSIGHT_API_LLM_PROVIDER=gemini
 export HINDSIGHT_API_LLM_API_KEY=xxxxxxxxxxxx
 export HINDSIGHT_API_LLM_MODEL=gemini-2.0-flash
+# Optional: Use Gemini Flex for 50% cost savings (best-effort inference)
+# export HINDSIGHT_API_LLM_GEMINI_SERVICE_TIER=flex
 
 # Anthropic
 export HINDSIGHT_API_LLM_PROVIDER=anthropic
@@ -288,12 +294,21 @@ export HINDSIGHT_API_LLM_API_KEY=your-opencode-go-api-key
 export HINDSIGHT_API_LLM_MODEL=deepseek-v4-flash
 # Default base_url: https://opencode.ai/zen/go/v1 (override with HINDSIGHT_API_LLM_BASE_URL if needed)
 
+# Nous Portal (OpenAI-compatible; no API key — uses your `hermes portal` login)
+export HINDSIGHT_API_LLM_PROVIDER=nous
+export HINDSIGHT_API_LLM_MODEL=deepseek/deepseek-v4-flash
+# No API key needed — reads a rotating JWT from ~/.hermes/auth.json (run `hermes portal` first).
+# Default base_url: https://inference-api.nousresearch.com/v1 (override with HINDSIGHT_API_LLM_BASE_URL if needed)
+# See the "Nous Portal Setup" section in the Models guide for the login flow.
+
 # AWS Bedrock (native support - no API key needed, uses AWS credentials)
 export HINDSIGHT_API_LLM_PROVIDER=bedrock
 export HINDSIGHT_API_LLM_MODEL=us.amazon.nova-2-lite-v1:0
 export AWS_ACCESS_KEY_ID=your-access-key
 export AWS_SECRET_ACCESS_KEY=your-secret-key
 export AWS_REGION_NAME=us-east-1
+# Optional: Use Flex tier for 50% cost savings (with variable latency)
+# export HINDSIGHT_API_LLM_BEDROCK_SERVICE_TIER=flex
 
 # LiteLLM (100+ providers via LiteLLM SDK)
 # Azure OpenAI via LiteLLM
@@ -339,6 +354,48 @@ export HINDSIGHT_API_LLM_LITELLMROUTER_CONFIG='{
 ```
 
 The config is a credential field — never returned by the bank-config API. Hindsight already retries calls; set `"num_retries": 0` in the Router config to avoid double-retries. Batch APIs aren't supported in router mode.
+
+### Multi-LLM Strategies (failover / round-robin)
+
+Configure additional LLMs **by index** alongside the primary, then choose a strategy for routing across them. This is a provider-agnostic alternative to the LiteLLM Router: the indexed LLMs can be any mix of providers, each fully configured.
+
+The unindexed `HINDSIGHT_API_LLM_*` config is the **primary** (member 1). Extra members are numbered from 1:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `HINDSIGHT_API_LLM_<n>_PROVIDER` | Provider for extra member `n` (`n` = 1, 2, ...). Presence of this var defines the member; indices must be contiguous from 1. | - |
+| `HINDSIGHT_API_LLM_<n>_API_KEY` | API key for member `n` (required unless the provider needs none). | - |
+| `HINDSIGHT_API_LLM_<n>_MODEL` | Model for member `n`. | Provider default |
+| `HINDSIGHT_API_LLM_<n>_BASE_URL` | Base URL for member `n`. | Provider default |
+| `HINDSIGHT_API_LLM_<n>_REASONING_EFFORT` | Reasoning effort for member `n`. | `HINDSIGHT_API_LLM_REASONING_EFFORT` |
+| `HINDSIGHT_API_LLM_<n>_EXTRA_BODY` / `_DEFAULT_HEADERS` | Per-member JSON overrides. | - |
+| `HINDSIGHT_API_LLM_<n>_BEDROCK_SERVICE_TIER` / `_GEMINI_SERVICE_TIER` | Per-member service tier. | - |
+| `HINDSIGHT_API_LLM_<n>_VERTEXAI_PROJECT_ID` / `_VERTEXAI_REGION` / `_VERTEXAI_SERVICE_ACCOUNT_KEY` | Per-member Vertex AI project, region, and service-account key path (for a `vertexai` member). Each falls back to the global `HINDSIGHT_API_LLM_VERTEXAI_*` when unset. | Global / `us-central1` / ADC |
+| `HINDSIGHT_API_LLM_<n>_LITELLMROUTER_CONFIG` | Per-member LiteLLM Router config JSON (for a `litellmrouter` member). Falls back to the global `HINDSIGHT_API_LLM_LITELLMROUTER_CONFIG` when unset. | - |
+| `HINDSIGHT_API_LLM_STRATEGY` | JSON routing strategy across the chain. Unset = single primary LLM (no change). | - |
+
+The strategy JSON supports two modes:
+
+- `{"mode": "failover"}` — try members in order (primary first); on a member's failure (after its own retries) advance to the next.
+- `{"mode": "round-robin"}` — rotate the starting member per request to spread load, then fall through the rest on failure. Add `"weights": [3, 1, ...]` (positive ints, one per member, primary first) for an **unbalanced** rotation.
+
+```bash
+# Primary OpenAI, failover to Groq then Anthropic
+export HINDSIGHT_API_LLM_PROVIDER=openai
+export HINDSIGHT_API_LLM_API_KEY=sk-...
+export HINDSIGHT_API_LLM_1_PROVIDER=groq
+export HINDSIGHT_API_LLM_1_API_KEY=gsk-...
+export HINDSIGHT_API_LLM_2_PROVIDER=anthropic
+export HINDSIGHT_API_LLM_2_API_KEY=sk-ant-...
+export HINDSIGHT_API_LLM_STRATEGY='{"mode": "failover"}'
+
+# Weighted round-robin: serve the primary 3x as often as member 1
+export HINDSIGHT_API_LLM_STRATEGY='{"mode": "round-robin", "weights": [3, 1]}'
+```
+
+**Per-operation chains.** Each operation can define its own members + strategy with the `RETAIN` / `REFLECT` / `CONSOLIDATION` prefix (e.g. `HINDSIGHT_API_RETAIN_LLM_1_PROVIDER`, `HINDSIGHT_API_RETAIN_LLM_STRATEGY`). A per-operation slot with no indexed members (or no strategy) inherits the global chain.
+
+The indexed members are credential fields — never returned by the bank-config API and server-level only (not per-bank configurable). **Batch retain** runs on the primary member only; failover/round-robin apply to the interactive retain/reflect/consolidation calls.
 
 ### Built-in llama.cpp
 
@@ -771,6 +828,7 @@ ZeroEntropy's `zembed-1` supports Matryoshka dimensions: `2560`, `1280`, `640`, 
 | `HINDSIGHT_API_RERANKER_OPENROUTER_API_KEY` | OpenRouter API key for reranking (falls back to `HINDSIGHT_API_OPENROUTER_API_KEY`, then `HINDSIGHT_API_LLM_API_KEY`) | - |
 | `HINDSIGHT_API_RERANKER_OPENROUTER_MODEL` | OpenRouter rerank model | `cohere/rerank-v3.5` |
 | `HINDSIGHT_API_RERANKER_OPENROUTER_TIMEOUT` | HTTP request timeout for OpenRouter reranker (seconds). | `60.0` |
+| `HINDSIGHT_API_RERANKER_OPENROUTER_BASE_URL` | Rerank endpoint URL (point at a Cohere-compatible gateway/proxy for metering) | `https://openrouter.ai/api/v1/rerank` |
 | `HINDSIGHT_API_RERANKER_COHERE_API_KEY` | Cohere API key for reranking (falls back to `HINDSIGHT_API_COHERE_API_KEY`) | - |
 | `HINDSIGHT_API_RERANKER_COHERE_MODEL` | Cohere rerank model | `rerank-english-v3.0` |
 | `HINDSIGHT_API_RERANKER_COHERE_BASE_URL` | Custom base URL for any Cohere-compatible `/rerank` endpoint (Azure AI Foundry, Jina, Voyage, self-hosted BGE, etc.). When set, the `cohere` provider bypasses the Cohere SDK and calls the endpoint directly via HTTP. | - |
@@ -927,6 +985,13 @@ curl -H "Authorization: Bearer your-secret-api-key" \
 
 Requests without a valid API key receive a `401 Unauthorized` response.
 
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `HINDSIGHT_API_TENANT_EXTENSION` | Dotted path to the loaded tenant extension. Set to `hindsight_api.extensions.builtin.tenant:ApiKeyTenantExtension` to require an API key on every request. | *(none; auth disabled)* |
+| `HINDSIGHT_API_TENANT_API_KEY` | Shared API key checked by the built-in API-key extension. Sent by clients as `Authorization: Bearer <key>`. | *(none)* |
+
+If you are enabling Memory Defense, see `docs/developer/memory-defense/` for the policy schema, detector catalog, and audit trail.
+
 :::tip Custom Authentication
 For advanced authentication (JWT, OAuth, multi-tenant schemas), implement a custom `TenantExtension`. See the [Extensions documentation](./extensions.md) for details.
 :::
@@ -961,6 +1026,9 @@ For advanced authentication (JWT, OAuth, multi-tenant schemas), implement a cust
 | `HINDSIGHT_API_BM25_MIN_SCORE` | Minimum BM25 score a row must exceed to enter fusion. Gates out zero-score, non-matching rows on backends (notably `vchord`) whose operator ranks every document instead of pre-filtering to query-term matches. `0` keeps only genuine term matches; raise it to require stronger matches. | `0` |
 | `HINDSIGHT_API_RECALL_MAX_CANDIDATES_PER_SOURCE` | Cap on candidates each retrieval source (semantic, BM25, graph, temporal) contributes to RRF, applied before the global reranker cap. Prevents one over-expanding backend from filling the reranker budget on its own. `0` disables the cap. | `0` |
 | `HINDSIGHT_API_RECALL_STRATEGY_BOOSTS` | Prioritise one or more retrieval sources over the others on recall, as a comma-separated `strategy:level` list (e.g. `graph:high` to strongly favour graph hits, or `graph:high,bm25:low`). Strategies: `semantic`, `bm25`, `graph`, `temporal`. Levels: `low` (gentle — mainly protects the source's candidates from being dropped before reranking), `medium` (moderate preference), `high` (strong — the source dominates the candidate pool and outranks most other matches, only a strong direct match still wins). The boost is applied in two places: before the reranker cap (so favoured candidates survive the `HINDSIGHT_API_RERANKER_MAX_CANDIDATES` budget) and after reranking (to nudge them up the final order); a named level is used because those two stages live on different score scales. Only the strategies you list are boosted — any you omit keep their normal weight (no implicit boost). A strategy written without a level (`graph` or `graph:`) defaults to `medium`. Empty disables the feature. | _(empty)_ |
+| `HINDSIGHT_API_RECENCY_DECAY_FUNCTION` | Shape of the recency boost applied during reranking — how a memory's age is turned into a small freshness adjustment to its final rank. `linear` (default) decays in a straight line from full freshness (today) to a floor reached at `HINDSIGHT_API_RECENCY_DECAY_LINEAR_WINDOW_DAYS`. `exponential` decays by half-life: a memory is treated as neutral (no boost or penalty) at `HINDSIGHT_API_RECENCY_DECAY_HALFLIFE_DAYS`, younger memories are boosted and older ones penalised, with a smooth fade rather than a hard cutoff. `none` disables recency entirely (age never affects ranking). | `linear` |
+| `HINDSIGHT_API_RECENCY_DECAY_LINEAR_WINDOW_DAYS` | For the `linear` decay function: the number of days over which a memory fades from full freshness to the minimum. Only used when `HINDSIGHT_API_RECENCY_DECAY_FUNCTION=linear`. | `365` |
+| `HINDSIGHT_API_RECENCY_DECAY_HALFLIFE_DAYS` | For the `exponential` decay function: the age (in days) at which a memory is considered neutral — younger memories get a recency boost, older ones a penalty. Smaller values favour very recent memories more aggressively. Only used when `HINDSIGHT_API_RECENCY_DECAY_FUNCTION=exponential`. | `90` |
 | `HINDSIGHT_API_MENTAL_MODEL_REFRESH_CONCURRENCY` | Max concurrent mental model refreshes | `8` |
 | `HINDSIGHT_API_ENABLE_MENTAL_MODEL_HISTORY` | Track history of content changes to each mental model (previous content + timestamp), stored one row per change in the `mental_model_history` table. Set to `false` to disable entirely — no history rows are written, reducing storage if audit trails are not needed. **This is how you turn the feature off** (not a zero cap). | `true` |
 | `HINDSIGHT_API_MENTAL_MODEL_HISTORY_MAX_ENTRIES` | Max history rows kept per mental model. On each refresh the previous version is inserted into the `mental_model_history` table and the oldest rows beyond this cap are deleted, so per-model history can't grow without bound. `0` or a negative value **removes the cap** (history then grows with every refresh — unbounded); to turn history off entirely set `HINDSIGHT_API_ENABLE_MENTAL_MODEL_HISTORY=false` instead. | `50` |
@@ -998,6 +1066,7 @@ Controls the retain (memory ingestion) pipeline.
 |----------|-------------|---------|
 | `HINDSIGHT_API_RETAIN_MAX_COMPLETION_TOKENS` | Max completion tokens for fact extraction LLM calls | `64000` |
 | `HINDSIGHT_API_RETAIN_CHUNK_SIZE` | Max characters per chunk for fact extraction. Larger chunks extract fewer LLM calls but may lose context. | `3000` |
+| `HINDSIGHT_API_RETAIN_STRUCTURED_CHUNK_SIZE` | Max characters for a single JSONL line or conversation turn to keep whole. Unset uses `HINDSIGHT_API_RETAIN_CHUNK_SIZE`. Must be a positive integer when set. | - |
 | `HINDSIGHT_API_RETAIN_EXTRACTION_MODE` | Fact extraction mode: `concise`, `verbose`, `verbatim`, `chunks`, or `custom` | `concise` |
 | `HINDSIGHT_API_RETAIN_MISSION` | What this bank should pay attention to during extraction. Steers the LLM without replacing the extraction rules — works alongside any extraction mode. | - |
 | `HINDSIGHT_API_RETAIN_CUSTOM_INSTRUCTIONS` | Full prompt override for fact extraction (only used when mode is `custom`). Replaces built-in extraction rules entirely. | - |
@@ -1012,7 +1081,9 @@ Controls the retain (memory ingestion) pipeline.
 | `HINDSIGHT_API_RETAIN_BATCH_POLL_INTERVAL_SECONDS` | Batch API polling interval in seconds | `60` |
 | `HINDSIGHT_API_STORE_DOCUMENT_TEXT` | Persist the raw source text alongside extracted memories. Set to `false` to skip storing it. Static, server-level. | `true` |
 
-> **Batch-capable providers.** `HINDSIGHT_API_RETAIN_BATCH_ENABLED=true` only works with a retain LLM provider that implements a batch API: `openai`, `groq`, and `fireworks`. Batch always requires async retain (`async=true`); a sync retain with batch enabled errors. Other providers fail fast at startup.
+> **Batch-capable providers.** `HINDSIGHT_API_RETAIN_BATCH_ENABLED=true` only works with a retain LLM provider that implements a batch API: `openai`, `groq`, `gemini`, and `fireworks`. Batch always requires async retain (`async=true`); a sync retain with batch enabled errors. Other providers fail fast at startup.
+>
+> **Gemini** uses the [Gemini Batch API](https://ai.google.dev/gemini-api/docs/batch-api) (flat 50% input + output discount, 24h SLA — typically minutes). It needs no extra settings beyond `HINDSIGHT_API_RETAIN_BATCH_ENABLED=true` and an API-key `gemini` provider; Vertex AI (`vertexai`) is not batch-capable.
 
 #### Fireworks batch inference
 
@@ -1096,7 +1167,7 @@ export HINDSIGHT_API_RETAIN_EXTRACTION_MODE=verbatim
 
 Named strategies let you ingest different content types into the same bank using different extraction settings. A strategy is a set of hierarchical field overrides applied on top of the resolved bank config.
 
-Any field in the hierarchical config can be overridden per strategy, including `retain_extraction_mode`, `retain_chunk_size`, `entity_labels`, `entities_allow_free_form`, `retain_mission`, etc.
+Any field in the hierarchical config can be overridden per strategy, including `retain_extraction_mode`, `retain_chunk_size`, `retain_structured_chunk_size`, `entity_labels`, `entities_allow_free_form`, `retain_mission`, etc.
 
 Configure strategies via the bank config API:
 
@@ -1106,7 +1177,8 @@ Configure strategies via the bank config API:
   "retain_strategies": {
     "conversations": {
       "retain_extraction_mode": "concise",
-      "retain_chunk_size": 3000
+      "retain_chunk_size": 3000,
+      "retain_structured_chunk_size": 12000
     },
     "documents": {
       "retain_extraction_mode": "chunks",
@@ -1199,9 +1271,30 @@ Clients that request a parser not in the allowlist receive HTTP 400.
 
 #### Parser: markitdown (default)
 
-Local file-to-markdown conversion using [Microsoft's markitdown](https://github.com/microsoft/markitdown). No external service required.
+Local file-to-markdown conversion using [Microsoft's markitdown](https://github.com/microsoft/markitdown). No external service is required by default.
 
-**Supported formats:** PDF, DOCX, DOC, PPTX, PPT, XLSX, XLS, images (JPG, PNG — OCR), audio (MP3, WAV — transcription), HTML, TXT, MD, CSV.
+**Supported formats:** PDF, DOCX, DOC, PPTX, PPT, XLSX, XLS, images (JPG, PNG — requires optional OCR for text extraction), audio (MP3, WAV — transcription), HTML, TXT, MD, CSV.
+
+For image workloads, MarkItDown can optionally use an OpenAI-compatible OCR/vision endpoint. This is disabled by default. Without it, image uploads fail with an actionable configuration error instead of low-level parser output. When enabled, configure the MarkItDown OCR API key, base URL, and model explicitly; they do not inherit from `HINDSIGHT_API_LLM_*` because MarkItDown uses the OpenAI SDK directly. The selected endpoint must implement OpenAI Chat Completions and the selected model must support image input.
+
+This OCR path uses MarkItDown's image converter hook. It applies to image inputs such as JPG and PNG (and image handling inside converters that consume MarkItDown's `llm_client`), but it does not rasterize scanned PDF pages into images. Scanned PDFs with no text layer may still extract poorly through the default PDF converter. For scanned PDFs or complex document layouts, use an OCR-capable document parser such as `iris` or `llama_parse`, or configure a parser fallback chain like `llama_parse,markitdown`.
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `HINDSIGHT_API_FILE_PARSER_MARKITDOWN_OCR_ENABLED` | Enable MarkItDown image OCR through an OpenAI-compatible OCR/vision endpoint | `false` |
+| `HINDSIGHT_API_FILE_PARSER_MARKITDOWN_OCR_API_KEY` | API key for MarkItDown OCR; required when OCR is enabled | — |
+| `HINDSIGHT_API_FILE_PARSER_MARKITDOWN_OCR_BASE_URL` | OpenAI-compatible Chat Completions base URL for MarkItDown OCR; required when OCR is enabled | — |
+| `HINDSIGHT_API_FILE_PARSER_MARKITDOWN_OCR_MODEL` | OCR/vision model with image-input support; required when OCR is enabled | — |
+| `HINDSIGHT_API_FILE_PARSER_MARKITDOWN_OCR_PROMPT` | OCR prompt passed to MarkItDown's image converter | Built-in OCR prompt |
+
+```bash
+# Configure a dedicated OpenAI-compatible OCR/vision endpoint for MarkItDown OCR
+export HINDSIGHT_API_FILE_PARSER=markitdown
+export HINDSIGHT_API_FILE_PARSER_MARKITDOWN_OCR_ENABLED=true
+export HINDSIGHT_API_FILE_PARSER_MARKITDOWN_OCR_API_KEY=your-vision-api-key
+export HINDSIGHT_API_FILE_PARSER_MARKITDOWN_OCR_BASE_URL=https://vision.example/v1
+export HINDSIGHT_API_FILE_PARSER_MARKITDOWN_OCR_MODEL=ocr-or-vision-model
+```
 
 #### Parser: iris
 
@@ -1350,13 +1443,14 @@ For production deployments, use `s3`, `gcs`, or `azure` to avoid storing large b
 
 ### Observations (Experimental) {#observations}
 
-Observations are deduplicated, evidence-grounded knowledge consolidated from multiple facts. Each observation tracks its supporting memories, a proof count, and a computed freshness trend, and is refined — not overwritten — when new evidence arrives.
+Observations are deduplicated, evidence-grounded knowledge consolidated from multiple facts. Each observation tracks its supporting memories and a proof count, and is refined — not overwritten — when new evidence arrives.
 
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `HINDSIGHT_API_ENABLE_OBSERVATIONS` | Enable observation consolidation | `true` |
 | `HINDSIGHT_API_ENABLE_AUTO_CONSOLIDATION` | Automatically trigger consolidation after retain, delete, and update operations. When `false`, consolidation only runs when explicitly triggered via the [consolidate endpoint](api/operations.md#consolidation). Configurable per bank. | `true` |
 | `HINDSIGHT_API_CONSOLIDATION_RECONCILE_INTERVAL_SECONDS` | Interval for the background sweep that re-schedules consolidation for banks with unconsolidated facts but no consolidation in progress — recovering facts left unscheduled when a consolidation operation failed terminally (e.g. the LLM provider was unavailable). Only applies to banks with auto-consolidation enabled. `0` disables the sweep. | `300` |
+| `HINDSIGHT_API_MENTAL_MODEL_REFRESH_TICK_SECONDS` | How often the background loop checks for cron-scheduled mental models that are due for a refresh. This is only the *check* cadence; the actual schedule is the per-model `trigger.refresh_cron` expression set on the mental model. A due model is refreshed only when it is stale (new memories in its scope since the last refresh). `0` disables the sweep. | `60` |
 | `HINDSIGHT_API_ENABLE_OBSERVATION_HISTORY` | Track history of changes to each observation (previous text/tags/dates + timestamp), stored one row per change in the `observation_history` table. Set to `false` to disable entirely — no history rows are written. **This is how you turn the feature off** (not a zero cap). | `true` |
 | `HINDSIGHT_API_OBSERVATION_HISTORY_MAX_ENTRIES` | Max history rows kept per observation. On each update the previous version is inserted into the `observation_history` table and the oldest rows beyond this cap are deleted, so an often-reinforced observation's history can't grow without bound. `0` or a negative value **removes the cap** (unbounded); to turn history off entirely set `HINDSIGHT_API_ENABLE_OBSERVATION_HISTORY=false` instead. | `50` |
 | `HINDSIGHT_API_CONSOLIDATION_MAX_ATTEMPTS` | Outer retry attempts for the consolidation LLM batch call. Each attempt uses the inner retry budget (`HINDSIGHT_API_CONSOLIDATION_LLM_MAX_RETRIES`). Worst-case API calls per batch = `MAX_ATTEMPTS × (LLM_MAX_RETRIES + 1)`. | `3` |
@@ -1372,6 +1466,7 @@ Observations are deduplicated, evidence-grounded knowledge consolidated from mul
 | `HINDSIGHT_API_CONSOLIDATION_SOURCE_FACTS_MAX_TOKENS_PER_OBSERVATION` | Per-observation token cap for source facts in the consolidation prompt. Each observation independently gets at most this many tokens of source facts. `-1` = unlimited. Configurable per bank. | `256` |
 | `HINDSIGHT_API_OBSERVATIONS_MISSION` | What this bank should synthesise into durable observations. Replaces the built-in consolidation rules — leave unset to use the server default. | - |
 | `HINDSIGHT_API_MAX_OBSERVATIONS_PER_SCOPE` | Maximum number of observations allowed per tag scope. When the limit is reached, consolidation will only update or delete existing observations — no new ones are created. Applies per tag scope (e.g., per-tag when using `per_tag` observation scopes). Observations with no tags are not subject to this limit. `-1` = unlimited. Configurable per bank. | `-1` |
+| `HINDSIGHT_API_OBSERVATION_SCOPE_LIMITS` | Per-scope overrides of `MAX_OBSERVATIONS_PER_SCOPE`, as a JSON array of `{"scope": [tag-globs], "limit": int}` rules. Each `scope` is a list of [fnmatch](https://docs.python.org/3/library/fnmatch.html) globs; a consolidation scope matches under *exact cover* — every tag must be matched by a glob and every glob must match a tag, so `["shared"]` matches the scope `{shared}` but not `{run_1, shared}`. The first matching rule wins; scopes that match no rule fall back to `MAX_OBSERVATIONS_PER_SCOPE`. Example: `[{"scope": ["shared"], "limit": -1}, {"scope": ["run_*", "shared"], "limit": 50}]` keeps the `{shared}` scope unlimited while capping each `{run_*, shared}` scope at 50. Configurable per bank. | - |
 
 #### Customizing observations: when to use what
 
@@ -1581,7 +1676,7 @@ For a server handling many concurrent requests, lower values (down to `1`) favor
 
 ### Audit Logging
 
-Audit logging captures mutating operations (retain, recall, reflect, bank config updates, etc.) into an `audit_log` table, queryable via the `/audit-logs` endpoint.
+Audit logging captures mutating operations (retain, recall, reflect, bank config updates, [Memory Defense](memory-defense/index.md) redact/block actions, etc.) into an `audit_log` table, queryable via the `/audit-logs` endpoint.
 
 **Audit logging is disabled by default.** With `HINDSIGHT_API_AUDIT_LOG_ENABLED=false`, the `audit_log` table stays empty and `/audit-logs` returns `{"total": 0, "items": []}` regardless of activity. Set the flag to `true` and restart the API to start capturing events.
 
@@ -1633,6 +1728,7 @@ Hindsight provides OpenTelemetry-based observability for LLM calls, conforming t
 | `HINDSIGHT_API_OTEL_SERVICE_NAME` | Service name for traces | `hindsight-api` |
 | `HINDSIGHT_API_OTEL_DEPLOYMENT_ENVIRONMENT` | Deployment environment name (e.g., development, staging, production) | `development` |
 | `HINDSIGHT_API_METRICS_INCLUDE_BANK_ID` | Include `bank_id` in OTel metric attributes. Enable only for deployments with few banks — high cardinality causes unbounded memory growth. | `false` |
+| `HINDSIGHT_API_METRICS_BACKLOG_ENABLED` | Expose async-operation queue depth and consolidation-backlog gauges (`hindsight_async_operations`, `hindsight_consolidation_backlog`, `hindsight_consolidation_failed`). Runs periodic per-schema `COUNT` queries on a background task. | `false` |
 
 **Features:**
 - Full prompts and completions recorded as events
@@ -1697,6 +1793,7 @@ The Control Plane is the web UI for managing memory banks.
 | `HINDSIGHT_CP_DATAPLANE_API_URL` | URL of the API service | `http://localhost:8888` |
 | `HINDSIGHT_CP_DATAPLANE_API_KEY` | Bearer token the Control Plane sends as `Authorization: Bearer <key>` on every request to the API service. Required when the API service is auth-protected; omit for a public API. | *(none — no `Authorization` header sent)* |
 | `HINDSIGHT_CP_ACCESS_KEY` | Access key to protect the Control Plane UI. When set, users must enter this key to log in. | *(none — auth disabled)* |
+| `HINDSIGHT_CP_MAX_UPLOAD_SIZE` | Maximum size of a single file-upload request the Control Plane accepts before truncating it. Accepts a size string (`100mb`, `1gb`) or a number of bytes. Raise this to upload files larger than the default, and keep it in line with the API's `HINDSIGHT_API_FILE_CONVERSION_MAX_BATCH_SIZE_MB`. | `100mb` |
 | `NEXT_PUBLIC_BASE_PATH` | Base path for Control Plane UI when behind reverse proxy (e.g., `/hindsight`) | `""` (root) |
 
 ```bash
@@ -1755,7 +1852,7 @@ This design prevents bugs where global defaults are used instead of bank overrid
 Configuration fields are categorized for security:
 
 1. **Configurable Fields** - Safe behavioral settings that can be customized per-bank:
-   - Retention: `retain_chunk_size`, `retain_extraction_mode`, `retain_mission`, `retain_custom_instructions`
+   - Retention: `retain_chunk_size`, `retain_structured_chunk_size`, `retain_extraction_mode`, `retain_mission`, `retain_custom_instructions`
    - Observations: `enable_observations`, `enable_auto_consolidation`, `observations_mission`, `max_observations_per_scope`
    - MCP access control: `mcp_enabled_tools`
 
@@ -1773,6 +1870,8 @@ Configuration fields are categorized for security:
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `HINDSIGHT_API_ENABLE_BANK_CONFIG_API` | Enable per-bank config API | `true` |
+| `HINDSIGHT_API_ENABLE_BANK_LLM_HEALTH` | Enable the per-bank LLM connectivity probe (`POST /v1/default/banks/{bank_id}/health/llm`). It makes a real provider call, so it is **off by default** — enable it to expose the endpoint. Returns status only — never the provider/model/endpoint. | `false` |
+| `HINDSIGHT_API_ENABLE_DRY_RUN_EXTRACT` | Enable the dry-run extraction preview endpoint (`POST /v1/default/banks/{bank_id}/memories/dry-run-extract`). Runs extraction only — makes a real LLM call but stores nothing. Set to `false` to remove the endpoint (returns `404`). | `true` |
 | `HINDSIGHT_API_DEFAULT_BANK_TEMPLATE` | Bank template manifest (JSON) applied automatically to every newly-created bank. See below. | _(unset)_ |
 
 ##### `HINDSIGHT_API_DEFAULT_BANK_TEMPLATE`

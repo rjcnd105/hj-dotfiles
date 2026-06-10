@@ -2,7 +2,7 @@
 
 # Observations: Knowledge Consolidation
 
-After memories are retained, Hindsight automatically consolidates related facts into **observations** — deduplicated, evidence-grounded beliefs the bank has built up from multiple memories. Each observation tracks its supporting evidence (with exact quotes), a proof count, and a computed freshness trend, and is refined rather than overwritten when new evidence arrives.
+After memories are retained, Hindsight automatically consolidates related facts into **observations** — deduplicated, evidence-grounded beliefs the bank has built up from multiple memories. Each observation tracks its supporting evidence (with exact quotes) and a proof count, and is refined rather than overwritten when new evidence arrives.
 
 ```mermaid
 graph LR
@@ -30,7 +30,7 @@ Observations provide:
 - **Deduplication**: One durable belief instead of many overlapping facts
 - **Grounding**: Every observation references the specific memories (with quotes) that support it
 - **Evolution**: Refined as evidence strengthens, weakens, or contradicts it — history is preserved
-- **Freshness signal**: A computed trend (stable / strengthening / weakening / new / stale) tells you whether the belief still holds
+- **Freshness awareness**: when newer memories haven't been consolidated yet, `reflect` treats the affected observations as stale and verifies them against raw facts
 - **Efficiency**: Condensed knowledge for faster retrieval
 
 ---
@@ -53,6 +53,8 @@ Consolidation can still produce two observations that say the same thing in slig
 When enabled, Hindsight reconciles them automatically. Whenever an observation is created **or** updated, it is compared against the existing observations it most closely resembles. If one is highly similar, a focused check decides whether to **merge** them into a single belief (folding both sets of supporting evidence together) or **keep** them separate. Because the check reads the full text of both, observations that differ in a meaningful detail — a number, a negation, a named entity or language — are correctly kept apart rather than collapsed.
 
 This is controlled by the [`HINDSIGHT_API_CONSOLIDATION_DEDUP_THRESHOLD`](configuration.md#observations) setting: the cosine similarity at or above which two observations are reconciled. It is **enabled by default** (`0.97`); a lower value reconciles more aggressively, and `1.0` disables it. Reconciliation runs on PostgreSQL deployments only — it is skipped on Oracle regardless of the threshold.
+
+Reconciliation only compares observations **within the same tag scope**. If you tag retains with a unique per-call value (e.g. a `session-id`), each session lands in its own scope and never dedups against the others — producing one near-identical observation per session. To consolidate across those volatile tags, retain with [`observation_scopes: "shared"`](api/retain.md#shared), which scopes observations to one global, untagged belief while leaving the session tag on the source facts for recall filtering.
 
 ### Disabling Auto-Consolidation
 
@@ -182,6 +184,8 @@ This ensures responses stay accurate even as the underlying data changes.
 By default, observations are scoped to all of a memory's tags combined. The `observation_scopes` retain parameter lets you control this — building separate observations per tag, per combination, or with a custom list of scopes. This is key when a single memory carries multiple tags and you want each tag to accumulate its own observations independently.
 
 See [`observation_scopes` in the Retain API](./api/retain#observation_scopes) for the full explanation and options.
+
+To inspect the scopes that already exist in a bank, call `GET /v1/default/banks/{bank_id}/observations/scopes`. The response lists each exact tag set with its observation count; the empty tag list is the global scope. Use a returned scope as `tags` with `tags_match: "exact"` when you need to filter to that precise observation scope without also matching observations that carry extra tags. To recall **only** the global scope — the untagged observations written by `observation_scopes: "shared"` — pass an empty list with exact matching: `tags: []`, `tags_match: "exact"`.
 
 ---
 

@@ -7,7 +7,8 @@ When you **recall**, Hindsight runs four retrieval strategies in parallel — se
 
 {/* Import raw source files */}
 
-:::info How Recall Works
+> **ℹ️ How Recall Works**
+> 
 Learn about the four retrieval strategies (semantic, keyword, graph, temporal) and RRF fusion in the [Recall Architecture](../retrieval.md) guide.
 > **💡 Prerequisites**
 > 
@@ -151,7 +152,13 @@ hindsight memory recall my-bank "query" --fact-type world,observation
 
 > **💡 About Observations**
 > 
-Observations are deduplicated, evidence-grounded beliefs consolidated from multiple facts — preferences, recurring patterns, and durable learnings the memory bank has built up. Each observation references its supporting memories (with exact quotes) and carries a computed freshness trend, and is refined rather than overwritten when new evidence arrives. They are created and maintained automatically in the background after retain operations.
+Observations are deduplicated, evidence-grounded beliefs consolidated from multiple facts — preferences, recurring patterns, and durable learnings the memory bank has built up. Each observation references its supporting memories (with exact quotes), and is refined rather than overwritten when new evidence arrives. They are created and maintained automatically in the background after retain operations.
+### prefer_observations
+
+Because observations are consolidated from raw facts, recalling `observation` alongside `world` and `experience` can return the same information twice — once as the raw fact and once folded into an observation. With `prefer_observations` you get the best of both: you still recall every type, but whenever an observation in the results was built from a raw fact, that raw fact is dropped so the observation supersedes it. The freed slots are backfilled with the next-best results, so you don't lose coverage.
+
+This lets you ask for everything without choosing between "raw facts only" (no consolidation) and "observations only" (which may lag behind the latest retains while consolidation catches up). **Disabled by default** — set it to `true` to opt in. It has no effect unless both `observation` and at least one of `world`/`experience` are included in `types`.
+
 ### budget
 
 Controls retrieval depth and breadth. Accepted values are `low`, `mid` (default), and `high`. Use `low` for fast simple lookups, `mid` for balanced everyday queries, and `high` when you need to find indirect connections or exhaustive coverage.
@@ -244,7 +251,8 @@ An optional object controlling supplementary data returned alongside the main fa
 
 When enabled, the response includes the raw source text chunks from which each fact was extracted. Chunks are fetched before the `max_tokens` filter, so setting `max_tokens=0` returns no facts but can still return chunks. The `max_tokens` sub-option (default `8192`) controls the total chunk token budget independently of the main fact budget. This is useful when agents need surrounding context beyond the extracted fact text.
 
-:::note
+> **📝 Note**
+> 
 When `include_chunks` is enabled, chunks are fetched based on the top-scored reranked results before token filtering. The last chunk is truncated (not dropped) to fit exactly within the budget, and each chunk carries a `truncated` flag indicating whether it was cut.
 #### source_facts
 
@@ -324,6 +332,7 @@ The `tags_match` parameter controls the filtering logic:
 | `any_strict` | Excluded | Memory has **at least one** of the specified tags |
 | `all` | Included | Memory has **all** of the specified tags |
 | `all_strict` | Excluded | Memory has **all** of the specified tags |
+| `exact` | Excluded | Memory has **exactly** the specified tag set |
 
 #### Scenario setup
 
@@ -515,6 +524,21 @@ Use this for strict scope enforcement where a memory must explicitly belong to *
 > **💡 Extra tags are fine**
 > 
 A memory with tags `["user:alice", "team", "project:x"]` will still match a filter of `["user:alice", "team"]` under `all_strict` — extra tags on the memory are not a problem. The filter only requires the memory to contain **at least** the specified tags.
+#### `exact` — set equality, excludes untagged
+
+Returns memories whose tag set is exactly equal to the specified tags, regardless of tag order. Unlike `all_strict`, memories with extra tags do not match.
+
+Use this when filtering a precise observation scope returned by `GET /v1/default/banks/{bank_id}/observations/scopes`, where `["user:alice"]` should not also match observations scoped to `["user:alice", "project:x"]`.
+
+> **💡 Filter to global (untagged) observations only**
+> 
+The empty scope is a real scope — it's where `observation_scopes: "shared"` consolidation writes. Set `tags_match: "exact"` with **no tags** (omit `tags`, or pass `[]`) to recall **only** untagged/global memories and exclude every tagged one:
+
+```json
+{ "query": "...", "tags": [], "tags_match": "exact" }
+```
+
+With any other `tags_match` mode, absent or empty `tags` means "no tag filter" (all memories are eligible). Only under `exact` do absent/empty tags select "the global scope". This is the way to read back just the global observations after you've started using more specific scopes.
 ### tag_groups
 
 `tag_groups` is a list of compound boolean tag filters. The groups in the list are AND-ed together at the top level. Each group is a recursive boolean expression: a **leaf** node `{tags, match}`, or a **compound** node `{and: [...]}`, `{or: [...]}`, or `{not: ...}`.
@@ -527,7 +551,7 @@ A memory with tags `["user:alice", "team", "project:x"]` will still match a filt
 { "tags": ["step:5", "step:8"], "match": "any_strict" }
 ```
 
-`match` accepts the same values as `tags_match`: `any`, `all`, `any_strict`, `all_strict`. Defaults to `any_strict`.
+`match` accepts the same values as `tags_match`: `any`, `all`, `any_strict`, `all_strict`, `exact`. Defaults to `any_strict`.
 
 #### Compound nodes
 
@@ -579,6 +603,27 @@ A memory with tags `["user:alice", "team", "project:x"]` will still match a filt
 
 When set to `true`, the response includes a detailed debug trace covering the query embedding, entry points, per-strategy retrieval results, RRF fusion candidates, reranked results, temporal constraints detected, and per-phase timings. Has no effect on the retrieval logic itself. Useful for understanding why specific memories were or were not returned.
 
+### min_scores
+
+An optional object of per-stage score floors, each compared **inclusively** (`>=`) against the matching field of a result's [`scores`](#scores) and AND-ed together. Any field you leave unset imposes no floor; omitting `min_scores` entirely (the default) applies no score filtering at all. The four fields operate at **two different levels of the pipeline**:
+
+| field | level | effect |
+|---|---|---|
+| `semantic` | retrieval | minimum vector similarity, pushed into the SQL — prunes weak vector matches **before** fusion (overrides the global similarity minimum for this request) |
+| `keyword` | retrieval | minimum keyword/full-text (BM25) score, pushed into the SQL — prunes weak keyword matches before fusion |
+| `reranker` | post-query | minimum normalized cross-encoder score, applied to the ranked results |
+| `final` | post-query | minimum final ranking score, applied to the ranked results |
+
+```json
+{ "query": "...", "min_scores": { "reranker": 0.5 } }
+```
+
+The retrieval-level floors (`semantic`/`keyword`) change *which candidates are considered*, so they can also change the final ordering; the post-query floors (`reranker`/`final`) only drop already-ranked results. Because freed slots are **not** backfilled, any floor can return fewer results than the budget allows.
+
+**Use floors with care.** The reranker's scores are reliable for *ordering* but not as *absolute* values — a clearly-relevant memory can score `~0.001` on one query and `~1.0` on another, so a fixed cutoff risks silently dropping good results. Calibrate any threshold against the scores you actually observe (recall with no `min_scores` first and inspect the [`scores`](#scores) object).
+
+Each threshold is compared against the matching field in the response [`scores`](#scores) object. See the note under [`scores`](#scores) on why the scale is relative, not absolute, before relying on a fixed threshold.
+
 ---
 
 ## Response
@@ -587,7 +632,7 @@ When set to `true`, the response includes a detailed debug trace covering the qu
 
 The main list of recalled facts, ordered by relevance. Relevance is computed by running four retrieval strategies in parallel — semantic similarity, BM25 keyword, graph traversal, and temporal — fusing their rankings with Reciprocal Rank Fusion (RRF), then re-scoring the merged candidates with a cross-encoder reranker against the original query.
 
-Results do not include a numeric score. Raw retrieval scores are not meaningful on an absolute scale — a score of 0.8 from one query tells you nothing useful compared to a score of 0.8 from another. What matters is the relative ordering, which is already reflected in the list order. Agents should consume memories in order and let `max_tokens` determine how many fit, rather than filtering by score.
+Each result carries a [`scores`](#scores) object (see below). Treat these as **relative** signals: they reflect the ranking within a single query, not an absolute, cross-query confidence — a `0.8` from one query is not comparable to a `0.8` from another. For most agents the right approach is to consume memories in order and let `max_tokens` determine how many fit, rather than filtering by score. The `scores` object (and the [`min_scores`](#min_scores) parameter) exist for callers that want to inspect the ranking or drop a low-confidence tail; calibrate any threshold against the scores you see on an unfiltered query.
 
 Each item in `results` has the following fields:
 
@@ -638,6 +683,17 @@ The ID of the source text chunk this fact was extracted from. Used to cross-refe
 #### source_fact_ids
 
 For `observation`-type results only: the IDs of the original facts this observation was synthesized from. Cross-references with `source_facts` in the response. `null` for other types or when `include.source_facts` is not enabled.
+
+#### scores
+
+An object of the per-stage scores for this result. `null` for `source_facts` entries, which are attached by provenance rather than ranked. Fields:
+
+- **`final`** — the score this fact was ranked by (cross-encoder relevance × recency/temporal/evidence boosts). `results` is ordered by it descending. A relative signal, not a calibrated probability (see the note above).
+- **`reranker`** — the cross-encoder's normalized relevance (`0`–`1`). `null` when the deployment uses a passthrough reranker (RRF/interleave modes).
+- **`semantic`** — the raw vector cosine similarity (`0`–`1`). `null` if this result was not surfaced by semantic search.
+- **`keyword`** — the raw keyword/full-text (BM25) score (`≥ 0`, unbounded). `null` if this result was not surfaced by keyword search.
+
+Each field is also a valid [`min_scores`](#min_scores) floor.
 
 ---
 
