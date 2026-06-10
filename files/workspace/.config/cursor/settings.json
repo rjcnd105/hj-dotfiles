@@ -5,7 +5,8 @@
   "terminal.integrated.shellIntegration.suggestEnabled": true,
   "security.promptForLocalFileProtocolHandling": false,
   "cursor.chat.showSuggestedFiles": true,
-  "editor.formatOnSave": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
   "cursor.chat.smoothStreaming": true,
   "cursor.preferNotificationsSameAsChat": true,
   "cursor.cpp.enablePartialAccepts": true,
@@ -156,7 +157,7 @@
   },
   "eslint.lintTask.enable": true,
   "cursor.composer.shouldAllowCustomModes": true,
-  "update.releaseTrack": "prerelease",
+  "update.releaseTrack": "dev",
   "explorer.autoReveal": "focusNoScroll",
   "files.exclude": {
     "**/.git": false
@@ -244,6 +245,15 @@
   },
   "editor.experimental.preferTreeSitter.css": true,
   "tailwindCSS.emmetCompletions": true,
+  "tailwindCSS.experimental.classRegex": [
+    [
+      "cn\\(([^)]*)\\)",
+      "(?:'|\"|`)([^']*)(?:'|\"|`)"
+    ],
+    [
+      "className\\s*:\\s*['\"]([^'\"]*)['\"]"
+    ]
+  ],
   "cssPeek.supportTags": false,
   "evenBetterToml.taplo.bundled": true,
   "evenBetterToml.formatter.indentTables": true,
