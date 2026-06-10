@@ -1,15 +1,13 @@
 model = "gpt-5.5"
-model_reasoning_effort = "xhigh"
+model_reasoning_effort = "high"
 model_reasoning_summary = "detailed"
 personality = 'pragmatic'
 
 approvals_reviewer = "user"
 
-notify = [
-  "/Users/hj/.codex/plugins/cache/openai-bundled/computer-use/1.0.758/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient",
-  "turn-ended",
-]
 service_tier = "default"
+
+notify = ["/Users/hj/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
 
 [projects]
 [projects.'/Users/hj/work/gm/gentle-renewal']
@@ -48,6 +46,9 @@ trust_level = "trusted"
 [projects."/Users/hj/study/dg-quartz"]
 trust_level = "trusted"
 
+[projects."/Users/hj/work/gm/gentlemonster-admin-front"]
+trust_level = "trusted"
+
 [notice]
 hide_full_access_warning = true
 fast_default_opt_out = true
@@ -56,7 +57,7 @@ fast_default_opt_out = true
 "gpt-5.3-codex" = "gpt-5.4"
 
 [features]
-js_repl = true
+js_repl = false
 apps = true
 multi_agent = true
 memories = true
@@ -86,25 +87,31 @@ enabled = true
 [plugins."coding-tutor@compound-engineering-plugin"]
 enabled = false
 
-[plugins."browser-use@openai-bundled"]
-enabled = true
-
 [plugins."documents@openai-primary-runtime"]
 enabled = true
 
+[plugins."browser@openai-bundled"]
+enabled = true
+
+[plugins."spreadsheets@openai-primary-runtime"]
+enabled = true
+
+[plugins."presentations@openai-primary-runtime"]
+enabled = true
+
 [marketplaces.openai-bundled]
-last_updated = "2026-04-30T01:20:18Z"
+last_updated = "2026-06-09T01:12:23Z"
 source_type = "local"
 source = "/Users/hj/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [marketplaces.compound-engineering-plugin]
-last_updated = "2026-06-05T06:53:26Z"
-last_revision = "5ec8f7c160ffe64cb2def43ef46cf84cda1b8b24"
+last_updated = "2026-06-10T01:41:21Z"
+last_revision = "4719dc509fdc45656a830e3ed6060f674e206076"
 source_type = "git"
 source = "https://github.com/EveryInc/compound-engineering-plugin.git"
 
 [marketplaces.openai-primary-runtime]
-last_updated = "2026-04-28T07:59:17Z"
+last_updated = "2026-06-09T01:59:55Z"
 source_type = "local"
 source = "/Users/hj/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
@@ -128,6 +135,26 @@ url = "https://mcp.context7.com/mcp"
 # Start Codex from a mise-activated shell for authenticated Context7 MCP calls.
 [mcp_servers.context7.env_http_headers]
 CONTEXT7_API_KEY = "CONTEXT7_API_KEY"
+
+[mcp_servers.node_repl]
+args = []
+command = "/Applications/Codex.app/Contents/Resources/node_repl"
+startup_timeout_sec = 120
+
+[mcp_servers.node_repl.env]
+NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+NODE_REPL_NODE_MODULE_DIRS = ""
+NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/node"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/hj/.codex"
+CODEX_HOME = "/Users/hj/.codex"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "4946b004b23af02244ece97240aceb8d123475207fa6a6fc399486bd7086049f"
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
+NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
+BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
+BROWSER_USE_CODEX_APP_VERSION = "26.602.71036"
+SKY_CUA_SERVICE_PATH = "/Users/hj/.codex/plugins/cache/openai-bundled/computer-use/1.0.809/Codex Computer Use.app"
+CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
 
 [tui]
 status_line = [
@@ -166,3 +193,16 @@ trusted_hash = "sha256:f8e26717444448b6d6c9584f1509381ba10aa3b6969f6cdbfac7eb1a3
 
 [hooks.state."/Users/hj/study_ex/my-backend/deopjib/backend/.codex/hooks.json:pre_tool_use:0:0"]
 trusted_hash = "sha256:3aaabbb23f1450f30fc69a4ed303f1330540d84308173c73d78e151519304e96"
+
+[desktop]
+usePointerCursors = true
+followUpQueueMode = "queue"
+localeOverride = "ko-KR"
+default-service-tier = "fast"
+worktree-keep-count = 10
+
+[desktop.open-in-target-preferences]
+global = "cursor"
+
+[desktop.open-in-target-preferences.perPath]
+"/Users/hj/work/gm/gentle-renewal" = "cursor"

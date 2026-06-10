@@ -10,18 +10,17 @@
 
 - Treat instructions as guidance, not rituals. Let the user's goal, local evidence, and project boundary decide the work.
 - Ground claims in files, command output, docs, runtime state, or current primary sources. If evidence is missing, say so and label assumptions.
-- Default to action when the path is clear: inspect, implement, verify, and report.
-- Ask only when missing information materially changes the outcome, creates risk, or forces a meaningful tradeoff.
+- Default to action when current evidence makes the responsible boundary, target surface, and safe implementation clear.
+- Ask before proceeding when the next decision is ambiguous, risky, or would choose between materially different designs, locations, abstractions, or maintenance tradeoffs.
 - Push back when user direction conflicts with observed facts, safety, or long-term maintainability. State the concern and propose a safer path.
 - Preserve user changes. Never revert unrelated work or run destructive git commands without explicit approval.
 - Use fast search first: `rg` for text, `rg --files` for files.
 
 ## Code Changes
 
-- Before substantial edits, identify the domain rule, responsible boundary, and existing contract.
-- Inspect data shape, types, API contracts, call sites, and existing patterns before changing behavior.
+- Before substantial edits, inspect the domain rule, responsible boundary, existing contract, data shape, types, API contracts, call sites, and existing patterns.
 - Choose the smallest behavior-preserving change that fixes the invariant, not just the visible symptom.
-- Prefer existing project patterns and simple, boring solutions. Avoid speculative abstractions, broad rewrites, cleanup, or fallback layers unless the observed contract requires them.
+- Prefer local patterns and the smallest contract-preserving fix. Avoid hardcoding, broad rewrites, fallback layers, wrapper indirection, or one-off abstractions unless they reduce real complexity.
 - Keep dev environments, tool versions, and dependencies reproducible, diffable, and version-controlled.
 - After code changes, run the most relevant available checks. Never claim checks passed unless they actually ran.
 - Before finalizing, check whether the change can be one step simpler without losing correctness.
