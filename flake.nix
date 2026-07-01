@@ -161,6 +161,24 @@
           touch "$out"
         '';
 
+      homelabHindsightRuntimeInvariants =
+        system:
+        let
+          pkgs = pkgsFor system;
+        in
+        pkgs.runCommand "homelab-hindsight-runtime-invariants" { } ''
+          stack=${./systems/homelab/hindsight-stack.nix}
+
+          ${pkgs.gnugrep}/bin/grep -F 'hindsight = "ghcr.io/vectorize-io/hindsight:latest-slim@sha256:9873b311f77a3e25813cadd14ccb10d730583aeb9d2c6e2107350e00c7af12bf";' "$stack" >/dev/null
+          ${pkgs.gnugrep}/bin/grep -F 'Environment=HINDSIGHT_API_DB_STATEMENT_TIMEOUT=120' "$stack" >/dev/null
+          if ${pkgs.gnugrep}/bin/grep -F 'HINDSIGHT_API_LAZY_RERANKER' "$stack" >/dev/null; then
+            echo 'Hindsight v0.8 removed HINDSIGHT_API_LAZY_RERANKER; keep reranker init on the upstream eager path' >&2
+            exit 1
+          fi
+
+          touch "$out"
+        '';
+
       homelabThermalAlertSmoke =
         system:
         let
@@ -278,6 +296,7 @@
           baseChecks = eachSystem (system: {
             formatting = treefmtEval.${system}.config.build.check self;
             homelab-appctl-deploy-invariants = homelabAppctlDeployInvariants system;
+            homelab-hindsight-runtime-invariants = homelabHindsightRuntimeInvariants system;
             homelab-thermal-alert-smoke = homelabThermalAlertSmoke system;
           });
         in

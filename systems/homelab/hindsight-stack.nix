@@ -19,7 +19,9 @@ let
   legacyDbVolumePath = "/var/lib/docker/volumes/hindsight-db-data/_data";
 
   images = {
-    hindsight = "ghcr.io/vectorize-io/hindsight:0.6.1-slim";
+    # GHCR does not publish a semantic 0.8.4-slim tag; latest-slim's OCI
+    # index digest is pinned here and its image label is 0.8.4-slim.
+    hindsight = "ghcr.io/vectorize-io/hindsight:latest-slim@sha256:9873b311f77a3e25813cadd14ccb10d730583aeb9d2c6e2107350e00c7af12bf";
     db = "timescale/timescaledb-ha:pg18";
   };
 
@@ -184,6 +186,11 @@ in
 
       Environment=HINDSIGHT_API_DB_POOL_MIN_SIZE=2
       Environment=HINDSIGHT_API_DB_POOL_MAX_SIZE=20
+      # v0.8 applies this on every asyncpg pool connection. The role-level
+      # setting below is only a fallback; old app sessions already proved they
+      # can run past it and burn a core indefinitely.
+      Environment=HINDSIGHT_API_DB_STATEMENT_TIMEOUT=120
+      Environment=HINDSIGHT_API_WORKER_ID=homelab
 
       # 2026-04-27: two concurrent batch_retain jobs reached retain.phase2.insert_facts
       # and saturated DB pool waiters while /health and reranker stayed healthy.
@@ -202,7 +209,6 @@ in
       # 최종 rerank candidate cap만 줄여 제어한다.
       Environment=HINDSIGHT_API_RERANKER_MAX_CANDIDATES=60
       Environment=HINDSIGHT_API_RECALL_BUDGET_FIXED_LOW=100
-      Environment=HINDSIGHT_API_LAZY_RERANKER=true
 
       Environment=HINDSIGHT_API_LLM_MAX_RETRIES=3
       Environment=HINDSIGHT_API_SKIP_LLM_VERIFICATION=true
