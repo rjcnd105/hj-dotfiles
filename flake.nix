@@ -171,6 +171,10 @@
 
           ${pkgs.gnugrep}/bin/grep -F 'hindsight = "ghcr.io/vectorize-io/hindsight:latest-slim@sha256:9873b311f77a3e25813cadd14ccb10d730583aeb9d2c6e2107350e00c7af12bf";' "$stack" >/dev/null
           ${pkgs.gnugrep}/bin/grep -F 'Environment=HINDSIGHT_API_DB_STATEMENT_TIMEOUT=120' "$stack" >/dev/null
+          ${pkgs.gnugrep}/bin/grep -F 'Environment=HINDSIGHT_API_ENABLE_AUTO_CONSOLIDATION=false' "$stack" >/dev/null
+          ${pkgs.gnugrep}/bin/grep -F 'Environment=HINDSIGHT_API_WORKER_MAX_SLOTS=1' "$stack" >/dev/null
+          ${pkgs.gnugrep}/bin/grep -F 'Environment=HINDSIGHT_API_WORKER_RETAIN_MAX_SLOTS=1' "$stack" >/dev/null
+          ${pkgs.gnugrep}/bin/grep -F 'Environment=HINDSIGHT_API_WORKER_CONSOLIDATION_MAX_SLOTS=0' "$stack" >/dev/null
           if ${pkgs.gnugrep}/bin/grep -F 'HINDSIGHT_API_LAZY_RERANKER' "$stack" >/dev/null; then
             echo 'Hindsight v0.8 removed HINDSIGHT_API_LAZY_RERANKER; keep reranker init on the upstream eager path' >&2
             exit 1

@@ -178,6 +178,7 @@ in
       Environment=HINDSIGHT_API_RETAIN_LLM_MAX_CONCURRENT=2
       Environment=HINDSIGHT_API_CONSOLIDATION_LLM_MAX_CONCURRENT=2
       Environment=HINDSIGHT_API_RECALL_MAX_CONCURRENT=4
+      Environment=HINDSIGHT_API_ENABLE_AUTO_CONSOLIDATION=false
       # homelab의 pgvector/HNSW workload는 retain write phase와 recall read path가
       # 같은 Postgres pool을 공유한다. Retain은 느려도 되지만 recall은 interactive
       # path라서 DB fan-out을 default 근처로 유지한다.
@@ -192,12 +193,12 @@ in
       Environment=HINDSIGHT_API_DB_STATEMENT_TIMEOUT=120
       Environment=HINDSIGHT_API_WORKER_ID=homelab
 
-      # 2026-04-27: two concurrent batch_retain jobs reached retain.phase2.insert_facts
-      # and saturated DB pool waiters while /health and reranker stayed healthy.
-      # Keep one shared worker slot for retain work; the consolidation reservation
-      # below consumes one slot by itself.
-      Environment=HINDSIGHT_API_WORKER_MAX_SLOTS=2
-      Environment=HINDSIGHT_API_WORKER_CONSOLIDATION_MAX_SLOTS=1
+      # 2026-07-02: v0.8.4 still allowed consolidation recall/vector SELECTs to
+      # burn a core past statement cancellation. Leave no shared worker slot,
+      # because shared capacity can claim consolidation even with reservation 0.
+      Environment=HINDSIGHT_API_WORKER_MAX_SLOTS=1
+      Environment=HINDSIGHT_API_WORKER_RETAIN_MAX_SLOTS=1
+      Environment=HINDSIGHT_API_WORKER_CONSOLIDATION_MAX_SLOTS=0
       Environment=HINDSIGHT_API_RETAIN_MAX_CONCURRENT=1
       Environment=HINDSIGHT_API_RETAIN_CHUNK_BATCH_SIZE=25
 
