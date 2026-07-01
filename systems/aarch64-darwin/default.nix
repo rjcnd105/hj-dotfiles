@@ -5,7 +5,7 @@
   ...
 }:
 {
-  environment.systemPath = [ "/opt/homebraw/bin" ];
+  environment.systemPath = [ "/opt/homebrew/bin" ];
   system.stateVersion = 6;
 
   environment.variables.HOME = "/Users/${myOptions.userName}";

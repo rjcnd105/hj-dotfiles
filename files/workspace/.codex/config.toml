@@ -61,6 +61,9 @@ trust_level = "trusted"
 [projects."/Users/hj/work/gm/ps-frontend-admin"]
 trust_level = "trusted"
 
+[projects."/Users/hj/work/gm/atiissu-frontend"]
+trust_level = "trusted"
+
 [notice]
 hide_full_access_warning = true
 fast_default_opt_out = true
@@ -121,13 +124,13 @@ enabled = true
 enabled = true
 
 [marketplaces.openai-bundled]
-last_updated = "2026-06-30T02:26:38Z"
+last_updated = "2026-07-02T05:17:22Z"
 source_type = "local"
 source = "/Users/hj/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [marketplaces.compound-engineering-plugin]
-last_updated = "2026-06-30T01:31:23Z"
-last_revision = "8fd467940e6641f0fd58f487b57a4a99f64dc09c"
+last_updated = "2026-07-02T03:11:31Z"
+last_revision = "db21ba21eff9cc216537cd75c6e44dd49e1a4200"
 source_type = "git"
 source = "https://github.com/EveryInc/compound-engineering-plugin.git"
 
@@ -142,8 +145,8 @@ source_type = "local"
 source = "/Users/hj/.codex/caveman"
 
 [marketplaces.ponytail]
-last_updated = "2026-06-30T00:59:58Z"
-last_revision = "16f6cbf4b87792938e47b0f8c650b6d80fcbc98c"
+last_updated = "2026-07-02T03:12:09Z"
+last_revision = "40e50d9e03242aa5dd53ac771950f9127362b25f"
 source_type = "git"
 source = "https://github.com/DietrichGebert/ponytail.git"
 
@@ -174,12 +177,12 @@ NODE_REPL_NODE_MODULE_DIRS = "/Applications/Codex.app/Contents/Resources/cua_nod
 NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node"
 NODE_REPL_TRUSTED_CODE_PATHS = "/Users/hj/.codex"
 CODEX_HOME = "/Users/hj/.codex"
-NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "d5cbb8ec1ee520cba7943b1e1accb6b25acd9941ea4e2e9e4dbcf25ff9983a2d"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "cb79053fda6deb0f3b5d6f0d90d4257305ebdbd1e378a12e8fbc5bde782eb59b"
 BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
 NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.623.70822"
+BROWSER_USE_CODEX_APP_VERSION = "26.623.81905"
 CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
 
 [tui]
@@ -227,13 +230,16 @@ trusted_hash = "sha256:195e73e498a4cdb40bbe765719d39371ac72c0ebb084fee1beee9d28d
 trusted_hash = "sha256:f79c8de133c1109b841f9835a9d032231900a0d96ecf5f6d1866132df5ca4aa4"
 
 [hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:session_start:0:0"]
-trusted_hash = "sha256:35ad4fd900da217d98e6eb60198465bd10d55e21eacd72758621dc385145cc05"
+trusted_hash = "sha256:10e0ac0497512b279dc2b073d0d559fb9fb252bc18b9c943d2f0a6d58152b1f4"
 
 [hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:user_prompt_submit:0:0"]
-trusted_hash = "sha256:22db2f951755c593f9deba5e69cd1be1c87e0c9b2f5538a13b5dd9911141793f"
+trusted_hash = "sha256:2a3c9015a1fe10f0809ffec8da3d67c326e27c38ebf720725099283b1e2085a8"
 
 [hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:subagent_start:0:0"]
-trusted_hash = "sha256:28c43eada804ad00a4e651d6af6320c01e763b1df060af0ab74865a55bc1c9a9"
+trusted_hash = "sha256:4765354e31cc783c9cc7379f8beac7ac7ff68743c3cd7dad333d1f6a64e7a6f3"
+
+[hooks.state."/Users/hj/dot/nix-dots/.codex/hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:ed81e189cb1ee4d568853c8e7221bcb9ba841023b54c570ad996b327983ad901"
 
 [desktop]
 usePointerCursors = true

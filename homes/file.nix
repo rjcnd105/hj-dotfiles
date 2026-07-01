@@ -95,6 +95,14 @@ in
             source = config.lib.file.mkOutOfStoreSymlink (linkBasePath + "/.config/ghostty/config");
             force = true;
           };
+          "Library/Application Support/com.mitchellh.ghostty/config.ghostty" = {
+            source = config.lib.file.mkOutOfStoreSymlink (linkBasePath + "/.config/ghostty/config");
+            force = true;
+          };
+          ".config/ghostty/config.ghostty" = {
+            source = config.lib.file.mkOutOfStoreSymlink (linkBasePath + "/.config/ghostty/config");
+            force = true;
+          };
         };
 
 }

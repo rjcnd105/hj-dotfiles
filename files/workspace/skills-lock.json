@@ -25,6 +25,12 @@
       "skillPath": "plugins/plugin-dev/skills/skill-development/SKILL.md",
       "computedHash": "8d262f08f33825947ea20204ebf5101e36056c98090251bd973a552ec8ef0c0c"
     },
+    "agent-browser": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "skillPath": "skills/agent-browser/SKILL.md",
+      "computedHash": "ecc7641aea05f85ca3b11e7759d32aaf52fe05946ab4b63739c7bf78a41237a2"
+    },
     "caveman-compress": {
       "source": "juliusbrussee/caveman",
       "sourceType": "github",
