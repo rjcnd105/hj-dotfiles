@@ -33,6 +33,7 @@ version = "latest"
 
 [tools.unison]
 version = "latest"
+version_prefix = "release/"
 
 
 [tools.jjui]
