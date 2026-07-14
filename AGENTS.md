@@ -147,22 +147,3 @@ rule for the homelab operator user.
   NixOS activation or background auto-update.
 - Keep Hindsight special until its host-network and local AI dependencies are
   deliberately redesigned.
-
-## graphify
-
-This project has a graphify knowledge graph at graphify-out/.
-
-Rules:
-- Before answering architecture or codebase questions, read
-  `graphify-out/GRAPH_REPORT.md` for god nodes and community structure when it
-  exists.
-- If `graphify-out/wiki/index.md` exists, navigate it instead of reading raw
-  files.
-- If `graphify-out/graph.json` or `GRAPH_REPORT.md` is missing, say the graph is
-  not built yet and fall back to normal repo inspection.
-- For cross-module "how does X relate to Y" questions, prefer
-  `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or
-  `graphify explain "<concept>"` over grep. These traverse the graph's
-  EXTRACTED and INFERRED edges instead of scanning files.
-- After modifying code files in this session, run `graphify update .` to keep
-  the graph current only when `graphify-out/graph.json` already exists.

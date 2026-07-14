@@ -13,6 +13,3 @@ templates/**/.pre-commit-config.yaml
 **/keys.txt
 
 files/**/profiles/session/*
-
-# graphify outputs — generated local graph/report artifacts
-graphify-out/

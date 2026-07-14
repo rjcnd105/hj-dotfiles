@@ -178,7 +178,8 @@ The key invariant is that the agent-visible wrapper command and the editor-visib
 - Do not add `lexical` or `next-ls`.
 
 **Patterns to follow:**
-- Existing backend-qualified `[tools."pipx:graphifyy"]` style in `files/workspace/.config/mise/config.toml`
+- Existing quoted backend-qualified tool-key style in
+  `files/workspace/.config/mise/config.toml`
 
 **Test scenarios:**
 - Test expectation: none -- this is a tool declaration change; command resolution is validated by `mise` dry-run/current/exec checks.
@@ -311,7 +312,6 @@ The key invariant is that the agent-visible wrapper command and the editor-visib
 - Home Manager eval shows launchd, config, wrapper packages, and generated catalog.
 - Wrapper smoke checks cover `nixd`, `vtsls`, representative `vscode-langservers-extracted` binaries, `gopls`, ElixirLS, Expert, Rust Analyzer, Taplo, and Biome.
 - `nix flake check --all-systems --no-build --show-trace` passes.
-- `graphify update .` runs because the repo graph exists.
 
 ---
 

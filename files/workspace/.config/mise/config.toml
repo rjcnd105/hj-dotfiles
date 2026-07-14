@@ -61,9 +61,6 @@ postinstall = "corepack enable"
 [tools.python]
 version = "latest"
 
-[tools."pipx:graphifyy"]
-version = "latest"
-
 [tools.usage]
 version = "latest"
 
