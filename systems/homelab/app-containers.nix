@@ -47,6 +47,9 @@ let
 
   unitPrefixFor = app: "${app.contract.name}-${app.contract.channel}";
 
+  networkNameFor =
+    app: if app.host.networkName == null then unitPrefixFor app else app.host.networkName;
+
   caddyPortFor =
     app: if app.host.caddyPort == null then app.host.loopbackPortBase - 1 else app.host.caddyPort;
 
@@ -252,7 +255,6 @@ let
         LogDriver=journald
         EnvironmentFile=${envTemplate}
         Network=${unitPrefix}.network
-        NetworkAlias=${unitPrefix}-${serviceName}
         PublishPort=127.0.0.1:${toString servicePorts.${serviceName}}:${toString service.internalPort}
         ${concatLines volumeLines}
 
@@ -275,7 +277,7 @@ let
     nameValuePair "containers/systemd/${unitPrefix}.network" {
       text = ''
         [Network]
-        NetworkName=${unitPrefix}
+        NetworkName=${networkNameFor app}
       '';
     };
 
@@ -288,6 +290,7 @@ let
       service = contract.services.${migrationServiceName};
       envTemplate = config.sops.templates.${envTemplateNameFor app migrationServiceName}.path;
       imageRef = imageRefFor app service;
+      networkName = networkNameFor app;
       networkService = "${unitPrefix}-network.service";
       imageService = "${unitPrefix}-${migrationServiceName}-image.service";
       volumeServices = map (mount: "${unitPrefix}-${mount.volume}-volume.service") service.volumeMounts;
@@ -314,7 +317,7 @@ let
       serviceConfig.Type = "oneshot";
       script = ''
         ${pkgs.podman}/bin/podman rm -f ${lib.escapeShellArg "${unitPrefix}-migrate"} >/dev/null 2>&1 || true
-        exec ${pkgs.podman}/bin/podman run --rm --pull=never --name ${lib.escapeShellArg "${unitPrefix}-migrate"} --env-file ${lib.escapeShellArg envTemplate} --network ${lib.escapeShellArg unitPrefix} ${volumeArgs} ${lib.escapeShellArg imageRef} ${lib.escapeShellArgs contract.migrations.command}
+        exec ${pkgs.podman}/bin/podman run --rm --pull=never --name ${lib.escapeShellArg "${unitPrefix}-migrate"} --env-file ${lib.escapeShellArg envTemplate} --network ${lib.escapeShellArg networkName} ${volumeArgs} ${lib.escapeShellArg imageRef} ${lib.escapeShellArgs contract.migrations.command}
       '';
     };
 
@@ -966,12 +969,6 @@ let
             assertion = builtins.elem service.image imageNames;
             message = "homelab.apps.${appName}.${serviceName}: service.image must reference contract.images.";
           }
-          {
-            assertion = lib.hasInfix "NetworkAlias=${unitPrefixFor app}-${serviceName}" (
-              (containerUnitFor app serviceName service).value.text
-            );
-            message = "homelab.apps.${appName}.${serviceName}: generated container must declare its network DNS alias.";
-          }
         ]
         ++ map (envName: {
           assertion = builtins.hasAttr envName app.host.secretMap;
@@ -1173,6 +1170,11 @@ in
               caddyPort = mkOption {
                 type = types.nullOr types.port;
                 default = null;
+              };
+              networkName = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "Host-owned Podman network name override used for network generation changes.";
               };
               registryAuth = mkOption {
                 type = types.nullOr types.str;
