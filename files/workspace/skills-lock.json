@@ -181,6 +181,13 @@
       "skillPath": "skills/markdown-converter/SKILL.md",
       "computedHash": "bf956f81ca3a5a47d113ee48810dcdc0177c5111fc95d8bd1c83b459f8a45a63"
     },
+    "nixos-managing": {
+      "source": "michalzubkowicz/nixos-management-skill",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "nixos-managing/SKILL.md",
+      "computedHash": "6a9f5aa6cbac5fe13cd7f0cd97da30b4eb362ba63af93a1711a87d03876d5f5e"
+    },
     "obsidian-markdown": {
       "source": "kepano/obsidian-skills",
       "sourceType": "github",
