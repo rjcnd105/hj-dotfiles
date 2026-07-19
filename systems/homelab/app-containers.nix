@@ -252,6 +252,7 @@ let
         LogDriver=journald
         EnvironmentFile=${envTemplate}
         Network=${unitPrefix}.network
+        NetworkAlias=${unitPrefix}-${serviceName}
         PublishPort=127.0.0.1:${toString servicePorts.${serviceName}}:${toString service.internalPort}
         ${concatLines volumeLines}
 
@@ -964,6 +965,12 @@ let
           {
             assertion = builtins.elem service.image imageNames;
             message = "homelab.apps.${appName}.${serviceName}: service.image must reference contract.images.";
+          }
+          {
+            assertion = lib.hasInfix "NetworkAlias=${unitPrefixFor app}-${serviceName}" (
+              (containerUnitFor app serviceName service).value.text
+            );
+            message = "homelab.apps.${appName}.${serviceName}: generated container must declare its network DNS alias.";
           }
         ]
         ++ map (envName: {
