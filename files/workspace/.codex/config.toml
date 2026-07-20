@@ -87,6 +87,162 @@ enabled = false
 path = "/Users/hj/.agents/skills/slack/SKILL.md"
 enabled = false
 
+[[skills.config]]
+path = "/Users/hj/work/gm/ps-frontend-admin/.agents/skills/material-ui-tailwind/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/work/gm/ps-frontend-admin/.agents/skills/material-ui-theming/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/work/gm/ps-frontend-admin/.agents/skills/material-ui-nextjs/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/hook-development/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/mcp-integration/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/skill-development/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/caveman-compress/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/context7-mcp/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/create-pr/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/create-agentsmd/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-primary-runtime/documents/26.709.11516/skills/documents/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/gpt-taste/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/hindsight/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/hindsight-docs/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/high-end-visual-design/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/image-to-code/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/markdown-converter/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-business-review/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-financial-budget/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-experiment-analysis/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-market-trends-report/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-legal-memorandum/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-investment-committee-memo/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-minimal-letterhead/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-operating-calendar/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-operating-review/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-project-kickoff/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-project-tracker/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-sales-pipeline/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-simple-dark-mode/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-simple-light-mode/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-strategy-memorandum/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-system-design/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-team-alignment/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-three-statement-forecast/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/pdf/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.709.11516/skills/excel-live-control/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/dot/nix-dots/files/workspace/.codex/skills/.system/imagegen/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-bundled/visualize/1.0.11/skills/visualize/SKILL.md"
+enabled = false
+
 [plugins."github@openai-curated"]
 enabled = true
 
@@ -106,7 +262,7 @@ enabled = true
 enabled = true
 
 [plugins."presentations@openai-primary-runtime"]
-enabled = true
+enabled = false
 
 [plugins."ponytail@ponytail"]
 enabled = true
@@ -124,7 +280,7 @@ enabled = true
 enabled = true
 
 [marketplaces.openai-bundled]
-last_updated = "2026-07-02T05:17:22Z"
+last_updated = "2026-07-19T08:10:58Z"
 source_type = "local"
 source = "/Users/hj/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
@@ -135,7 +291,7 @@ source_type = "git"
 source = "https://github.com/EveryInc/compound-engineering-plugin.git"
 
 [marketplaces.openai-primary-runtime]
-last_updated = "2026-06-30T01:59:52Z"
+last_updated = "2026-07-19T08:59:59Z"
 source_type = "local"
 source = "/Users/hj/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
@@ -149,6 +305,18 @@ last_updated = "2026-07-02T03:12:09Z"
 last_revision = "40e50d9e03242aa5dd53ac771950f9127362b25f"
 source_type = "git"
 source = "https://github.com/DietrichGebert/ponytail.git"
+
+[marketplaces.greenpt]
+last_updated = "2026-07-14T05:29:31Z"
+last_revision = "9f60f08e1619306eb81756107933d604afb0a704"
+source_type = "git"
+source = "https://github.com/Green-PT/honey-for-devs.git"
+
+[marketplaces.agent-skills]
+last_updated = "2026-07-19T07:57:37Z"
+last_revision = "2fbfa004a0192529bc997d103fc12f19a3804aab"
+source_type = "git"
+source = "https://github.com/addyosmani/agent-skills.git"
 
 [mcp_servers.chrome-devtools]
 command = "npx"
@@ -168,34 +336,42 @@ CONTEXT7_API_KEY = "CONTEXT7_API_KEY"
 
 [mcp_servers.node_repl]
 args = []
-command = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node_repl"
+command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
 startup_timeout_sec = 120
 
 [mcp_servers.node_repl.env]
 NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
-NODE_REPL_NODE_MODULE_DIRS = "/Applications/Codex.app/Contents/Resources/cua_node/lib/node_modules"
-NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node"
+NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
 NODE_REPL_TRUSTED_CODE_PATHS = "/Users/hj/.codex"
 CODEX_HOME = "/Users/hj/.codex"
-NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "cb79053fda6deb0f3b5d6f0d90d4257305ebdbd1e378a12e8fbc5bde782eb59b"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f,c8b7e809d7cf9e20a57123b2530d476ccec9a01a6230a7b2b924fea7d94d7f4a"
 BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
 NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
+NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.623.81905"
-CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
+BROWSER_USE_CODEX_APP_VERSION = "26.707.31428"
+SKY_CUA_SERVICE_PATH = "/Users/hj/.codex/plugins/cache/openai-bundled/computer-use/1.0.1000366/Codex Computer Use.app"
+CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
+
+[mcp_servers.computer-use]
+command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
+args = ["mcp"]
+cwd = "."
+enabled = false
 
 [tui]
 status_line = [
   "model-with-reasoning",
-  "project-root",
+  "project-name",
   "git-branch",
   "context-remaining",
   "five-hour-limit",
-  "codex-version",
-  "used-tokens",
+  "weekly-limit",
 ]
 terminal_title = ["spinner", "project-name", "model-with-reasoning"]
+status_line_use_colors = true
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
@@ -203,7 +379,7 @@ terminal_title = ["spinner", "project-name", "model-with-reasoning"]
 [hooks.state]
 
 [hooks.state."/Users/hj/.codex/hooks.json:session_start:0:0"]
-trusted_hash = "sha256:8ead4de655030525e6e9a1265bd3a5a0fbb689eddd1839c4bba0bd4c121f2f01"
+trusted_hash = "sha256:0ed786805542f7114c30eda6945e72a2f1285c06fd6d4320de621a9549c095ed"
 
 [hooks.state."/Users/hj/.codex/hooks.json:session_start:1:0"]
 trusted_hash = "sha256:0ed786805542f7114c30eda6945e72a2f1285c06fd6d4320de621a9549c095ed"
@@ -241,15 +417,38 @@ trusted_hash = "sha256:4765354e31cc783c9cc7379f8beac7ac7ff68743c3cd7dad333d1f6a6
 [hooks.state."/Users/hj/dot/nix-dots/.codex/hooks.json:pre_tool_use:0:0"]
 trusted_hash = "sha256:ed81e189cb1ee4d568853c8e7221bcb9ba841023b54c570ad996b327983ad901"
 
+[hooks.state."honey@greenpt:hooks/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:7d69a30c70e504860428b2be1c09421d614f427c183b7de717fd53411ba4b34b"
+
+[hooks.state."honey@greenpt:hooks/hooks.json:subagent_start:0:0"]
+trusted_hash = "sha256:6f261fe32755fe8d32a9bb7061d13c628d539d0191b51f5df11764ee3bcd910a"
+
+[hooks.state."honey@greenpt:hooks/hooks.json:post_tool_use:0:0"]
+trusted_hash = "sha256:94ebd4f1bcd6f7537f701e6a787b14b21862f561783e17beb82348ed7b402892"
+
 [desktop]
 usePointerCursors = true
 followUpQueueMode = "queue"
 localeOverride = "ko-KR"
 default-service-tier = "fast"
 worktree-keep-count = 10
+dock-icon-preference = "codex-system"
+conversationDetailMode = "STEPS_PROSE"
 
 [desktop.open-in-target-preferences]
 global = "cursor"
 
 [desktop.open-in-target-preferences.perPath]
 "/Users/hj/work/gm/gentle-renewal" = "cursor"
+
+[plugins."honey@greenpt"]
+enabled = true
+
+[plugins."agent-skills@agent-skills"]
+enabled = true
+
+[plugins."sites@openai-bundled"]
+enabled = true
+
+[plugins."visualize@openai-bundled"]
+enabled = true

@@ -71,7 +71,8 @@
     "ddd@context-engineering-kit": true,
     "serena@claude-plugins-official": false,
     "claude-md-management@claude-plugins-official": true,
-    "gopls-lsp@claude-plugins-official": true
+    "gopls-lsp@claude-plugins-official": true,
+    "honey@greenpt": true
   },
   "extraKnownMarketplaces": {
     "compound-engineering-plugin": {
@@ -121,11 +122,21 @@
         "source": "github",
         "repo": "NeoLabHQ/context-engineering-kit"
       }
+    },
+    "greenpt": {
+      "source": {
+        "source": "github",
+        "repo": "Green-PT/honey-for-devs"
+      }
     }
   },
   "language": "Korean",
   "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true,
   "verbose": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "statusLine": {
+    "type": "command",
+    "command": "node \"/Users/hj/.claude/honey/statusline.js\""
+  }
 }

@@ -22,17 +22,18 @@
   explanations and tradeoffs may be fuller, implementation stays terse, and
   `just`/`quick` approaches answer-only. Never trade correctness for brevity;
   keep the main edge case even at the shortest setting.
-- Before implementing, prefer removing the need, reusing the existing source of
-  truth, or strengthening one upstream invariant over adding downstream
-  compensation. Keep one source of truth; derive or compute on demand instead
-  of mirroring or continuously synchronizing it.
-- Choose the least machinery that satisfies the exact current contract. New
-  state, abstraction, coordination, lifecycle, fallback, or dependency must
-  answer a concrete requirement that a simpler option cannot. Do not build for
-  hypothetical consumers or environments.
-- Before completion, make one bounded deletion-oriented check: can the same
-  contract be met with fewer sources of truth, mechanisms, or failure modes?
-  If yes, simplify it; otherwise stop without reopening verified work for polish.
+- Across code, data, configuration, and operations, identify the authoritative
+  owner, contract, or invariant before acting. Prefer removing the need, reusing
+  that authority, or strengthening it upstream; derive results when possible
+  rather than introduce another copy that must be reconciled.
+- Use the least machinery that meets the current contract. If a requested
+  boundary creates parallel authority or requires out-of-band mutation or
+  coordination solely to keep representations aligned, report the contract
+  conflict and ask for the smallest boundary adjustment instead of building
+  around it. Avoid hypothetical indirection and fallback.
+- Before completion, silently justify every new artifact or mechanism by the
+  current requirement only it satisfies. Remove it when an existing capability
+  or stronger invariant can replace it, then stop.
 - Generate project-owned repeated files, fixtures, or cases from one small
   template when the generator costs less than the bulk.
 - Use the fewest clear words. Lead with the outcome; omit prompt restatement,

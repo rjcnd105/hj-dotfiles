@@ -35,6 +35,16 @@ precise, but in persistent agent instructions it usually creates false precision
 The model can generate score-like text without those scores being calibrated
 probabilities, expected utilities, or stable uncertainty estimates.
 
+A fresh-context implementation trial on 2026-07-14 exposed a related failure:
+the existing advice to keep one source of truth and use the least machinery was
+too abstract. Given an interface constraint that forbade passing state or a
+handler, the agent treated the constraint as sufficient justification for local
+state, lifecycle synchronization, an event listener, and a DOM helper. Its final
+deletion review kept all of them because each supported the chosen interface.
+The missing decision rule was to surface a boundary that forces parallel
+authority or compensating coordination as a contract conflict before building
+around it.
+
 ## Guidance
 
 Use qualitative decision rules for persistent AGENTS guidance. Prefer rules that
@@ -52,6 +62,19 @@ Avoid hard scoring rules in global instructions:
 ```md
 - Score each option from 0 to 1. If the top two scores differ by less than 0.1, ask the user.
 ```
+
+For mechanism choices across frontend, backend, data, infrastructure, and
+operations, use authority and boundary language rather than framework APIs:
+
+```md
+- Identify the authoritative owner, contract, or invariant before acting. Prefer reusing or strengthening it, and avoid introducing another copy that must be reconciled.
+- If a requested boundary creates parallel authority or coordination solely to keep representations aligned, report the contract conflict and ask for the smallest boundary adjustment.
+- Before completion, justify every new artifact or mechanism by the current requirement only it satisfies; remove it when an existing capability or stronger invariant can replace it.
+```
+
+This does not prohibit caches, replicas, sagas, controllers, or reconciliation.
+Those remain valid when the actual contract requires them. It targets machinery
+introduced only to compensate for an avoidable ownership or interface boundary.
 
 That kind of rule can be useful inside an eval harness, review rubric, or
 structured decision record where scores are measured consistently. It is weaker
@@ -80,6 +103,22 @@ The practical distinction:
 - Use numeric rubrics when the scoring process is external, repeatable, and
   reviewable.
 - Use hard thresholds only for true invariants, not for fuzzy fit judgments.
+
+## Evaluation Evidence
+
+The clean trial produced a working narrow interaction and strong focused checks,
+but its shared implementation added two local states, two refs, two layout
+effects, one input listener, and a separate DOM helper. It also mutated a value
+owned by the rendering layer, leaving correctness dependent on future rerenders
+and the current component DOM structure.
+
+After adjusting the boundary, the production implementation used one owner for
+the password state and derived its input type, icon, and accessibility state from
+that owner. Clear-button visibility used platform state rather than a mirrored
+runtime state. This removed the lifecycle synchronization while preserving the
+behavioral contract. The trial therefore supports a qualitative global rule:
+detect ownership conflicts before implementation, not a numeric complexity
+threshold or a list of frontend-specific APIs.
 
 ## When to Apply
 
@@ -116,5 +155,5 @@ actual invariant, and keep the diff within the smallest responsible surface.
 ## Related
 
 - [Global Codex AGENTS source](../../../files/workspace/.codex/AGENTS.md)
-- [OpenAI Codex AGENTS.md best practices](https://developers.openai.com/codex/learn/best-practices#make-guidance-reusable-with-agentsmd)
+- [OpenAI Codex best practices](https://learn.chatgpt.com/guides/best-practices.md)
 - [OpenAI GPT-5.5 guide](https://developers.openai.com/api/docs/guides/latest-model)

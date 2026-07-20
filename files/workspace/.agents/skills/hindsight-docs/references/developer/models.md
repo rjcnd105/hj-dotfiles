@@ -35,6 +35,7 @@ Used for fact extraction, entity resolution, mental model consolidation, and ans
 - Atlas Cloud
 - Volcano Engine
 - OpenRouter
+- Requesty
 - OpenAI Codex
 - Claude Code
 - AWS Bedrock
@@ -46,29 +47,29 @@ Used for fact extraction, entity resolution, mental model consolidation, and ans
 Also supports **any OpenAI-compatible API** (e.g., Azure OpenAI, Together AI, Fireworks) and **100+ providers via LiteLLM** (e.g., AWS Bedrock, Azure OpenAI, Together AI).
 
 > **💡 OpenAI-Compatible Providers**
-> 
+>
 Hindsight works with any provider that exposes an OpenAI-compatible API (e.g., Azure OpenAI). Simply set `HINDSIGHT_API_LLM_PROVIDER=openai` and configure `HINDSIGHT_API_LLM_BASE_URL` to point to your provider's endpoint.
 
 See [Configuration](./configuration#llm-provider) for setup examples.
 > **💡 AWS Bedrock**
-> 
+>
 Set `HINDSIGHT_API_LLM_PROVIDER=bedrock` to use AWS Bedrock models directly. Model names use Bedrock model IDs (e.g., `us.amazon.nova-2-lite-v1:0`). No API key is required — authentication uses AWS credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION_NAME`) or IAM roles. For 50% cost savings on throughput, set `HINDSIGHT_API_LLM_BEDROCK_SERVICE_TIER=flex` (see [Configuration](./configuration#llm-provider)).
 
 See [Configuration](./configuration#llm-provider) for setup examples.
 > **💡 Built-in llama.cpp (fully local, no API key)**
-> 
+>
 Set `HINDSIGHT_API_LLM_PROVIDER=llamacpp` to run a built-in llama.cpp server with no external dependencies. A Gemma 4 E2B GGUF model (~3.5 GB) is auto-downloaded on first run. Requires the `local-llm` extra: `pip install 'hindsight-api-slim[local-llm]'`.
 
 The published Docker image does not bundle `llama-cpp-python` (to keep the image small). For a runnable Docker setup that adds it on top, see [`docker/docker-compose/local-llm/`](https://github.com/vectorize-io/hindsight/tree/main/docker/docker-compose/local-llm).
 
 See [Configuration](./configuration#built-in-llamacpp) for all options.
 > **💡 LiteLLM Provider (Azure, Together AI, and more)**
-> 
+>
 Set `HINDSIGHT_API_LLM_PROVIDER=litellm` to use any model supported by [LiteLLM](https://docs.litellm.ai/docs/providers), including **Azure OpenAI**, **Together AI**, **Fireworks AI**, and many more. Model names use LiteLLM's provider prefix format (e.g., `azure/gpt-4o`).
 
 See [Configuration](./configuration#llm-provider) for setup examples.
 > **💡 LiteLLM Router (fallback chains, load-balancing, per-deployment limits)**
-> 
+>
 Set `HINDSIGHT_API_LLM_PROVIDER=litellmrouter` to run the default LLM through [LiteLLM's Router](https://docs.litellm.ai/docs/routing) — ordered fallback across deployments, load-balanced same-tier routing, weighted picks, per-deployment `rpm`/`tpm` limits, and cooldowns are all available via the [`Router` config](https://docs.litellm.ai/docs/routing#fallbacks). Hindsight passes the JSON config through verbatim.
 
 See [Configuration](./configuration#llm-router-litellm-router) for setup.
@@ -94,6 +95,7 @@ Beyond basic generation, some providers support optional features that lower cos
 | Atlas Cloud (`atlas`) | — | — |
 | Volcano Engine (`volcano`) | — | — |
 | OpenRouter (`openrouter`) | — | — |
+| Requesty (`requesty`) | — | — |
 | OpenAI Codex (`openai-codex`) | — | — |
 | Claude Code (`claude-code`) | — | — |
 | AWS Bedrock (`bedrock`) | — | — |
@@ -105,7 +107,7 @@ Beyond basic generation, some providers support optional features that lower cos
 - **Explicit prompt caching** — reuses the large, fixed system prefix that retain (fact extraction), consolidation, and the reflect tool-loop send on every call, billing it at the provider's cached-input rate. On Gemini/Vertex this uses the `CachedContent` API. **On by default**; disable with `HINDSIGHT_API_LLM_PROMPT_CACHE_ENABLED=false`. Hindsight structures these prompts so the cached prefix is **bank-agnostic** — one cache is shared across all banks rather than one per bank/mission, and creation soft-fails to an uncached call, so it never breaks a request.
 
 > **📝 Note**
-> 
+>
 A blank "Explicit prompt caching" cell does not mean a provider has no caching. OpenAI, for example, caches a stable leading prompt prefix **automatically** server-side, so it benefits with no configuration; Anthropic supports caching via `cache_control` breakpoints which can be wired up through the same provider hook. The column tracks only Hindsight's explicit `get_or_create_cached_prefix` hook, which Gemini/Vertex implement today.
 ### Benchmarks
 
@@ -156,6 +158,7 @@ Each provider has a recommended default model that's used when `HINDSIGHT_API_LL
 | `atlas` | `deepseek-ai/deepseek-v4-pro` |
 | `volcano` | `doubao-pro-32k` |
 | `openrouter` | `qwen/qwen3.5-9b` |
+| `requesty` | `openai/gpt-4o-mini` |
 | `openai-codex` | `gpt-5.4-mini` |
 | `claude-code` | `claude-sonnet-4-5-20250929` |
 | `bedrock` | `us.amazon.nova-2-lite-v1:0` |
@@ -192,7 +195,7 @@ export HINDSIGHT_API_RETAIN_LLM_PROVIDER=anthropic
 Other LLM models not listed above may work with Hindsight, but they must support **at least 65,000 output tokens** to ensure reliable fact extraction. If you need support for a specific model that doesn't meet this requirement, please [open an issue](https://github.com/hindsight-ai/hindsight/issues) to request an exception.
 
 > **💡 Models with Limited Output Tokens**
-> 
+>
 If your model only supports 32k or fewer output tokens (e.g., some older models), you can reduce the retain completion token limit:
 
 ```bash
@@ -205,7 +208,7 @@ export HINDSIGHT_API_RETAIN_MAX_COMPLETION_TOKENS=16000
 
 **Important:** `HINDSIGHT_API_RETAIN_MAX_COMPLETION_TOKENS` must be greater than `HINDSIGHT_API_RETAIN_CHUNK_SIZE` (default: 3000). The system will validate this on startup and provide an error message if the configuration is invalid.
 > **⚠️ Groq free tier is not suitable for Hindsight**
-> 
+>
 Groq's free tier only allows 8,000 tokens per minute — far below what Hindsight needs for a single retain call (~64k). Free-tier Groq models therefore can't be used with Hindsight; use a paid Groq tier or a different provider.
 ### Configuration
 
@@ -318,7 +321,7 @@ Use your ChatGPT Plus or Pro subscription for Hindsight without separate OpenAI 
 4. **Configure Hindsight:**
    ```bash
    export HINDSIGHT_API_LLM_PROVIDER=openai-codex
-   # export HINDSIGHT_API_LLM_MODEL=gpt-5.3-codex  # defaults to gpt-5.4-mini
+   # export HINDSIGHT_API_LLM_MODEL=gpt-5.6-luna  # defaults to gpt-5.4-mini
    # No API key needed - reads from ~/.codex/auth.json automatically
    ```
 
@@ -334,6 +337,54 @@ You can use any model supported by OpenAI Codex CLI
 - Tokens refresh automatically when needed
 - Usage is billed to your ChatGPT subscription (not separate API costs)
 - For personal development use only (see ChatGPT Terms of Service)
+
+#### Isolating Codex auth for long-running services
+
+By default Hindsight reads Codex credentials from `~/.codex/auth.json` — the
+same file the `@openai/codex` CLI, editor plugins, and other agent runtimes use.
+This is convenient for local development but can cause a subtle failure mode when
+Hindsight runs as a **long-lived service** (systemd unit, container, background
+daemon) alongside another Codex process:
+
+- Codex refresh tokens are single-use and rotate on refresh.
+- If another process refreshes the shared token, Hindsight's long-running
+  process is left holding a stale refresh token.
+- Recall and `/health` keep working (the database and API are fine), but
+  `/reflect` fails with an error such as:
+  ```text
+  Codex refresh_token is permanently invalid (error.code=refresh_token_reused).
+  Run 'codex auth login' to re-authenticate.
+  ```
+
+To avoid this, give the Hindsight service its **own dedicated Codex auth home**
+via the `CODEX_HOME` environment variable. Hindsight honors `CODEX_HOME` exactly
+like the `@openai/codex` CLI: when set, it reads `$CODEX_HOME/auth.json` instead
+of `~/.codex/auth.json`.
+
+```bash
+# Dedicated credentials directory for the Hindsight service
+export CODEX_HOME=/var/lib/hindsight/codex
+
+# One-time login into that isolated home (opens a browser / device-code flow)
+codex auth login   # writes $CODEX_HOME/auth.json
+
+export HINDSIGHT_API_LLM_PROVIDER=openai-codex
+hindsight-api
+```
+
+For a systemd unit, set it in the service definition so it never shares auth
+with an interactive Codex session:
+
+```ini
+[Service]
+Environment=CODEX_HOME=/var/lib/hindsight/codex
+```
+
+After a fresh login into the dedicated home and restarting only the Hindsight
+service, `/reflect` uses its own token that other Codex processes will not
+rotate out from under it.
+
+`CODEX_HOME` is also honored by the `openai-codex` embeddings provider.
 
 ---
 
@@ -385,7 +436,7 @@ You can use any model hosted on the Nous Portal inference API.
 Use your Claude Pro or Max subscription for Hindsight without separate Anthropic API costs.
 
 > **⚠️ Terms of Service Notice**
-> 
+>
 
 This integration uses the Claude Agent SDK with your personal Claude Pro/Max subscription
 credentials. You must be logged into Claude Code on your own machine before using this provider.
@@ -572,7 +623,7 @@ The `gemini-embedding-2` family, including `gemini-embedding-2-preview`, is supp
 Hindsight sends retained memory text to ZeroEntropy as `document` inputs and recall/search text as `query` inputs. ZeroEntropy's API default is 2560 dimensions; Hindsight defaults to 1280 so pgvector HNSW works without changing the vector extension.
 
 > **⚠️ Embedding Dimensions**
-> 
+>
 Hindsight automatically detects the embedding dimension at startup and adjusts the database schema. Once memories are stored, you cannot change dimensions without losing data.
 **Configuration Examples:**
 

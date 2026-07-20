@@ -10,7 +10,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version": "0.8.3"
+    "version": "0.8.4"
   },
   "paths": {
     "/health": {
@@ -879,6 +879,18 @@
               "type": "string",
               "title": "Bank Id"
             }
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Force a fresh recompute, bypassing the cached value (and refreshing the cache).",
+              "default": false,
+              "title": "Refresh"
+            },
+            "description": "Force a fresh recompute, bypassing the cached value (and refreshing the cache)."
           },
           {
             "name": "authorization",
@@ -3228,7 +3240,7 @@
           "Operations"
         ],
         "summary": "Get operation status",
-        "description": "Get the status of a specific async operation. Returns 'pending', 'completed', or 'failed'. Completed operations are removed from storage, so 'completed' means the operation finished successfully.",
+        "description": "Get the status of a specific async operation. Returns 'pending', 'processing', 'completed', 'failed', or 'cancelled'. Completed operations remain queryable with their payload for the configured retention window and are pruned afterward.",
         "operationId": "get_operation_status",
         "parameters": [
           {
@@ -6580,7 +6592,7 @@
               }
             ],
             "title": "Retain Extraction Mode",
-            "description": "Fact extraction mode: 'concise' (default), 'verbose', or 'custom'"
+            "description": "Fact extraction mode: 'concise' (default), 'verbose', 'custom', 'verbatim', or 'chunks'"
           },
           "retain_custom_instructions": {
             "anyOf": [
@@ -7619,7 +7631,7 @@
               }
             ],
             "title": "Retain Extraction Mode",
-            "description": "Fact extraction mode: 'concise' (default), 'verbose', or 'custom'."
+            "description": "Fact extraction mode: 'concise' (default), 'verbose', 'custom', 'verbatim', or 'chunks'."
           },
           "retain_custom_instructions": {
             "anyOf": [
@@ -9539,6 +9551,10 @@
               "date": "2024-01-15T10:30:00Z",
               "entities": "Alice (PERSON), Google (ORGANIZATION)",
               "id": "550e8400-e29b-41d4-a716-446655440000",
+              "metadata": {
+                "channel": "engineering",
+                "source": "slack"
+              },
               "text": "Alice works at Google on the AI team",
               "type": "world"
             }

@@ -286,7 +286,7 @@
   "emmet.showExpandedAbbreviation": "inMarkupAndStylesheetFilesOnly",
   "scss.format.enable": false,
   "explorer.confirmDragAndDrop": false,
-  "workbench.colorTheme": "Cursor Light",
+  "workbench.colorTheme": "Delirium Light Alternative Custom",
   "deepl.formality": "default",
   "deepl.tagHandling": "off",
   "deepl.splitSentences": "1",
