@@ -47,6 +47,7 @@ let
     );
 
   unitPrefixFor = app: "${app.contract.name}-${app.contract.channel}";
+  bridgeInterfaceFor = app: "br-${unitPrefixFor app}";
 
   caddyPortFor =
     app: if app.host.caddyPort == null then app.host.loopbackPortBase - 1 else app.host.caddyPort;
@@ -281,7 +282,10 @@ let
         After = [ podmanDnsLifecycleService ];
         PartOf = [ podmanDnsLifecycleService ];
       };
-      networkConfig.name = unitPrefix;
+      networkConfig = {
+        name = unitPrefix;
+        interfaceName = bridgeInterfaceFor app;
+      };
     };
 
   migrationServiceFor =
@@ -878,6 +882,10 @@ let
         message = "homelab.apps.${appName}: host.loopbackPortBase must be greater than 1024.";
       }
       {
+        assertion = builtins.stringLength (bridgeInterfaceFor app) <= 15;
+        message = "homelab.apps.${appName}: generated bridge interface must not exceed Linux's 15-character limit.";
+      }
+      {
         assertion = builtins.all (domain: domain == app.host.domain) routeDomains;
         message = "homelab.apps.${appName}: every contract route host must match host.domain.";
       }
@@ -954,6 +962,14 @@ let
   caddyPorts = mapAttrsToList (_appName: app: caddyPortFor app) enabledApps;
   serviceLoopbackPorts = flatten (
     mapAttrsToList (_appName: app: servicePortClaimsForApp app) enabledApps
+  );
+  appDnsFirewallInterfaces = listToAttrs (
+    mapAttrsToList (
+      _appName: app:
+      nameValuePair (bridgeInterfaceFor app) {
+        allowedUDPPorts = [ 53 ];
+      }
+    ) enabledApps
   );
 in
 {
@@ -1206,6 +1222,8 @@ in
     };
 
     services.cloudflared.tunnels.${cloudflareTunnelId}.ingress = appIngress;
+
+    networking.firewall.interfaces = appDnsFirewallInterfaces;
 
     virtualisation.quadlet = {
       networks = quadletNetworks;

@@ -223,6 +223,8 @@
           );
         in
         assert network.networkConfig.name == "deopjib-dev";
+        assert network.networkConfig.interfaceName == "br-deopjib-dev";
+        assert builtins.elem 53 homelab.networking.firewall.interfaces.br-deopjib-dev.allowedUDPPorts;
         assert builtins.all (
           container:
           builtins.elem networkService container.unitConfig.PartOf
@@ -250,6 +252,7 @@
           ${pkgs.gnugrep}/bin/grep -F 'Requires=${networkService}' generated-units.txt >/dev/null
           ${pkgs.gnugrep}/bin/grep -F 'After=${networkService}' generated-units.txt >/dev/null
           ${pkgs.gnugrep}/bin/grep -F 'ExecStop=${podman}/bin/podman network rm deopjib-dev' generated-units.txt >/dev/null
+          ${pkgs.gnugrep}/bin/grep -F -- '--interface-name br-deopjib-dev' generated-units.txt >/dev/null
           ${pkgs.gnugrep}/bin/grep -F -- '--disable-dns hindsight-db' generated-units.txt >/dev/null
           ${pkgs.gnugrep}/bin/grep -F 'Requires=hindsight-db-network.service' generated-units.txt >/dev/null
 
