@@ -467,6 +467,7 @@ let
     runtimeInputs = [
       pkgs.coreutils
       pkgs.curl
+      pkgs.diffutils
       pkgs.findutils
       pkgs.gnugrep
       pkgs.gnused

@@ -438,7 +438,7 @@
             [ "$(grep -c '^podman[[:space:]]pull ' "$HOMELAB_APPCTL_TEST_LOG")" -eq 2 ]
 
             cp "$HOMELAB_APPCTL_TEST_LOG" before-noop.log
-            homelab-appctl deploy deopjib dev --target "$target"
+            PATH=/does-not-exist ${appctl}/bin/homelab-appctl deploy deopjib dev --target "$target"
             cmp before-noop.log "$HOMELAB_APPCTL_TEST_LOG"
 
             printf '%s\n' in-progress > "$latest/result"
