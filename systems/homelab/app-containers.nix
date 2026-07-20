@@ -27,6 +27,7 @@ let
   enabledApps = filterAttrs (_: app: app.enable) cfg.apps;
   hasApps = enabledApps != { };
   cloudflareTunnelId = "a19003a7-293f-4872-b8a5-1db544878f45";
+  podmanDnsLifecycleService = "podman-dns-lifecycle.service";
 
   validId = value: builtins.match "^[a-z0-9][a-z0-9-]*$" value != null;
 
@@ -230,9 +231,18 @@ let
     nameValuePair "${unitPrefix}-${serviceName}" {
       unitConfig = {
         Description = "${app.contract.name} ${app.contract.channel} ${serviceName} container";
-        Requires = [ "sops-install-secrets.service" ];
-        After = [ "sops-install-secrets.service" ];
-        PartOf = [ networkService ];
+        Requires = [
+          "sops-install-secrets.service"
+          podmanDnsLifecycleService
+        ];
+        After = [
+          "sops-install-secrets.service"
+          podmanDnsLifecycleService
+        ];
+        PartOf = [
+          networkService
+          podmanDnsLifecycleService
+        ];
       };
       containerConfig = {
         name = "${unitPrefix}-${serviceName}";
@@ -266,6 +276,11 @@ let
     in
     nameValuePair unitPrefix {
       autoStart = false;
+      unitConfig = {
+        Requires = [ podmanDnsLifecycleService ];
+        After = [ podmanDnsLifecycleService ];
+        PartOf = [ podmanDnsLifecycleService ];
+      };
       networkConfig.name = unitPrefix;
     };
 
@@ -407,13 +422,6 @@ let
       ) enabledApps
     )
   );
-  networkLifecycleServices = mapAttrs' (
-    _appName: app:
-    nameValuePair "${unitPrefixFor app}-network" {
-      restartTriggers = [ config.virtualisation.podman.package ];
-    }
-  ) enabledApps;
-
   homelabAppctl = pkgs.writeShellApplication {
     name = "homelab-appctl";
     runtimeInputs = [
@@ -1232,7 +1240,7 @@ in
       }
     ];
 
-    systemd.services = migrationServices // networkLifecycleServices;
+    systemd.services = migrationServices;
 
     systemd.tmpfiles.rules = [
       "d /var/lib/homelab-appctl 0750 root root - -"

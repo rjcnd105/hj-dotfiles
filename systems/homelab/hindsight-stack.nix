@@ -17,6 +17,7 @@
 let
   servicesEnv = config.sops.templates."services.env".path;
   legacyDbVolumePath = "/var/lib/docker/volumes/hindsight-db-data/_data";
+  podmanDnsLifecycleService = "podman-dns-lifecycle.service";
 
   images = {
     # GHCR does not publish a semantic 0.8.4-slim tag; latest-slim's OCI
@@ -230,6 +231,21 @@ in
       [Install]
       WantedBy=multi-user.target
     '';
+  };
+
+  # Quadlet owns these generated units; NixOS contributes only lifecycle drop-ins.
+  systemd.services.hindsight-db = {
+    overrideStrategy = "asDropin";
+    requires = [ podmanDnsLifecycleService ];
+    after = [ podmanDnsLifecycleService ];
+    partOf = [ podmanDnsLifecycleService ];
+  };
+
+  systemd.services.hindsight = {
+    overrideStrategy = "asDropin";
+    requires = [ podmanDnsLifecycleService ];
+    after = [ podmanDnsLifecycleService ];
+    partOf = [ podmanDnsLifecycleService ];
   };
 
   systemd.services.hindsight-db-settings = {
