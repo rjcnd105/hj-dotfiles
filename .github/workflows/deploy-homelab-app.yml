@@ -10,10 +10,7 @@ on:
       channel:
         description: "Deploy channel"
         required: true
-        type: choice
-        options:
-          - dev
-          - prod
+        type: string
       target:
         description: "Release identifier to deploy, for example deopjib-v0.0.1"
         required: true
@@ -32,61 +29,12 @@ jobs:
       - homelab
     environment: ${{ inputs.channel == 'prod' && 'homelab-prod' || 'homelab-dev' }}
     steps:
-      - name: Validate request
-        run: |
-          set -euo pipefail
-
-          case "${APP}:${CHANNEL}" in
-            deopjib:dev | deopjib:prod)
-              ;;
-            *)
-              echo "::error::unsupported app/channel: ${APP}:${CHANNEL}" >&2
-              exit 1
-              ;;
-          esac
-
-          stable_release_id='^deopjib-v[0-9]+\.[0-9]+\.[0-9]+$'
-          dev_snapshot_id='^deopjib-v0\.0\.0-dev\.[0-9a-f]{7,40}$'
-          source_sha='^[0-9a-f]{40}$'
-
-          if printf '%s' "$TARGET" | grep -Eq "$stable_release_id"; then
-            exit 0
-          fi
-
-          if printf '%s' "$TARGET" | grep -Eq "$dev_snapshot_id"; then
-            if [ "$CHANNEL" = prod ]; then
-              echo "::error::prod dispatch requires a stable release id target, not a dev snapshot" >&2
-              exit 1
-            fi
-            exit 0
-          fi
-
-          if printf '%s' "$TARGET" | grep -Eq "$source_sha"; then
-            if [ "$CHANNEL" = prod ]; then
-              echo "::error::prod dispatch requires a release id target, not a transitional source SHA" >&2
-              exit 1
-            fi
-            exit 0
-          fi
-
-          if [ "$CHANNEL" = prod ]; then
-            echo "::error::prod target must be a Deopjib release id like deopjib-v0.0.1" >&2
-          else
-            echo "::error::target must be a Deopjib release id like deopjib-v0.0.1, a dev snapshot like deopjib-v0.0.0-dev.abcdef0, or a transitional full lowercase source SHA" >&2
-          fi
-          exit 1
-        env:
-          APP: ${{ inputs.app }}
-          CHANNEL: ${{ inputs.channel }}
-          TARGET: ${{ inputs.target }}
-
       - name: Deploy
         run: |
           set -euo pipefail
           appctl=/run/current-system/sw/bin/homelab-appctl
           sudo=/run/wrappers/bin/sudo
           "$sudo" -n "$appctl" deploy "$APP" "$CHANNEL" --target "$TARGET"
-          "$appctl" smoke "$APP" "$CHANNEL"
         env:
           APP: ${{ inputs.app }}
           CHANNEL: ${{ inputs.channel }}

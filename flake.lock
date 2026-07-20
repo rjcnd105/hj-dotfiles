@@ -46,16 +46,15 @@
     "deopjibRuntime": {
       "flake": false,
       "locked": {
-        "lastModified": 1778043520,
-        "narHash": "sha256-yxdGhNNjaNpMBv7i+VKBtzqsmT//pgObUIY9GED6qqQ=",
+        "lastModified": 1784555092,
+        "narHash": "sha256-AqktW/0G6vcTWMwpMiONkhAdykluCBWkZVxQsGbbi2c=",
         "owner": "rjcnd105",
         "repo": "my-app",
-        "rev": "a2e2763f1efbd9258b4e47e43a065b64b2b90792",
+        "rev": "ad6a8af849afb7edb1b591fac8466e4f312157cd",
         "type": "github"
       },
       "original": {
         "owner": "rjcnd105",
-        "ref": "feat/deopjib-runtime-contract",
         "repo": "my-app",
         "type": "github"
       }

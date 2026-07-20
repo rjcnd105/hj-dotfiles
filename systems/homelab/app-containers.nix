@@ -70,6 +70,8 @@ let
     else
       "invalid-image-reference";
 
+  releaseManaged = service: service.updatePolicy == "manual";
+
   envTemplateNameFor = app: serviceName: "${unitPrefixFor app}-${serviceName}.env";
 
   releaseChannelFor =
@@ -78,6 +80,14 @@ let
       app.contract.release.channels.${app.contract.channel}
     else
       null;
+
+  releaseImageNameFor =
+    app: service:
+    let
+      imageRef = imageRefFor app service;
+      releaseChannel = releaseChannelFor app;
+    in
+    if releaseChannel == null then imageRef else lib.removeSuffix ":${releaseChannel.tag}" imageRef;
 
   smokePathsFor =
     app:
@@ -227,6 +237,7 @@ let
       authFile = registryAuthFileFor app;
       envTemplate = config.sops.templates.${envTemplateNameFor app serviceName}.path;
       networkService = "${unitPrefix}-network.service";
+      dependencyServices = map (name: "${unitPrefix}-${name}.service") service.dependsOn;
       volumes = map (mount: mountLineFor app mount) service.volumeMounts;
     in
     nameValuePair "${unitPrefix}-${serviceName}" {
@@ -235,11 +246,13 @@ let
         Requires = [
           "sops-install-secrets.service"
           podmanDnsLifecycleService
-        ];
+        ]
+        ++ dependencyServices;
         After = [
           "sops-install-secrets.service"
           podmanDnsLifecycleService
-        ];
+        ]
+        ++ dependencyServices;
         PartOf = [
           networkService
           podmanDnsLifecycleService
@@ -247,7 +260,8 @@ let
       };
       containerConfig = {
         name = "${unitPrefix}-${serviceName}";
-        image = "${unitPrefix}-${serviceName}.image";
+        image =
+          if releaseManaged service then imageRefFor app service else "${unitPrefix}-${serviceName}.image";
         pull = "never";
         autoUpdate = if service.updatePolicy == "registry-auto" then "registry" else null;
         labels = lib.optionalAttrs (service.updatePolicy == "registry-auto" && authFile != null) {
@@ -261,6 +275,13 @@ let
           "127.0.0.1:${toString servicePorts.${serviceName}}:${toString service.internalPort}"
         ];
         inherit volumes;
+      }
+      // lib.optionalAttrs (service.readiness != null) {
+        healthCmd = lib.escapeShellArgs service.readiness.command;
+        healthInterval = service.readiness.interval;
+        healthRetries = service.readiness.retries;
+        healthTimeout = service.readiness.timeout;
+        notify = "healthy";
       };
       serviceConfig = {
         Restart = "on-failure";
@@ -299,6 +320,7 @@ let
       imageRef = imageRefFor app service;
       networkService = "${unitPrefix}-network.service";
       imageService = "${unitPrefix}-${migrationServiceName}-image.service";
+      dependencyServices = map (name: "${unitPrefix}-${name}.service") service.dependsOn;
       volumeServices = map (mount: "${unitPrefix}-${mount.volume}-volume.service") service.volumeMounts;
       volumeArgs = concatStringsSep " " (
         map (mount: "--volume ${lib.escapeShellArg (podmanMountLineFor app mount)}") service.volumeMounts
@@ -310,15 +332,17 @@ let
         "sops-install-secrets.service"
         "network-online.target"
         networkService
-        imageService
       ]
+      ++ lib.optional (!releaseManaged service) imageService
+      ++ dependencyServices
       ++ volumeServices;
       after = [
         "sops-install-secrets.service"
         "network-online.target"
         networkService
-        imageService
       ]
+      ++ lib.optional (!releaseManaged service) imageService
+      ++ dependencyServices
       ++ volumeServices;
       serviceConfig.Type = "oneshot";
       script = ''
@@ -343,12 +367,15 @@ let
       name = serviceName;
       imageKey = service.image;
       imageRef = imageRefFor app service;
-      imageUnit = "${unitPrefix}-${serviceName}-image.service";
+      imageName = if releaseManaged service then releaseImageNameFor app service else null;
+      imageUnit = if releaseManaged service then null else "${unitPrefix}-${serviceName}-image.service";
+      releaseManaged = releaseManaged service;
       serviceUnit = "${unitPrefix}-${serviceName}.service";
       containerName = "${unitPrefix}-${serviceName}";
       internalPort = service.internalPort;
       loopbackPort = servicePorts.${serviceName};
       healthPath = service.healthPath;
+      dependsOn = service.dependsOn;
       updatePolicy = service.updatePolicy;
     };
 
@@ -363,9 +390,14 @@ let
       appKey = appName;
       name = app.contract.name;
       channel = app.contract.channel;
+      runtimeContractSourceSha256 = app.runtimeContractSourceSha256;
+      homelabAdmissionSourceSha256 = app.homelabAdmissionSourceSha256;
+      manifestSchemaSourceSha256 = app.manifestSchemaSourceSha256;
+      manifestGeneratorSourceSha256 = app.manifestGeneratorSourceSha256;
       unitPrefix = unitPrefix;
       domain = app.host.domain;
       caddyUrl = "http://127.0.0.1:${toString caddyPort}";
+      registryAuthFile = registryAuthFileFor app;
       smokePaths = smokePathsFor app;
       services = mapAttrsToList (serviceMetadataFor app) app.contract.services;
       migration =
@@ -388,11 +420,12 @@ let
           null
         else
           {
+            manifestUrl = app.contract.release.manifestUrl;
             tag = releaseChannel.tag;
             mode = releaseChannel.mode;
+            targetPattern = releaseChannel.targetPattern;
             strategy = releaseChannel.strategy;
             migrate = releaseChannel.migrate;
-            rollback = releaseChannel.rollback;
             smokePaths = releaseChannel.smokePaths;
           };
     };
@@ -415,7 +448,10 @@ let
   quadletImages = listToAttrs (
     flatten (
       mapAttrsToList (
-        _appName: app: mapAttrsToList (quadletImageFor app) app.contract.services
+        _appName: app:
+        mapAttrsToList (quadletImageFor app) (
+          filterAttrs (_serviceName: service: !releaseManaged service) app.contract.services
+        )
       ) enabledApps
     )
   );
@@ -433,15 +469,17 @@ let
       pkgs.curl
       pkgs.findutils
       pkgs.gnugrep
+      pkgs.gnused
       pkgs.jq
       pkgs.podman
       pkgs.systemd
+      pkgs.util-linux
     ];
     text = ''
       set -euo pipefail
 
-      metadata_root=/etc/homelab-apps
-      state_root=/var/lib/homelab-appctl
+      metadata_root="''${HOMELAB_APPCTL_METADATA_ROOT:-/etc/homelab-apps}"
+      state_root="''${HOMELAB_APPCTL_STATE_ROOT:-/var/lib/homelab-appctl}"
 
       usage() {
         cat <<'EOF'
@@ -449,8 +487,7 @@ let
         homelab-appctl list
         homelab-appctl status <app> <channel>
         homelab-appctl smoke <app> <channel>
-        homelab-appctl deploy <app> <channel> [--dry-run] [--target <identifier>]
-        homelab-appctl rollback <app> <channel>
+        homelab-appctl deploy <app> <channel> --target <release-id> [--dry-run]
         homelab-appctl logs <app> <channel>
       EOF
       }
@@ -469,8 +506,8 @@ let
 
       require_target() {
         local value=$1
-        [[ "$value" =~ ^[A-Za-z0-9._:-]+$ ]] ||
-          die "target must match ^[A-Za-z0-9._:-]+$: $value"
+        [[ "$value" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] ||
+          die "target must match ^[A-Za-z0-9][A-Za-z0-9._-]*$: $value"
       }
 
       require_app_channel() {
@@ -506,8 +543,12 @@ let
         jq -r '.services[].serviceUnit' "$1"
       }
 
-      image_units() {
-        jq -r '.services[].imageUnit' "$1"
+      release_units() {
+        jq -r '.services[] | select(.releaseManaged) | .serviceUnit' "$1"
+      }
+
+      release_images() {
+        jq -r '.services[] | select(.releaseManaged) | [.name, .imageKey, .imageName, .imageRef] | @tsv' "$1"
       }
 
       smoke_paths() {
@@ -596,13 +637,177 @@ let
         ln -sfnT "$record_path" "$record_dir/latest"
       }
 
+      begin_record() {
+        local record_dir=$1
+        local record_path=$2
+        local app=$3
+        local channel=$4
+        local target=$5
+        local migration_result=$6
+        local smoke_result=$7
+
+        printf '%s\n' in-progress > "$record_path/result"
+        write_record_summary "$record_path" "$app" "$channel" "$target" in-progress "$migration_result" "$smoke_result"
+        ln -sfnT "$record_path" "$record_dir/latest"
+      }
+
       current_target() {
         local app=$1
         local channel=$2
+        local meta=$3
         local latest="$state_root/$app/$channel/latest"
-        if [ -e "$latest/target" ] && [ -e "$latest/result" ] && [ "$(cat "$latest/result")" = ok ]; then
+        if [ -e "$latest/target" ] \
+          && [ -e "$latest/result" ] \
+          && [ "$(cat "$latest/result")" = ok ] \
+          && cmp -s "$meta" "$latest/metadata.json"; then
           cat "$latest/target"
         fi
+      }
+
+      manifest_url() {
+        local meta=$1
+        local target=$2
+        local template
+        template=$(jq -er '.release.manifestUrl | strings' "$meta")
+        [[ "$template" == *'{target}'* ]] || die "release manifest URL is missing {target}: $template"
+        printf '%s\n' "''${template//\{target\}/$target}"
+      }
+
+      download_manifest() {
+        local url=$1
+        local output=$2
+
+        case "$url" in
+          https://*)
+            curl -fsSL --proto '=https' --proto-redir '=https' \
+              --retry 3 --connect-timeout 5 --max-time 30 "$url" -o "$output"
+            ;;
+          file://*)
+            if [ "''${HOMELAB_APPCTL_TEST_ALLOW_FILE_URL:-0}" = 1 ] \
+              && [ "$(id -u)" -ne 0 ] \
+              && [ "$metadata_root" != /etc/homelab-apps ] \
+              && [ "$state_root" != /var/lib/homelab-appctl ]; then
+              curl -fsSL --proto '=file' --proto-redir '=file' "$url" -o "$output"
+            else
+              echo "release manifest URL must use HTTPS: $url" >&2
+              return 1
+            fi
+            ;;
+          *)
+            echo "release manifest URL must use HTTPS: $url" >&2
+            return 1
+            ;;
+        esac
+      }
+
+      validate_manifest() {
+        local meta=$1
+        local manifest=$2
+        local target=$3
+        local app target_pattern runtime_contract_hash homelab_admission_hash manifest_schema_hash manifest_generator_hash
+        app=$(jq -r '.name' "$meta")
+        target_pattern=$(jq -er '.release.targetPattern | strings' "$meta")
+        runtime_contract_hash=$(jq -r '.runtimeContractSourceSha256' "$meta")
+        homelab_admission_hash=$(jq -r '.homelabAdmissionSourceSha256' "$meta")
+        manifest_schema_hash=$(jq -r '.manifestSchemaSourceSha256' "$meta")
+        manifest_generator_hash=$(jq -r '.manifestGeneratorSourceSha256' "$meta")
+
+        jq -e \
+          --arg app "$app" \
+          --arg target "$target" \
+          --arg targetPattern "$target_pattern" \
+          --arg runtimeContractHash "$runtime_contract_hash" \
+          --arg homelabAdmissionHash "$homelab_admission_hash" \
+          --arg manifestSchemaHash "$manifest_schema_hash" \
+          --arg manifestGeneratorHash "$manifest_generator_hash" \
+          '.schemaVersion == 1
+            and .app == $app
+            and .target == $target
+            and (.target | test($targetPattern))
+            and (.sourceRev | test("^[0-9a-f]{40}$"))
+            and .deploymentContract.runtimeSourceSha256 == $runtimeContractHash
+            and .deploymentContract.admissionSourceSha256 == $homelabAdmissionHash
+            and .deploymentContract.schemaSourceSha256 == $manifestSchemaHash
+            and .deploymentContract.generatorSourceSha256 == $manifestGeneratorHash' \
+          "$manifest" >/dev/null
+      }
+
+      desired_images() {
+        local meta=$1
+        local manifest=$2
+        local service image_key image_name image_ref manifest_name digest
+
+        while IFS=$'\t' read -r service image_key image_name image_ref; do
+          manifest_name=$(jq -er --arg key "$image_key" '.images[$key].name | strings' "$manifest") || return 1
+          digest=$(jq -er --arg key "$image_key" '.images[$key].digest | strings' "$manifest") || return 1
+          if [ "$manifest_name" != "$image_name" ]; then
+            echo "manifest image name mismatch for $service: $manifest_name" >&2
+            return 1
+          fi
+          if [[ ! "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "invalid manifest digest for $service: $digest" >&2
+            return 1
+          fi
+          printf '%s\t%s\t%s\t%s\n' "$service" "$image_ref" "$manifest_name" "$digest"
+        done < <(release_images "$meta")
+      }
+
+      pull_release_images() {
+        local meta=$1
+        local desired=$2
+        local auth_file service image_ref image_name digest
+        local auth_args=()
+        auth_file=$(jq -r '.registryAuthFile // empty' "$meta")
+        if [ -n "$auth_file" ]; then
+          auth_args=(--authfile "$auth_file")
+        fi
+
+        while IFS=$'\t' read -r service image_ref image_name digest; do
+          echo "pull: $image_name@$digest"
+          podman pull "''${auth_args[@]}" "$image_name@$digest" >/dev/null || return 1
+        done < "$desired"
+      }
+
+      activate_release_images() {
+        local desired=$1
+        local service image_ref image_name digest
+        while IFS=$'\t' read -r service image_ref image_name digest; do
+          echo "activate: $image_ref -> $digest"
+          podman tag "$image_name@$digest" "$image_ref" || return 1
+        done < "$desired"
+      }
+
+      restore_release_images() {
+        local desired=$1
+        local before=$2
+        local service image_ref image_name digest before_ref before_id previous_id
+        local failed=0
+
+        while IFS=$'\t' read -r service image_ref image_name digest; do
+          previous_id=""
+          while IFS=$'\t' read -r _ before_ref before_id; do
+            if [ "$before_ref" = "$image_ref" ]; then
+              previous_id=$before_id
+              break
+            fi
+          done < "$before"
+
+          if [ -n "$previous_id" ]; then
+            if ! podman tag "$previous_id" "$image_ref"; then
+              echo "failed to restore $image_ref to $previous_id" >&2
+              failed=1
+            fi
+          else
+            if ! podman untag "$image_ref" >/dev/null 2>&1; then
+              if podman image inspect "$image_ref" >/dev/null 2>&1; then
+                echo "failed to remove newly activated tag $image_ref" >&2
+                failed=1
+              fi
+            fi
+          fi
+        done < "$desired"
+
+        return "$failed"
       }
 
       cmd_list() {
@@ -665,14 +870,17 @@ let
         local meta=$3
         local dry_run=$4
         local target=$5
-        local current
-        local migration_unit record_dir record_path
-        local migration_result smoke_result image_unit service_unit
-
-        migration_unit=$(jq -r '.migration.unit // empty' "$meta")
-        current=$(current_target "$app" "$channel" 2>/dev/null || true)
+        local current release_manifest_url
+        local migration_unit record_dir record_path deploy_lock_fd metadata_snapshot
+        local migration_result smoke_result result
+        local release_service_units=()
 
         if [ "$dry_run" = 1 ]; then
+          local dry_run_dir
+          migration_unit=$(jq -r '.migration.unit // empty' "$meta")
+          current=$(current_target "$app" "$channel" "$meta" 2>/dev/null || true)
+          release_manifest_url=$(manifest_url "$meta" "$target")
+          dry_run_dir=$(mktemp -d)
           echo "metadata: $meta"
           if [ -n "$target" ]; then
             echo "target: $target"
@@ -682,55 +890,108 @@ let
               echo "action: deploy; current target: ''${current:-none}"
             fi
           fi
-          echo "image units:"
-          image_units "$meta" | sed 's/^/  /'
+          echo "release manifest: $release_manifest_url"
+          if ! download_manifest "$release_manifest_url" "$dry_run_dir/release-manifest.json"; then
+            rm -rf "$dry_run_dir"
+            die "release manifest download failed: $release_manifest_url"
+          fi
+          if ! validate_manifest "$meta" "$dry_run_dir/release-manifest.json" "$target"; then
+            rm -rf "$dry_run_dir"
+            die "release manifest does not match admitted metadata: $target"
+          fi
+          if ! desired_images "$meta" "$dry_run_dir/release-manifest.json" > "$dry_run_dir/desired-images.tsv" \
+            || [ ! -s "$dry_run_dir/desired-images.tsv" ]; then
+            rm -rf "$dry_run_dir"
+            die "release manifest has no valid admitted images"
+          fi
+          echo "release images:"
+          while IFS=$'\t' read -r _ image_ref image_name digest; do
+            echo "  $image_name@$digest -> $image_ref"
+          done < "$dry_run_dir/desired-images.tsv"
           if [ -n "$migration_unit" ]; then
             echo "migration unit:"
             echo "  $migration_unit"
           else
             echo "migration unit: none"
           fi
-          echo "service units:"
-          service_units "$meta" | sed 's/^/  /'
+          echo "release service units:"
+          release_units "$meta" | sed 's/^/  /'
           echo "smoke paths:"
           smoke_paths "$meta" | sed 's/^/  /'
+          rm -rf "$dry_run_dir"
           return 0
         fi
 
         require_root deploy "$app" "$channel"
 
+        record_dir="$state_root/$app/$channel"
+        mkdir -p "$record_dir"
+        exec {deploy_lock_fd}> "$record_dir/deploy.lock"
+        flock -w 900 "$deploy_lock_fd" || die "timed out waiting for deploy lock: $app/$channel"
+
+        metadata_snapshot=$(mktemp)
+        cp "$meta" "$metadata_snapshot"
+        meta="$metadata_snapshot"
+        current=$(current_target "$app" "$channel" "$meta" 2>/dev/null || true)
+
         if [ -n "$target" ] && [ "$current" = "$target" ]; then
           echo "target already deployed: $target"
+          rm -f "$metadata_snapshot"
           return 0
         fi
 
-        record_dir="$state_root/$app/$channel"
-        record_path="$record_dir/$(date -u +%Y%m%dT%H%M%SZ)"
-        mkdir -p "$record_path"
+        record_path=$(mktemp -d "$record_dir/$(date -u +%Y%m%dT%H%M%SZ).XXXXXX")
         cp "$meta" "$record_path/metadata.json"
+        rm -f "$metadata_snapshot"
+        meta="$record_path/metadata.json"
         sha256sum "$meta" > "$record_path/metadata.sha256"
         if [ -n "$target" ]; then
           printf '%s\n' "$target" > "$record_path/target"
         fi
+        migration_unit=$(jq -r '.migration.unit // empty' "$meta")
+        release_manifest_url=$(manifest_url "$meta" "$target")
         migration_result=skipped
         if [ -n "$migration_unit" ]; then
           migration_result=not-run
         fi
         smoke_result=not-run
         snapshot_images "$meta" > "$record_path/before-images.tsv"
+        begin_record "$record_dir" "$record_path" "$app" "$channel" "$target" "$migration_result" "$smoke_result"
 
-        if ! systemctl daemon-reload; then
-          finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" restart-failed "$migration_result" "$smoke_result"
+        echo "manifest: $release_manifest_url"
+        if ! download_manifest "$release_manifest_url" "$record_path/release-manifest.json"; then
+          finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" manifest-download-failed "$migration_result" "$smoke_result"
           return 1
         fi
 
-        while IFS= read -r image_unit; do
-          echo "pull: $image_unit"
-          if ! systemctl restart "$image_unit"; then
-            finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" pull-failed "$migration_result" "$smoke_result"
-            return 1
+        if ! validate_manifest "$meta" "$record_path/release-manifest.json" "$target"; then
+          finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" manifest-invalid "$migration_result" "$smoke_result"
+          return 1
+        fi
+
+        if ! desired_images "$meta" "$record_path/release-manifest.json" > "$record_path/desired-images.tsv"; then
+          finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" manifest-invalid "$migration_result" "$smoke_result"
+          return 1
+        fi
+        if [ ! -s "$record_path/desired-images.tsv" ]; then
+          finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" manifest-invalid "$migration_result" "$smoke_result"
+          return 1
+        fi
+
+        if ! pull_release_images "$meta" "$record_path/desired-images.tsv"; then
+          finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" pull-failed "$migration_result" "$smoke_result"
+          return 1
+        fi
+
+        if ! activate_release_images "$record_path/desired-images.tsv"; then
+          if restore_release_images "$record_path/desired-images.tsv" "$record_path/before-images.tsv"; then
+            result=activation-failed
+          else
+            result=activation-recovery-failed
           fi
-        done < <(image_units "$meta")
+          finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" "$result" "$migration_result" "$smoke_result"
+          return 1
+        fi
 
         if [ -n "$migration_unit" ]; then
           echo "migrate: $migration_unit"
@@ -738,18 +999,23 @@ let
             migration_result=ok
           else
             migration_result=failed
-            finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" migration-failed "$migration_result" "$smoke_result"
+            if restore_release_images "$record_path/desired-images.tsv" "$record_path/before-images.tsv"; then
+              result=migration-failed
+            else
+              result=migration-recovery-failed
+            fi
+            finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" "$result" "$migration_result" "$smoke_result"
             return 1
           fi
         fi
 
-        while IFS= read -r service_unit; do
-          echo "restart: $service_unit"
-          if ! systemctl restart "$service_unit"; then
-            finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" restart-failed "$migration_result" "$smoke_result"
-            return 1
-          fi
-        done < <(service_units "$meta")
+        mapfile -t release_service_units < <(release_units "$meta")
+        [ "''${#release_service_units[@]}" -gt 0 ] || die "metadata has no release service units"
+        echo "restart: ''${release_service_units[*]}"
+        if ! systemctl restart "''${release_service_units[@]}"; then
+          finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" restart-failed "$migration_result" "$smoke_result"
+          return 1
+        fi
 
         snapshot_images "$meta" > "$record_path/after-images.tsv"
 
@@ -760,28 +1026,9 @@ let
         else
           smoke_result=failed
           finish_record "$record_dir" "$record_path" "$app" "$channel" "$target" smoke-failed "$migration_result" "$smoke_result"
-          echo "smoke failed; rollback record: $record_path" >&2
-          echo "run: sudo -n homelab-appctl rollback $app $channel" >&2
+          echo "smoke failed; deploy a known-good release target to roll back: $record_path" >&2
           return 1
         fi
-      }
-
-      cmd_rollback() {
-        local app=$1
-        local channel=$2
-        local record_dir latest
-
-        require_root rollback "$app" "$channel"
-
-        record_dir="$state_root/$app/$channel"
-        latest="$record_dir/latest"
-        [ -e "$latest" ] || die "no deploy record found for $app $channel"
-
-        echo "automatic rollback is not enabled yet for $app $channel"
-        echo "latest deploy record: $(readlink "$latest" || printf '%s' "$latest")"
-        echo "previous images:"
-        cat "$latest/before-images.tsv"
-        return 2
       }
 
       command=''${1:-}
@@ -790,7 +1037,7 @@ let
           [ "$#" -eq 1 ] || die "list takes no arguments"
           cmd_list
           ;;
-        status|smoke|logs|rollback)
+        status|smoke|logs)
           [ "$#" -eq 3 ] || {
             usage >&2
             exit 1
@@ -802,7 +1049,6 @@ let
             status) cmd_status "$meta" ;;
             smoke) cmd_smoke "$meta" ;;
             logs) cmd_logs "$meta" ;;
-            rollback) cmd_rollback "$app" "$channel" ;;
           esac
           ;;
         deploy)
@@ -832,6 +1078,7 @@ let
                 ;;
             esac
           done
+          [ -n "$target" ] || die "deploy requires --target <release-id>"
           meta=$(require_metadata "$app" "$channel")
           cmd_deploy "$app" "$channel" "$meta" "$dry_run" "$target"
           ;;
@@ -863,6 +1110,7 @@ let
       ) contract.services;
       migrationServiceIsRegistryAuto =
         migrationService != null && builtins.hasAttr migrationService registryAutoServices;
+      manualServices = filterAttrs (_: service: releaseManaged service) contract.services;
     in
     [
       {
@@ -908,6 +1156,51 @@ let
         assertion = migrationMode == "none" || !migrationServiceIsRegistryAuto;
         message = "homelab.apps.${appName}: registry-auto is not allowed on the migration service.";
       }
+      {
+        assertion = builtins.match "^[0-9a-f]{64}$" app.runtimeContractSourceSha256 != null;
+        message = "homelab.apps.${appName}: runtimeContractSourceSha256 must be a lowercase SHA-256 hex digest.";
+      }
+      {
+        assertion = builtins.match "^[0-9a-f]{64}$" app.homelabAdmissionSourceSha256 != null;
+        message = "homelab.apps.${appName}: homelabAdmissionSourceSha256 must be a lowercase SHA-256 hex digest.";
+      }
+      {
+        assertion = builtins.match "^[0-9a-f]{64}$" app.manifestSchemaSourceSha256 != null;
+        message = "homelab.apps.${appName}: manifestSchemaSourceSha256 must be a lowercase SHA-256 hex digest.";
+      }
+      {
+        assertion = builtins.match "^[0-9a-f]{64}$" app.manifestGeneratorSourceSha256 != null;
+        message = "homelab.apps.${appName}: manifestGeneratorSourceSha256 must be a lowercase SHA-256 hex digest.";
+      }
+      {
+        assertion =
+          manualServices == { } || (releaseChannelFor app != null && contract.release.manifestUrl != null);
+        message = "homelab.apps.${appName}: manual services require release channel metadata and a manifestUrl.";
+      }
+      {
+        assertion =
+          contract.release.manifestUrl == null || lib.hasInfix "{target}" contract.release.manifestUrl;
+        message = "homelab.apps.${appName}: release.manifestUrl must contain the {target} placeholder.";
+      }
+      {
+        assertion =
+          contract.release.manifestUrl == null || lib.hasPrefix "https://" contract.release.manifestUrl;
+        message = "homelab.apps.${appName}: release.manifestUrl must use HTTPS.";
+      }
+      {
+        assertion = builtins.all (
+          origin: lib.hasPrefix "https://" origin && !(lib.hasSuffix "/" origin)
+        ) app.host.releaseManifestOrigins;
+        message = "homelab.apps.${appName}: host.releaseManifestOrigins must contain HTTPS origins without a trailing slash.";
+      }
+      {
+        assertion =
+          manualServices == { }
+          || builtins.any (
+            origin: lib.hasPrefix "${origin}/" contract.release.manifestUrl
+          ) app.host.releaseManifestOrigins;
+        message = "homelab.apps.${appName}: release.manifestUrl must match a host-admitted releaseManifestOrigin.";
+      }
     ]
     ++ flatten (
       mapAttrsToList (
@@ -920,6 +1213,10 @@ let
           {
             assertion = channel.migrate != "manual" || migrationMode == "manual";
             message = "homelab.apps.${appName}: release channel ${channelName} cannot request manual migration when contract.migrations.mode is not manual.";
+          }
+          {
+            assertion = lib.hasPrefix "^" channel.targetPattern && lib.hasSuffix "$" channel.targetPattern;
+            message = "homelab.apps.${appName}: release channel ${channelName} targetPattern must be anchored with ^ and $.";
           }
         ]
         ++ map (path: {
@@ -939,6 +1236,31 @@ let
           {
             assertion = builtins.elem service.image imageNames;
             message = "homelab.apps.${appName}.${serviceName}: service.image must reference contract.images.";
+          }
+          {
+            assertion = builtins.all (
+              dependency: dependency != serviceName && builtins.elem dependency serviceNames
+            ) service.dependsOn;
+            message = "homelab.apps.${appName}.${serviceName}: dependsOn entries must reference other contract services.";
+          }
+          {
+            assertion = service.readiness == null || service.readiness.command != [ ];
+            message = "homelab.apps.${appName}.${serviceName}: readiness.command must not be empty.";
+          }
+          {
+            assertion =
+              !releaseManaged service
+              || (
+                releaseChannelFor app != null
+                && lib.hasSuffix ":${(releaseChannelFor app).tag}" (imageRefFor app service)
+              );
+            message = "homelab.apps.${appName}.${serviceName}: manual image refs must end with the admitted release channel tag.";
+          }
+          {
+            assertion =
+              service.updatePolicy != "pinned-digest"
+              || builtins.match ".*@sha256:[0-9a-f]{64}$" (imageRefFor app service) != null;
+            message = "homelab.apps.${appName}.${serviceName}: pinned-digest image refs must end with @sha256:<64 lowercase hex>.";
           }
           {
             assertion = builtins.elem "${unitPrefixFor app}-${serviceName}" (
@@ -993,6 +1315,26 @@ in
           options = {
             enable = mkEnableOption "homelab app container admission";
 
+            runtimeContractSourceSha256 = mkOption {
+              type = types.str;
+              description = "SHA-256 of the app-owned runtime contract source.";
+            };
+
+            homelabAdmissionSourceSha256 = mkOption {
+              type = types.str;
+              description = "SHA-256 of the pinned app-owned homelab admission source.";
+            };
+
+            manifestSchemaSourceSha256 = mkOption {
+              type = types.str;
+              description = "SHA-256 of the pinned app-owned release manifest schema.";
+            };
+
+            manifestGeneratorSourceSha256 = mkOption {
+              type = types.str;
+              description = "SHA-256 of the pinned app-owned release manifest generator.";
+            };
+
             contract = mkOption {
               type = types.submodule {
                 options = {
@@ -1007,6 +1349,23 @@ in
                           internalPort = mkOption { type = types.port; };
                           healthPath = mkOption {
                             type = types.nullOr types.str;
+                            default = null;
+                          };
+                          dependsOn = mkOption {
+                            type = types.listOf types.str;
+                            default = [ ];
+                          };
+                          readiness = mkOption {
+                            type = types.nullOr (
+                              types.submodule {
+                                options = {
+                                  command = mkOption { type = types.listOf types.str; };
+                                  interval = mkOption { type = types.str; };
+                                  retries = mkOption { type = types.ints.positive; };
+                                  timeout = mkOption { type = types.str; };
+                                };
+                              }
+                            );
                             default = null;
                           };
                           env = mkOption {
@@ -1083,6 +1442,10 @@ in
                           type = types.enum [ "external" ];
                           default = "external";
                         };
+                        manifestUrl = mkOption {
+                          type = types.nullOr types.str;
+                          default = null;
+                        };
                         channels = mkOption {
                           type = types.attrsOf (
                             types.submodule {
@@ -1095,6 +1458,10 @@ in
                                     "approved"
                                   ];
                                   default = "manual";
+                                };
+                                targetPattern = mkOption {
+                                  type = types.str;
+                                  description = "Anchored regular expression for release targets admitted to this channel.";
                                 };
                                 strategy = mkOption {
                                   type = types.enum [ "coordinated" ];
@@ -1110,10 +1477,6 @@ in
                                     "manual"
                                   ];
                                   default = "none";
-                                };
-                                rollback = mkOption {
-                                  type = types.enum [ "record-only" ];
-                                  default = "record-only";
                                 };
                               };
                             }
@@ -1159,6 +1522,11 @@ in
               registryAuth = mkOption {
                 type = types.nullOr types.str;
                 default = null;
+              };
+              releaseManifestOrigins = mkOption {
+                type = types.listOf types.str;
+                default = [ ];
+                description = "Host-admitted HTTPS origins allowed to serve release manifests.";
               };
               timeoutStartSec = mkOption {
                 type = types.str;
@@ -1255,9 +1623,7 @@ in
           in
           [
             (allowedCommand "${homelabAppctl}/bin/homelab-appctl deploy *")
-            (allowedCommand "${homelabAppctl}/bin/homelab-appctl rollback *")
             (allowedCommand "/run/current-system/sw/bin/homelab-appctl deploy *")
-            (allowedCommand "/run/current-system/sw/bin/homelab-appctl rollback *")
           ];
       }
     ];

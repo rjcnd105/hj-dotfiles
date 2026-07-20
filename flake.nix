@@ -31,7 +31,7 @@
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
 
     deopjibRuntime = {
-      url = "github:rjcnd105/my-app/feat/deopjib-runtime-contract";
+      url = "github:rjcnd105/my-app";
       flake = false;
     };
 
@@ -147,6 +147,59 @@
 
       treefmtEval = eachSystem (system: treefmt-nix.lib.evalModule (pkgsFor system) treefmtModule);
 
+      homelabAppctlTestContext =
+        let
+          pkgs = pkgsFor "x86_64-linux";
+          homelab = self.nixosConfigurations.homelab_hj.config;
+          appctl =
+            lib.findFirst (package: lib.getName package == "homelab-appctl")
+              (throw "homelab-appctl is missing from the homelab system packages")
+              homelab.environment.systemPackages;
+          metadata = pkgs.writeText "deopjib-dev-metadata.json" (
+            homelab.environment.etc."homelab-apps/deopjib/dev.json".text
+          );
+          releaseManifest =
+            pkgs.runCommand "deopjib-release-manifest-fixture"
+              {
+                nativeBuildInputs = [
+                  pkgs.check-jsonschema
+                  pkgs.coreutils
+                  pkgs.jq
+                ];
+              }
+              ''
+                ${pkgs.bash}/bin/bash ${deopjibRuntime}/scripts/deopjib-generate-release-manifest \
+                  --version 0.0.0-dev.0000000 \
+                  --source-rev 0000000000000000000000000000000000000000 \
+                  --backend-name ghcr.io/rjcnd105/deopjib-backend \
+                  --backend-tag 0000000000000000000000000000000000000000 \
+                  --backend-digest sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa \
+                  --backend-status changed \
+                  --web-name ghcr.io/rjcnd105/deopjib-web \
+                  --web-tag 0000000000000000000000000000000000000000 \
+                  --web-digest sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb \
+                  --web-status changed \
+                  --deployment-contract-status changed \
+                --runtime-contract-source ${deopjibRuntime}/deopjib/devops/runtime-contract.nix \
+                --homelab-admission-source ${deopjibRuntime}/deopjib/devops/homelab-admission.nix \
+                --manifest-schema-source ${deopjibRuntime}/deopjib/devops/release-manifest.schema.json \
+                --manifest-generator-source ${deopjibRuntime}/scripts/deopjib-generate-release-manifest \
+                  --generated-at 2026-07-20T00:00:00Z \
+                  --output "$out"
+                check-jsonschema \
+                  --schemafile ${deopjibRuntime}/deopjib/devops/release-manifest.schema.json \
+                  "$out"
+              '';
+        in
+        {
+          inherit
+            appctl
+            metadata
+            pkgs
+            releaseManifest
+            ;
+        };
+
       homelabAppctlDeployInvariants =
         system:
         let
@@ -155,14 +208,285 @@
         pkgs.runCommand "homelab-appctl-deploy-invariants" { } ''
           app_containers=${./systems/homelab/app-containers.nix}
 
-          ${pkgs.gnugrep}/bin/grep -F 'systemctl restart "$image_unit"' "$app_containers" >/dev/null
-          if ${pkgs.gnugrep}/bin/grep -F 'systemctl start "$image_unit"' "$app_containers" >/dev/null; then
-            echo 'homelab-appctl deploy must restart image pull units; start is a no-op for active oneshot .image units' >&2
+          ${pkgs.gnugrep}/bin/grep -F 'podman pull' "$app_containers" >/dev/null
+          ${pkgs.gnugrep}/bin/grep -F 'podman tag' "$app_containers" >/dev/null
+          ${pkgs.gnugrep}/bin/grep -F 'mapfile -t release_service_units' "$app_containers" >/dev/null
+          [ "$(${pkgs.gnugrep}/bin/grep -Fc 'systemctl restart ' "$app_containers")" -eq 1 ]
+          if ${pkgs.gnugrep}/bin/grep -F 'systemctl restart "$image_unit"' "$app_containers" >/dev/null; then
+            echo 'homelab-appctl must pull exact release digests without restarting Quadlet image units' >&2
             exit 1
           fi
 
           touch "$out"
         '';
+
+      homelabAppctlReleaseDryRun =
+        let
+          inherit (homelabAppctlTestContext)
+            appctl
+            metadata
+            pkgs
+            releaseManifest
+            ;
+        in
+        pkgs.runCommand "homelab-appctl-release-dry-run"
+          {
+            nativeBuildInputs = [
+              appctl
+              pkgs.gnugrep
+              pkgs.jq
+            ];
+          }
+          ''
+            set -eu
+
+            target=deopjib-v0.0.0-dev.0000000
+            metadata_root="$PWD/metadata"
+            state_root="$PWD/state"
+            manifest="$PWD/release-manifest-$target.json"
+            manifest_template="file://$PWD/release-manifest-{target}.json"
+            mkdir -p "$metadata_root/deopjib" "$state_root"
+
+            backend_name=$(jq -r '.services[] | select(.imageKey == "backend") | .imageName' ${metadata})
+            web_name=$(jq -r '.services[] | select(.imageKey == "web") | .imageName' ${metadata})
+            install -m 0644 ${releaseManifest} "$manifest"
+
+            jq --arg manifestUrl "$manifest_template" \
+              '.release.manifestUrl = $manifestUrl' \
+              ${metadata} > "$metadata_root/deopjib/dev.json"
+
+            HOMELAB_APPCTL_METADATA_ROOT="$metadata_root" \
+              HOMELAB_APPCTL_STATE_ROOT="$state_root" \
+              HOMELAB_APPCTL_TEST_ALLOW_FILE_URL=1 \
+              homelab-appctl deploy deopjib dev --target "$target" --dry-run > dry-run.out
+
+            grep -F "$backend_name@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" dry-run.out >/dev/null
+            grep -F "$web_name@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" dry-run.out >/dev/null
+            grep -F 'deopjib-dev-backend.service' dry-run.out >/dev/null
+            grep -F 'deopjib-dev-web.service' dry-run.out >/dev/null
+            grep -F 'deopjib-dev-migrate.service' dry-run.out >/dev/null
+            if grep -F 'deopjib-dev-db.service' dry-run.out >/dev/null; then
+              echo 'release dry-run must not include the pinned database service' >&2
+              exit 1
+            fi
+
+            cp "$manifest" valid-manifest.json
+            expect_rejected() {
+              label=$1
+              filter=$2
+              jq "$filter" valid-manifest.json > "$manifest"
+              if HOMELAB_APPCTL_METADATA_ROOT="$metadata_root" \
+                HOMELAB_APPCTL_STATE_ROOT="$state_root" \
+                HOMELAB_APPCTL_TEST_ALLOW_FILE_URL=1 \
+                homelab-appctl deploy deopjib dev --target "$target" --dry-run >/dev/null 2>&1; then
+                echo "release dry-run accepted invalid manifest: $label" >&2
+                exit 1
+              fi
+            }
+
+            expect_rejected schema-version '.schemaVersion = 2'
+            expect_rejected target '.target = "deopjib-v0.0.0-dev.1111111"'
+            expect_rejected runtime-hash '.deploymentContract.runtimeSourceSha256 = ("0" * 64)'
+            expect_rejected admission-hash '.deploymentContract.admissionSourceSha256 = ("0" * 64)'
+            expect_rejected schema-hash '.deploymentContract.schemaSourceSha256 = ("0" * 64)'
+            expect_rejected generator-hash '.deploymentContract.generatorSourceSha256 = ("0" * 64)'
+            expect_rejected backend-name '.images.backend.name = "ghcr.io/rjcnd105/not-admitted"'
+            expect_rejected backend-digest '.images.backend.digest = "sha256:not-a-digest"'
+
+            cp dry-run.out "$out"
+          '';
+
+      homelabAppctlReleaseTransaction =
+        let
+          inherit (homelabAppctlTestContext)
+            appctl
+            metadata
+            pkgs
+            releaseManifest
+            ;
+        in
+        pkgs.runCommand "homelab-appctl-release-transaction"
+          {
+            nativeBuildInputs = [
+              appctl
+              pkgs.coreutils
+              pkgs.gawk
+              pkgs.gnugrep
+              pkgs.jq
+              pkgs.util-linux
+            ];
+          }
+          ''
+            set -euo pipefail
+
+            target=deopjib-v0.0.0-dev.0000000
+            metadata_root="$PWD/metadata"
+            state_root="$PWD/state"
+            image_state="$PWD/images"
+            export HOMELAB_APPCTL_METADATA_ROOT="$metadata_root"
+            export HOMELAB_APPCTL_STATE_ROOT="$state_root"
+            export HOMELAB_APPCTL_TEST_LOG="$PWD/commands.log"
+            export HOMELAB_APPCTL_TEST_MANIFEST=${releaseManifest}
+            export HOMELAB_APPCTL_TEST_IMAGE_STATE="$image_state"
+            export HOMELAB_APPCTL_TEST_FAIL_MARKER="$PWD/migration-failed"
+            export HOMELAB_APPCTL_TEST_FAIL_MIGRATION=0
+            export HOMELAB_APPCTL_TEST_FAIL_RESTORE=0
+            mkdir -p "$metadata_root/deopjib" "$state_root" "$image_state"
+            : > "$HOMELAB_APPCTL_TEST_LOG"
+            printf '%s\n' backend-old > "$image_state/backend"
+            printf '%s\n' web-old > "$image_state/web"
+
+            jq --arg manifestUrl 'https://fixture.invalid/{target}/release.json' \
+              '.release.manifestUrl = $manifestUrl' \
+              ${metadata} > "$metadata_root/deopjib/dev.json"
+
+            id() {
+              if [ "$1" = -u ]; then
+                printf '0\n'
+                return 0
+              fi
+              command id "$@"
+            }
+
+            curl() {
+              printf 'curl\t%s\n' "$*" >> "$HOMELAB_APPCTL_TEST_LOG"
+              local output="" url="" requested_target version
+              while [ "$#" -gt 0 ]; do
+                case "$1" in
+                  -o)
+                    output=$2
+                    shift 2
+                    ;;
+                  https://*)
+                    url=$1
+                    shift
+                    ;;
+                  *) shift ;;
+                esac
+              done
+              if [ -n "$output" ]; then
+                requested_target=$(printf '%s\n' "$url" | cut -d/ -f4)
+                version="''${requested_target#deopjib-v}"
+                jq --arg target "$requested_target" --arg version "$version" '
+                  .target = $target
+                  | .version = $version
+                  | if $target == "deopjib-v1.0.1" or $target == "deopjib-v1.0.2"
+                    then .images.backend.digest = ("c" * 64 | "sha256:" + .)
+                      | .images.web.digest = ("d" * 64 | "sha256:" + .)
+                    else . end
+                ' "$HOMELAB_APPCTL_TEST_MANIFEST" > "$output"
+              fi
+            }
+
+            podman() {
+              printf 'podman\t%s\n' "$*" >> "$HOMELAB_APPCTL_TEST_LOG"
+              case "$1" in
+                image)
+                  case "$3" in
+                    *deopjib-backend:dev-current) cat "$HOMELAB_APPCTL_TEST_IMAGE_STATE/backend" ;;
+                    *deopjib-web:dev-current) cat "$HOMELAB_APPCTL_TEST_IMAGE_STATE/web" ;;
+                    *) printf 'db-pinned\n' ;;
+                  esac
+                  ;;
+                pull) ;;
+                tag)
+                  if [ "$HOMELAB_APPCTL_TEST_FAIL_RESTORE" = 1 ] \
+                    && [ -e "$HOMELAB_APPCTL_TEST_FAIL_MARKER" ]; then
+                    return 1
+                  fi
+                  case "$3" in
+                    *deopjib-backend:dev-current) printf '%s\n' "$2" > "$HOMELAB_APPCTL_TEST_IMAGE_STATE/backend" ;;
+                    *deopjib-web:dev-current) printf '%s\n' "$2" > "$HOMELAB_APPCTL_TEST_IMAGE_STATE/web" ;;
+                    *) return 1 ;;
+                  esac
+                  ;;
+                untag)
+                  case "$2" in
+                    *deopjib-backend:dev-current) : > "$HOMELAB_APPCTL_TEST_IMAGE_STATE/backend" ;;
+                    *deopjib-web:dev-current) : > "$HOMELAB_APPCTL_TEST_IMAGE_STATE/web" ;;
+                  esac
+                  ;;
+                *) return 1 ;;
+              esac
+            }
+
+            systemctl() {
+              printf 'systemctl\t%s\n' "$*" >> "$HOMELAB_APPCTL_TEST_LOG"
+              if [ "$1" = start ] && [ "$HOMELAB_APPCTL_TEST_FAIL_MIGRATION" = 1 ]; then
+                touch "$HOMELAB_APPCTL_TEST_FAIL_MARKER"
+                return 1
+              fi
+              if [ "$1" = restart ]; then
+                printf 'restart-begin\t%s\n' "$BASHPID" >> "$HOMELAB_APPCTL_TEST_LOG"
+                sleep 0.2
+                printf 'restart-end\t%s\n' "$BASHPID" >> "$HOMELAB_APPCTL_TEST_LOG"
+              fi
+            }
+
+            export -f id curl podman systemctl
+
+            homelab-appctl deploy deopjib dev --target "$target"
+            latest="$state_root/deopjib/dev/latest"
+            [ "$(cat "$latest/result")" = ok ]
+            [ "$(grep -c '^systemctl[[:space:]]restart' "$HOMELAB_APPCTL_TEST_LOG")" -eq 1 ]
+            grep -F $'systemctl\trestart deopjib-dev-backend.service deopjib-dev-web.service' "$HOMELAB_APPCTL_TEST_LOG" >/dev/null
+            if grep -E '^systemctl[[:space:]]restart .*deopjib-dev-db.service' "$HOMELAB_APPCTL_TEST_LOG" >/dev/null; then
+              echo 'release transaction restarted PostgreSQL' >&2
+              exit 1
+            fi
+            [ "$(grep -c '^systemctl[[:space:]]start deopjib-dev-migrate.service' "$HOMELAB_APPCTL_TEST_LOG")" -eq 1 ]
+            [ "$(grep -c '^podman[[:space:]]pull ' "$HOMELAB_APPCTL_TEST_LOG")" -eq 2 ]
+
+            cp "$HOMELAB_APPCTL_TEST_LOG" before-noop.log
+            homelab-appctl deploy deopjib dev --target "$target"
+            cmp before-noop.log "$HOMELAB_APPCTL_TEST_LOG"
+
+            printf '%s\n' in-progress > "$latest/result"
+            homelab-appctl deploy deopjib dev --target "$target"
+            [ "$(grep -c '^systemctl[[:space:]]restart' "$HOMELAB_APPCTL_TEST_LOG")" -eq 2 ]
+
+            jq '.caddyUrl = "http://127.0.0.1:19999"' "$metadata_root/deopjib/dev.json" > metadata.json
+            mv metadata.json "$metadata_root/deopjib/dev.json"
+            homelab-appctl deploy deopjib dev --target "$target"
+            [ "$(grep -c '^systemctl[[:space:]]restart' "$HOMELAB_APPCTL_TEST_LOG")" -eq 3 ]
+
+            previous_backend=$(cat "$image_state/backend")
+            previous_web=$(cat "$image_state/web")
+            if HOMELAB_APPCTL_TEST_FAIL_MIGRATION=1 \
+              homelab-appctl deploy deopjib dev --target deopjib-v1.0.1; then
+              echo 'migration failure unexpectedly succeeded' >&2
+              exit 1
+            fi
+            [ "$(cat "$latest/result")" = migration-failed ]
+            [ "$(cat "$image_state/backend")" = "$previous_backend" ]
+            [ "$(cat "$image_state/web")" = "$previous_web" ]
+
+            rm -f "$HOMELAB_APPCTL_TEST_FAIL_MARKER"
+            if HOMELAB_APPCTL_TEST_FAIL_MIGRATION=1 HOMELAB_APPCTL_TEST_FAIL_RESTORE=1 \
+              homelab-appctl deploy deopjib dev --target deopjib-v1.0.2; then
+              echo 'recovery failure unexpectedly succeeded' >&2
+              exit 1
+            fi
+            [ "$(cat "$latest/result")" = migration-recovery-failed ]
+
+            rm -f "$HOMELAB_APPCTL_TEST_FAIL_MARKER"
+            HOMELAB_APPCTL_TEST_FAIL_MIGRATION=0 HOMELAB_APPCTL_TEST_FAIL_RESTORE=0 \
+              homelab-appctl deploy deopjib dev --target deopjib-v1.0.3 &
+            first_pid=$!
+            HOMELAB_APPCTL_TEST_FAIL_MIGRATION=0 HOMELAB_APPCTL_TEST_FAIL_RESTORE=0 \
+              homelab-appctl deploy deopjib dev --target deopjib-v1.0.4 &
+            second_pid=$!
+            wait "$first_pid"
+            wait "$second_pid"
+
+            awk '
+              /^restart-begin/ { if (active) exit 1; active = 1 }
+              /^restart-end/ { if (!active) exit 1; active = 0 }
+              END { if (active) exit 1 }
+            ' "$HOMELAB_APPCTL_TEST_LOG"
+
+            cp "$HOMELAB_APPCTL_TEST_LOG" "$out"
+          '';
 
       homelabQuadletLifecycleInvariants =
         let
@@ -191,6 +515,9 @@
           ];
           podman = homelab.virtualisation.podman.package;
           pkgs = pkgsFor "x86_64-linux";
+          backendContainer = quadlet.containers.deopjib-dev-backend;
+          dbContainer = quadlet.containers.deopjib-dev-db;
+          deopjibImages = lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.images;
           networkText = builtins.unsafeDiscardStringContext network._configText;
           podmanPath = builtins.unsafeDiscardStringContext "${podman}";
           deopjibContainers = builtins.attrValues (
@@ -225,6 +552,15 @@
         assert network.networkConfig.name == "deopjib-dev";
         assert network.networkConfig.interfaceName == "br-deopjib-dev";
         assert builtins.elem 53 homelab.networking.firewall.interfaces.br-deopjib-dev.allowedUDPPorts;
+        assert builtins.attrNames deopjibImages == [ "deopjib-dev-db" ];
+        assert backendContainer.containerConfig.image == "ghcr.io/rjcnd105/deopjib-backend:dev-current";
+        assert backendContainer.containerConfig.pull == "never";
+        assert builtins.elem "deopjib-dev-db.service" backendContainer.unitConfig.Requires;
+        assert builtins.elem "deopjib-dev-db.service" backendContainer.unitConfig.After;
+        assert dbContainer.containerConfig.notify == "healthy";
+        assert dbContainer.containerConfig.healthInterval == "1s";
+        assert dbContainer.containerConfig.healthRetries == 30;
+        assert dbContainer.containerConfig.healthTimeout == "5s";
         assert builtins.all (
           container:
           builtins.elem networkService container.unitConfig.PartOf
@@ -251,6 +587,9 @@
           ${pkgs.gnugrep}/bin/grep -F '${dnsLifecycleService}' generated-units.txt >/dev/null
           ${pkgs.gnugrep}/bin/grep -F 'Requires=${networkService}' generated-units.txt >/dev/null
           ${pkgs.gnugrep}/bin/grep -F 'After=${networkService}' generated-units.txt >/dev/null
+          ${pkgs.gnugrep}/bin/grep -F 'Requires=deopjib-dev-db.service' generated-units.txt >/dev/null
+          ${pkgs.gnugrep}/bin/grep -F 'Notify=healthy' generated-units.txt >/dev/null
+          ${pkgs.gnugrep}/bin/grep -F 'HealthInterval=1s' generated-units.txt >/dev/null
           ${pkgs.gnugrep}/bin/grep -F 'ExecStop=${podman}/bin/podman network rm deopjib-dev' generated-units.txt >/dev/null
           ${pkgs.gnugrep}/bin/grep -F -- '--interface-name br-deopjib-dev' generated-units.txt >/dev/null
           ${pkgs.gnugrep}/bin/grep -F -- '--disable-dns hindsight-db' generated-units.txt >/dev/null
@@ -404,6 +743,8 @@
           });
         in
         lib.recursiveUpdate baseChecks {
+          x86_64-linux.homelab-appctl-release-dry-run = homelabAppctlReleaseDryRun;
+          x86_64-linux.homelab-appctl-release-transaction = homelabAppctlReleaseTransaction;
           x86_64-linux.homelab-quadlet-lifecycle-invariants = homelabQuadletLifecycleInvariants;
         };
 

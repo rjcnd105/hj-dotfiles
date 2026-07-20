@@ -1,530 +1,285 @@
 # Homelab Image Deploy Guide
 
-Audience: coding agents working in this repo or in app repos that deploy to the
-homelab.
+Audience: agents and operators changing an app repository or its NixOS homelab
+admission.
 
-Goal: app repos own deployable app intent; `nix-dots` owns host admission and
-runtime substrate. Do not hardcode app-specific runtime knowledge in `nix-dots`
-unless it is imported from an app-owned contract.
+## Decision
 
-Current direction: use per-app admission in `nix-dots` now. Move to k3s/Flux
-later when Kubernetes-backed self-service is worth the operational cost. Do not
-add a separate app catalog repo in between unless this decision is reopened.
-
-## Agent Rules
-
-- Treat app runtime shape as app-owned data.
-- Treat host binding as `nix-dots`-owned policy.
-- Prefer app-owned `devops/homelab-admission.nix` over chat or issue comments
-  that copy Nix snippets by hand.
-- Do not create a per-app NixOS stack by hand when an app contract can express
-  the same facts.
-- Do not put plaintext secrets in app repos or `nix-dots`.
-- Do not make routine image deploys require a NixOS rebuild.
-- Do not enable registry auto-update for services that run schema migrations on
-  start.
-- Keep new contracts close to Kubernetes primitives: image, service, secret env,
-  volume, route, health, migration, update policy, release channel.
-- Do not add app-specific homelab deploy scripts to app repos. App repos publish
-  images; `nix-dots` deploys admitted apps through `homelab-appctl`.
-- Use `homelab-appctl deploy <app> <channel> --target <identifier>` when the
-  app release has a verified immutable identifier such as `deopjib-v0.0.1`.
-  A full source SHA is acceptable during transition, but the durable deploy
-  target is the app release identifier. Deploy is a no-op only when the most
-  recent deploy record is successful and already has that target.
-
-## Ownership Boundary
-
-| Concern | Owner | Notes |
-|---|---|---|
-| OCI image build and tags | app repo | Publish immutable SHA tags; pointer tags are optional deploy channels. |
-| Runtime contract | app repo | Store as `devops/runtime-contract.nix`. |
-| Secret values | host/operator | Store through sops or future cluster secret management. |
-| Secret names required by the app | app repo | Declare as `requiredSecretEnv`; host maps them to actual secrets. |
-| Admission request | app repo proposes, `nix-dots` admits | Store as `devops/homelab-admission.nix` when structured handoff is needed. |
-| Public hostname and tunnel route | `nix-dots` | Host admission decision. |
-| Persistent volume location and backup policy | `nix-dots` | App may request a volume; host chooses storage. |
-| Runtime backend | `nix-dots` | Podman/Quadlet now, k3s later. |
-| Migration safety policy | app repo declares, host enforces | Host may reject unsafe auto-update combinations. |
-| Release command | app repo | Example: `mise run my-app:release-dev --minor`; starts app CI/release only. |
-| Host deploy command | `nix-dots` | `homelab-appctl deploy/smoke/rollback <app> <channel>`. |
-| OCI release manifest | app repo, optional | Provenance or audit artifact only; not the homelab deploy ABI. |
-
-## Portability Boundary
-
-`homelab-appctl` is a `nix-dots` homelab adapter, not a public deploy platform.
-It assumes this host's NixOS, Podman/Quadlet, Caddy, Cloudflared, sops, and
-systemd boundaries.
-
-The portable output of an app repo is the OCI image plus documented runtime
-needs: image refs, env, secret names, ports, routes, health paths, volumes,
-migration command, and release channel tags. Non-Nix users should consume those
-images through their own Docker Compose, Podman, Kubernetes, or platform-specific
-deployment layer.
-
-For this homelab, app contributors can trigger app releases if they have app repo
-permissions, but only the homelab-side runner applies the published image to the
-server. This keeps host secrets and runtime policy out of app repos.
-
-## Change Authority
-
-In the current phase, adding a new app requires a small `nix-dots` host binding
-entry. Routine releases after admission should not require `nix-dots` changes.
-
-| Change | Self-service by app repo? | Requires `nix-dots` review? |
-|---|---:|---:|
-| Move image pointer tag, for example `:dev-current` | yes | no |
-| Publish immutable image tag | yes | no |
-| Add or update `devops/homelab-admission.nix` | yes | yes, before import |
-| Change service image name | yes | yes |
-| Add or remove required secret env | yes | yes |
-| Add public route or hostname | no | yes |
-| Add persistent volume | no | yes |
-| Change migration mode | yes | yes |
-| Change runtime backend | no | yes |
-
-## Runtime Contract Schema
-
-Each app repo should provide a pure Nix data file:
+Each app repository owns its release artifacts and runtime intent. `nix-dots`
+owns whether and how that intent is admitted to the homelab.
 
 ```text
-devops/runtime-contract.nix
+app repo
+  runtime-contract.nix + homelab-admission.nix
+  release manifest + exact OCI image digests
+                |
+                v
+nix-dots flake input (pinned app revision)
+  typed admission + assertions
+  sops/network/storage/Caddy/Quadlet/systemd
+                |
+                v
+homelab-appctl deploy --target <release-id>
+  validate -> exact pull/tag -> migrate -> one restart -> smoke -> record
 ```
 
-The file must evaluate without importing `nixpkgs`, reading secrets, reading the
-network, or depending on the host. It is data, not deployment logic.
+This is intentionally smaller than Kubernetes, Nomad, or a separate app
+catalog. Revisit a controller only when several apps need continuous
+reconciliation, rollout strategies, or shared cluster primitives that are
+simpler than this host-local path.
 
-Required top-level fields:
+## Ownership
 
-| Field | Type | Meaning |
-|---|---|---|
-| `name` | string | Stable lowercase app id. Use in unit names and labels. |
-| `channel` | string | Deploy channel such as `dev`, `staging`, or `prod`. |
-| `images` | attrset string | Fully qualified OCI image references. |
-| `services` | attrset service | Runtime services exposed by the app. |
-| `routes` | list route | Requested HTTP routing shape. |
+| Concern | Authority |
+|---|---|
+| App version and release target | app repository |
+| Backend/web image build and release manifest | app repository |
+| Runtime services, dependencies, readiness, routes, and migrations | app-owned `devops/runtime-contract.nix` |
+| Proposed homelab binding | app-owned `devops/homelab-admission.nix` |
+| Admission and pinned app revision | `nix-dots` |
+| Secret values | sops-backed host configuration |
+| Network, storage, Caddy, Cloudflared, Quadlet, systemd | `nix-dots` |
+| Exact host activation and deploy records | `homelab-appctl` |
 
-Optional top-level fields:
+Do not copy an app's service graph into `systems/homelab/default.nix`. Import
+the app-owned admission through `systems/homelab/app-admissions.nix`, then let
+the typed `homelab.apps` module render it.
 
-| Field | Type | Default | Meaning |
-|---|---|---|---|
-| `migrations` | attrset | `{ mode = "none"; }` | Migration command and safety policy. |
-| `release` | attrset | `{ versioning = "external"; channels = { }; }` | Host deploy channel metadata. |
-| `volumes` | attrset volume | `{ }` | Persistent storage requests keyed by stable volume id. |
-| `notes` | string | `""` | Human/operator notes. |
+## App Contract
 
-Service fields:
+`devops/runtime-contract.nix` must be pure Nix data. It may be a function of
+admission parameters such as `channel` and `domain`, but must not import
+`nixpkgs`, read secrets, perform I/O, or contain host activation logic.
 
-| Field | Type | Required | Meaning |
-|---|---|---:|---|
-| `image` | string | yes | Key into `images`. |
-| `internalPort` | int | yes | Container listen port. |
-| `healthPath` | string | no | Path used for readiness/smoke checks. |
-| `env` | attrset string | no | Non-secret environment variables. |
-| `requiredSecretEnv` | list string | no | Secret env names the host must map. |
-| `updatePolicy` | enum | yes | `manual`, `registry-auto`, or `pinned-digest`. |
-| `volumeMounts` | list volumeMount | no | Requested mounts from top-level `volumes`. |
+The current typed contract supports:
 
-Volume fields:
+- `images`: fully qualified OCI references;
+- `services`: image key, internal port, env, required secret names, update
+  policy, mounts, `dependsOn`, optional HTTP health path, and optional native
+  container readiness command;
+- `routes`: domain/path/service mapping;
+- `migrations`: `none` or a manual one-shot command;
+- `release`: external versioning, HTTPS manifest URL containing `{target}`, and
+  channel tag/mode/target-pattern/strategy/smoke/migration policy;
+- `volumes`: stable logical volume requests.
 
-| Field | Type | Required | Meaning |
-|---|---|---:|---|
-| `notes` | string | no | Human/operator reason for the requested volume. |
+Update policies have distinct meanings:
 
-Volume mount fields:
+| Policy | Use |
+|---|---|
+| `manual` | Release-coordinated app services. The manifest supplies the exact digest. |
+| `pinned-digest` | Independently pinned infrastructure images such as PostgreSQL. |
+| `registry-auto` | Stateless services with explicitly safe independent updates only. |
 
-| Field | Type | Required | Meaning |
-|---|---|---:|---|
-| `volume` | string | yes | Key into top-level `volumes`. |
-| `mountPath` | string | yes | Container path. |
-| `readOnly` | bool | no | Defaults to `false`. |
+A `manual` service image must end in the admitted channel tag, for example
+`:dev-current`. That tag is a local activation pointer, not the release
+authority. The host pulls `name@sha256:...` from the release manifest and tags
+that exact image locally before restarting the service.
 
-Route fields:
+A `pinned-digest` image must end in `@sha256:<64 lowercase hex>`. It remains a
+normal declarative Quadlet image unit and does not participate in an app
+release transaction.
 
-| Field | Type | Required | Meaning |
-|---|---|---:|---|
-| `host` | string | yes | Requested public host. |
-| `path` | string | yes | Path matcher such as `/`, `/api/*`, `/health`. |
-| `service` | string | yes | Key into `services`. |
-
-Migration fields:
-
-| Field | Type | Required | Meaning |
-|---|---|---:|---|
-| `mode` | enum | yes | Current Podman renderer supports `none` or `manual`. |
-| `service` | string | if mode != `none` | Service image used for migration. |
-| `command` | list string | if mode != `none` | Command argv. |
-
-Release fields:
-
-| Field | Type | Required | Meaning |
-|---|---|---:|---|
-| `versioning` | enum | no | Must be `external`; app CI owns versioning. |
-| `channels` | attrset channel | no | Deploy channels keyed by `dev`, `prod`, etc. |
-
-Release channel fields:
-
-| Field | Type | Required | Meaning |
-|---|---|---:|---|
-| `tag` | string | yes | Channel pointer tag such as `dev-current`. |
-| `mode` | enum | no | `manual`, `auto`, or `approved`; current runner is host-local. |
-| `strategy` | enum | no | Current value: `coordinated`. |
-| `smokePaths` | list string | no | Paths checked through Caddy after deploy. |
-| `migrate` | enum | no | `none` or `manual`; `manual` requires manual migrations. |
-| `rollback` | enum | no | Current value: `record-only`. |
-
-Host policy:
-
-- `registry-auto` is not allowed on the service named by `migrations.service`.
-- Manual migrations render a host-local one-shot unit, but are never run during
-  NixOS activation or by background registry auto-update.
-- Every public service must have either `healthPath` or an explicit documented
-  reason why health checks are unavailable.
-
-## Runtime Contract Example
+Example release section:
 
 ```nix
-# devops/runtime-contract.nix
-{
-  name = "my-app";
-  channel = "dev";
-
-  images = {
-    api = "ghcr.io/example/my-app-api:dev-current";
-    web = "ghcr.io/example/my-app-web:dev-current";
-  };
-
-  services = {
-    api = {
-      image = "api";
-      internalPort = 4000;
-      healthPath = "/health";
-      env = {
-        APP_ENV = "dev";
-        PORT = "4000";
-      };
-      requiredSecretEnv = [
-        "DATABASE_URL"
-        "SECRET_KEY_BASE"
-      ];
-      updatePolicy = "manual";
-      volumeMounts = [
-        {
-          volume = "app-data";
-          mountPath = "/var/lib/my-app";
-        }
-      ];
-    };
-
-    web = {
-      image = "web";
-      internalPort = 8080;
-      updatePolicy = "registry-auto";
-    };
-  };
-
-  routes = [
-    {
-      host = "my-app.example.com";
-      path = "/health";
-      service = "api";
-    }
-    {
-      host = "my-app.example.com";
-      path = "/api/*";
-      service = "api";
-    }
-    {
-      host = "my-app.example.com";
-      path = "/";
-      service = "web";
-    }
-  ];
-
-  migrations = {
-    mode = "manual";
-    service = "api";
-    command = [ "/app/bin/migrate" ];
-  };
-
-  release = {
-    versioning = "external";
-    channels.dev = {
-      tag = "dev-current";
-      mode = "manual";
-      strategy = "coordinated";
-      smokePaths = [
-        "/health"
-        "/"
-      ];
-      migrate = "manual";
-      rollback = "record-only";
-    };
-  };
-
-  volumes.app-data = {
-    notes = "Persistent app data; host chooses storage class and backup policy.";
-  };
-}
-```
-
-## Homelab Admission Request
-
-To avoid copy-paste handoffs, an app repo may also provide:
-
-```text
-devops/homelab-admission.nix
-```
-
-This file is a structured request for host admission. It must not contain secret
-values and must not implement host runtime logic.
-
-```nix
-# devops/homelab-admission.nix
-{
-  key = "my-app";
-
-  app = {
-    enable = true;
-    contract = import ./runtime-contract.nix;
-
-    host = {
-      domain = "my-app.example.com";
-      loopbackPortBase = 18100;
-      registryAuth = "ghcr-readonly";
-
-      secretMap = {
-        DATABASE_URL = "MY_APP_DATABASE_URL";
-        SECRET_KEY_BASE = "MY_APP_SECRET_KEY_BASE";
-      };
-
-      volumes.app-data = {
-        backup = true;
-        class = "local-podman";
-      };
-    };
-  };
-}
-```
-
-The app repo owns this request. `nix-dots` still owns the decision to import it,
-the actual secret values, DNS/tunnel exposure, and volume policy. Later k3s/Flux
-can treat the same admission request as an allowlist entry for watched app paths.
-
-## Host Binding Shape
-
-For the current phase, `nix-dots` admits each app through a small host-owned
-binding. Prefer importing the app-owned admission request:
-
-```nix
-let
-  admission = import "${inputs.my-app}/devops/homelab-admission.nix";
-in
-{
-  homelab.apps.${admission.key} = admission.app;
-}
-```
-
-If the app repo does not yet provide an admission request, use the explicit
-fallback shape:
-
-```nix
-homelab.apps.my-app = {
-  enable = true;
-  contract = import "${inputs.my-app}/devops/runtime-contract.nix";
-
-  host = {
-    domain = "my-app.example.com";
-    loopbackPortBase = 18100;
-    registryAuth = "ghcr-readonly";
-
-    secretMap = {
-      DATABASE_URL = "MY_APP_DATABASE_URL";
-      SECRET_KEY_BASE = "MY_APP_SECRET_KEY_BASE";
-    };
-
-    volumes.my-app-db = {
-      backup = true;
-      class = "local-podman";
-    };
+release = {
+  versioning = "external";
+  manifestUrl = "https://github.com/example/my-app/releases/download/{target}/release.json";
+  channels.${channel} = {
+    tag = "${channel}-current";
+    mode = if channel == "prod" then "approved" else "auto";
+    targetPattern = if channel == "prod" then "^my-app-v[0-9]+\\.[0-9]+\\.[0-9]+$" else "^my-app-v.*$";
+    strategy = "coordinated";
+    smokePaths = [
+      "/health"
+      "/"
+    ];
+    migrate = "manual";
   };
 };
 ```
 
-The app contract says what is needed. The host binding says what is allowed and
-where host-owned resources come from.
+## Admission
 
-Keep this shape Kubernetes-mappable. It should describe admission, secrets,
-ports, routes, and volumes in terms that can later become Kubernetes namespace,
-Deployment, Service, Secret, PersistentVolumeClaim, and Ingress/Gateway
-resources.
+`devops/homelab-admission.nix` proposes a host binding:
 
-## Current Podman Renderer Requirements
-
-When implementing the Podman/Quadlet renderer in `nix-dots`, it must:
-
-- render Quadlet files under `/etc/containers/systemd/`
-- publish app ports to loopback only
-- route public traffic through Caddy and cloudflared
-- generate sops-backed env files from `secretMap`
-- order private registry image pulls after `sops-install-secrets.service`
-- add finite systemd start timeouts
-- add activation refresh logic for new or changed Quadlet files
-- render manual migration one-shot units
-- render `/etc/homelab-apps/<app>/<channel>.json` metadata for host commands
-- provide `homelab-appctl deploy/smoke/rollback <app> <channel>`
-- reject `registry-auto` on the service named by `migrations.service`
-- keep Hindsight special until its host-network dependencies are deliberately
-  migrated
-
-Renderer output should be inspectable with:
-
-```sh
-nix eval --raw '.#nixosConfigurations.homelab_hj.config.environment.etc."<quadlet-path>".text'
+```nix
+let
+  runtimeContract = ./runtime-contract.nix;
+in
+{
+  key = "my-app";
+  app = {
+    enable = true;
+    contract = import runtimeContract {
+      channel = "dev";
+      domain = "dev.my-app.example";
+    };
+    host = {
+      domain = "dev.my-app.example";
+      loopbackPortBase = 18100;
+      secretMap.DATABASE_URL = "MY_APP_DATABASE_URL";
+      volumes.db-data.backup = true;
+    };
+  };
+}
 ```
 
-## Release Automation
+The app file contains only secret names. Actual values remain in sops files and
+render to `/run/secrets/...` on the host. Public container ports bind to
+loopback; ingress remains Caddy plus Cloudflared.
 
-The comfortable app-side button lives in the app repo:
+`nix-dots` imports the proposal from its pinned flake input:
 
-```sh
-mise run my-app:release-dev --minor
+```nix
+let
+  admissionSource = "${inputs.myApp}/devops/homelab-admission.nix";
+  runtimeContractSource = "${inputs.myApp}/devops/runtime-contract.nix";
+  manifestSchemaSource = "${inputs.myApp}/devops/release-manifest.schema.json";
+  manifestGeneratorSource = "${inputs.myApp}/scripts/generate-release-manifest";
+  admission = import admissionSource;
+in
+{
+  homelab.apps.${admission.key} = admission.app // {
+    runtimeContractSourceSha256 = builtins.hashFile "sha256" runtimeContractSource;
+    homelabAdmissionSourceSha256 = builtins.hashFile "sha256" admissionSource;
+    manifestSchemaSourceSha256 = builtins.hashFile "sha256" manifestSchemaSource;
+    manifestGeneratorSourceSha256 = builtins.hashFile "sha256" manifestGeneratorSource;
+    host = admission.app.host // {
+      releaseManifestOrigins = [ "https://github.com/example/my-app" ];
+    };
+  };
+}
 ```
 
-That command should create the release PR, run CI, publish OCI images, and move
-the channel tag such as `dev-current`. It must not SSH into homelab and must not
-carry app-specific host deploy logic.
+The module rejects invalid ids, routes, dependencies, secret mappings, volume
+mappings, unsafe migration/auto-update combinations, malformed digests, and
+manual services without an HTTPS manifest URL under a host-admitted origin and
+a matching channel tag.
 
-The homelab applies published images through the generic runner generated by
-`nix-dots`:
+## Release Manifest
+
+For release-managed services, the app's release manifest is the immutable
+artifact identity. It must include:
+
+- schema version, app id, release target, version, source revision, and creation
+  time;
+- every admitted release-managed image name and exact digest;
+- SHA-256 of the app-owned runtime contract, admission, manifest schema, and
+  manifest generator sources.
+
+The host accepts a manifest only when its app, target, all deployment source hashes,
+image names, and digest syntax match generated admission metadata. This makes
+the release artifact authoritative for image identity without giving the app
+repository authority over host secrets or topology.
+
+Pointer tags such as `dev-current` and `prod-current` remain useful for humans
+and local container references. They must never decide which remote bytes are
+deployed.
+
+## Generated NixOS Runtime
+
+The `homelab.apps` module renders:
+
+- Podman networks, volumes, containers, and only the independently managed
+  Quadlet image units;
+- native systemd `Requires`/`After` edges from `dependsOn`;
+- Quadlet health checks and `Notify=healthy` from `readiness`;
+- sops-backed env files;
+- manual migration one-shot units;
+- loopback Caddy routes and Cloudflared ingress;
+- `/etc/homelab-apps/<app>/<channel>.json` admission metadata;
+- the generic `homelab-appctl` package and a deploy-only sudo rule.
+
+Release-managed containers use the admitted channel reference with
+`Pull=never`. `homelab-appctl` is the single owner of exact pull/tag and release
+restart. This avoids the former double restart where Quadlet image units moved
+tags and the deploy command restarted containers a second time.
+
+## Deploy Flow
+
+The host interface is:
 
 ```sh
 homelab-appctl list
-homelab-appctl status my-app dev
-homelab-appctl smoke my-app dev
-homelab-appctl deploy my-app dev --dry-run --target <release-id>
-sudo -n homelab-appctl deploy my-app dev --target <release-id>
-sudo -n homelab-appctl rollback my-app dev
+homelab-appctl status <app> <channel>
+homelab-appctl smoke <app> <channel>
+homelab-appctl deploy <app> <channel> --target <release-id> --dry-run
+sudo -n homelab-appctl deploy <app> <channel> --target <release-id>
+homelab-appctl logs <app> <channel>
 ```
 
-For Deopjib, app CI should not ask developers to run those commands manually.
-The app repo dispatches this repo's `Deploy Homelab App` workflow with
-`app=deopjib`, `channel=dev|prod`, and a release identifier target such as
-`deopjib-v0.0.1`. A full source SHA is allowed only as a transition format while
-the app workflow still promotes SHA-tagged images. That workflow must run on the
-homelab self-hosted runner and call the same host-local `homelab-appctl`
-commands.
+`--dry-run` performs read-only manifest download and admission validation, then
+prints exact images, migration unit, release service units, and smoke paths.
 
-Required wiring:
+A real deploy:
 
-- this repo has a GitHub Actions runner on the homelab with labels
-  `self-hosted` and `homelab`
-- the app repo has a dispatch token secret that can call this repo's Actions
-  workflow dispatch API with repo-level Actions write permission
-- workflow input validation, the allowlist, and the prod gate are the guards;
-  the dispatch token itself is not scoped to one workflow or input set
+1. Rejects an invalid target or missing metadata.
+2. Acquires a host-local app/channel lock and treats a target as a no-op only
+   when the latest successful record used byte-identical admitted metadata.
+3. Downloads and validates the release manifest.
+4. Snapshots current local image ids.
+5. Pulls each admitted `image@digest` and moves only its local channel tag.
+6. Runs the declared migration once.
+7. Restarts all release-managed services in one systemd transaction. Pinned
+   dependencies such as PostgreSQL are not restarted.
+8. Runs declared Caddy-loopback smoke checks once.
+9. Publishes an `in-progress` record before image mutation, then records target,
+   metadata, images, migration, smoke, and final result under
+   `/var/lib/homelab-appctl/<app>/<channel>/`.
 
-Deploy order:
+If pull, tag, or migration fails, the command records failure and restores prior
+local channel tags where applicable. If restart or smoke fails, deploy a known
+good release target. If its source hashes differ, first revert the pinned app
+input through PR/comin, then deploy that target. There is no separate rollback
+subcommand because it would create a second release authority. Image rollback
+never rolls back database migrations automatically.
 
-1. Read `/etc/homelab-apps/<app>/<channel>.json`.
-2. Compare `--target <identifier>` with the most recent deploy record.
-3. If the most recent record is successful and the target already matches, exit
-   without pulling, migrating, restarting, or smoking.
-4. Pull image units and record local image IDs.
-5. Run the manual migration unit if the contract declares one.
-6. Restart generated app service units.
-7. Smoke-test declared paths through Caddy loopback with the public Host header.
-8. Write a deploy record under `/var/lib/homelab-appctl/<app>/<channel>/`,
-   including target, image refs and IDs, migration result, smoke result, and
-   final result when available.
+## Change and Activation Workflow
 
-`deploy` and `rollback` are root operations because they write
-`/var/lib/homelab-appctl` and control system services. `nix-dots` installs a
-narrow passwordless sudo rule for the homelab operator user that allows only
-`homelab-appctl deploy *` and `homelab-appctl rollback *`.
+Routine app releases whose runtime contract is unchanged do not update the Nix
+flake or rebuild NixOS. App CI publishes a release manifest and dispatches the
+host-owned deploy workflow with the release target.
 
-Rollback is intentionally conservative in the current Podman phase. The command
-exists and reports the previous image records, but automatic image restoration is
-enabled only after that path is proven safe for the app and its migrations.
+When runtime intent changes:
 
-OCI release manifests may exist in app CI for audit/provenance, but they are not
-the deploy ABI. The deploy ABI is the app-owned runtime contract plus the host
-metadata generated by `nix-dots`.
+1. Merge the app contract/admission change and publish its release manifest.
+2. App CI must not auto-deploy while any deployment source hash is not admitted.
+3. Update only the app input in `nix-dots` and review the lock diff.
+4. Run Nix evaluation and generated-runtime checks.
+5. Merge the `nix-dots` PR; let comin activate it on the homelab.
+6. Dispatch the same release target. The host now accepts its source hashes and
+   exact image digests.
 
-## Future k3s Path
+Do not run ad-hoc `nixos-rebuild` from a development Mac for this GitOps host.
+Local work proves evaluation; the PR, CI, and comin path owns activation.
 
-Introduce k3s/Flux later when the homelab needs true app-owned runtime
-reconciliation.
-
-In that mode:
-
-- `nix-dots` owns k3s, Flux, storage classes, ingress/tunnel policy, and cluster
-  security baseline
-- app repos own Kubernetes manifests, Helm charts, or generated manifests from
-  the same `runtime-contract.nix`
-- Flux watches approved app repo paths
-- image tag updates remain routine app-owned deploys
-- host/cluster policy still owns secrets and public exposure
-
-Do not introduce k3s just to move one app's runtime fields out of `nix-dots`.
-Use k3s when app count, rollout needs, or self-service policy boundaries justify
-the operational cost.
-
-When migrating, preserve the app-owned `runtime-contract.nix` as the source of
-truth. The Podman renderer should be replaceable by a Kubernetes renderer rather
-than requiring each app to redesign its deploy contract.
-
-## Agent Workflow
-
-When asked to add a new homelab app:
-
-1. Inspect the app repo for `devops/homelab-admission.nix`.
-2. If it is missing, inspect or add `devops/runtime-contract.nix` in the app
-   repo first, then ask the app repo to add the admission request.
-3. Import only the reviewed admission request into `homelab.apps.<key>`.
-4. Validate that all images are fully qualified OCI references.
-5. Check that every `requiredSecretEnv` has a proposed host secret mapping.
-6. Check migration/update safety:
-   - allow `registry-auto` for stateless services
-   - prefer `manual` for DB-backed services
-   - reject registry auto-update on the migration service
-   - keep release channel rollback as `record-only` unless automatic image
-     restore has been proven on homelab
-7. Add or update only the host binding in `nix-dots`.
-8. Evaluate generated Quadlet/Caddy/sops/app metadata output.
-9. Run `homelab-appctl smoke <app> <channel>` after deployment.
-
-## Podman Smoke Checks
-
-After deployment to homelab:
+Focused local validation while developing both repositories:
 
 ```sh
-systemctl is-active podman-auto-update.timer
-systemctl list-units --no-legend --plain '*my-app*'
-find /etc/containers/systemd -maxdepth 1 -iname '*my-app*' -print
-podman auto-update --dry-run
-homelab-appctl smoke my-app dev
-sudo -n homelab-appctl deploy my-app dev --dry-run --target <release-id>
+nix fmt --override-input myApp path:/absolute/path/to/app
+nix flake check --all-systems --no-build --show-trace --no-write-lock-file \
+  --override-input myApp path:/absolute/path/to/app
 ```
 
-Expected result:
+The Linux-only checks build in CI. They execute the app-owned manifest producer,
+negative admission cases, the generated appctl dry-run, a stubbed full deploy
+transaction including failure recovery and concurrent calls, and Quadlet
+dependencies/readiness. Release deployment must exclude the pinned database
+service.
 
-- app units are running from declared images
-- public health route reaches the intended service
-- backend/web ports are not directly public
-- registry auto-update applies only to services with safe rollback behavior
+## New App Checklist
 
-## Acceptance Checklist
-
-Before a change is ready:
-
-- app repo has `devops/runtime-contract.nix`
-- structured handoff uses `devops/homelab-admission.nix` when available
-- contract is pure data and evaluates locally
-- `nix-dots` contains only host binding, not copied app runtime details
-- every required secret env maps to a host secret
-- every public route is intentionally exposed
-- migration and update policy do not conflict
-- generated runtime output is evaluated
-- generated app metadata is evaluated
-- live deployment smoke checks are documented
+- Add a pure app-owned runtime contract and structured admission request.
+- Use exact digests for independently pinned stateful dependencies.
+- Declare service dependencies and readiness in the contract, not in shell
+  sleeps.
+- Keep secret values in sops and ports loopback-only.
+- Import the admission from one pinned flake input.
+- Verify generated metadata, Quadlet, Caddy, and migration units.
+- Publish an immutable release manifest for manual services.
+- Use the generic host workflow and `homelab-appctl`; do not add per-app SSH or
+  systemd scripts.
+- Prove backup/restore and decide data-retention semantics before production
+  admission.
