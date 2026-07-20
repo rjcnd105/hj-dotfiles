@@ -27,7 +27,7 @@ let
   enabledApps = filterAttrs (_: app: app.enable) cfg.apps;
   hasApps = enabledApps != { };
   cloudflareTunnelId = "a19003a7-293f-4872-b8a5-1db544878f45";
-  podmanDnsLifecycleService = "podman-dns-lifecycle.service";
+  podmanDnsLifecycleService = cfg.podmanDnsLifecycle.unit;
 
   validId = value: builtins.match "^[a-z0-9][a-z0-9-]*$" value != null;
 
@@ -1213,6 +1213,10 @@ in
       images = quadletImages;
       containers = quadletContainers;
     };
+
+    homelab.podmanDnsLifecycle.members =
+      map (name: "${name}-network.service") (builtins.attrNames quadletNetworks)
+      ++ map (name: "${name}.service") (builtins.attrNames quadletContainers);
 
     environment.etc = metadataEtcEntries;
     environment.systemPackages = [ homelabAppctl ];

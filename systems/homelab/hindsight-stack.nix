@@ -17,7 +17,7 @@
 let
   servicesEnv = config.sops.templates."services.env".path;
   legacyDbVolumePath = "/var/lib/docker/volumes/hindsight-db-data/_data";
-  podmanDnsLifecycleService = "podman-dns-lifecycle.service";
+  podmanDnsLifecycleService = config.homelab.podmanDnsLifecycle.unit;
 
   images = {
     # GHCR does not publish a semantic 0.8.4-slim tag; latest-slim's OCI
@@ -50,6 +50,11 @@ let
   '';
 in
 {
+  homelab.podmanDnsLifecycle.members = [
+    "hindsight-db.service"
+    "hindsight.service"
+  ];
+
   system.activationScripts.hindsightDbVolumePath = ''
     mkdir -p ${legacyDbVolumePath}
   '';
