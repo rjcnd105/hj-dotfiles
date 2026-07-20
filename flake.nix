@@ -168,6 +168,9 @@
         let
           homelab = self.nixosConfigurations.homelab_hj.config;
           quadlet = homelab.virtualisation.quadlet;
+          hindsightDbContainerText = homelab.environment.etc."containers/systemd/hindsight-db.container".text;
+          hindsightDbVolumeText = homelab.environment.etc."containers/systemd/hindsight-db-data.volume".text;
+          hindsightNetwork = quadlet.networks.hindsight-db;
           network = homelab.virtualisation.quadlet.networks.deopjib-dev;
           networkService = "deopjib-dev-network.service";
           dnsLifecycleService = "podman-dns-lifecycle.service";
@@ -178,6 +181,7 @@
             "deopjib-dev-db.service"
             "deopjib-dev-network.service"
             "deopjib-dev-web.service"
+            "hindsight-db-network.service"
             "hindsight-db.service"
             "hindsight.service"
           ];
@@ -192,19 +196,30 @@
           deopjibContainers = builtins.attrValues (
             lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.containers
           );
-          deopjibObjects = [
+          quadletObjects = [
             network
+            hindsightNetwork
           ]
           ++ builtins.attrValues (
             lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.volumes
           )
           ++ builtins.attrValues (lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.images)
-          ++ deopjibContainers;
+          ++ deopjibContainers
+          ++ [
+            {
+              ref = "hindsight-db-data.volume";
+              _configText = hindsightDbVolumeText;
+            }
+            {
+              ref = "hindsight-db.container";
+              _configText = hindsightDbContainerText;
+            }
+          ];
           quadletSources = pkgs.linkFarm "deopjib-dev-quadlets" (
             map (object: {
               name = object.ref;
               path = pkgs.writeText object.ref object._configText;
-            }) deopjibObjects
+            }) quadletObjects
           );
         in
         assert network.networkConfig.name == "deopjib-dev";
@@ -214,6 +229,9 @@
           && builtins.elem dnsLifecycleService container.unitConfig.PartOf
         ) deopjibContainers;
         assert builtins.elem dnsLifecycleService network.unitConfig.PartOf;
+        assert hindsightNetwork.networkConfig.disableDns;
+        assert builtins.elem dnsLifecycleService hindsightNetwork.unitConfig.PartOf;
+        assert lib.hasInfix "Network=${hindsightNetwork.ref}" hindsightDbContainerText;
         assert lib.hasInfix "${podmanPath}/bin/podman network rm deopjib-dev" networkText;
         assert dnsLifecycleConfig.unit == dnsLifecycleService;
         assert lib.sort builtins.lessThan dnsLifecycleConfig.members == expectedDnsLifecycleMembers;
@@ -232,6 +250,8 @@
           ${pkgs.gnugrep}/bin/grep -F 'Requires=${networkService}' generated-units.txt >/dev/null
           ${pkgs.gnugrep}/bin/grep -F 'After=${networkService}' generated-units.txt >/dev/null
           ${pkgs.gnugrep}/bin/grep -F 'ExecStop=${podman}/bin/podman network rm deopjib-dev' generated-units.txt >/dev/null
+          ${pkgs.gnugrep}/bin/grep -F -- '--disable-dns hindsight-db' generated-units.txt >/dev/null
+          ${pkgs.gnugrep}/bin/grep -F 'Requires=hindsight-db-network.service' generated-units.txt >/dev/null
 
           mkdir -p "$out"
           cp generated-units.txt "$out/"

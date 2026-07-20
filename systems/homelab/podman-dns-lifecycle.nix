@@ -25,7 +25,7 @@ in
       type = lib.types.listOf lib.types.str;
       default = [ ];
       internal = true;
-      description = "Systemd services sharing the rootful Podman Aardvark DNS process.";
+      description = "Systemd services coordinated around the rootful Podman Aardvark lifecycle.";
     };
   };
 
