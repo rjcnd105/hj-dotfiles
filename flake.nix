@@ -170,11 +170,19 @@
           quadlet = homelab.virtualisation.quadlet;
           network = homelab.virtualisation.quadlet.networks.deopjib-dev;
           networkService = "deopjib-dev-network.service";
-          networkUnit = homelab.systemd.services.deopjib-dev-network;
+          dnsLifecycleService = "podman-dns-lifecycle.service";
+          dnsLifecycleUnit = homelab.systemd.services.podman-dns-lifecycle;
+          hindsightUnits = [
+            homelab.systemd.services.hindsight-db
+            homelab.systemd.services.hindsight
+          ];
           podman = homelab.virtualisation.podman.package;
           pkgs = pkgsFor "x86_64-linux";
           networkText = builtins.unsafeDiscardStringContext network._configText;
           podmanPath = builtins.unsafeDiscardStringContext "${podman}";
+          deopjibContainers = builtins.attrValues (
+            lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.containers
+          );
           deopjibObjects = [
             network
           ]
@@ -182,9 +190,7 @@
             lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.volumes
           )
           ++ builtins.attrValues (lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.images)
-          ++ builtins.attrValues (
-            lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.containers
-          );
+          ++ deopjibContainers;
           quadletSources = pkgs.linkFarm "deopjib-dev-quadlets" (
             map (object: {
               name = object.ref;
@@ -193,19 +199,24 @@
           );
         in
         assert network.networkConfig.name == "deopjib-dev";
-        assert builtins.all (container: builtins.elem networkService container.unitConfig.PartOf) (
-          builtins.attrValues (
-            lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.containers
-          )
-        );
+        assert builtins.all (
+          container:
+          builtins.elem networkService container.unitConfig.PartOf
+          && builtins.elem dnsLifecycleService container.unitConfig.PartOf
+        ) deopjibContainers;
+        assert builtins.elem dnsLifecycleService network.unitConfig.PartOf;
         assert lib.hasInfix "${podmanPath}/bin/podman network rm deopjib-dev" networkText;
-        assert builtins.elem podman networkUnit.restartTriggers;
+        assert builtins.elem podman dnsLifecycleUnit.restartTriggers;
+        assert builtins.all (
+          unit: unit.overrideStrategy == "asDropin" && builtins.elem dnsLifecycleService unit.partOf
+        ) hindsightUnits;
         assert !(homelab.system.activationScripts ? homelabAppContainersRefresh);
         pkgs.runCommand "homelab-quadlet-lifecycle-invariants" { } ''
           export QUADLET_UNIT_DIRS=${quadletSources}
           ${podman}/libexec/podman/quadlet -dryrun -no-kmsg-log > generated-units.txt
 
           ${pkgs.gnugrep}/bin/grep -F 'PartOf=${networkService}' generated-units.txt >/dev/null
+          ${pkgs.gnugrep}/bin/grep -F '${dnsLifecycleService}' generated-units.txt >/dev/null
           ${pkgs.gnugrep}/bin/grep -F 'Requires=${networkService}' generated-units.txt >/dev/null
           ${pkgs.gnugrep}/bin/grep -F 'After=${networkService}' generated-units.txt >/dev/null
           ${pkgs.gnugrep}/bin/grep -F 'ExecStop=${podman}/bin/podman network rm deopjib-dev' generated-units.txt >/dev/null
