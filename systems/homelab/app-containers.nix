@@ -407,6 +407,12 @@ let
       ) enabledApps
     )
   );
+  networkLifecycleServices = mapAttrs' (
+    _appName: app:
+    nameValuePair "${unitPrefixFor app}-network" {
+      restartTriggers = [ config.virtualisation.podman.package ];
+    }
+  ) enabledApps;
 
   homelabAppctl = pkgs.writeShellApplication {
     name = "homelab-appctl";
@@ -1226,7 +1232,7 @@ in
       }
     ];
 
-    systemd.services = migrationServices;
+    systemd.services = migrationServices // networkLifecycleServices;
 
     systemd.tmpfiles.rules = [
       "d /var/lib/homelab-appctl 0750 root root - -"

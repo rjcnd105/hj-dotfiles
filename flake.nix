@@ -170,6 +170,7 @@
           quadlet = homelab.virtualisation.quadlet;
           network = homelab.virtualisation.quadlet.networks.deopjib-dev;
           networkService = "deopjib-dev-network.service";
+          networkUnit = homelab.systemd.services.deopjib-dev-network;
           podman = homelab.virtualisation.podman.package;
           pkgs = pkgsFor "x86_64-linux";
           networkText = builtins.unsafeDiscardStringContext network._configText;
@@ -198,6 +199,7 @@
           )
         );
         assert lib.hasInfix "${podmanPath}/bin/podman network rm deopjib-dev" networkText;
+        assert builtins.elem podman networkUnit.restartTriggers;
         assert !(homelab.system.activationScripts ? homelabAppContainersRefresh);
         pkgs.runCommand "homelab-quadlet-lifecycle-invariants" { } ''
           export QUADLET_UNIT_DIRS=${quadletSources}
