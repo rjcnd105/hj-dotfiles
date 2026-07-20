@@ -1,208 +1,181 @@
 ---
 title: Homelab app contracts with a generic host deploy runner
 date: 2026-05-06
+last_verified: 2026-07-20
 category: architecture-patterns
 module: homelab-app-runtime
 problem_type: architecture_pattern
 component: development_workflow
 severity: medium
 applies_when:
-  - "App repos publish OCI images but should not know homelab internals"
-  - "Routine dev deploys should not require a NixOS rebuild"
-  - "Podman/Quadlet is the current renderer but k3s may replace it later"
+  - "App repositories publish OCI images but should not know homelab internals"
+  - "Routine image releases should not require a NixOS rebuild"
+  - "A coordinated release contains more than one application image"
 related_components:
   - nix-dots
   - podman
   - quadlet
+  - systemd
   - caddy
   - cloudflared
   - sops-nix
-  - kubernetes
-tags: [homelab, runtime-contract, podman, quadlet, app-deploy, release-automation, k3s]
+tags: [homelab, runtime-contract, release-manifest, exact-digest, podman, quadlet, app-deploy]
 ---
 
 # Homelab app contracts with a generic host deploy runner
 
-## Context
+## Problem
 
-The homelab needed a low-friction deploy path for development apps without
-turning `nix-dots` into an app release platform. The pressure point was
-Deopjib: its app repo can build and publish OCI images, but hard-coding
-Deopjib-specific Quadlet, Caddy, secrets, migration, and release logic directly
-in `nix-dots` would make every new app a custom host change.
+The first generic runner treated mutable Quadlet image units as the deploy
+authority and restarted those units before restarting the app services. A
+coordinated backend/web release therefore had two activation paths. On Deopjib,
+the database and backend could also start without an explicit readiness edge,
+causing transient DNS and PostgreSQL startup failures before a later retry
+passed.
 
-The user also expects a later k3s/Flux migration. That makes the near-term
-boundary more important: app intent should be expressed as data close to
-Kubernetes primitives, while the current host renderer can stay Podman/Quadlet.
+An optional release manifest did not solve this. A release containing two image
+digests needs one immutable identity; reconstructing it from mutable channel
+tags makes the result timing-dependent.
 
-Session history showed the same boundary emerging earlier: a Deopjib dev deploy
-worked best when the app repo owned `devops/runtime-contract.nix` and
-`devops/homelab-admission.nix`, while `nix-dots` imported that contract and
-owned the host envelope, generated units, ingress, and secrets (session
-history). A separate Podman migration also established that NixOS should own the
-stable runtime envelope while image updates happen through the container runtime
-rather than through routine NixOS rebuilds (session history).
+## Decision
 
-## Guidance
+Keep two authorities with a narrow join:
 
-Use a three-layer model:
+- the app repository owns release target, exact application image digests, and
+  runtime intent;
+- `nix-dots` owns admission, the pinned app revision, secrets, network,
+  storage, ingress, Quadlet/systemd rendering, and host activation.
 
-1. App repo owns the release and runtime intent.
-2. `nix-dots` admits that intent onto a host and enforces policy.
-3. A host-local generic command deploys admitted apps from generated metadata.
+The join is the SHA-256 set for the runtime contract, homelab admission,
+manifest schema, and manifest generator. App CI writes all four into the release
+manifest. NixOS independently writes the pinned values into generated app
+metadata. `homelab-appctl` rejects a release when any differs.
 
-The app-owned contract should stay pure data. It can describe images, services,
-ports, health paths, required secret names, routes, volumes, migrations, update
-policy, and release channels. It should not import `nixpkgs`, read secrets,
-read host state, run network calls, or know where the homelab stores generated
-files.
+For `manual` services:
 
-The host binding should stay small and policy-shaped:
+- the release manifest is the immutable image identity;
+- Quadlet uses the channel reference with `Pull=never`;
+- no `.image` unit is rendered;
+- `homelab-appctl` pulls `name@digest`, moves the local channel tag, migrates,
+  and restarts all release-managed services once.
 
-```nix
-homelab.apps.my-app = {
-  enable = true;
-  contract = import "${inputs.my-app}/devops/runtime-contract.nix";
+For `pinned-digest` services:
 
-  host = {
-    domain = "dev.example.test";
-    loopbackPortBase = 18100;
-    registryAuth = "ghcr-readonly";
+- the contract contains the complete `name:tag@sha256:...` reference;
+- the normal declarative Quadlet image unit remains;
+- app releases do not restart that service.
 
-    secretMap = {
-      DATABASE_URL = "MY_APP_DEV_DATABASE_URL";
-      SECRET_KEY_BASE = "MY_APP_DEV_SECRET_KEY_BASE";
-    };
-  };
-};
-```
+Service graph facts stay in the app contract. `dependsOn` becomes native
+systemd `Requires`/`After`; `readiness` becomes Quadlet health settings and
+`Notify=healthy`. Each channel also admits an explicit target pattern, so a prod
+channel can reject dev snapshot targets before mutation. This replaces retry
+sleeps and host-specific scripts.
 
-Routine app release commands belong in app repos. For example,
-`mise run deopjib:release-dev --minor` can create a PR, run CI, decide version
-intent, publish OCI images, and move a channel pointer tag such as
-`:dev-current`. It should not SSH into homelab or run an app-specific host
-deploy script.
-
-`nix-dots` should expose the host deploy surface generically:
-
-```sh
-homelab-appctl list
-homelab-appctl status <app> <channel>
-homelab-appctl smoke <app> <channel>
-homelab-appctl deploy <app> <channel> --dry-run --target <identifier>
-sudo -n homelab-appctl deploy <app> <channel> --target <identifier>
-sudo -n homelab-appctl rollback <app> <channel>
-```
-
-`homelab-appctl` reads generated metadata under
-`/etc/homelab-apps/<app>/<channel>.json`. That path is a host adapter detail,
-not a public app ABI. The portable app output remains the OCI image plus the
-documented runtime needs.
-
-`deploy` and `rollback` are root operations because they write
-`/var/lib/homelab-appctl` and control system services. Keep the sudo surface
-narrow: the homelab operator may run only those two subcommands without a
-password.
-
-Do not make the optional OCI release manifest the deploy ABI. It is useful for
-audit and provenance, but the host should deploy from admitted app metadata and
-the app-owned runtime contract.
-
-## Why This Matters
-
-This keeps responsibilities narrow:
-
-- App repos can move fast on release PRs, SemVer, CI, image publication, and
-  channel tags.
-- `nix-dots` keeps control of host admission, registry credentials, sops-backed
-  secrets, persistent volumes, public ingress, Caddy, Cloudflared, Podman, and
-  migration safety.
-- Routine dev deploys do not require a NixOS rebuild once an app is admitted.
-- Migration-owning services are protected from blind `registry-auto` updates.
-- A later k3s renderer can consume the same app contract shape rather than
-  reverse-engineering Podman-specific scripts.
-
-The key design constraint is to avoid a false self-service surface. App repos
-should be self-service for releases after admission, but not for host policy,
-secrets, public domains, storage, or migration execution.
-
-## When to Apply
-
-- A new internal app needs to run on the homelab from an OCI image.
-- An app repo wants one command to start a dev release workflow.
-- The host already has an admitted app and routine deploys should be image tag
-  movement plus `homelab-appctl deploy`.
-- The current implementation is Podman/Quadlet, but the contract should remain
-  portable enough for a future k3s/Flux renderer.
-
-Do not apply this pattern to Hindsight yet without a separate redesign.
-Hindsight has host-network and local AI dependencies that are deliberately
-special in this repo.
-
-## Examples
-
-### Runtime contract release block
-
-Keep release metadata declarative and host-relevant:
-
-```nix
-release = {
-  versioning = "external";
-
-  channels.dev = {
-    tag = "dev-current";
-    mode = "manual";
-    strategy = "coordinated";
-    smokePaths = [
-      "/health"
-      "/"
-    ];
-    migrate = "manual";
-    rollback = "record-only";
-  };
-};
-```
-
-`versioning = "external"` is the important boundary. `nix-dots` does not infer
-SemVer from app commits; app CI owns that.
-
-### Host deploy sequence
-
-The host-side deploy path should be predictable and metadata-driven:
+## Deploy Transaction
 
 ```text
-read generated metadata
-compare release target with the most recent deploy record
-pull/resolve service images
-run manual migration unit if declared
-restart rendered service units
-smoke through Caddy using the public Host header
-record target, before/after image state, migration result, smoke result, and final result
+release target
+  -> download manifest
+  -> validate app, target, deployment source hashes, image names, exact digests
+  -> acquire app/channel lock and publish in-progress record
+  -> snapshot local image ids
+  -> pull exact application digests
+  -> move local channel tags
+  -> run migration once
+  -> restart release-managed units once as one systemd transaction
+  -> smoke declared paths once
+  -> write deploy record
 ```
 
-When the most recent deploy record is successful and already has the requested
-target, deploy may no-op. A newer failed record must allow retry even when an
-older successful record has the same target.
+A successful target is a no-op only when the latest record also contains
+byte-identical admitted metadata. That prevents a contract change from being
+hidden behind an old release id.
 
-`rollback = "record-only"` is intentionally conservative. Until image restore
-and migration rollback are proven, rollback should report the prior image state
-instead of pretending to be fully automatic.
+There is no rollback subcommand. Rollback is a deploy of a known-good release
+target through the same path. If that target belongs to an older deployment
+contract, first revert the pinned app input through PR/comin. Database migrations
+remain an explicit recovery concern.
 
-### Anti-patterns
+## NixOS Integration
 
-- Adding `systems/homelab/deopjib-stack.nix` by hand when the app repo can
-  provide a runtime contract.
-- Giving app CI broad SSH access to the homelab.
-- Running migrations during NixOS activation.
-- Enabling `registry-auto` on the service that owns schema migrations.
-- Copying a chat snippet like `homelab.apps.deopjib = { ... }` between repos as
-  the long-term interface.
-- Introducing k3s only to avoid writing a small host admission binding.
+The app repository exports:
 
-## Related
+```text
+devops/runtime-contract.nix
+devops/homelab-admission.nix
+```
 
-- [`../tooling-decisions/homelab-podman-quadlet-runtime-migration-2026-04-27.md`](../tooling-decisions/homelab-podman-quadlet-runtime-migration-2026-04-27.md) — explains why Podman/Quadlet is the current homelab renderer and why image hot-swap should not require Docker or a NixOS rebuild.
-- [`../../guides/homelab-image-deploy-guide.md`](../../guides/homelab-image-deploy-guide.md) — operator and agent guide for app-owned runtime contracts, admission, and host deploy commands.
-- [`../../plans/2026-04-30-001-feat-homelab-app-release-automation-plan.md`](../../plans/2026-04-30-001-feat-homelab-app-release-automation-plan.md) — implementation plan for the generic release automation substrate.
-- `systems/homelab/app-containers.nix` — current NixOS module that renders admitted app contracts, metadata, migration units, and `homelab-appctl`.
-- `rules/repo-policy.md` — compact agent rules for preserving the app contract and host runtime boundary.
+`nix-dots` pins the app repository as a flake input and imports only the
+admission request from `systems/homelab/app-admissions.nix`. The typed
+`homelab.apps` module adds the allowed HTTPS release origin, validates, and
+renders it. Host-specific values do not go
+in `systems/homelab/default.nix`, and no activation shell script performs app
+deployment.
+
+Routine image releases do not move the flake input. A contract change does:
+
+1. app release is published but automatic host dispatch stops;
+2. a `nix-dots` PR updates only the app input and validates generated output;
+3. comin activates merged NixOS configuration;
+4. the same release target is dispatched and now passes source-hash admission.
+
+For the first strict-manifest cutover, that app release must reuse the currently
+known-good backend/web digest pair. After comin activation, dry-run and deploy
+that same target first so the new controller has a compatible `ok` rollback
+baseline before any later image release.
+
+This keeps NixOS declarative while avoiding a NixOS rebuild for every app image
+release.
+
+## Verification
+
+Local macOS validation evaluates all outputs without pretending to build Linux:
+
+```sh
+nix flake check --all-systems --no-build --show-trace --no-write-lock-file \
+  --override-input deopjibRuntime path:/absolute/path/to/app
+```
+
+Linux CI additionally runs:
+
+- an app-generator-produced manifest, negative admission cases, and a generated
+  `homelab-appctl deploy --dry-run`;
+- a stubbed full deploy transaction covering exact pulls/tags, migration,
+  combined restart, no-op, recovery failure, and concurrent calls;
+- Quadlet lifecycle assertions for direct release refs, `Pull=never`, native DB
+  readiness, and backend-to-DB ordering;
+- an assertion that only one release-service restart command exists and no
+  image unit is restarted.
+
+Host verification after activation must confirm:
+
+```sh
+homelab-appctl deploy deopjib dev --target <release-id> --dry-run
+sudo -n homelab-appctl deploy deopjib dev --target <release-id>
+systemctl show deopjib-dev-db.service deopjib-dev-backend.service deopjib-dev-web.service \
+  -p ActiveState -p SubState -p NRestarts
+homelab-appctl smoke deopjib dev
+```
+
+The deploy log should contain exact digest pulls, one migration, one combined
+backend/web restart, and one smoke pass. It must not restart PostgreSQL.
+
+## Rejected Alternatives
+
+- Per-app host scripts duplicate admission, sudo, secret, migration, and smoke
+  policy.
+- Mutable channel tags cannot identify a coordinated multi-image release.
+- A NixOS rebuild per image release couples app cadence to host configuration.
+- Kubernetes, Flux, Nomad, or a separate app catalog add a controller before
+  the current single-host requirement needs one.
+
+Revisit a controller when multiple apps require continuous reconciliation,
+rollout strategies, multi-host scheduling, or shared cluster primitives that
+make the controller smaller than this runner.
+
+## References
+
+- `systems/homelab/app-containers.nix`
+- `systems/homelab/app-admissions.nix`
+- `.github/workflows/deploy-homelab-app.yml`
+- `docs/guides/homelab-image-deploy-guide.md`

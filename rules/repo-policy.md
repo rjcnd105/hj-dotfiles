@@ -32,7 +32,9 @@ Nix guidance.
 - Do not copy app-specific runtime shape from chat into `nix-dots` when the app
   repo can own a contract.
 - Do not add app-specific homelab deploy scripts to app repos.
-- OCI release manifests may exist for audit, but are not the deploy ABI.
+- `manual` services deploy the exact image digests in an app release manifest.
+  `nix-dots` admits its image names, target channel, and runtime, admission,
+  manifest-schema, and generator source hashes before any host mutation.
 
 ## Homelab Deploy ABI
 
@@ -44,7 +46,6 @@ homelab-appctl status <app> <channel>
 homelab-appctl smoke <app> <channel>
 homelab-appctl deploy <app> <channel> --dry-run --target <identifier>
 sudo -n homelab-appctl deploy <app> <channel> --target <identifier>
-sudo -n homelab-appctl rollback <app> <channel>
 ```
 
 `homelab-appctl` reads generated metadata from:
@@ -54,16 +55,19 @@ sudo -n homelab-appctl rollback <app> <channel>
 ```
 
 Do not make the app repo depend on this path. This path is a host adapter detail.
-`deploy` and `rollback` require root because they write deploy records and
-control system services; this repo grants only those subcommands through a
-narrow passwordless sudo rule for the homelab operator user.
+`deploy` requires root because it writes deploy records and controls system
+services; this repo grants only that subcommand through a narrow passwordless
+sudo rule for the homelab operator user. A rollback within the admitted source
+hashes is another deploy of a known-good target; older contracts first require a
+pinned app-input revert through PR/comin.
 
 When `deploy` receives `--target <identifier>`, it compares that identifier
 with the most recent deploy record. Prefer app release identifiers such as
 `deopjib-v0.0.1`; full source SHAs are a transition format. Matching targets are
-no-ops only when the most recent record is successful; newer failed records
-allow retry. Different targets run the normal pull, migration, restart, smoke,
-and record sequence.
+no-ops only when the most recent record is successful and its admitted metadata
+is byte-identical; newer failed records or changed metadata allow retry.
+Different targets validate the release manifest and deployment source hashes, pull exact
+digests, migrate, restart release-managed services once, smoke, and record.
 
 External app repos may dispatch `.github/workflows/deploy-homelab-app.yml`, but
 the workflow must stay host-owned, input-validated, and homelab-runner-only. Do

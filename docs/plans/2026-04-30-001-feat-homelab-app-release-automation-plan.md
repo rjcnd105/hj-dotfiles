@@ -1,11 +1,15 @@
 ---
 title: "feat: homelab app release automation substrate"
 type: feat
-status: planned
+status: superseded
 date: 2026-04-30
+superseded_by: ../solutions/architecture-patterns/homelab-app-contract-generic-deploy-runner-2026-05-06.md
 ---
 
 # feat: homelab app release automation substrate
+
+> Superseded on 2026-07-20. The current release ABI and host transaction are
+> documented in `../solutions/architecture-patterns/homelab-app-contract-generic-deploy-runner-2026-05-06.md`.
 
 ## Summary
 

@@ -24,5 +24,11 @@ jobs:
       - name: Check homelab Quadlet lifecycle
         run: nix build .#checks.x86_64-linux.homelab-quadlet-lifecycle-invariants --show-trace
 
+      - name: Check homelab release dry-run
+        run: nix build .#checks.x86_64-linux.homelab-appctl-release-dry-run --show-trace
+
+      - name: Check homelab release transaction
+        run: nix build .#checks.x86_64-linux.homelab-appctl-release-transaction --show-trace
+
       - name: Check root formatting
         run: nix build .#checks.x86_64-linux.formatting --show-trace

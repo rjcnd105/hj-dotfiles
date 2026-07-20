@@ -118,8 +118,9 @@ Responsibility boundary:
   Cloudflared, Podman/Quadlet rendering, migrations, smoke checks, and
   `homelab-appctl`.
 - Do not add app-specific homelab deploy runners to app repos.
-- Treat OCI release manifests as optional provenance/audit artifacts only, not
-  the homelab deploy ABI.
+- For `manual` services, treat the app release manifest as the immutable image
+  identity. The admitted runtime, admission, manifest schema, and generator
+  source hashes remain the host policy boundary.
 
 Current host-side deploy ABI:
 
@@ -127,15 +128,16 @@ Current host-side deploy ABI:
 homelab-appctl list
 homelab-appctl status <app> <channel>
 homelab-appctl smoke <app> <channel>
-homelab-appctl deploy <app> <channel> --dry-run
-sudo -n homelab-appctl deploy <app> <channel>
-sudo -n homelab-appctl rollback <app> <channel>
+homelab-appctl deploy <app> <channel> --target <release-id> --dry-run
+sudo -n homelab-appctl deploy <app> <channel> --target <release-id>
 ```
 
 `homelab-appctl` is a `nix-dots` homelab adapter, not a public deploy platform.
 Portable app output is the OCI image plus documented runtime needs.
-`deploy` and `rollback` are root operations with a narrow passwordless sudo
-rule for the homelab operator user.
+`deploy` is a root operation with a narrow passwordless sudo rule for the
+homelab operator user. Roll back directly only within the admitted deployment
+source-hash set; otherwise revert the app input through PR/comin first. DB migrations are a
+separate recovery decision.
 
 ## Safety Rules
 
