@@ -1,8 +1,4 @@
-{
-  config,
-  pkgs,
-  ...
-}:
+{ pkgs, ... }:
 {
 
   imports = [
@@ -10,6 +6,7 @@
     ./sops.nix
     ./cloudflared.nix
     ./ai-stack.nix
+    ./podman-dns-lifecycle.nix
     ./hindsight-stack.nix
     ./app-containers.nix
     ./app-admissions.nix
@@ -62,19 +59,6 @@
   };
 
   systemd.timers.podman-auto-update.wantedBy = [ "timers.target" ];
-
-  # Rootful Podman shares one Aardvark DNS process across bridge networks.
-  # Restart all DNS-backed workloads together so it cannot retain an old Podman store path.
-  systemd.services.podman-dns-lifecycle = {
-    description = "Coordinate Podman DNS-backed containers across runtime upgrades";
-    wantedBy = [ "multi-user.target" ];
-    restartTriggers = [ config.virtualisation.podman.package ];
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.coreutils}/bin/true";
-      RemainAfterExit = true;
-    };
-  };
 
   # llama.cpp — CPU 모드로 시작. GPU 가속은 ROCm gfx1150 공식 지원 후 추가
   # 로컬 전용 바인딩. 외부 접근이 필요하면 host를 0.0.0.0으로 변경하고 firewall에 8080 추가

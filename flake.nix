@@ -171,7 +171,16 @@
           network = homelab.virtualisation.quadlet.networks.deopjib-dev;
           networkService = "deopjib-dev-network.service";
           dnsLifecycleService = "podman-dns-lifecycle.service";
+          dnsLifecycleConfig = homelab.homelab.podmanDnsLifecycle;
           dnsLifecycleUnit = homelab.systemd.services.podman-dns-lifecycle;
+          expectedDnsLifecycleMembers = [
+            "deopjib-dev-backend.service"
+            "deopjib-dev-db.service"
+            "deopjib-dev-network.service"
+            "deopjib-dev-web.service"
+            "hindsight-db.service"
+            "hindsight.service"
+          ];
           hindsightUnits = [
             homelab.systemd.services.hindsight-db
             homelab.systemd.services.hindsight
@@ -206,7 +215,10 @@
         ) deopjibContainers;
         assert builtins.elem dnsLifecycleService network.unitConfig.PartOf;
         assert lib.hasInfix "${podmanPath}/bin/podman network rm deopjib-dev" networkText;
+        assert dnsLifecycleConfig.unit == dnsLifecycleService;
+        assert lib.sort builtins.lessThan dnsLifecycleConfig.members == expectedDnsLifecycleMembers;
         assert builtins.elem podman dnsLifecycleUnit.restartTriggers;
+        assert builtins.length dnsLifecycleUnit.restartTriggers == 2;
         assert builtins.all (
           unit: unit.overrideStrategy == "asDropin" && builtins.elem dnsLifecycleService unit.partOf
         ) hindsightUnits;
