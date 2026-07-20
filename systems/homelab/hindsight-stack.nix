@@ -51,9 +51,25 @@ let
 in
 {
   homelab.podmanDnsLifecycle.members = [
+    "hindsight-db-network.service"
     "hindsight-db.service"
     "hindsight.service"
   ];
+
+  # The API reaches Postgres through the host-published loopback port. Keeping
+  # this bridge off Aardvark prevents it from winning the app-DNS startup race.
+  virtualisation.quadlet.networks.hindsight-db = {
+    autoStart = false;
+    unitConfig = {
+      Requires = [ podmanDnsLifecycleService ];
+      After = [ podmanDnsLifecycleService ];
+      PartOf = [ podmanDnsLifecycleService ];
+    };
+    networkConfig = {
+      name = "hindsight-db";
+      disableDns = true;
+    };
+  };
 
   system.activationScripts.hindsightDbVolumePath = ''
     mkdir -p ${legacyDbVolumePath}
@@ -126,6 +142,7 @@ in
       Environment=POSTGRES_USER=hindsight
       Environment=POSTGRES_DB=hindsight
       Volume=hindsight-db-data.volume:/home/postgres/pgdata/data
+      Network=hindsight-db.network
       PublishPort=127.0.0.1:5432:5432
 
       [Service]
