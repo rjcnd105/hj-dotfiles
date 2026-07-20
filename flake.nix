@@ -28,6 +28,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
+
     deopjibRuntime = {
       url = "github:rjcnd105/my-app/feat/deopjib-runtime-contract";
       flake = false;
@@ -45,6 +47,7 @@
       darwin,
       sops-nix,
       comin,
+      quadlet-nix,
       deopjibRuntime,
     }:
     let
@@ -159,6 +162,54 @@
           fi
 
           touch "$out"
+        '';
+
+      homelabQuadletLifecycleInvariants =
+        let
+          homelab = self.nixosConfigurations.homelab_hj.config;
+          quadlet = homelab.virtualisation.quadlet;
+          network = homelab.virtualisation.quadlet.networks.deopjib-dev;
+          networkService = "deopjib-dev-network.service";
+          podman = homelab.virtualisation.podman.package;
+          pkgs = pkgsFor "x86_64-linux";
+          networkText = builtins.unsafeDiscardStringContext network._configText;
+          podmanPath = builtins.unsafeDiscardStringContext "${podman}";
+          deopjibObjects = [
+            network
+          ]
+          ++ builtins.attrValues (
+            lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.volumes
+          )
+          ++ builtins.attrValues (lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.images)
+          ++ builtins.attrValues (
+            lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.containers
+          );
+          quadletSources = pkgs.linkFarm "deopjib-dev-quadlets" (
+            map (object: {
+              name = object.ref;
+              path = pkgs.writeText object.ref object._configText;
+            }) deopjibObjects
+          );
+        in
+        assert network.networkConfig.name == "deopjib-dev";
+        assert builtins.all (container: builtins.elem networkService container.unitConfig.PartOf) (
+          builtins.attrValues (
+            lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.containers
+          )
+        );
+        assert lib.hasInfix "${podmanPath}/bin/podman network rm deopjib-dev" networkText;
+        assert !(homelab.system.activationScripts ? homelabAppContainersRefresh);
+        pkgs.runCommand "homelab-quadlet-lifecycle-invariants" { } ''
+          export QUADLET_UNIT_DIRS=${quadletSources}
+          ${podman}/libexec/podman/quadlet -dryrun -no-kmsg-log > generated-units.txt
+
+          ${pkgs.gnugrep}/bin/grep -F 'PartOf=${networkService}' generated-units.txt >/dev/null
+          ${pkgs.gnugrep}/bin/grep -F 'Requires=${networkService}' generated-units.txt >/dev/null
+          ${pkgs.gnugrep}/bin/grep -F 'After=${networkService}' generated-units.txt >/dev/null
+          ${pkgs.gnugrep}/bin/grep -F 'ExecStop=${podman}/bin/podman network rm deopjib-dev' generated-units.txt >/dev/null
+
+          mkdir -p "$out"
+          cp generated-units.txt "$out/"
         '';
 
       homelabHindsightRuntimeInvariants =
@@ -304,7 +355,9 @@
             homelab-thermal-alert-smoke = homelabThermalAlertSmoke system;
           });
         in
-        baseChecks;
+        lib.recursiveUpdate baseChecks {
+          x86_64-linux.homelab-quadlet-lifecycle-invariants = homelabQuadletLifecycleInvariants;
+        };
 
       darwinConfigurations = lib.mapAttrs (
         key: config:
@@ -347,6 +400,7 @@
             home-manager.nixosModules.home-manager
             { home-manager.users.${userName}.imports = homeModulePaths; }
             comin.nixosModules.comin
+            quadlet-nix.nixosModules.quadlet
           ]
           ++ systemModulePaths;
         }

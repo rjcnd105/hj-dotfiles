@@ -178,36 +178,35 @@ let
     }
   ) enabledApps;
 
-  imageUnitFor =
+  quadletImageFor =
     app: serviceName: service:
     let
       authFile = registryAuthFileFor app;
       unitPrefix = unitPrefixFor app;
     in
-    nameValuePair "containers/systemd/${unitPrefix}-${serviceName}.image" {
-      text = ''
-        [Unit]
-        Description=Pull ${unitPrefix}-${serviceName} image
-        ${optionalString (authFile != null) "Requires=sops-install-secrets.service"}
-        After=network-online.target${optionalString (authFile != null) " sops-install-secrets.service"}
-        Wants=network-online.target
-
-        [Image]
-        Image=${imageRefFor app service}
-        ${optionalString (authFile != null) "AuthFile=${authFile}"}
-      '';
+    nameValuePair "${unitPrefix}-${serviceName}" {
+      autoStart = false;
+      unitConfig = {
+        Description = "Pull ${unitPrefix}-${serviceName} image";
+        After = lib.optional (authFile != null) "sops-install-secrets.service";
+      }
+      // lib.optionalAttrs (authFile != null) {
+        Requires = [ "sops-install-secrets.service" ];
+      };
+      imageConfig = {
+        image = imageRefFor app service;
+        authFile = authFile;
+      };
     };
 
-  volumeUnitFor =
+  quadletVolumeFor =
     app: volumeName: _volume:
     let
       unitPrefix = unitPrefixFor app;
     in
-    nameValuePair "containers/systemd/${unitPrefix}-${volumeName}.volume" {
-      text = ''
-        [Volume]
-        VolumeName=${unitPrefix}-${volumeName}
-      '';
+    nameValuePair "${unitPrefix}-${volumeName}" {
+      autoStart = false;
+      volumeConfig.name = "${unitPrefix}-${volumeName}";
     };
 
   mountLineFor =
@@ -218,7 +217,7 @@ let
     app: mount:
     "${unitPrefixFor app}-${mount.volume}:${mount.mountPath}${optionalString mount.readOnly ":ro"}";
 
-  containerUnitFor =
+  quadletContainerFor =
     app: serviceName: service:
     let
       unitPrefix = unitPrefixFor app;
@@ -226,57 +225,48 @@ let
       authFile = registryAuthFileFor app;
       envTemplate = config.sops.templates.${envTemplateNameFor app serviceName}.path;
       networkService = "${unitPrefix}-network.service";
-      volumeServices = map (mount: "${unitPrefix}-${mount.volume}-volume.service") service.volumeMounts;
-      volumeLines = map (mount: "Volume=${mountLineFor app mount}") service.volumeMounts;
+      volumes = map (mount: mountLineFor app mount) service.volumeMounts;
     in
-    nameValuePair "containers/systemd/${unitPrefix}-${serviceName}.container" {
-      text = ''
-        [Unit]
-        Description=${app.contract.name} ${app.contract.channel} ${serviceName} container
-        Requires=sops-install-secrets.service ${networkService} ${unitPrefix}-${serviceName}-image.service${
-          optionalString (volumeServices != [ ]) " ${concatStringsSep " " volumeServices}"
-        }
-        After=sops-install-secrets.service network-online.target ${networkService} ${unitPrefix}-${serviceName}-image.service${
-          optionalString (volumeServices != [ ]) " ${concatStringsSep " " volumeServices}"
-        }
-        Wants=network-online.target
-
-        [Container]
-        ContainerName=${unitPrefix}-${serviceName}
-        Image=${imageRefFor app service}
-        Pull=never
-        ${optionalString (service.updatePolicy == "registry-auto") "AutoUpdate=registry"}
-        ${optionalString (
-          service.updatePolicy == "registry-auto" && authFile != null
-        ) "Label=io.containers.autoupdate.authfile=${authFile}"}
-        LogDriver=journald
-        EnvironmentFile=${envTemplate}
-        Network=${unitPrefix}.network
-        NetworkAlias=${unitPrefix}-${serviceName}
-        PublishPort=127.0.0.1:${toString servicePorts.${serviceName}}:${toString service.internalPort}
-        ${concatLines volumeLines}
-
-        [Service]
-        Restart=on-failure
-        RestartSec=5s
-        TimeoutStartSec=${app.host.timeoutStartSec}
-        TimeoutStopSec=120
-
-        [Install]
-        WantedBy=multi-user.target
-      '';
+    nameValuePair "${unitPrefix}-${serviceName}" {
+      unitConfig = {
+        Description = "${app.contract.name} ${app.contract.channel} ${serviceName} container";
+        Requires = [ "sops-install-secrets.service" ];
+        After = [ "sops-install-secrets.service" ];
+        PartOf = [ networkService ];
+      };
+      containerConfig = {
+        name = "${unitPrefix}-${serviceName}";
+        image = "${unitPrefix}-${serviceName}.image";
+        pull = "never";
+        autoUpdate = if service.updatePolicy == "registry-auto" then "registry" else null;
+        labels = lib.optionalAttrs (service.updatePolicy == "registry-auto" && authFile != null) {
+          "io.containers.autoupdate.authfile" = authFile;
+        };
+        logDriver = "journald";
+        environmentFiles = [ envTemplate ];
+        networks = [ "${unitPrefix}.network" ];
+        networkAliases = [ "${unitPrefix}-${serviceName}" ];
+        publishPorts = [
+          "127.0.0.1:${toString servicePorts.${serviceName}}:${toString service.internalPort}"
+        ];
+        inherit volumes;
+      };
+      serviceConfig = {
+        Restart = "on-failure";
+        RestartSec = "5s";
+        TimeoutStartSec = app.host.timeoutStartSec;
+        TimeoutStopSec = 120;
+      };
     };
 
-  networkUnitFor =
+  quadletNetworkFor =
     app:
     let
       unitPrefix = unitPrefixFor app;
     in
-    nameValuePair "containers/systemd/${unitPrefix}.network" {
-      text = ''
-        [Network]
-        NetworkName=${unitPrefix}
-      '';
+    nameValuePair unitPrefix {
+      autoStart = false;
+      networkConfig.name = unitPrefix;
     };
 
   migrationServiceFor =
@@ -394,17 +384,29 @@ let
       text = builtins.toJSON (appMetadataFor appName app) + "\n";
     };
 
-  appEtc =
-    appName: app:
-    [
-      (networkUnitFor app)
-      (metadataEtcFor appName app)
-    ]
-    ++ mapAttrsToList (volumeUnitFor app) app.contract.volumes
-    ++ mapAttrsToList (imageUnitFor app) app.contract.services
-    ++ mapAttrsToList (containerUnitFor app) app.contract.services;
-
-  etcEntries = listToAttrs (flatten (mapAttrsToList appEtc enabledApps));
+  metadataEtcEntries = listToAttrs (mapAttrsToList metadataEtcFor enabledApps);
+  quadletNetworks = listToAttrs (mapAttrsToList (_appName: app: quadletNetworkFor app) enabledApps);
+  quadletVolumes = listToAttrs (
+    flatten (
+      mapAttrsToList (
+        _appName: app: mapAttrsToList (quadletVolumeFor app) app.contract.volumes
+      ) enabledApps
+    )
+  );
+  quadletImages = listToAttrs (
+    flatten (
+      mapAttrsToList (
+        _appName: app: mapAttrsToList (quadletImageFor app) app.contract.services
+      ) enabledApps
+    )
+  );
+  quadletContainers = listToAttrs (
+    flatten (
+      mapAttrsToList (
+        _appName: app: mapAttrsToList (quadletContainerFor app) app.contract.services
+      ) enabledApps
+    )
+  );
 
   homelabAppctl = pkgs.writeShellApplication {
     name = "homelab-appctl";
@@ -826,56 +828,6 @@ let
     '';
   };
 
-  appServiceNames =
-    app:
-    let
-      unitPrefix = unitPrefixFor app;
-    in
-    map (serviceName: "${unitPrefix}-${serviceName}.service") (
-      builtins.attrNames app.contract.services
-    );
-
-  activationApps = mapAttrsToList (
-    _appName: app:
-    let
-      unitPrefix = unitPrefixFor app;
-      services = concatStringsSep " " (appServiceNames app);
-    in
-    ''
-      app_prefix=${unitPrefix}
-      state_dir=/var/lib/homelab-app-containers
-      marker=$state_dir/$app_prefix.sha256
-
-      if ${pkgs.coreutils}/bin/ls /etc/containers/systemd/$app_prefix* >/dev/null 2>&1; then
-        mkdir -p "$state_dir"
-        new_hash="$(
-          for file in /etc/containers/systemd/$app_prefix*; do
-            [ -e "$file" ] && ${pkgs.coreutils}/bin/sha256sum "$file"
-          done | ${pkgs.coreutils}/bin/sha256sum | ${pkgs.coreutils}/bin/cut -d ' ' -f1
-        )"
-        old_hash="$(${pkgs.coreutils}/bin/cat "$marker" 2>/dev/null || true)"
-
-        if [ "$new_hash" != "$old_hash" ]; then
-          ${pkgs.systemd}/bin/systemctl daemon-reload || true
-          ok=1
-          for service in ${services}; do
-            if ${pkgs.systemd}/bin/systemctl is-active --quiet "$service"; then
-              ${pkgs.systemd}/bin/systemctl restart "$service" || ok=0
-            else
-              ${pkgs.systemd}/bin/systemctl start "$service" || ok=0
-            fi
-          done
-
-          if [ "$ok" = 1 ]; then
-            printf '%s\n' "$new_hash" > "$marker"
-          else
-            echo "warning: failed to start or restart services for $app_prefix" >&2
-          fi
-        fi
-      fi
-    ''
-  ) enabledApps;
-
   assertionsForApp =
     appName: app:
     let
@@ -967,8 +919,8 @@ let
             message = "homelab.apps.${appName}.${serviceName}: service.image must reference contract.images.";
           }
           {
-            assertion = lib.hasInfix "NetworkAlias=${unitPrefixFor app}-${serviceName}" (
-              (containerUnitFor app serviceName service).value.text
+            assertion = builtins.elem "${unitPrefixFor app}-${serviceName}" (
+              (quadletContainerFor app serviceName service).value.containerConfig.networkAliases
             );
             message = "homelab.apps.${appName}.${serviceName}: generated container must declare its network DNS alias.";
           }
@@ -1241,7 +1193,14 @@ in
 
     services.cloudflared.tunnels.${cloudflareTunnelId}.ingress = appIngress;
 
-    environment.etc = etcEntries;
+    virtualisation.quadlet = {
+      networks = quadletNetworks;
+      volumes = quadletVolumes;
+      images = quadletImages;
+      containers = quadletContainers;
+    };
+
+    environment.etc = metadataEtcEntries;
     environment.systemPackages = [ homelabAppctl ];
 
     security.sudo.extraRules = [
@@ -1272,13 +1231,5 @@ in
     systemd.tmpfiles.rules = [
       "d /var/lib/homelab-appctl 0750 root root - -"
     ];
-
-    system.activationScripts.homelabAppContainersRefresh = {
-      deps = [
-        "etc"
-        "specialfs"
-      ];
-      text = concatLines activationApps;
-    };
   };
 }
