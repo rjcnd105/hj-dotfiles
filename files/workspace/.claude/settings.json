@@ -1,142 +1,15 @@
 {
-  "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
-  },
-  "permissions": {
-    "allow": [
-      "Bash(cat *)",
-      "Bash(echo *)",
-      "Bash(env)",
-      "Bash(gh *)",
-      "Bash(git diff *)",
-      "Bash(git log *)",
-      "Bash(git show *)",
-      "Bash(grep *)",
-      "Bash(grep -r *)",
-      "Bash(jj diff *)",
-      "Bash(jj log *)",
-      "Bash(jj show *)",
-      "Bash(jj status)",
-      "Bash(just *)",
-      "Bash(ls *)",
-      "Bash(mise *)",
-      "Bash(mkdir *)",
-      "Bash(nix eval *)",
-      "Bash(nix flake *)",
-      "Bash(nixfmt *)",
-      "Bash(node *)",
-      "Bash(which *)",
-      "WebFetch",
-      "WebSearch"
-    ],
-    "defaultMode": "auto"
-  },
   "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/hj/.claude/hooks/rtk-rewrite.sh"
-          }
-        ]
-      }
-    ],
     "SessionStart": [
       {
+        "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "bash /Users/hj/.claude/hooks/jj-vcs-context.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash /Users/hj/.claude/hooks/recall-eval-status.sh"
+            "command": "SCRIPT=\".claude/hooks/agent-skills/hooks/session-start.sh\"; [ -f \"$SCRIPT\" ] || SCRIPT=\"${CLAUDE_PROJECT_DIR}/.claude/hooks/session-start.sh\"; [ -f \"$SCRIPT\" ]&& bash \"$SCRIPT\" || true"
           }
         ]
       }
     ]
-  },
-  "enabledPlugins": {
-    "typescript-lsp@claude-plugins-official": true,
-    "rust-analyzer-lsp@claude-plugins-official": false,
-    "context7@claude-plugins-official": false,
-    "compound-engineering@compound-engineering-plugin": true,
-    "hindsight-memory@hindsight": true,
-    "caveman@caveman": true,
-    "reflexion@context-engineering-kit": false,
-    "sdd@context-engineering-kit": false,
-    "sadd@context-engineering-kit": false,
-    "ddd@context-engineering-kit": true,
-    "serena@claude-plugins-official": false,
-    "claude-md-management@claude-plugins-official": true,
-    "gopls-lsp@claude-plugins-official": true,
-    "honey@greenpt": true
-  },
-  "extraKnownMarketplaces": {
-    "compound-engineering-plugin": {
-      "source": {
-        "source": "github",
-        "repo": "EveryInc/compound-engineering-plugin"
-      }
-    },
-    "harness-marketplace": {
-      "source": {
-        "source": "github",
-        "repo": "revfactory/harness"
-      }
-    },
-    "openai-codex": {
-      "source": {
-        "source": "github",
-        "repo": "openai/codex-plugin-cc"
-      }
-    },
-    "hindsight": {
-      "source": {
-        "source": "github",
-        "repo": "vectorize-io/hindsight"
-      }
-    },
-    "context-engineering-marketplace": {
-      "source": {
-        "source": "github",
-        "repo": "muratcankoylan/Agent-Skills-for-Context-Engineering"
-      }
-    },
-    "caveman": {
-      "source": {
-        "source": "github",
-        "repo": "JuliusBrussee/caveman"
-      }
-    },
-    "claude-code-lsps": {
-      "source": {
-        "source": "github",
-        "repo": "boostvolt/claude-code-lsps"
-      }
-    },
-    "context-engineering-kit": {
-      "source": {
-        "source": "github",
-        "repo": "NeoLabHQ/context-engineering-kit"
-      }
-    },
-    "greenpt": {
-      "source": {
-        "source": "github",
-        "repo": "Green-PT/honey-for-devs"
-      }
-    }
-  },
-  "language": "Korean",
-  "effortLevel": "xhigh",
-  "skipDangerousModePermissionPrompt": true,
-  "verbose": true,
-  "skipAutoPermissionPrompt": true,
-  "statusLine": {
-    "type": "command",
-    "command": "node \"/Users/hj/.claude/honey/statusline.js\""
   }
 }

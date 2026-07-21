@@ -1,0 +1,117 @@
+name: hj-agent-settings
+version: 1.0.0
+description: Codex-first agent settings projected to Claude Code and Cursor
+targets:
+  - codex
+  - claude
+  - cursor
+includes: auto
+
+dependencies:
+  apm:
+    # Codex's active public plugin. APM dissects its skills, agents, and hooks
+    # and projects the same primitives to Claude Code and Cursor.
+    - addyosmani/agent-skills
+
+    # Public skills previously managed by the Skills CLI.
+    - git: https://github.com/anthropics/claude-code.git
+      path: plugins/plugin-dev
+      skills:
+        - command-development
+        - hook-development
+        - mcp-integration
+        - skill-development
+    - juliusbrussee/caveman/skills/caveman-compress
+    - vectorize-io/hindsight/.claude/skills/code-review
+    - vectorize-io/hindsight/skills/hindsight-docs
+    - git: https://github.com/intellectronica/agent-skills.git
+      skills:
+        - context7
+        - markdown-converter
+    - git: https://github.com/upstash/context7.git
+      skills:
+        - context7-cli
+        - context7-mcp
+        - find-docs
+    - mattpocock/skills/skills/deprecated/design-an-interface
+    - mattpocock/skills/skills/productivity/grill-me
+    - mattpocock/skills/skills/engineering/grill-with-docs
+    - mattpocock/skills/skills/engineering/improve-codebase-architecture
+    - mattpocock/skills/skills/deprecated/request-refactor-plan
+    - agentspace-so/agent-skills/gpt-image-2
+    - git: https://github.com/Leonxlnx/taste-skill.git
+      path: skills/gpt-tasteskill
+    - git: https://github.com/Leonxlnx/taste-skill.git
+      path: skills/soft-skill
+    - git: https://github.com/Leonxlnx/taste-skill.git
+      path: skills/image-to-code-skill
+    - git: https://github.com/Leonxlnx/taste-skill.git
+      path: skills/redesign-skill
+    - dammyjay93/interface-design/.claude/skills/interface-design
+    - michalzubkowicz/nixos-management-skill/nixos-managing
+    - git: https://github.com/kepano/obsidian-skills.git
+      skills:
+        - obsidian-markdown
+    - git: https://github.com/anthropics/skills.git
+      skills:
+        - pdf
+        - skill-creator
+    - saschb2b/skills/skills/engineering/react-stinky
+    - emilkowalski/skills/skills/review-animations
+
+  mcp:
+    - name: chrome-devtools
+      registry: false
+      transport: stdio
+      command: npx
+      args:
+        - chrome-devtools-mcp@latest
+        - --auto-connect
+        - --channel=stable
+
+    - name: openaiDeveloperDocs
+      registry: false
+      transport: http
+      url: https://developers.openai.com/mcp
+
+    - name: context7
+      registry: false
+      transport: http
+      url: https://mcp.context7.com/mcp
+      # Codex resolves this header value from the mise-provided environment at
+      # server start. Keeping the native field avoids writing the secret into
+      # tracked generated files during `apm install`.
+      env_http_headers:
+        CONTEXT7_API_KEY: CONTEXT7_API_KEY
+
+    - name: gh_grep
+      registry: false
+      transport: http
+      url: https://mcp.grep.app
+
+    - name: exa
+      registry: false
+      transport: http
+      url: https://mcp.exa.ai/mcp
+
+    - name: node_repl
+      registry: false
+      transport: stdio
+      command: /Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl
+      args: []
+      startup_timeout_sec: 120
+      env:
+        NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS: "1000"
+        NODE_REPL_NODE_MODULE_DIRS: /Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules
+        NODE_REPL_NODE_PATH: /Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node
+        NODE_REPL_TRUSTED_CODE_PATHS: /Users/hj/.codex
+        CODEX_HOME: /Users/hj/.codex
+        NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S: 6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f,c8b7e809d7cf9e20a57123b2530d476ccec9a01a6230a7b2b924fea7d94d7f4a
+        BROWSER_USE_AVAILABLE_BACKENDS: chrome,iab
+        NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER: Control the in-app browser in conjunction with the Browser Plugin.
+        NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME: Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative.
+        NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE: Control desktop apps on macOS through Computer Use.
+        BROWSER_USE_CODEX_APP_BUILD_FLAVOR: prod
+        BROWSER_USE_CODEX_APP_VERSION: 26.707.31428
+        SKY_CUA_SERVICE_PATH: /Users/hj/.codex/plugins/cache/openai-bundled/computer-use/1.0.1000366/Codex Computer Use.app
+        CODEX_CLI_PATH: /Users/hj/.cache/.bun/bin/codex

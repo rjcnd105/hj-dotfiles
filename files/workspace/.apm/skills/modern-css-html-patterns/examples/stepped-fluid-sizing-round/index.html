@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stepped Fluid Sizing With round()</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      color: #172023;
+      background:
+        linear-gradient(135deg, rgba(88, 115, 131, 0.16), transparent 36%),
+        linear-gradient(315deg, rgba(167, 135, 67, 0.18), transparent 38%),
+        #edf1ed;
+    }
+
+    main {
+      width: min(100%, 1040px);
+      display: grid;
+      gap: 18px;
+    }
+
+    header {
+      display: grid;
+      gap: 8px;
+      max-width: 760px;
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 1.45rem + 2.4vw, 3.6rem);
+      line-height: 1;
+      text-wrap: balance;
+    }
+
+    header p {
+      color: #4b5961;
+      line-height: 1.55;
+      max-width: 68ch;
+    }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      --title-fluid: clamp(1.35rem, 1rem + 2vw, 2.5rem);
+      --gap-fluid: clamp(0.85rem, 0.5rem + 1.1vw, 1.5rem);
+      --media-fluid: clamp(9rem, 22vw, 18rem);
+      min-width: 0;
+      display: grid;
+      gap: var(--gap-fluid);
+      align-content: start;
+      border: 1px solid #cdd7d2;
+      border-radius: 8px;
+      padding: var(--gap-fluid);
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 18px 50px rgba(23, 32, 35, 0.14);
+    }
+
+    .card h2 {
+      font-size: var(--title-fluid);
+      line-height: 1.05;
+      text-wrap: balance;
+    }
+
+    .card p {
+      color: #4d5b62;
+      line-height: 1.55;
+    }
+
+    .card__media {
+      min-block-size: 9rem;
+      block-size: var(--media-fluid);
+      border-radius: 6px;
+      background:
+        linear-gradient(90deg, transparent calc(100% - 1px), rgba(23, 32, 35, 0.18) 0) 0 0 / 24px 100%,
+        linear-gradient(0deg, transparent calc(100% - 1px), rgba(23, 32, 35, 0.16) 0) 0 0 / 100% 24px,
+        linear-gradient(135deg, #246a73, #b6843d 58%, #7d4f69);
+    }
+
+    .badge {
+      width: fit-content;
+      border-radius: 999px;
+      padding: 5px 9px;
+      color: #17313a;
+      background: #dfeae7;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .checkpoints {
+      display: grid;
+      gap: 8px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      font: 0.93rem/1.45 Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .checkpoints li {
+      border-left: 3px solid #9a7444;
+      padding-left: 10px;
+      color: #445158;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.92em;
+    }
+
+    @supports (font-size: round(1rem, 1px)) {
+      .card.stepped {
+        gap: round(nearest, var(--gap-fluid), 0.25rem);
+        padding: round(up, var(--gap-fluid), 0.25rem);
+      }
+
+      .card.stepped h2 {
+        font-size: round(down, var(--title-fluid), 0.125rem);
+      }
+
+      .card.stepped .card__media {
+        block-size: round(nearest, var(--media-fluid), 0.5rem);
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 16px;
+      }
+
+      .comparison {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Fluid values, predictable steps</h1>
+      <p>Both cards start with the same bounded fluid values. The stepped card keeps that fallback and snaps the enhanced values to a smaller design scale.</p>
+    </header>
+
+    <section class="comparison" aria-label="Unrounded and rounded fluid sizing comparison">
+      <article class="card">
+        <span class="badge">Fallback fluid</span>
+        <div class="card__media" role="img" aria-label="Fluid media block with unconstrained grid rhythm"></div>
+        <h2>Editorial planning for seasonal launches</h2>
+        <p>The title, gap, padding, and media height use direct <code>clamp()</code> values.</p>
+        <ul class="checkpoints" aria-label="Fallback checkpoints">
+          <li><code>clamp()</code> preserves min and max readable sizes.</li>
+          <li>Values can land on fractional pixels while the viewport changes.</li>
+        </ul>
+      </article>
+
+      <article class="card stepped">
+        <span class="badge">round() enhanced</span>
+        <div class="card__media" role="img" aria-label="Stepped media block aligned to a regular grid rhythm"></div>
+        <h2>Editorial planning for seasonal launches</h2>
+        <p>The same variables are rounded to type, spacing, and media-size intervals.</p>
+        <ul class="checkpoints" aria-label="round checkpoints">
+          <li><code>round(down, var(--title-fluid), 0.125rem)</code> keeps type on a 2px step.</li>
+          <li><code>round(nearest, var(--media-fluid), 0.5rem)</code> snaps the media block.</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

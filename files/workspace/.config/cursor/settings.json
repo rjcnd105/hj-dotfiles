@@ -10,9 +10,7 @@
   "cursor.chat.smoothStreaming": true,
   "cursor.preferNotificationsSameAsChat": true,
   "cursor.cpp.enablePartialAccepts": true,
-  "workbench.iconTheme": "catppuccin-latte",
-  "vsicons.associations.folderDefault.folder": null,
-  "editor.fontFamily": "Cascadia Code",
+  "editor.fontFamily": "IBM Plex Mono",
   "editor.fontWeight": "400",
   "cursor.general.enableShadowWorkspace": true,
   "cursor.terminal.usePreviewBox": true,
@@ -162,32 +160,19 @@
   "files.exclude": {
     "**/.git": false
   },
-  "i18n-ally.annotationMaxLength": 50,
   "cursor.semanticSearch.includeCommitsWithFiles": true,
-  "i18n-ally.enabledFrameworks": [
-    "next-intl"
-  ],
-  "i18n-ally.displayLanguage": "en",
+
   "cursor.windowSwitcher.sidebarHoverCollapsed": true,
 
-  "javascript.updateImportsOnFileMove.enabled": "always",
-  "javascript.inlayHints.parameterNames.enabled": "all",
-  "typescript.updateImportsOnFileMove.enabled": "always",
+  "js/ts.updateImportsOnFileMove.enabled": "always",
+  "js/ts.inlayHints.parameterNames.enabled": "all",
   "window.newWindowDimensions": "maximized",
   "window.titleBarStyle": "custom",
-  "typescript.inlayHints.parameterNames.enabled": "all",
   "mise.binPath": "/opt/homebrew/bin/mise",
   "redhat.telemetry.enabled": true,
   "cursor.composer.textSizeScale": 0.85,
-  "geminicodeassist.inlineSuggestions.enableAuto": false,
   "files.trimTrailingWhitespace": true,
 
-  "i18n-ally.extract.autoDetect": true,
-  "yaml.suggest.parentSkeletonSelectedFirst": true,
-  "yaml.customTags": [],
-  "i18n-ally.translate.openai.apiModel": "gpt-4",
-  "i18n-ally.extract.targetPickingStrategy": "most-similar",
-  "i18n-ally.parsers.typescript.compilerOptions": {},
 
   "files.readonlyInclude": {
     "**/routeTree.gen.ts": true
@@ -333,5 +318,13 @@
   "workbench.editor.closeOnFileDelete": true,
   "workbench.editor.limit.enabled": true,
   "workbench.editor.limit.perEditorGroup": true,
-  "window.autoDetectColorScheme": false
+  "window.autoDetectColorScheme": false,
+  "editor.fontSize": 12.9,
+  "workbench.iconTheme": "pierre-icons-complete",
+  "window.zoomLevel": -0.3,
+  "loccy.annotations.previewLocale": "ko",
+  "i18n-ally.displayLanguage": "ko",
+  "i18n-ally.enabledFrameworks": [
+    "next-intl"
+  ]
 }

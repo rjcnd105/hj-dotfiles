@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Layered Shadow Border</title>
+  <style>
+    @layer reset, demo;
+
+    @layer reset {
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100svh;
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        color: #15171a;
+        background: #e9edf0;
+      }
+    }
+
+    @layer demo {
+      main {
+        display: grid;
+        min-height: 100svh;
+        place-items: center;
+        padding: 24px;
+      }
+
+      article {
+        width: min(100%, 560px);
+        display: grid;
+        gap: 18px;
+        border-radius: 8px;
+        background: #fbfcfd;
+        padding: 28px;
+        box-shadow:
+          inset 0 0 0 1px rgba(255, 255, 255, 0.95),
+          inset 0 -1px 0 rgba(16, 24, 40, 0.08),
+          0 1px 2px rgba(16, 24, 40, 0.08),
+          0 18px 44px rgba(16, 24, 40, 0.16);
+        transition: transform 180ms ease, box-shadow 180ms ease;
+      }
+
+      article:hover {
+        transform: translateY(-2px);
+        box-shadow:
+          inset 0 0 0 1px rgba(255, 255, 255, 0.98),
+          inset 0 -1px 0 rgba(16, 24, 40, 0.1),
+          0 4px 10px rgba(16, 24, 40, 0.1),
+          0 24px 60px rgba(16, 24, 40, 0.18);
+      }
+
+      @supports (color: color-mix(in oklab, white, black)) {
+        article {
+          box-shadow:
+            inset 0 0 0 1px color-mix(in oklab, white 92%, transparent),
+            inset 0 -1px 0 color-mix(in oklab, #111827 12%, transparent),
+            0 1px 2px color-mix(in oklab, #111827 8%, transparent),
+            0 18px 44px color-mix(in oklab, #111827 17%, transparent);
+        }
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 1.55rem;
+        line-height: 1.15;
+      }
+
+      p {
+        margin: 0;
+        max-width: 54ch;
+        color: #4a5563;
+        line-height: 1.55;
+      }
+
+      .kicker {
+        width: fit-content;
+        border-radius: 999px;
+        padding: 5px 9px;
+        color: #123047;
+        background: #d8eaf2;
+        font-size: 0.75rem;
+        font-weight: 900;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .surface-row {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .surface-row span {
+        display: grid;
+        min-block-size: 64px;
+        place-items: center;
+        border-radius: 8px;
+        color: #334155;
+        background: #f1f5f9;
+        font-size: 0.82rem;
+        font-weight: 800;
+      }
+
+      .technique {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .technique li {
+        border-left: 3px solid #7aa6ba;
+        padding-left: 10px;
+        color: #3e4a56;
+        line-height: 1.45;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.92em;
+      }
+
+      @media (max-width: 560px) {
+        article {
+          padding: 22px;
+        }
+
+        .surface-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <article>
+      <p class="kicker">No wrapper border</p>
+      <h1>Layered shadow border</h1>
+      <p>A crisp inset edge, a quiet lower divider, and a soft outer lift are composed with shadows, so the layout size never changes.</p>
+      <div class="surface-row" aria-hidden="true">
+        <span>inset edge</span>
+        <span>lower divider</span>
+        <span>outer lift</span>
+      </div>
+      <ul class="technique" aria-label="Technique checkpoints">
+        <li><code>box-shadow</code> layers replace extra border elements.</li>
+        <li><code>color-mix()</code> only refines the colors when supported.</li>
+        <li>Hover changes paint and transform, not layout dimensions.</li>
+      </ul>
+    </article>
+  </main>
+</body>
+</html>

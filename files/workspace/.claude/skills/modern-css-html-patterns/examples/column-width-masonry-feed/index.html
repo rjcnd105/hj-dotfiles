@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Column-width Masonry Feed</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2933;
+      --muted: #617081;
+      --line: #d9dee6;
+      --paper: #fbfaf7;
+      --surface: #ffffff;
+      --gap: 16px;
+      --shadow: 0 18px 38px rgba(31, 41, 51, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--paper);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      padding: 32px 20px;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(135deg, rgba(73, 120, 103, 0.12), transparent 36rem),
+        linear-gradient(315deg, rgba(196, 88, 73, 0.12), transparent 32rem),
+        var(--paper);
+    }
+
+    main {
+      width: min(100%, 1080px);
+      margin-inline: auto;
+    }
+
+    .intro {
+      max-width: 740px;
+      margin-block-end: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      font-size: 0.78rem;
+      font-weight: 760;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      color: #7a4d22;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2.15rem;
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .intro p {
+      max-width: 62ch;
+      margin: 12px 0 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .checks {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 18px 0 0;
+      padding: 0;
+    }
+
+    .checks li {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 11px;
+      background: rgba(255, 255, 255, 0.72);
+      color: #374151;
+      font-size: 0.84rem;
+      font-weight: 680;
+    }
+
+    .masonry-feed {
+      list-style: none;
+      display: grid;
+      gap: var(--gap);
+      margin: 0;
+      padding: 0;
+    }
+
+    .story {
+      break-inside: avoid;
+      overflow: hidden;
+      border: 1px solid rgba(55, 65, 81, 0.14);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    @supports (column-width: 16rem) {
+      .masonry-feed {
+        display: block;
+        column-width: 16rem;
+        column-gap: var(--gap);
+      }
+
+      .story {
+        display: inline-block;
+        width: 100%;
+        margin-block: 0 var(--gap);
+      }
+    }
+
+    .media {
+      aspect-ratio: var(--ratio, 4 / 3);
+      border-block-end: 1px solid rgba(55, 65, 81, 0.12);
+      background:
+        radial-gradient(circle at 28% 20%, rgba(255, 255, 255, 0.82) 0 12%, transparent 13%),
+        linear-gradient(135deg, var(--tone-a), var(--tone-b));
+    }
+
+    .story-body {
+      padding: 16px;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-block-end: 10px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 690;
+    }
+
+    .story h2 {
+      margin: 0;
+      font-size: 1.03rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .story p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 0.95rem;
+    }
+
+    @media (width <= 560px) {
+      body {
+        padding: 24px 14px;
+      }
+
+      h1 {
+        font-size: 1.82rem;
+      }
+
+      .checks li {
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="intro">
+      <p class="eyebrow">CSS multi-column layout</p>
+      <h1>Column-width Masonry Feed</h1>
+      <p>
+        A normal ordered feed becomes a responsive masonry-like board when the
+        container gets an ideal column width and each item avoids fragmentation.
+      </p>
+      <ul class="checks">
+        <li>column-width</li>
+        <li>column-gap</li>
+        <li>break-inside: avoid</li>
+        <li>DOM order preserved</li>
+      </ul>
+    </header>
+
+    <ol class="masonry-feed">
+      <li class="story" style="--ratio: 5 / 4; --tone-a: #6e9f8f; --tone-b: #f0c36a;">
+        <div class="media" role="img" aria-label="Green and ochre abstract editorial tile"></div>
+        <div class="story-body">
+          <div class="meta"><span>01</span><span>Field note</span></div>
+          <h2>Harbor market opens before sunrise</h2>
+          <p>Short dispatches keep their natural height while the board fills each column.</p>
+        </div>
+      </li>
+      <li class="story" style="--ratio: 1 / 1; --tone-a: #8c6bb1; --tone-b: #df8f74;">
+        <div class="media" role="img" aria-label="Violet and coral abstract editorial tile"></div>
+        <div class="story-body">
+          <div class="meta"><span>02</span><span>Studio</span></div>
+          <h2>Material tests for a compact launch wall</h2>
+          <p>Cards can vary in height without JavaScript measurement or absolute positioning.</p>
+        </div>
+      </li>
+      <li class="story" style="--ratio: 4 / 5; --tone-a: #547aa5; --tone-b: #b7cf6a;">
+        <div class="media" role="img" aria-label="Blue and green abstract editorial tile"></div>
+        <div class="story-body">
+          <div class="meta"><span>03</span><span>Archive</span></div>
+          <h2>Three recovered layouts from the print room</h2>
+          <p>
+            The visual flow runs down the first column, then continues in the
+            next column, matching the document order used by assistive tech.
+          </p>
+        </div>
+      </li>
+      <li class="story" style="--ratio: 3 / 2; --tone-a: #b06f4c; --tone-b: #ebd7a4;">
+        <div class="media" role="img" aria-label="Terracotta and sand abstract editorial tile"></div>
+        <div class="story-body">
+          <div class="meta"><span>04</span><span>Brief</span></div>
+          <h2>Vendor notes arrive as mixed-length cards</h2>
+          <p>Use this when compact packing matters more than row-wise ordering.</p>
+        </div>
+      </li>
+      <li class="story" style="--ratio: 6 / 5; --tone-a: #5e8792; --tone-b: #d88f5d;">
+        <div class="media" role="img" aria-label="Teal and orange abstract editorial tile"></div>
+        <div class="story-body">
+          <div class="meta"><span>05</span><span>Route</span></div>
+          <h2>Neighborhood guide trims its card chrome</h2>
+          <p>
+            The fallback is just a readable one-column list; the enhancement
+            only changes how available inline space is used.
+          </p>
+        </div>
+      </li>
+      <li class="story" style="--ratio: 7 / 4; --tone-a: #9a6f87; --tone-b: #7fb38a;">
+        <div class="media" role="img" aria-label="Rose and sage abstract editorial tile"></div>
+        <div class="story-body">
+          <div class="meta"><span>06</span><span>Queue</span></div>
+          <h2>Review board groups cards by available width</h2>
+          <p>Every item keeps `width: 100%` inside its generated column.</p>
+        </div>
+      </li>
+      <li class="story" style="--ratio: 5 / 6; --tone-a: #4f6f52; --tone-b: #d9b56d;">
+        <div class="media" role="img" aria-label="Forest green and amber abstract editorial tile"></div>
+        <div class="story-body">
+          <div class="meta"><span>07</span><span>Long read</span></div>
+          <h2>Dense seasonal notes need a stress test</h2>
+          <p>
+            Check extreme widths and unusually long copy before shipping, since
+            multi-column fragmentation can expose weak assumptions quickly.
+          </p>
+        </div>
+      </li>
+    </ol>
+  </main>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Animated Gradient Text Shine</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      color: #17211d;
+      background:
+        linear-gradient(135deg, #f7faf4 0%, #f2f0e8 52%, #e7eef2 100%);
+    }
+
+    main {
+      width: min(100%, 720px);
+      display: grid;
+      gap: 28px;
+      border-radius: 8px;
+      padding: 32px;
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: 0 18px 52px rgba(31, 38, 35, 0.16);
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      font-size: 0.84rem;
+      font-weight: 720;
+      letter-spacing: 0;
+      color: #a34b35;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 10ch;
+      font-size: 3.6rem;
+      line-height: 0.96;
+      letter-spacing: 0;
+      color: #24513d;
+    }
+
+    .shine-text {
+      color: #24513d;
+    }
+
+    @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+      .shine-text {
+        background:
+          linear-gradient(
+            110deg,
+            rgba(36, 81, 61, 0.42) 18%,
+            rgba(224, 97, 73, 0.96) 42%,
+            rgba(255, 248, 216, 0.98) 50%,
+            rgba(224, 97, 73, 0.96) 58%,
+            rgba(36, 81, 61, 0.42) 82%
+          );
+        background-size: 220% 100%;
+        background-position: 0 center;
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        -webkit-text-fill-color: transparent;
+        animation: text-shine 2.8s linear infinite;
+      }
+    }
+
+    .summary {
+      margin: 0;
+      max-width: 58ch;
+      color: #435149;
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+
+    .checkpoints {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .checkpoint {
+      min-height: 112px;
+      display: grid;
+      align-content: space-between;
+      gap: 12px;
+      border: 1px solid rgba(36, 81, 61, 0.15);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfcf8;
+    }
+
+    .checkpoint strong {
+      color: #17211d;
+      font-size: 0.98rem;
+      line-height: 1.25;
+    }
+
+    .checkpoint span {
+      color: #5d685f;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .sample-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-top: 1px solid rgba(36, 81, 61, 0.14);
+      padding-top: 22px;
+    }
+
+    .sample-line p {
+      margin: 0;
+      color: #435149;
+      line-height: 1.45;
+    }
+
+    .sample-line .shine-text {
+      flex: 0 0 auto;
+      font-size: 1.35rem;
+      font-weight: 780;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+
+    @keyframes text-shine {
+      to {
+        background-position: 220% center;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .shine-text {
+        animation: none;
+        background-position: 100% center;
+      }
+    }
+
+    @media (max-width: 620px) {
+      body {
+        padding: 16px;
+      }
+
+      main {
+        padding: 24px;
+      }
+
+      h1 {
+        max-width: 11ch;
+        font-size: 2.45rem;
+      }
+
+      .checkpoints {
+        grid-template-columns: 1fr;
+      }
+
+      .sample-line {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .sample-line .shine-text {
+        white-space: normal;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section aria-labelledby="shine-title">
+      <p class="eyebrow">Fallback-first text effect</p>
+      <h1 id="shine-title" class="shine-text">Release approved</h1>
+    </section>
+
+    <p class="summary">
+      The text is readable before enhancement. Supporting browsers clip a wide gradient to
+      the glyphs and animate only background position, so the shine moves without changing
+      layout.
+    </p>
+
+    <div class="checkpoints" role="group" aria-label="Technique checkpoints">
+      <div class="checkpoint">
+        <strong>Readable base</strong>
+        <span>Solid text color ships before transparent clipping.</span>
+      </div>
+      <div class="checkpoint">
+        <strong>Clipped gradient</strong>
+        <span>The sweep is paint-only and does not need extra spans.</span>
+      </div>
+      <div class="checkpoint">
+        <strong>Motion guard</strong>
+        <span>Reduced-motion users receive a static finish state.</span>
+      </div>
+    </div>
+
+    <div class="sample-line">
+      <p>Short secondary labels can reuse the same utility class.</p>
+      <strong class="shine-text">Ready to ship</strong>
+    </div>
+  </main>
+</body>
+</html>

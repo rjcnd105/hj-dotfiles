@@ -1,6 +1,33 @@
 {
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
   "permissions": {
     "allow": [
+      "Bash(cat *)",
+      "Bash(echo *)",
+      "Bash(env)",
+      "Bash(gh *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(grep *)",
+      "Bash(grep -r *)",
+      "Bash(jj diff *)",
+      "Bash(jj log *)",
+      "Bash(jj show *)",
+      "Bash(jj status)",
+      "Bash(just *)",
+      "Bash(ls *)",
+      "Bash(mise *)",
+      "Bash(mkdir *)",
+      "Bash(nix eval *)",
+      "Bash(nix flake *)",
+      "Bash(nixfmt *)",
+      "Bash(node *)",
+      "Bash(which *)",
+      "WebFetch",
+      "WebSearch",
       "Bash(/Users/hj/.local/bin/mise generate:*)",
       "Bash(jj help:*)",
       "Bash(jj --version)",
@@ -8,6 +35,12 @@
       "Read(//Users/hj/dot/nix-dots/**)",
       "Bash(jj commit:*)",
       "Bash(claude plugin:*)"
-    ]
-  }
+    ],
+    "defaultMode": "auto"
+  },
+  "language": "Korean",
+  "effortLevel": "xhigh",
+  "skipDangerousModePermissionPrompt": true,
+  "verbose": true,
+  "skipAutoPermissionPrompt": true
 }

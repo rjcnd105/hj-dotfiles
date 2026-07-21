@@ -1,4 +1,4 @@
-# https://ghostty.org/docs/config/keybind/reference
+.# https://ghostty.org/docs/config/keybind/reference
 
 macos-option-as-alt = true
 theme = Arcoiris

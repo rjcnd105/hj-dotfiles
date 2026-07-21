@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Animated Conic Gradient Border</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      color: #1c241f;
+      background:
+        linear-gradient(135deg, #f7f1e7 0%, #edf5ef 48%, #f1f0f5 100%);
+    }
+
+    main {
+      width: min(100%, 860px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+      gap: 28px;
+      align-items: center;
+      border-radius: 8px;
+      padding: 32px;
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: 0 18px 54px rgba(34, 40, 35, 0.14);
+    }
+
+    .copy {
+      display: grid;
+      gap: 14px;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: #a34b35;
+      font-size: 0.84rem;
+      font-weight: 760;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      margin: 0;
+      color: #17211d;
+      font-size: 2.6rem;
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .copy p {
+      margin: 0;
+      max-width: 54ch;
+      color: #4c5a51;
+      line-height: 1.65;
+    }
+
+    .checks {
+      display: grid;
+      gap: 10px;
+      margin: 6px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .checks li {
+      border-left: 3px solid #d66a45;
+      padding-left: 10px;
+      color: #2e3933;
+      line-height: 1.45;
+    }
+
+    @property --border-angle {
+      syntax: "<angle>";
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    .glow-card {
+      --border-angle: 0deg;
+      position: relative;
+      isolation: isolate;
+      min-height: 360px;
+      display: grid;
+      align-content: space-between;
+      gap: 26px;
+      border: 1px solid rgba(244, 201, 93, 0.18);
+      border-radius: 8px;
+      padding: 26px;
+      overflow: visible;
+      color: #f8fbf4;
+      background:
+        radial-gradient(circle at top left, rgba(244, 201, 93, 0.18), transparent 34%),
+        #101714;
+      box-shadow: 0 18px 42px rgba(16, 23, 20, 0.26);
+    }
+
+    .glow-card::before,
+    .glow-card::after {
+      content: "";
+      position: absolute;
+      inset: -3px;
+      z-index: -1;
+      border-radius: inherit;
+      background:
+        conic-gradient(
+          from var(--border-angle),
+          #f56b48,
+          #f4c95d,
+          #58c58b,
+          #4e7be8,
+          #c15dd8,
+          #f56b48
+        );
+      animation: border-spin 4s linear infinite;
+    }
+
+    .glow-card::before {
+      filter: blur(22px);
+      opacity: 0.46;
+    }
+
+    .glow-card h2 {
+      margin: 0;
+      color: #ffffff;
+      font-size: 1.55rem;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .glow-card p {
+      margin: 0;
+      color: #dce9dd;
+      line-height: 1.6;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      min-height: 72px;
+      display: grid;
+      align-content: center;
+      gap: 4px;
+      border: 1px solid rgba(248, 251, 244, 0.14);
+      border-radius: 8px;
+      padding: 10px;
+      background: rgba(248, 251, 244, 0.06);
+    }
+
+    .metric strong {
+      color: #ffffff;
+      font-size: 1rem;
+      line-height: 1.1;
+    }
+
+    .metric span {
+      color: #b7c9bc;
+      font-size: 0.82rem;
+      line-height: 1.2;
+    }
+
+    @keyframes border-spin {
+      to {
+        --border-angle: 360deg;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .glow-card::before,
+      .glow-card::after {
+        animation: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 16px;
+      }
+
+      main {
+        grid-template-columns: 1fr;
+        padding: 24px;
+      }
+
+      h1 {
+        font-size: 2.1rem;
+      }
+
+      .glow-card {
+        min-height: 320px;
+      }
+
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="copy" aria-labelledby="border-title">
+      <p class="eyebrow">Decorative border motion</p>
+      <h1 id="border-title">Animated conic gradient border</h1>
+      <p>
+        A pseudo-element sits behind the card face and paints a conic gradient.
+        A registered angle custom property rotates the color stops smoothly.
+      </p>
+      <ul class="checks">
+        <li>The first color stop repeats at the end for a clean loop.</li>
+        <li>The blurred duplicate layer provides glow without extra markup.</li>
+        <li>Reduced-motion users keep the static gradient border.</li>
+      </ul>
+    </section>
+
+    <article class="glow-card">
+      <div>
+        <h2>Launch monitor</h2>
+        <p>Use this treatment for a single featured surface, not every card in a grid.</p>
+      </div>
+      <div class="metrics" role="group" aria-label="Example metrics">
+        <div class="metric">
+          <strong>0 JS</strong>
+          <span>paint only</span>
+        </div>
+        <div class="metric">
+          <strong>4s</strong>
+          <span>rotation</span>
+        </div>
+        <div class="metric">
+          <strong>2 layers</strong>
+          <span>edge and glow</span>
+        </div>
+      </div>
+    </article>
+  </main>
+</body>
+</html>

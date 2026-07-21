@@ -1,1 +1,0 @@
-Agents are specialized subagent definitions with constrained tool access and specific models. A security reviewer that audits code changes. A content drafter that writes in a calibrated voice. A code reviewer that provides external perspective.

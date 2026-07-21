@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>View Transition Navigation</title>
+  <style>
+    @view-transition {
+      navigation: auto;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      color: #17202a;
+      background: #eef2f5;
+    }
+
+    main {
+      width: min(100%, 680px);
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      border-radius: 8px;
+      padding: 22px;
+      background: #ffffff;
+      box-shadow: 0 18px 48px rgba(23, 32, 42, 0.15);
+      view-transition-name: project-panel;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 2.6rem;
+      line-height: 1;
+      text-wrap: balance;
+    }
+
+    p {
+      margin: 0;
+      color: #53616f;
+      line-height: 1.55;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      border: 1px solid #d7e1e8;
+      border-radius: 8px;
+      padding: 14px;
+      background: #f8fafb;
+    }
+
+    .row strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    a {
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: #ffffff;
+      background: #2f5f72;
+      text-decoration: none;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .technique {
+      display: grid;
+      gap: 8px;
+      margin: 18px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .technique li {
+      border-left: 3px solid #8aaec0;
+      padding-left: 10px;
+      color: #42515f;
+      line-height: 1.45;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.92em;
+    }
+
+    @keyframes move-out {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(-18px);
+      }
+    }
+
+    @keyframes move-in {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    ::view-transition-old(root) {
+      animation: 180ms ease both move-out;
+    }
+
+    ::view-transition-new(root) {
+      animation: 220ms ease both move-in;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation: none;
+      }
+    }
+
+    @media (max-width: 560px) {
+      body {
+        padding: 16px;
+      }
+
+      h1 {
+        font-size: 2.15rem;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="panel">
+      <h1>Release dashboard</h1>
+      <p>These are ordinary links. Supporting browsers can animate the same-origin navigation through @view-transition.</p>
+      <ul class="technique" aria-label="Technique checkpoints">
+        <li>Both documents opt in with <code>@view-transition { navigation: auto; }</code>.</li>
+        <li>The link remains a real same-origin navigation.</li>
+        <li><code>prefers-reduced-motion</code> disables the custom transition animation.</li>
+      </ul>
+    </section>
+
+    <article class="row">
+      <div>
+        <strong>Design system refresh</strong>
+        <p>Ready for detailed review.</p>
+      </div>
+      <a href="./details.html">Open detail</a>
+    </article>
+  </main>
+</body>
+</html>

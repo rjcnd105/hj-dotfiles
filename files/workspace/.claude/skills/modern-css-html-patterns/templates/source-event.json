@@ -1,0 +1,1 @@
+{"schema_version":"1.0.0","source_event_id":"ev-<source>-YYYYMMDD","source_id":"<stable-source-id>","url":"https://example.com","source_kind":"inspiration","access_status":"accessible","http_status":200,"checked_at":"YYYY-MM-DD","captured_evidence":"Short source note.","intended_pattern_ids":["{{ID}}"],"accepted":true,"rejected_reason":null}

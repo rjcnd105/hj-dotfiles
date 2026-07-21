@@ -16,6 +16,9 @@ hk = "latest"
 [tools.acli]
 version = "latest"
 
+[tools.apm]
+version = "latest"
+
 [tools.expert]
 version = "latest"
 

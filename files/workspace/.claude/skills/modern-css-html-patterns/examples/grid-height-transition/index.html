@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grid Height Transition</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      color: #18231f;
+      background:
+        linear-gradient(135deg, #f5efe4 0%, #eef5f0 52%, #edf1f7 100%);
+    }
+
+    main {
+      width: min(100%, 720px);
+      display: grid;
+      gap: 24px;
+      border-radius: 8px;
+      padding: 32px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 18px 54px rgba(34, 40, 35, 0.14);
+    }
+
+    .intro {
+      display: grid;
+      gap: 12px;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: #a34b35;
+      font-size: 0.84rem;
+      font-weight: 760;
+      letter-spacing: 0;
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+      color: #17211d;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: 2.55rem;
+      line-height: 1.02;
+    }
+
+    .intro p {
+      margin: 0;
+      max-width: 58ch;
+      color: #4d5a52;
+      line-height: 1.65;
+    }
+
+    .accordion {
+      display: grid;
+      gap: 12px;
+    }
+
+    .trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 56px;
+      border: 1px solid rgba(39, 84, 61, 0.2);
+      border-radius: 8px;
+      padding: 0 18px;
+      color: #1f4d39;
+      background: #f4faf5;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 760;
+      text-align: left;
+    }
+
+    .trigger::after {
+      content: "+";
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      color: #ffffff;
+      background: #1f4d39;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .trigger[aria-expanded="true"]::after {
+      content: "-";
+    }
+
+    .trigger:focus-visible {
+      outline: 3px solid rgba(214, 106, 69, 0.42);
+      outline-offset: 3px;
+    }
+
+    .reveal {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 420ms ease;
+    }
+
+    .trigger[aria-expanded="true"] + .reveal {
+      grid-template-rows: 1fr;
+    }
+
+    .reveal > div {
+      overflow: hidden;
+    }
+
+    .panel {
+      border: 1px solid rgba(39, 84, 61, 0.15);
+      border-radius: 8px;
+      padding: 18px;
+      background: #ffffff;
+    }
+
+    .panel h2 {
+      font-size: 1.1rem;
+      line-height: 1.25;
+    }
+
+    .panel p {
+      margin: 10px 0 0;
+      color: #4d5a52;
+      line-height: 1.6;
+    }
+
+    .panel ul {
+      display: grid;
+      gap: 8px;
+      margin: 14px 0 0;
+      padding-left: 20px;
+      color: #2f3b35;
+      line-height: 1.5;
+    }
+
+    .notes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .note {
+      min-height: 104px;
+      border: 1px solid rgba(39, 84, 61, 0.14);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fbfcf8;
+    }
+
+    .note strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #17211d;
+      line-height: 1.25;
+    }
+
+    .note span {
+      color: #5a665e;
+      line-height: 1.4;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal {
+        transition: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 16px;
+      }
+
+      main {
+        padding: 24px;
+      }
+
+      h1 {
+        font-size: 2.1rem;
+      }
+
+      .notes {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="intro" aria-labelledby="height-title">
+      <p class="eyebrow">Dynamic disclosure height</p>
+      <h1 id="height-title">Grid height transition</h1>
+      <p>
+        The panel animates between collapsed and natural content height by transitioning
+        one grid row from <code>0fr</code> to <code>1fr</code>. No arbitrary
+        <code>max-height</code> value is needed.
+      </p>
+    </section>
+
+    <section class="accordion" aria-label="Grid transition example">
+      <button
+        class="trigger"
+        id="release-notes-trigger"
+        type="button"
+        aria-expanded="true"
+        aria-controls="release-notes-panel"
+      >
+        Release notes
+      </button>
+      <section
+        class="reveal"
+        id="release-notes-panel"
+        aria-labelledby="release-notes-trigger"
+      >
+        <div>
+          <article class="panel">
+            <h2>Content keeps its natural size</h2>
+            <p>
+              The outer grid controls the track. The inner wrapper clips the content while
+              the track grows and shrinks.
+            </p>
+            <ul>
+              <li>Use <code>grid-template-rows: 0fr</code> for the collapsed state.</li>
+              <li>Use <code>grid-template-rows: 1fr</code> for the expanded state.</li>
+              <li>Remove the transition for reduced-motion users.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <div class="notes">
+      <div class="note">
+        <strong>No magic max</strong>
+        <span>The timing no longer depends on guessed content height.</span>
+      </div>
+      <div class="note">
+        <strong>One inner wrapper</strong>
+        <span>The child handles overflow while the grid track animates.</span>
+      </div>
+      <div class="note">
+        <strong>Instant fallback</strong>
+        <span>Without transition support, the panel still opens and closes.</span>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const trigger = document.querySelector(".trigger");
+    const panel = document.getElementById(trigger.getAttribute("aria-controls"));
+
+    trigger.addEventListener("click", () => {
+      const isExpanded = trigger.getAttribute("aria-expanded") === "true";
+      trigger.setAttribute("aria-expanded", String(!isExpanded));
+
+      if (isExpanded) {
+        panel.setAttribute("aria-hidden", "true");
+        panel.setAttribute("inert", "");
+      } else {
+        panel.removeAttribute("aria-hidden");
+        panel.removeAttribute("inert");
+      }
+    });
+  </script>
+</body>
+</html>
