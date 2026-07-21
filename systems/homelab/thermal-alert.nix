@@ -7,16 +7,7 @@ let
   telegramBotTokenCredential = "telegram-bot-token";
   telegramChatIdCredential = "telegram-chat-id";
 
-  thermalAlert = pkgs.writeShellApplication {
-    name = "homelab-thermal-alert";
-    runtimeInputs = [
-      pkgs.coreutils
-      pkgs.curl
-      pkgs.gawk
-      pkgs.procps
-    ];
-    text = builtins.readFile ./thermal-alert.sh;
-  };
+  thermalAlert = pkgs.callPackage ./thermal-alert-package.nix { };
 in
 {
   sops.secrets.TELEGRAM_BOT_TOKEN.mode = "0400";

@@ -625,15 +625,7 @@
         system:
         let
           pkgs = pkgsFor system;
-          thermalAlert = pkgs.writeShellApplication {
-            name = "homelab-thermal-alert";
-            runtimeInputs = [
-              pkgs.coreutils
-              pkgs.curl
-              pkgs.gawk
-            ];
-            text = builtins.readFile ./systems/homelab/thermal-alert.sh;
-          };
+          thermalAlert = pkgs.callPackage ./systems/homelab/thermal-alert-package.nix { };
         in
         pkgs.runCommand "homelab-thermal-alert-smoke" { } ''
           set -eu
