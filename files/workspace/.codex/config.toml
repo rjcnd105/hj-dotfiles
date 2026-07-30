@@ -249,6 +249,10 @@ enabled = false
 [plugins."github@openai-curated"]
 enabled = true
 
+# Temporary whole-repo fallback for addyosmani/agent-skills issue #361.
+[plugins."agent-skills@agent-skills"]
+enabled = true
+
 [plugins."documents@openai-primary-runtime"]
 enabled = true
 
@@ -279,6 +283,12 @@ source = "/Users/hj/.codex/.tmp/bundled-marketplaces/openai-bundled"
 last_updated = "2026-07-19T08:59:59Z"
 source_type = "local"
 source = "/Users/hj/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
+
+[marketplaces.agent-skills]
+last_updated = "2026-07-30T09:28:21Z"
+last_revision = "7829ffd90d973b6325f5f12f1b1226dcace74443"
+source_type = "git"
+source = "https://github.com/addyosmani/agent-skills.git"
 
 [mcp_servers.chrome-devtools]
 command = "npx"

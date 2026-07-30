@@ -9,9 +9,11 @@ includes: auto
 
 dependencies:
   apm:
-    # Codex's active public plugin. APM dissects its skills, agents, and hooks
-    # and projects the same primitives to Claude Code and Cursor.
-    - addyosmani/agent-skills
+    # TODO(agent-skills#361): Move this dependency back under APM after shared
+    # repo-root references work in per-skill installs. Until then, Codex owns
+    # it through `agent-skills@agent-skills` in `.codex/config.toml`.
+    # Tracking: https://github.com/addyosmani/agent-skills/issues/361
+    # - addyosmani/agent-skills
 
     # Public skills previously managed by the Skills CLI.
     - git: https://github.com/anthropics/claude-code.git
