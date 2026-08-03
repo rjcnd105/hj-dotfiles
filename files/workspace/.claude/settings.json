@@ -1,15 +1,49 @@
 {
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "SCRIPT=\".claude/hooks/agent-skills/hooks/session-start.sh\"; [ -f \"$SCRIPT\" ] || SCRIPT=\"${CLAUDE_PROJECT_DIR}/.claude/hooks/session-start.sh\"; [ -f \"$SCRIPT\" ]&& bash \"$SCRIPT\" || true"
-          }
-        ]
-      }
-    ]
-  }
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(cat *)",
+      "Bash(echo *)",
+      "Bash(env)",
+      "Bash(gh *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(grep *)",
+      "Bash(grep -r *)",
+      "Bash(jj diff *)",
+      "Bash(jj log *)",
+      "Bash(jj show *)",
+      "Bash(jj status)",
+      "Bash(just *)",
+      "Bash(ls *)",
+      "Bash(mise *)",
+      "Bash(mkdir *)",
+      "Bash(nix eval *)",
+      "Bash(nix flake *)",
+      "Bash(nixfmt *)",
+      "Bash(node *)",
+      "Bash(which *)",
+      "WebFetch",
+      "WebSearch"
+    ],
+    "defaultMode": "auto"
+  },
+  "enabledMcpjsonServers": [
+    "chrome-devtools",
+    "context7",
+    "node_repl",
+    "gh_grep",
+    "exa"
+  ],
+  "disabledMcpjsonServers": [
+    "openaiDeveloperDocs"
+  ],
+  "language": "Korean",
+  "effortLevel": "xhigh",
+  "skipDangerousModePermissionPrompt": true,
+  "verbose": true,
+  "skipAutoPermissionPrompt": true
 }

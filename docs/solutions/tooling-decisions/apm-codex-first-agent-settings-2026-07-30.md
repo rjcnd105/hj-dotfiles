@@ -48,10 +48,9 @@ target의 native path로 변환한다.
 - `files/workspace/apm.lock.yaml`
   - 원격 의존성의 resolved commit과 배포 파일
 - APM 생성물
-  - Codex: `.agents/skills/`, `.codex/agents/`, `.codex/hooks.json`,
-    `.codex/AGENTS.md`
+  - Codex: `.agents/skills/`, `.codex/agents/`, `.codex/AGENTS.md`
   - Claude Code: `.claude/skills/`, `.claude/agents/`,
-    `.claude/rules/`, `.claude/settings.json`
+    `.claude/rules/`
   - Cursor: `.agents/skills/`, `.cursor/agents/`, `.cursor/rules/`,
     `.cursor/hooks.json`, `.cursor/mcp.json`
   - MCP: `.codex/config.toml`, `.mcp.json`, `.cursor/mcp.json`
@@ -121,13 +120,21 @@ APM이 표현하지 못하는 runtime 설정은 native file에 남긴다.
 - OpenAI가 공급하는 Codex bundled/primary/curated plugin enablement,
   모델, TUI, desktop 설정: `.codex/config.toml`
 - Claude Code의 권한, 언어, effort 같은 runtime preference:
-  `.claude/settings.local.json`
+  `.claude/settings.json`
 - Cursor editor preference: `.config/cursor/settings.json`
 - Claude Code profile 자료: `.claude/profiles/`
 
 이 항목들은 package source가 아니며 APM 의존성과 경쟁하지 않는다.
-`.claude/settings.json`은 APM hook 생성물만 담아 lockfile replay와 native
-preference가 같은 파일을 공동 소유하지 않게 한다.
+`.claude/settings.local.json`은 project-local override 경로이므로 사용자 홈
+projection에 사용하지 않는다. 공통 MCP 목록은 APM이 생성한 `.mcp.json`이
+소유하고, `.claude/settings.json`은 Claude에서 활성화할 공통 서버 목록과
+Claude native preference만 소유한다.
+
+저장소 루트의 `CLAUDE.md`는 `@AGENTS.md`만 import한다. 공통 작업 지침은
+`AGENTS.md`를 단일 권위로 유지하고 Claude 전용 복사본을 만들지 않는다.
+공통 hook은 APM source에 실제 실행 대상과 함께 선언된 경우에만 생성한다.
+현재는 공통 hook이 없으므로 `.codex/hooks.json`, `.claude/apm-hooks.json`,
+`.codex/apm-hooks.json`을 두지 않는다.
 
 `ego-browser`는 설치된 ego lite 앱에서 확인한 현재 skill tree를
 `.apm/skills/ego-browser/`에 복사해 관리한다. 앱을 업데이트한 뒤 skill도
@@ -172,7 +179,9 @@ runtime 소유 하위 디렉토리를 보존한다.
 - `skills-lock.json`
 - fish의 `skills` wrapper
 - `.local/scripts/skills-cleanup`
-- Claude Code의 독립 plugin marketplace와 Codex에 대응하지 않는 hook
+- Claude Code의 독립 plugin, marketplace, plugin 제공 skill과 hook
+- 실행 파일이 사라진 Claude hook/status line 및 Codex hook 사본
+- 별도 내용을 가진 `CLAUDE.original.md`와 stale `CLAUDE.md`
 - Codex의 외부 native marketplace 중 비활성 항목과
   `agent-skills@agent-skills` plugin entry
 - 현재 target이 아닌 OpenCode의 독립 runtime/model/plugin 설정

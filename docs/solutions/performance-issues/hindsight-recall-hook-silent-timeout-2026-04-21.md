@@ -246,6 +246,10 @@ HINDSIGHT_API_RECALL_CONNECTION_BUDGET = "6";     # 4 → 6
 
 ### 즉시 대응 가능한 체크리스트
 
+> 2026-08-06: Claude 전용 `hindsight-memory` plugin과 SessionStart hook을
+> 제거했다. 아래 항목은 당시 장애 메커니즘을 보존한 기록이며 현재
+> Claude 운영 절차가 아니다.
+
 1. **플러그인 훅 timeout과 서버측 SLA 매핑 테이블 유지**
 
    ```
@@ -265,7 +269,7 @@ HINDSIGHT_API_RECALL_CONNECTION_BUDGET = "6";     # 4 → 6
        output = {"hookSpecificOutput": {"additionalContext": "⚠️ hindsight recall timeout — memory not injected"}}
    ```
 
-   **실장**: `systems/homelab/recall-eval.nix` + `systems/homelab/recall-eval/` Go 기반 regression eval gate가 이 class 를 외부 probe 로 감지. Fixture 10개 × recall@5 / p90 latency 메트릭 → Telegram + Claude SessionStart hook (`files/workspace/.claude/hooks/recall-eval-status.sh`) 2원 surface. 계획 근거: `docs/plans/2026-04-22-001-feat-recall-regression-eval-gate-plan.md`.
+   **당시 실장**: `systems/homelab/recall-eval.nix` + `systems/homelab/recall-eval/` Go 기반 regression eval gate가 이 class 를 외부 probe 로 감지. Fixture 10개 × recall@5 / p90 latency 메트릭 → Telegram + Claude SessionStart hook (`files/workspace/.claude/hooks/recall-eval-status.sh`) 2원 surface. 계획 근거: `docs/plans/2026-04-22-001-feat-recall-regression-eval-gate-plan.md`.
 
 3. **정기 health check**
 

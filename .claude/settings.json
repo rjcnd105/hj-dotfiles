@@ -1,6 +1,0 @@
-{
-  "enabledPlugins": {
-    "nixd@claude-code-lsps": true,
-    "yaml-language-server@claude-code-lsps": true
-  }
-}
