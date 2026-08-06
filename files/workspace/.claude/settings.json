@@ -42,68 +42,17 @@
     "openaiDeveloperDocs"
   ],
   "enabledPlugins": {
-    "caveman@caveman": true,
     "claude-md-management@claude-plugins-official": true,
-    "compound-engineering@compound-engineering-plugin": true,
-    "ddd@context-engineering-kit": true,
     "gopls-lsp@claude-plugins-official": true,
-    "hindsight-memory@hindsight": true,
     "honey@greenpt": true,
-    "typescript-lsp@claude-plugins-official": true
+    "typescript-lsp@claude-plugins-official": true,
+    "agent-skills@addy-agent-skills": true
   },
   "extraKnownMarketplaces": {
-    "caveman": {
-      "source": {
-        "source": "github",
-        "repo": "JuliusBrussee/caveman"
-      }
-    },
-    "claude-code-lsps": {
-      "source": {
-        "source": "github",
-        "repo": "boostvolt/claude-code-lsps"
-      }
-    },
-    "compound-engineering-plugin": {
-      "source": {
-        "source": "github",
-        "repo": "EveryInc/compound-engineering-plugin"
-      }
-    },
-    "context-engineering-kit": {
-      "source": {
-        "source": "github",
-        "repo": "NeoLabHQ/context-engineering-kit"
-      }
-    },
-    "context-engineering-marketplace": {
-      "source": {
-        "source": "github",
-        "repo": "muratcankoylan/Agent-Skills-for-Context-Engineering"
-      }
-    },
     "greenpt": {
       "source": {
         "source": "github",
         "repo": "Green-PT/honey-for-devs"
-      }
-    },
-    "harness-marketplace": {
-      "source": {
-        "source": "github",
-        "repo": "revfactory/harness"
-      }
-    },
-    "hindsight": {
-      "source": {
-        "source": "github",
-        "repo": "vectorize-io/hindsight"
-      }
-    },
-    "openai-codex": {
-      "source": {
-        "source": "github",
-        "repo": "openai/codex-plugin-cc"
       }
     },
     "claude-plugins-official": {
@@ -111,6 +60,13 @@
         "source": "github",
         "repo": "anthropics/claude-plugins-official"
       }
+    },
+    "addy-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "addyosmani/agent-skills"
+      },
+      "autoUpdate": true
     }
   },
   "language": "Korean",

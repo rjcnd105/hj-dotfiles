@@ -7,10 +7,8 @@ approvals_reviewer = "user"
 
 service_tier = "default"
 
-notify = [
-  "/Users/hj/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient",
-  "turn-ended",
-]
+
+notify = ["/Users/hj/.codex/plugins/cache/openai-bundled/computer-use/1.0.1000366/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
 
 [projects]
 [projects.'/Users/hj/work/gm/gentle-renewal']
@@ -285,8 +283,8 @@ source_type = "local"
 source = "/Users/hj/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
 [marketplaces.agent-skills]
-last_updated = "2026-07-30T09:28:21Z"
-last_revision = "7829ffd90d973b6325f5f12f1b1226dcace74443"
+last_updated = "2026-08-06T02:38:22Z"
+last_revision = "f03b4a84b08b76608bbab3133e56e49e361f230b"
 source_type = "git"
 source = "https://github.com/addyosmani/agent-skills.git"
 
@@ -402,6 +400,9 @@ trusted_hash = "sha256:6f261fe32755fe8d32a9bb7061d13c628d539d0191b51f5df11764ee3
 
 [hooks.state."honey@greenpt:hooks/hooks.json:post_tool_use:0:0"]
 trusted_hash = "sha256:94ebd4f1bcd6f7537f701e6a787b14b21862f561783e17beb82348ed7b402892"
+
+[hooks.state."/Users/hj/dot/nix-dots/files/workspace/.codex/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:44c7861834fd1ae5590a6447f8709cda4ae1992af80c4cfdc8450611c3e5232d"
 
 [desktop]
 usePointerCursors = true
