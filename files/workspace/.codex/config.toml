@@ -283,58 +283,11 @@ source_type = "local"
 source = "/Users/hj/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
 [marketplaces.agent-skills]
-last_updated = "2026-08-06T02:38:22Z"
-last_revision = "f03b4a84b08b76608bbab3133e56e49e361f230b"
+last_updated = "2026-08-12T08:29:45Z"
+last_revision = "be42637c5af93fdc8526b68ec2f2651b930f316c"
 source_type = "git"
 source = "https://github.com/addyosmani/agent-skills.git"
 
-[mcp_servers.chrome-devtools]
-command = "npx"
-args = ["chrome-devtools-mcp@latest", "--auto-connect", "--channel=stable"]
-id = ""
-
-[mcp_servers.chrome-devtools.env]
-
-[mcp_servers.openaiDeveloperDocs]
-url = "https://developers.openai.com/mcp"
-id = ""
-
-[mcp_servers.context7]
-url = "https://mcp.context7.com/mcp"
-id = ""
-
-[mcp_servers.context7.env_http_headers]
-CONTEXT7_API_KEY = "CONTEXT7_API_KEY"
-
-[mcp_servers.node_repl]
-command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
-args = []
-id = ""
-startup_timeout_sec = 120
-
-[mcp_servers.node_repl.env]
-NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
-NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
-NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
-NODE_REPL_TRUSTED_CODE_PATHS = "/Users/hj/.codex"
-CODEX_HOME = "/Users/hj/.codex"
-NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f,c8b7e809d7cf9e20a57123b2530d476ccec9a01a6230a7b2b924fea7d94d7f4a"
-BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
-NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
-NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
-NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
-BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.707.31428"
-SKY_CUA_SERVICE_PATH = "/Users/hj/.codex/plugins/cache/openai-bundled/computer-use/1.0.1000366/Codex Computer Use.app"
-CODEX_CLI_PATH = "/Users/hj/.cache/.bun/bin/codex"
-
-[mcp_servers.gh_grep]
-url = "https://mcp.grep.app"
-id = ""
-
-[mcp_servers.exa]
-url = "https://mcp.exa.ai/mcp"
-id = ""
 [tui]
 status_line = [
   "model-with-reasoning",
@@ -404,6 +357,10 @@ trusted_hash = "sha256:94ebd4f1bcd6f7537f701e6a787b14b21862f561783e17beb82348ed7
 [hooks.state."/Users/hj/dot/nix-dots/files/workspace/.codex/hooks.json:session_start:0:0"]
 trusted_hash = "sha256:44c7861834fd1ae5590a6447f8709cda4ae1992af80c4cfdc8450611c3e5232d"
 
+[hooks.state."agent-skills@agent-skills:hooks/hooks.json:session_start:0:0"]
+enabled = false
+trusted_hash = "sha256:e57b811de94b257c81cbacec569ef2906e2bc71ccc3f0ffc7c996bc575a681f4"
+
 [desktop]
 usePointerCursors = true
 followUpQueueMode = "queue"
@@ -424,3 +381,51 @@ enabled = true
 
 [plugins."visualize@openai-bundled"]
 enabled = true
+
+[mcp_servers.chrome-devtools]
+command = "npx"
+args = ["chrome-devtools-mcp@latest", "--auto-connect", "--channel=stable"]
+id = ""
+
+[mcp_servers.chrome-devtools.env]
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+id = ""
+
+[mcp_servers.context7]
+url = "https://mcp.context7.com/mcp"
+id = ""
+
+[mcp_servers.context7.env_http_headers]
+CONTEXT7_API_KEY = "CONTEXT7_API_KEY"
+
+[mcp_servers.gh_grep]
+url = "https://mcp.grep.app"
+id = ""
+
+[mcp_servers.exa]
+url = "https://mcp.exa.ai/mcp"
+id = ""
+
+[mcp_servers.node_repl]
+command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
+args = []
+id = ""
+startup_timeout_sec = 120
+
+[mcp_servers.node_repl.env]
+NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/hj/.codex"
+CODEX_HOME = "/Users/hj/.codex"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f,c8b7e809d7cf9e20a57123b2530d476ccec9a01a6230a7b2b924fea7d94d7f4a"
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
+NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
+NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
+BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
+BROWSER_USE_CODEX_APP_VERSION = "26.707.31428"
+SKY_CUA_SERVICE_PATH = "/Users/hj/.codex/plugins/cache/openai-bundled/computer-use/1.0.1000366/Codex Computer Use.app"
+CODEX_CLI_PATH = "/Users/hj/.cache/.bun/bin/codex"
