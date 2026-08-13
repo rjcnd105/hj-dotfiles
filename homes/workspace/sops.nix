@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   myOptions,
   pkgs,
   ...
@@ -151,6 +152,14 @@ in
     pkgs.age
   ];
 
+  # sops-nix는 darwin에서 launchd agent로 돈다. HM activation의
+  # `launchctl bootout` + `bootstrap`은 이미 로드된 job에서 RunAtLoad를 다시
+  # 발화시키지 못해(runs=0) switch 후에도 렌더 파일이 옛날 것으로 남는다.
+  # kickstart는 실제로 재실행된다(runs=1). switch를 막지 않도록 실패는 무시.
+  home.activation.sopsNixKickstart = lib.hm.dag.entryAfter [ "sops-nix" ] ''
+    run /bin/launchctl kickstart -k "gui/$(/usr/bin/id -u)/org.nix-community.home.sops-nix" || true
+  '';
+
   home.sessionVariables = {
     SOPS_DIR = sops_dir;
     SOPS_AGE_KEY_FILE = age_key_file;
@@ -181,6 +190,17 @@ in
         path = "${config.home.homeDirectory}/.config/last30days/.env";
         mode = "600";
         content = mkEnvContent last30days_env_vars;
+      };
+
+      # private flake input(github:rjcnd105/my-app) fetch용 GitHub 토큰.
+      # files/workspace/.config/nix/nix.custom.conf의 `!include ./nix.secrets.conf`가
+      # 이 경로를 읽는다. 평문 파일은 gitignore돼서 store에 복사되지 않아 링크가
+      # 생성되지 않았고, 그래서 access-tokens가 비어 있었다.
+      "nix.secrets.conf" = {
+        path = "${config.home.homeDirectory}/.config/nix/nix.secrets.conf";
+        content = ''
+          access-tokens = github.com=${config.sops.placeholder.github_master_token}
+        '';
       };
     }
     // single_secret_env_templates;

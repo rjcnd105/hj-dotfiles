@@ -3,6 +3,10 @@ experimental = true
 python.uv_venv_auto = true
 idiomatic_version_file_enable_tools = ["ruby"]
 env_shell_expand = true
+# age 키를 전역에서 리터럴로 고정한다. SOPS_AGE_KEY_FILE 환경변수에 의존하면
+# lefthook 같은 비로그인 셸(git hook)에서 home.sessionVariables가 없어
+# "no data key retrieved from metadata"로 sops 복호화가 실패한다.
+sops.age_key_file = "{{env.HOME}}/.config/sops/age/keys.txt"
 
 [plugins]
 "nix" = "https://github.com/jbadeau/mise-nix.git"
@@ -185,7 +189,10 @@ _.path = [
 _.file = [
   { path = "$HOME/.config/sops-nix/secrets/rendered/env/CONTEXT7_API_KEY.env", redact = true, read_only = true },
   { path = "$HOME/.config/sops-nix/secrets/rendered/env/GITHUB_TOKEN.env", redact = true, read_only = true },
-  { path = "$PROJECT_PATH/secrets/shared/pub.enc.yaml", redact = true, read_only = true },
+  # $PROJECT_PATH는 home.sessionVariables라 git hook 등 비로그인 셸에는 없다.
+  # 없으면 shared secrets가 조용히 안 실리고 HINDSIGHT_API_TOKEN 경고까지 연쇄된다.
+  # mise는 programs.mise.enable = false라 Nix 보간 지점이 없어 $HOME 기준으로 고정한다.
+  { path = "$HOME/dot/nix-dots/secrets/shared/pub.enc.yaml", redact = true, read_only = true },
 ]
 SKILLIB = "$HOME/.local/agents/skills"
 HINDSIGHT_BANK_ID = "my"
