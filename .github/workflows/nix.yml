@@ -14,6 +14,11 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: DeterminateSystems/determinate-nix-action@v3
+        with:
+          # Default is ${{ github.token }}, which is scoped to this repo only and
+          # cannot read the private deopjibRuntime input. The action turns this into
+          # nix.conf `access-tokens`.
+          github-token: ${{ secrets.NIX_GITHUB_TOKEN }}
 
       - name: Evaluate root flake outputs
         run: nix flake check --all-systems --no-build --show-trace

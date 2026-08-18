@@ -481,6 +481,9 @@ let
 
       metadata_root="''${HOMELAB_APPCTL_METADATA_ROOT:-/etc/homelab-apps}"
       state_root="''${HOMELAB_APPCTL_STATE_ROOT:-/var/lib/homelab-appctl}"
+      github_token_file="''${HOMELAB_APPCTL_GITHUB_TOKEN_FILE:-${
+        lib.optionalString (cfg.githubTokenFile != null) cfg.githubTokenFile
+      }}"
 
       usage() {
         cat <<'EOF'
@@ -674,11 +677,54 @@ let
         printf '%s\n' "''${template//\{target\}/$target}"
       }
 
+      # Keeps the token out of argv: curl reads the header from stdin via --config -.
+      github_curl() {
+        printf 'header = "Authorization: Bearer %s"\n' "$(cat "$github_token_file")" \
+          | curl -fsS --proto '=https' --proto-redir '=https' \
+              --retry 3 --connect-timeout 5 --max-time 30 --config - "$@"
+      }
+
+      # https://github.com/OWNER/REPO/releases/download/TAG/NAME is a browser path
+      # that rejects fine-grained PATs, so resolve the asset through the REST API.
+      github_release_asset() {
+        local url=$1
+        local output=$2
+        local rest owner repo tag name api asset_id
+
+        rest=''${url#https://github.com/}
+        owner=''${rest%%/*}
+        rest=''${rest#*/}
+        repo=''${rest%%/*}
+        rest=''${rest#*/}
+        rest=''${rest#releases/download/}
+        name=''${rest##*/}
+        tag=''${rest%/*}
+
+        { [ -n "$owner" ] && [ -n "$repo" ] && [ -n "$tag" ] && [ -n "$name" ]; } \
+          || die "malformed GitHub release URL: $url"
+
+        api="https://api.github.com/repos/$owner/$repo"
+        asset_id=$(github_curl -H 'Accept: application/vnd.github+json' \
+          "$api/releases/tags/$tag" \
+          | jq -er --arg n "$name" 'first(.assets[] | select(.name == $n) | .id)') \
+          || die "release asset not found: $name in $tag"
+        github_curl -L -H 'Accept: application/octet-stream' \
+          "$api/releases/assets/$asset_id" -o "$output"
+      }
+
       download_manifest() {
         local url=$1
         local output=$2
 
         case "$url" in
+          https://github.com/*/releases/download/*)
+            if [ -n "$github_token_file" ] && [ -r "$github_token_file" ]; then
+              github_release_asset "$url" "$output"
+            else
+              curl -fsSL --proto '=https' --proto-redir '=https' \
+                --retry 3 --connect-timeout 5 --max-time 30 "$url" -o "$output"
+            fi
+            ;;
           https://*)
             curl -fsSL --proto '=https' --proto-redir '=https' \
               --retry 3 --connect-timeout 5 --max-time 30 "$url" -o "$output"
@@ -1297,6 +1343,17 @@ let
 in
 {
   options.homelab = {
+    githubTokenFile = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = ''
+        Runtime path to a file holding a GitHub token used to fetch release
+        manifests from private repositories. GitHub's `releases/download` URL
+        rejects fine-grained PATs, so appctl resolves the asset through the
+        REST API when this is set. Public repositories need no token.
+      '';
+    };
+
     registryAuths = mkOption {
       type = types.attrsOf (
         types.submodule {
