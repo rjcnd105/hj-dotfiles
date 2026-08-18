@@ -64,8 +64,10 @@
   # 로컬 전용 바인딩. 외부 접근이 필요하면 host를 0.0.0.0으로 변경하고 firewall에 8080 추가
   services.llama-cpp = {
     enable = true;
-    host = "127.0.0.1";
-    port = 8080;
+    settings = {
+      host = "127.0.0.1";
+      port = 8080;
+    };
   };
 
   # comin — GitOps: GitHub main 브랜치를 poll하여 자동 nixos-rebuild switch

@@ -16,8 +16,9 @@ in
     claude-code
 
     # 개발 런타임 — workspace에서는 mise로 관리하지만 homelab은 Nix 패키지 사용
-    erlang
-    elixir
+    # top-level erlang/elixir은 deprecated. beamPackages.* 와 outPath 동일.
+    beamPackages.erlang
+    beamPackages.elixir
     python3
     nodejs_24
     rustc

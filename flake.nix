@@ -142,7 +142,12 @@
             taplo.enable = true;
           };
 
-          settings.global.on-unmatched = "info";
+          settings.global = {
+            on-unmatched = "info";
+            # Codex가 실행할 때마다 이 파일을 다시 쓰므로 treefmt 결과가
+            # 유지되지 않는다. CI formatting 체크가 그때마다 깨지는 걸 막는다.
+            excludes = [ "files/workspace/.codex/config.toml" ];
+          };
         };
 
       treefmtEval = eachSystem (system: treefmt-nix.lib.evalModule (pkgsFor system) treefmtModule);
