@@ -22,10 +22,6 @@ in
 
   # 개별 secret 선언 — sops.templates에서 ${placeholder.<key>}로 합성
   sops.secrets = {
-    HINDSIGHT_DB_PASSWORD.mode = "0400";
-    OPENROUTER_API_KEY.mode = "0400";
-    GROQ_API_KEY.mode = "0400";
-    HINDSIGHT_API_TENANT_API_KEY.mode = "0400";
     GITHUB_RUNNER_HJ_DOTFILES_TOKEN = {
       mode = "0400";
       owner = "github-runner-homelab";
@@ -53,26 +49,4 @@ in
   # homelab-appctl이 private 릴리스 자산을 받을 때 쓰는 같은 토큰.
   # deploy는 root 작업이라 0400 root 파일을 그대로 읽는다.
   homelab.githubTokenFile = config.sops.secrets.NIX_GITHUB_TOKEN.path;
-
-  # oci-container environmentFiles에 주입할 dotenv 렌더 파일.
-  # 경로는 config.sops.templates."services.env".path — Unit 3에서 참조.
-  # oci-container environmentFiles에 주입할 dotenv 렌더 파일.
-  # 전 컨테이너 공유 — 각 컨테이너는 필요 변수만 사용, 나머지 무시.
-  sops.templates."services.env" = {
-    content = ''
-      # DB (hindsight-db + hindsight 공용)
-      POSTGRES_PASSWORD=${config.sops.placeholder.HINDSIGHT_DB_PASSWORD}
-      HINDSIGHT_API_DATABASE_URL=postgresql://hindsight:${config.sops.placeholder.HINDSIGHT_DB_PASSWORD}@127.0.0.1:5432/hindsight
-      # LLM API keys (hindsight)
-      HINDSIGHT_API_OPENROUTER_API_KEY=${config.sops.placeholder.OPENROUTER_API_KEY}
-      HINDSIGHT_API_LLM_API_KEY=${config.sops.placeholder.OPENROUTER_API_KEY}
-      HINDSIGHT_API_RETAIN_API_KEY=${config.sops.placeholder.OPENROUTER_API_KEY}
-      HINDSIGHT_API_CONSOLIDATION_API_KEY=${config.sops.placeholder.OPENROUTER_API_KEY}
-      HINDSIGHT_API_REFLECT_LLM_API_KEY=${config.sops.placeholder.GROQ_API_KEY}
-      # Auth (hindsight)
-      HINDSIGHT_API_TENANT_API_KEY=${config.sops.placeholder.HINDSIGHT_API_TENANT_API_KEY}
-    '';
-    mode = "0400";
-    owner = "root";
-  };
 }

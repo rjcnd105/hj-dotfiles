@@ -194,15 +194,8 @@ _.path = [
 _.file = [
   { path = "$HOME/.config/sops-nix/secrets/rendered/env/CONTEXT7_API_KEY.env", redact = true, read_only = true },
   { path = "$HOME/.config/sops-nix/secrets/rendered/env/GITHUB_TOKEN.env", redact = true, read_only = true },
-  # $PROJECT_PATH는 home.sessionVariables라 git hook 등 비로그인 셸에는 없다.
-  # 없으면 shared secrets가 조용히 안 실리고 HINDSIGHT_API_TOKEN 경고까지 연쇄된다.
-  # mise는 programs.mise.enable = false라 Nix 보간 지점이 없어 $HOME 기준으로 고정한다.
-  { path = "$HOME/dot/nix-dots/secrets/shared/pub.enc.yaml", redact = true, read_only = true },
 ]
 SKILLIB = "$HOME/.local/agents/skills"
-HINDSIGHT_BANK_ID = "my"
-HINDSIGHT_BANK_USER = "hj"
-HINDSIGHT_API_KEY = "$HINDSIGHT_API_TOKEN"
 
 MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3
 CLAUDE_CODE_COORDINATOR_MODE = 1
@@ -211,5 +204,3 @@ ENABLE_LSP_TOOL = "1"
 CLAUDE_CODE_AUTO_COMPACT_WINDOW = 400000
 
 # USER_TYPE = "ant"
-# 프로젝트 명시시
-# HINDSIGHT_TAG_PROJECT = "nix-dot"

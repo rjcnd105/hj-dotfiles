@@ -497,9 +497,6 @@
         let
           homelab = self.nixosConfigurations.homelab_hj.config;
           quadlet = homelab.virtualisation.quadlet;
-          hindsightDbContainerText = homelab.environment.etc."containers/systemd/hindsight-db.container".text;
-          hindsightDbVolumeText = homelab.environment.etc."containers/systemd/hindsight-db-data.volume".text;
-          hindsightNetwork = quadlet.networks.hindsight-db;
           network = homelab.virtualisation.quadlet.networks.deopjib-dev;
           networkService = "deopjib-dev-network.service";
           dnsLifecycleService = "podman-dns-lifecycle.service";
@@ -510,13 +507,6 @@
             "deopjib-dev-db.service"
             "deopjib-dev-network.service"
             "deopjib-dev-web.service"
-            "hindsight-db-network.service"
-            "hindsight-db.service"
-            "hindsight.service"
-          ];
-          hindsightUnits = [
-            homelab.systemd.services.hindsight-db
-            homelab.systemd.services.hindsight
           ];
           podman = homelab.virtualisation.podman.package;
           pkgs = pkgsFor "x86_64-linux";
@@ -530,23 +520,12 @@
           );
           quadletObjects = [
             network
-            hindsightNetwork
           ]
           ++ builtins.attrValues (
             lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.volumes
           )
           ++ builtins.attrValues (lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.images)
-          ++ deopjibContainers
-          ++ [
-            {
-              ref = "hindsight-db-data.volume";
-              _configText = hindsightDbVolumeText;
-            }
-            {
-              ref = "hindsight-db.container";
-              _configText = hindsightDbContainerText;
-            }
-          ];
+          ++ deopjibContainers;
           quadletSources = pkgs.linkFarm "deopjib-dev-quadlets" (
             map (object: {
               name = object.ref;
@@ -572,17 +551,11 @@
           && builtins.elem dnsLifecycleService container.unitConfig.PartOf
         ) deopjibContainers;
         assert builtins.elem dnsLifecycleService network.unitConfig.PartOf;
-        assert hindsightNetwork.networkConfig.disableDns;
-        assert builtins.elem dnsLifecycleService hindsightNetwork.unitConfig.PartOf;
-        assert lib.hasInfix "Network=${hindsightNetwork.ref}" hindsightDbContainerText;
         assert lib.hasInfix "${podmanPath}/bin/podman network rm deopjib-dev" networkText;
         assert dnsLifecycleConfig.unit == dnsLifecycleService;
         assert lib.sort builtins.lessThan dnsLifecycleConfig.members == expectedDnsLifecycleMembers;
         assert builtins.elem podman dnsLifecycleUnit.restartTriggers;
         assert builtins.length dnsLifecycleUnit.restartTriggers == 2;
-        assert builtins.all (
-          unit: unit.overrideStrategy == "asDropin" && builtins.elem dnsLifecycleService unit.partOf
-        ) hindsightUnits;
         assert !(homelab.system.activationScripts ? homelabAppContainersRefresh);
         pkgs.runCommand "homelab-quadlet-lifecycle-invariants" { } ''
           export QUADLET_UNIT_DIRS=${quadletSources}
@@ -597,33 +570,9 @@
           ${pkgs.gnugrep}/bin/grep -F 'HealthInterval=1s' generated-units.txt >/dev/null
           ${pkgs.gnugrep}/bin/grep -F 'ExecStop=${podman}/bin/podman network rm deopjib-dev' generated-units.txt >/dev/null
           ${pkgs.gnugrep}/bin/grep -F -- '--interface-name br-deopjib-dev' generated-units.txt >/dev/null
-          ${pkgs.gnugrep}/bin/grep -F -- '--disable-dns hindsight-db' generated-units.txt >/dev/null
-          ${pkgs.gnugrep}/bin/grep -F 'Requires=hindsight-db-network.service' generated-units.txt >/dev/null
 
           mkdir -p "$out"
           cp generated-units.txt "$out/"
-        '';
-
-      homelabHindsightRuntimeInvariants =
-        system:
-        let
-          pkgs = pkgsFor system;
-        in
-        pkgs.runCommand "homelab-hindsight-runtime-invariants" { } ''
-          stack=${./systems/homelab/hindsight-stack.nix}
-
-          ${pkgs.gnugrep}/bin/grep -F 'hindsight = "ghcr.io/vectorize-io/hindsight:latest-slim@sha256:9873b311f77a3e25813cadd14ccb10d730583aeb9d2c6e2107350e00c7af12bf";' "$stack" >/dev/null
-          ${pkgs.gnugrep}/bin/grep -F 'Environment=HINDSIGHT_API_DB_STATEMENT_TIMEOUT=120' "$stack" >/dev/null
-          ${pkgs.gnugrep}/bin/grep -F 'Environment=HINDSIGHT_API_ENABLE_AUTO_CONSOLIDATION=false' "$stack" >/dev/null
-          ${pkgs.gnugrep}/bin/grep -F 'Environment=HINDSIGHT_API_WORKER_MAX_SLOTS=1' "$stack" >/dev/null
-          ${pkgs.gnugrep}/bin/grep -F 'Environment=HINDSIGHT_API_WORKER_RETAIN_MAX_SLOTS=1' "$stack" >/dev/null
-          ${pkgs.gnugrep}/bin/grep -F 'Environment=HINDSIGHT_API_WORKER_CONSOLIDATION_MAX_SLOTS=0' "$stack" >/dev/null
-          if ${pkgs.gnugrep}/bin/grep -F 'HINDSIGHT_API_LAZY_RERANKER' "$stack" >/dev/null; then
-            echo 'Hindsight v0.8 removed HINDSIGHT_API_LAZY_RERANKER; keep reranker init on the upstream eager path' >&2
-            exit 1
-          fi
-
-          touch "$out"
         '';
 
       homelabThermalAlertSmoke =
@@ -735,7 +684,6 @@
           baseChecks = eachSystem (system: {
             formatting = treefmtEval.${system}.config.build.check self;
             homelab-appctl-deploy-invariants = homelabAppctlDeployInvariants system;
-            homelab-hindsight-runtime-invariants = homelabHindsightRuntimeInvariants system;
             homelab-thermal-alert-smoke = homelabThermalAlertSmoke system;
           });
         in

@@ -5,13 +5,10 @@
     ./hardware-configuration.nix
     ./sops.nix
     ./cloudflared.nix
-    ./ai-stack.nix
     ./podman-dns-lifecycle.nix
-    ./hindsight-stack.nix
     ./app-containers.nix
     ./app-admissions.nix
     ./github-actions-runner.nix
-    ./recall-eval.nix
     ./thermal-alert.nix
   ];
 

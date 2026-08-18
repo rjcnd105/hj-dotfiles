@@ -147,5 +147,3 @@ separate recovery decision.
 - Do not enable `registry-auto` for services that own or run schema migrations.
 - Manual migrations may have one-shot systemd units, but must not run during
   NixOS activation or background auto-update.
-- Keep Hindsight special until its host-network and local AI dependencies are
-  deliberately redesigned.
