@@ -34,9 +34,7 @@
   "enabledMcpjsonServers": [
     "chrome-devtools",
     "context7",
-    "node_repl",
-    "gh_grep",
-    "exa"
+    "node_repl"
   ],
   "disabledMcpjsonServers": [
     "openaiDeveloperDocs"
@@ -46,14 +44,16 @@
     "gopls-lsp@claude-plugins-official": true,
     "honey@greenpt": true,
     "typescript-lsp@claude-plugins-official": true,
-    "agent-skills@addy-agent-skills": true
+    "agent-skills@addy-agent-skills": true,
+    "frontend-design@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "greenpt": {
       "source": {
         "source": "github",
         "repo": "Green-PT/honey-for-devs"
-      }
+      },
+      "autoUpdate": true
     },
     "claude-plugins-official": {
       "source": {

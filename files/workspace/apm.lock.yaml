@@ -1,5 +1,5 @@
 lockfile_version: '1'
-generated_at: '2026-08-13T02:28:50.656702+00:00'
+generated_at: '2026-08-18T07:55:52.961408+00:00'
 apm_version: 0.28.0
 dependencies:
 - repo_url: agentspace-so/agent-skills
@@ -52,18 +52,6 @@ dependencies:
   is_virtual: true
   package_type: skill_bundle
   deployed_files:
-  - .agents/skills/command-development
-  - .agents/skills/command-development/README.md
-  - .agents/skills/command-development/SKILL.md
-  - .agents/skills/command-development/examples/plugin-commands.md
-  - .agents/skills/command-development/examples/simple-commands.md
-  - .agents/skills/command-development/references/advanced-workflows.md
-  - .agents/skills/command-development/references/documentation-patterns.md
-  - .agents/skills/command-development/references/frontmatter-reference.md
-  - .agents/skills/command-development/references/interactive-commands.md
-  - .agents/skills/command-development/references/marketplace-considerations.md
-  - .agents/skills/command-development/references/plugin-features-reference.md
-  - .agents/skills/command-development/references/testing-strategies.md
   - .agents/skills/hook-development
   - .agents/skills/hook-development/SKILL.md
   - .agents/skills/hook-development/examples/load-context.sh
@@ -87,18 +75,6 @@ dependencies:
   - .agents/skills/skill-development
   - .agents/skills/skill-development/SKILL.md
   - .agents/skills/skill-development/references/skill-creator-original.md
-  - .claude/skills/command-development
-  - .claude/skills/command-development/README.md
-  - .claude/skills/command-development/SKILL.md
-  - .claude/skills/command-development/examples/plugin-commands.md
-  - .claude/skills/command-development/examples/simple-commands.md
-  - .claude/skills/command-development/references/advanced-workflows.md
-  - .claude/skills/command-development/references/documentation-patterns.md
-  - .claude/skills/command-development/references/frontmatter-reference.md
-  - .claude/skills/command-development/references/interactive-commands.md
-  - .claude/skills/command-development/references/marketplace-considerations.md
-  - .claude/skills/command-development/references/plugin-features-reference.md
-  - .claude/skills/command-development/references/testing-strategies.md
   - .claude/skills/hook-development
   - .claude/skills/hook-development/SKILL.md
   - .claude/skills/hook-development/examples/load-context.sh
@@ -123,17 +99,6 @@ dependencies:
   - .claude/skills/skill-development/SKILL.md
   - .claude/skills/skill-development/references/skill-creator-original.md
   deployed_file_hashes:
-    .agents/skills/command-development/README.md: sha256:dd4ba7eded93d7ba698f05ec63d06d110a6b5543664af359b005dd976ce811b8
-    .agents/skills/command-development/SKILL.md: sha256:cf4372aa8f5e86ef0b587aa3703b4af9b22996e0dc7fd0ea6ffae49770136a2a
-    .agents/skills/command-development/examples/plugin-commands.md: sha256:7d71d7b516020a6c171171399b40dd2cad02b842c9faa78b90e0983906c9ee94
-    .agents/skills/command-development/examples/simple-commands.md: sha256:f2533ed834305166603bcb4dd870d695af4a33b9a49d330937a4c70ed964767c
-    .agents/skills/command-development/references/advanced-workflows.md: sha256:eb258095b5a411b68377c96730effe597884a14b619cb0c1a7ab1c801d80a7d9
-    .agents/skills/command-development/references/documentation-patterns.md: sha256:70c6c9b0a9b2d46a925ada6c45808a73498a457e1d641c82cc05de8a29a33b05
-    .agents/skills/command-development/references/frontmatter-reference.md: sha256:db1ea175ca4b0bb7d11c75cb8a7d00b353ea7cf4df2027b4263e45ded4d39475
-    .agents/skills/command-development/references/interactive-commands.md: sha256:09ab1f18bfa3ff5f7088e45d5810ac20eb25ffc97fc9e8bb79416d40e0b4516b
-    .agents/skills/command-development/references/marketplace-considerations.md: sha256:ab30835431d06a8e65cd629ba0e73b3f1de5b043126c6fef7ea70163400e90f4
-    .agents/skills/command-development/references/plugin-features-reference.md: sha256:57e11ae6a4bbc1a4a295d1f036202970911d6029d64f4ab058b63a4c5a899072
-    .agents/skills/command-development/references/testing-strategies.md: sha256:e6ccf78d85c23bc58582dbc8b91731c4e412568705ed2c87ac699a1ded9adc67
     .agents/skills/hook-development/SKILL.md: sha256:d14528f389cae485ac50583a22be326485c83fc9c8ef7ce700213e1583cf8fbe
     .agents/skills/hook-development/examples/load-context.sh: sha256:0d614599e711c087b381a4ac7ee3c40758af1022669fc998649d199b9dfe15ed
     .agents/skills/hook-development/examples/validate-bash.sh: sha256:348c58f4cf38a2e7080ea5272935a7658c7122d83dd6c52d0a1f2ef599c176ab
@@ -154,17 +119,6 @@ dependencies:
     .agents/skills/mcp-integration/references/tool-usage.md: sha256:8dd0005d7ba6cd2d24e72f9e6102c129b7445fc818e14656ad9ebaef6621a7a6
     .agents/skills/skill-development/SKILL.md: sha256:d40080c45d652dd3cc481d1e381cd7e6258091a87351fa1de67c6c8ecec3446e
     .agents/skills/skill-development/references/skill-creator-original.md: sha256:8c0ce23bb87be91f5b0853c2e9815617c3858b63acdddfe5da47d2c2d3a60816
-    .claude/skills/command-development/README.md: sha256:dd4ba7eded93d7ba698f05ec63d06d110a6b5543664af359b005dd976ce811b8
-    .claude/skills/command-development/SKILL.md: sha256:cf4372aa8f5e86ef0b587aa3703b4af9b22996e0dc7fd0ea6ffae49770136a2a
-    .claude/skills/command-development/examples/plugin-commands.md: sha256:7d71d7b516020a6c171171399b40dd2cad02b842c9faa78b90e0983906c9ee94
-    .claude/skills/command-development/examples/simple-commands.md: sha256:f2533ed834305166603bcb4dd870d695af4a33b9a49d330937a4c70ed964767c
-    .claude/skills/command-development/references/advanced-workflows.md: sha256:eb258095b5a411b68377c96730effe597884a14b619cb0c1a7ab1c801d80a7d9
-    .claude/skills/command-development/references/documentation-patterns.md: sha256:70c6c9b0a9b2d46a925ada6c45808a73498a457e1d641c82cc05de8a29a33b05
-    .claude/skills/command-development/references/frontmatter-reference.md: sha256:db1ea175ca4b0bb7d11c75cb8a7d00b353ea7cf4df2027b4263e45ded4d39475
-    .claude/skills/command-development/references/interactive-commands.md: sha256:09ab1f18bfa3ff5f7088e45d5810ac20eb25ffc97fc9e8bb79416d40e0b4516b
-    .claude/skills/command-development/references/marketplace-considerations.md: sha256:ab30835431d06a8e65cd629ba0e73b3f1de5b043126c6fef7ea70163400e90f4
-    .claude/skills/command-development/references/plugin-features-reference.md: sha256:57e11ae6a4bbc1a4a295d1f036202970911d6029d64f4ab058b63a4c5a899072
-    .claude/skills/command-development/references/testing-strategies.md: sha256:e6ccf78d85c23bc58582dbc8b91731c4e412568705ed2c87ac699a1ded9adc67
     .claude/skills/hook-development/SKILL.md: sha256:d14528f389cae485ac50583a22be326485c83fc9c8ef7ce700213e1583cf8fbe
     .claude/skills/hook-development/examples/load-context.sh: sha256:0d614599e711c087b381a4ac7ee3c40758af1022669fc998649d199b9dfe15ed
     .claude/skills/hook-development/examples/validate-bash.sh: sha256:348c58f4cf38a2e7080ea5272935a7658c7122d83dd6c52d0a1f2ef599c176ab
@@ -187,7 +141,6 @@ dependencies:
     .claude/skills/skill-development/references/skill-creator-original.md: sha256:8c0ce23bb87be91f5b0853c2e9815617c3858b63acdddfe5da47d2c2d3a60816
   content_hash: sha256:0ef672fcfb57a505d56d681d0770a6aaa7d2485e116ae61c3d308684a0a4d092
   skill_subset:
-  - command-development
   - hook-development
   - mcp-integration
   - skill-development
@@ -1029,89 +982,6 @@ dependencies:
   skill_subset:
   - obsidian-markdown
   declared_license: MIT
-- repo_url: leonxlnx/taste-skill
-  materialization_repo_url: Leonxlnx/taste-skill
-  name: image-to-code
-  host: github.com
-  resolved_commit: e988add20dab0fa97d7a76781c48961c8184288e
-  version: unknown
-  virtual_path: skills/image-to-code-skill
-  is_virtual: true
-  package_type: claude_skill
-  deployed_files:
-  - .agents/skills/image-to-code-skill
-  - .agents/skills/image-to-code-skill/SKILL.md
-  - .claude/skills/image-to-code-skill
-  - .claude/skills/image-to-code-skill/SKILL.md
-  deployed_file_hashes:
-    .agents/skills/image-to-code-skill/SKILL.md: sha256:4c060a8064a8b13380bc2ef3d6e6a1d0b1e316aa093cd9807d0ce9e4eeb037fa
-    .claude/skills/image-to-code-skill/SKILL.md: sha256:4c060a8064a8b13380bc2ef3d6e6a1d0b1e316aa093cd9807d0ce9e4eeb037fa
-  content_hash: sha256:58517b03b2a01f4c9ba65861559d03df931400871bbc200978c975b24bb92c73
-- repo_url: leonxlnx/taste-skill
-  materialization_repo_url: Leonxlnx/taste-skill
-  name: redesign-existing-projects
-  host: github.com
-  resolved_commit: e988add20dab0fa97d7a76781c48961c8184288e
-  version: unknown
-  virtual_path: skills/redesign-skill
-  is_virtual: true
-  package_type: claude_skill
-  deployed_files:
-  - .agents/skills/redesign-skill
-  - .agents/skills/redesign-skill/SKILL.md
-  - .claude/skills/redesign-skill
-  - .claude/skills/redesign-skill/SKILL.md
-  deployed_file_hashes:
-    .agents/skills/redesign-skill/SKILL.md: sha256:98ad3e5b051bfb71b2795f7e8a6aa0d32b51ee095606c098a4b2822ac07926c9
-    .claude/skills/redesign-skill/SKILL.md: sha256:98ad3e5b051bfb71b2795f7e8a6aa0d32b51ee095606c098a4b2822ac07926c9
-  content_hash: sha256:b405eee0e0e80fc243f731d9aa368bca307e356db7e6157d27101d369dac6726
-- repo_url: leonxlnx/taste-skill
-  materialization_repo_url: Leonxlnx/taste-skill
-  name: high-end-visual-design
-  host: github.com
-  resolved_commit: e988add20dab0fa97d7a76781c48961c8184288e
-  version: unknown
-  virtual_path: skills/soft-skill
-  is_virtual: true
-  package_type: claude_skill
-  deployed_files:
-  - .agents/skills/soft-skill
-  - .agents/skills/soft-skill/SKILL.md
-  - .claude/skills/soft-skill
-  - .claude/skills/soft-skill/SKILL.md
-  deployed_file_hashes:
-    .agents/skills/soft-skill/SKILL.md: sha256:e1e32f5e2d420872c6c7332b53d5ff7721946766b78c4822b424c2d512c8fdbc
-    .claude/skills/soft-skill/SKILL.md: sha256:e1e32f5e2d420872c6c7332b53d5ff7721946766b78c4822b424c2d512c8fdbc
-  content_hash: sha256:7db385e4c5370e5a7fca9704a1361b056e4504ea6a03924bb86f33a4f00b5c73
-- repo_url: mattpocock/skills
-  name: codebase-design
-  host: github.com
-  resolved_commit: 84fdeffd12f2ee307994d1eb6feb48173b6e0502
-  version: unknown
-  virtual_path: skills/engineering/codebase-design
-  is_virtual: true
-  package_type: claude_skill
-  deployed_files:
-  - .agents/skills/codebase-design
-  - .agents/skills/codebase-design/DEEPENING.md
-  - .agents/skills/codebase-design/DESIGN-IT-TWICE.md
-  - .agents/skills/codebase-design/SKILL.md
-  - .agents/skills/codebase-design/agents/openai.yaml
-  - .claude/skills/codebase-design
-  - .claude/skills/codebase-design/DEEPENING.md
-  - .claude/skills/codebase-design/DESIGN-IT-TWICE.md
-  - .claude/skills/codebase-design/SKILL.md
-  - .claude/skills/codebase-design/agents/openai.yaml
-  deployed_file_hashes:
-    .agents/skills/codebase-design/DEEPENING.md: sha256:125e6b77413ad2bc7cf7a772bc74336d580a50f9e797db2178ed133d62333d06
-    .agents/skills/codebase-design/DESIGN-IT-TWICE.md: sha256:09f9948ea7636a4d3704c5ab909762e876c0b39849eefb14d2e03a398cc9c7e7
-    .agents/skills/codebase-design/SKILL.md: sha256:a8d50abac5a4018f60e1d911d4b6f4e36454ca14d6c390c0695a578c7de65dad
-    .agents/skills/codebase-design/agents/openai.yaml: sha256:edebc9e4fcfe102114012575eaa9600b9b5fd08c311664f389c36e7bc717740f
-    .claude/skills/codebase-design/DEEPENING.md: sha256:125e6b77413ad2bc7cf7a772bc74336d580a50f9e797db2178ed133d62333d06
-    .claude/skills/codebase-design/DESIGN-IT-TWICE.md: sha256:09f9948ea7636a4d3704c5ab909762e876c0b39849eefb14d2e03a398cc9c7e7
-    .claude/skills/codebase-design/SKILL.md: sha256:a8d50abac5a4018f60e1d911d4b6f4e36454ca14d6c390c0695a578c7de65dad
-    .claude/skills/codebase-design/agents/openai.yaml: sha256:edebc9e4fcfe102114012575eaa9600b9b5fd08c311664f389c36e7bc717740f
-  content_hash: sha256:16b8ebb74b2bca32691efd69ad4e5e3bd089eecb594df104280d5ef88eee79af
 - repo_url: mattpocock/skills
   name: grill-with-docs
   host: github.com
@@ -1133,52 +1003,6 @@ dependencies:
     .claude/skills/grill-with-docs/SKILL.md: sha256:610d091047bcfb9db0f75c057d15538481a721111579fc5ec7f83ad9131a2165
     .claude/skills/grill-with-docs/agents/openai.yaml: sha256:94cd0ab161fb468a836349f5ed482ba58ce8e709a05c57ce533d739dbd35cca9
   content_hash: sha256:c3a266bcc09eab29358eaae6e288f9a2cd492fd0af2bcaeeec55fd6207da9a89
-- repo_url: mattpocock/skills
-  name: improve-codebase-architecture
-  host: github.com
-  resolved_commit: 84fdeffd12f2ee307994d1eb6feb48173b6e0502
-  version: unknown
-  virtual_path: skills/engineering/improve-codebase-architecture
-  is_virtual: true
-  package_type: claude_skill
-  deployed_files:
-  - .agents/skills/improve-codebase-architecture
-  - .agents/skills/improve-codebase-architecture/HTML-REPORT.md
-  - .agents/skills/improve-codebase-architecture/SKILL.md
-  - .agents/skills/improve-codebase-architecture/agents/openai.yaml
-  - .claude/skills/improve-codebase-architecture
-  - .claude/skills/improve-codebase-architecture/HTML-REPORT.md
-  - .claude/skills/improve-codebase-architecture/SKILL.md
-  - .claude/skills/improve-codebase-architecture/agents/openai.yaml
-  deployed_file_hashes:
-    .agents/skills/improve-codebase-architecture/HTML-REPORT.md: sha256:0b0936104158abeef7246ff6cbabefa4dc055f17589f2833f2d93001421910a1
-    .agents/skills/improve-codebase-architecture/SKILL.md: sha256:7b76f01b0eefe49a127754c9027a6235a036a21348df5dad988893d8b2f384d6
-    .agents/skills/improve-codebase-architecture/agents/openai.yaml: sha256:c8cb20f68ebf0edb4e497bc11ae5fcaa196004e661cd189015b04f4109ced7f1
-    .claude/skills/improve-codebase-architecture/HTML-REPORT.md: sha256:0b0936104158abeef7246ff6cbabefa4dc055f17589f2833f2d93001421910a1
-    .claude/skills/improve-codebase-architecture/SKILL.md: sha256:7b76f01b0eefe49a127754c9027a6235a036a21348df5dad988893d8b2f384d6
-    .claude/skills/improve-codebase-architecture/agents/openai.yaml: sha256:c8cb20f68ebf0edb4e497bc11ae5fcaa196004e661cd189015b04f4109ced7f1
-  content_hash: sha256:d8c474aab2408fa7b397e91a3d5854315e3e57555500778142c2c610543799e3
-- repo_url: mattpocock/skills
-  name: to-spec
-  host: github.com
-  resolved_commit: 84fdeffd12f2ee307994d1eb6feb48173b6e0502
-  version: unknown
-  virtual_path: skills/engineering/to-spec
-  is_virtual: true
-  package_type: claude_skill
-  deployed_files:
-  - .agents/skills/to-spec
-  - .agents/skills/to-spec/SKILL.md
-  - .agents/skills/to-spec/agents/openai.yaml
-  - .claude/skills/to-spec
-  - .claude/skills/to-spec/SKILL.md
-  - .claude/skills/to-spec/agents/openai.yaml
-  deployed_file_hashes:
-    .agents/skills/to-spec/SKILL.md: sha256:5d26479544b08048d3a8f79d937b39bc613a617f026b3fd083bafc1e99a7b811
-    .agents/skills/to-spec/agents/openai.yaml: sha256:1c5b4d1e3d8e52287ef19cc2742fdbbfae1914ac75d33af3e4c8174f08cc55bb
-    .claude/skills/to-spec/SKILL.md: sha256:5d26479544b08048d3a8f79d937b39bc613a617f026b3fd083bafc1e99a7b811
-    .claude/skills/to-spec/agents/openai.yaml: sha256:1c5b4d1e3d8e52287ef19cc2742fdbbfae1914ac75d33af3e4c8174f08cc55bb
-  content_hash: sha256:ca434b1c5320cc6d324891c249f919823e2bef82a6347a26b2c8d656d086c8ac
 - repo_url: mattpocock/skills
   name: grill-me
   host: github.com
@@ -1363,22 +1187,6 @@ dependencies:
     .claude/skills/react-stinky/references/log.md: sha256:0571bd8138d4d145009a696bf3ca8639a9d87df8717ce8f58ceb307bbe3f42c6
     .claude/skills/react-stinky/references/restructure-pass.md: sha256:8f389a3d1146f005c23292da8d83e63fe1c37e2202d53dcd3191abb98551b8b8
   content_hash: sha256:d9bab40290a6959b8b82281ef0cfb85acbaca71d8954dd51c450ad860b29bf69
-- repo_url: uditakhourii/adhd
-  name: adhd
-  host: github.com
-  resolved_commit: 3d9dc487bc2eba4449742e2db0d92be9ebdf95b6
-  version: 0.1.4
-  package_type: marketplace_plugin
-  deployed_files:
-  - .agents/skills/adhd
-  - .agents/skills/adhd/SKILL.md
-  - .claude/skills/adhd
-  - .claude/skills/adhd/SKILL.md
-  deployed_file_hashes:
-    .agents/skills/adhd/SKILL.md: sha256:06debe68a370206acd93e0b2ee54d6395bc367fdfbc079f2348e3ce2966dac0a
-    .claude/skills/adhd/SKILL.md: sha256:06debe68a370206acd93e0b2ee54d6395bc367fdfbc079f2348e3ce2966dac0a
-  content_hash: sha256:a567f3a3e5c9a3a65517699fd8ff8207a8e87dce0c20451343559a544d9267b3
-  declared_license: MIT
 - repo_url: upstash/context7
   name: context7
   host: github.com
@@ -3899,51 +3707,6 @@ deployments:
   content_hash: sha256:319acee29c0a20dad12a4143d14aa40fea13c121bd1e45f231c88f370f227114
 - kind: project-relative
   target: claude
-  value: .claude/agents/commit-review.md
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:8af3914bc27bb7718933b0aebef453d4bb706a8c879cbd0c384cbdfe3c80323d
-- kind: project-relative
-  target: claude
-  value: .claude/agents/review-backend.md
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:516270472c754ce3acef59030c5b73b54ce4a696611e7e93566c3600452f4ee0
-- kind: project-relative
-  target: claude
-  value: .claude/agents/review-devops.md
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:0f604b9f2908cf9a459c28baddbe38f352392dfe1485d1e7df959e9bef480b0e
-- kind: project-relative
-  target: claude
-  value: .claude/agents/review-frontend.md
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:e891b851c4b0e3864519d6edc3a96eb44b8ad4429971984fdbff0373096ef856
-- kind: project-relative
-  target: claude
-  value: .claude/agents/review-lead.md
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:94b1929920c257430fb38eb2ffca134c6cba8cb14bc7d42997ba67c40f0154e5
-- kind: project-relative
-  target: claude
   value: .claude/commands/export-diagram.md
   runtime: null
   scope: project
@@ -3978,24 +3741,6 @@ deployments:
   - .
   active_owner: .
   content_hash: sha256:7513a9192c385b27c18bca0734cd562ec1a64866eaf316dddbdfac137008e794
-- kind: project-relative
-  target: claude
-  value: .claude/skills/adhd
-  runtime: null
-  scope: project
-  owners:
-  - uditakhourii/adhd
-  active_owner: uditakhourii/adhd
-  content_hash: null
-- kind: project-relative
-  target: claude
-  value: .claude/skills/adhd/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - uditakhourii/adhd
-  active_owner: uditakhourii/adhd
-  content_hash: sha256:06debe68a370206acd93e0b2ee54d6395bc367fdfbc079f2348e3ce2966dac0a
 - kind: project-relative
   target: claude
   value: .claude/skills/atlassian-api-guidelines
@@ -4050,159 +3795,6 @@ deployments:
   - vectorize-io/hindsight/.claude/skills/code-review
   active_owner: vectorize-io/hindsight/.claude/skills/code-review
   content_hash: sha256:d4a7d72968f48041df63dabf62ec63a7189d7922a51f3bfb3b225a40e9bc0bc2
-- kind: project-relative
-  target: claude
-  value: .claude/skills/codebase-design
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/codebase-design
-  active_owner: mattpocock/skills/skills/engineering/codebase-design
-  content_hash: null
-- kind: project-relative
-  target: claude
-  value: .claude/skills/codebase-design/DEEPENING.md
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/codebase-design
-  active_owner: mattpocock/skills/skills/engineering/codebase-design
-  content_hash: sha256:125e6b77413ad2bc7cf7a772bc74336d580a50f9e797db2178ed133d62333d06
-- kind: project-relative
-  target: claude
-  value: .claude/skills/codebase-design/DESIGN-IT-TWICE.md
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/codebase-design
-  active_owner: mattpocock/skills/skills/engineering/codebase-design
-  content_hash: sha256:09f9948ea7636a4d3704c5ab909762e876c0b39849eefb14d2e03a398cc9c7e7
-- kind: project-relative
-  target: claude
-  value: .claude/skills/codebase-design/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/codebase-design
-  active_owner: mattpocock/skills/skills/engineering/codebase-design
-  content_hash: sha256:a8d50abac5a4018f60e1d911d4b6f4e36454ca14d6c390c0695a578c7de65dad
-- kind: project-relative
-  target: claude
-  value: .claude/skills/codebase-design/agents/openai.yaml
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/codebase-design
-  active_owner: mattpocock/skills/skills/engineering/codebase-design
-  content_hash: sha256:edebc9e4fcfe102114012575eaa9600b9b5fd08c311664f389c36e7bc717740f
-- kind: project-relative
-  target: claude
-  value: .claude/skills/command-development
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: null
-- kind: project-relative
-  target: claude
-  value: .claude/skills/command-development/README.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:dd4ba7eded93d7ba698f05ec63d06d110a6b5543664af359b005dd976ce811b8
-- kind: project-relative
-  target: claude
-  value: .claude/skills/command-development/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:cf4372aa8f5e86ef0b587aa3703b4af9b22996e0dc7fd0ea6ffae49770136a2a
-- kind: project-relative
-  target: claude
-  value: .claude/skills/command-development/examples/plugin-commands.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:7d71d7b516020a6c171171399b40dd2cad02b842c9faa78b90e0983906c9ee94
-- kind: project-relative
-  target: claude
-  value: .claude/skills/command-development/examples/simple-commands.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:f2533ed834305166603bcb4dd870d695af4a33b9a49d330937a4c70ed964767c
-- kind: project-relative
-  target: claude
-  value: .claude/skills/command-development/references/advanced-workflows.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:eb258095b5a411b68377c96730effe597884a14b619cb0c1a7ab1c801d80a7d9
-- kind: project-relative
-  target: claude
-  value: .claude/skills/command-development/references/documentation-patterns.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:70c6c9b0a9b2d46a925ada6c45808a73498a457e1d641c82cc05de8a29a33b05
-- kind: project-relative
-  target: claude
-  value: .claude/skills/command-development/references/frontmatter-reference.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:db1ea175ca4b0bb7d11c75cb8a7d00b353ea7cf4df2027b4263e45ded4d39475
-- kind: project-relative
-  target: claude
-  value: .claude/skills/command-development/references/interactive-commands.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:09ab1f18bfa3ff5f7088e45d5810ac20eb25ffc97fc9e8bb79416d40e0b4516b
-- kind: project-relative
-  target: claude
-  value: .claude/skills/command-development/references/marketplace-considerations.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:ab30835431d06a8e65cd629ba0e73b3f1de5b043126c6fef7ea70163400e90f4
-- kind: project-relative
-  target: claude
-  value: .claude/skills/command-development/references/plugin-features-reference.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:57e11ae6a4bbc1a4a295d1f036202970911d6029d64f4ab058b63a4c5a899072
-- kind: project-relative
-  target: claude
-  value: .claude/skills/command-development/references/testing-strategies.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:e6ccf78d85c23bc58582dbc8b91731c4e412568705ed2c87ac699a1ded9adc67
 - kind: project-relative
   target: claude
   value: .claude/skills/context7
@@ -5807,33 +5399,6 @@ deployments:
   content_hash: sha256:2f3e4075e3a1b75fd52772dc3292729873f36db5085f98ed1878be68c64ec740
 - kind: project-relative
   target: claude
-  value: .claude/skills/feature-planner
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: null
-- kind: project-relative
-  target: claude
-  value: .claude/skills/feature-planner/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:4986e9d2e66f266eb5450adc393f82d92a816f68b917aa295f071efaa101ec09
-- kind: project-relative
-  target: claude
-  value: .claude/skills/feature-planner/plan-template.md
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:fd927dbfbb514f84697690a54284f2f8883288fa7ef6edbce2e9c3b5cc87c7f8
-- kind: project-relative
-  target: claude
   value: .claude/skills/find-docs
   runtime: null
   scope: project
@@ -6120,60 +5685,6 @@ deployments:
   - anthropics/claude-code/plugins/plugin-dev
   active_owner: anthropics/claude-code/plugins/plugin-dev
   content_hash: sha256:e7785d6c61d368f5ea5270c979753aea02f776f5b6aa220137ec4585abd720c2
-- kind: project-relative
-  target: claude
-  value: .claude/skills/image-to-code-skill
-  runtime: null
-  scope: project
-  owners:
-  - leonxlnx/taste-skill/skills/image-to-code-skill
-  active_owner: leonxlnx/taste-skill/skills/image-to-code-skill
-  content_hash: null
-- kind: project-relative
-  target: claude
-  value: .claude/skills/image-to-code-skill/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - leonxlnx/taste-skill/skills/image-to-code-skill
-  active_owner: leonxlnx/taste-skill/skills/image-to-code-skill
-  content_hash: sha256:4c060a8064a8b13380bc2ef3d6e6a1d0b1e316aa093cd9807d0ce9e4eeb037fa
-- kind: project-relative
-  target: claude
-  value: .claude/skills/improve-codebase-architecture
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/improve-codebase-architecture
-  active_owner: mattpocock/skills/skills/engineering/improve-codebase-architecture
-  content_hash: null
-- kind: project-relative
-  target: claude
-  value: .claude/skills/improve-codebase-architecture/HTML-REPORT.md
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/improve-codebase-architecture
-  active_owner: mattpocock/skills/skills/engineering/improve-codebase-architecture
-  content_hash: sha256:0b0936104158abeef7246ff6cbabefa4dc055f17589f2833f2d93001421910a1
-- kind: project-relative
-  target: claude
-  value: .claude/skills/improve-codebase-architecture/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/improve-codebase-architecture
-  active_owner: mattpocock/skills/skills/engineering/improve-codebase-architecture
-  content_hash: sha256:7b76f01b0eefe49a127754c9027a6235a036a21348df5dad988893d8b2f384d6
-- kind: project-relative
-  target: claude
-  value: .claude/skills/improve-codebase-architecture/agents/openai.yaml
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/improve-codebase-architecture
-  active_owner: mattpocock/skills/skills/engineering/improve-codebase-architecture
-  content_hash: sha256:c8cb20f68ebf0edb4e497bc11ae5fcaa196004e661cd189015b04f4109ced7f1
 - kind: project-relative
   target: claude
   value: .claude/skills/interface-design
@@ -8858,24 +8369,6 @@ deployments:
   content_hash: sha256:8f389a3d1146f005c23292da8d83e63fe1c37e2202d53dcd3191abb98551b8b8
 - kind: project-relative
   target: claude
-  value: .claude/skills/redesign-skill
-  runtime: null
-  scope: project
-  owners:
-  - leonxlnx/taste-skill/skills/redesign-skill
-  active_owner: leonxlnx/taste-skill/skills/redesign-skill
-  content_hash: null
-- kind: project-relative
-  target: claude
-  value: .claude/skills/redesign-skill/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - leonxlnx/taste-skill/skills/redesign-skill
-  active_owner: leonxlnx/taste-skill/skills/redesign-skill
-  content_hash: sha256:98ad3e5b051bfb71b2795f7e8a6aa0d32b51ee095606c098a4b2822ac07926c9
-- kind: project-relative
-  target: claude
   value: .claude/skills/review-animations
   runtime: null
   scope: project
@@ -9101,51 +8594,6 @@ deployments:
   content_hash: sha256:8c0ce23bb87be91f5b0853c2e9815617c3858b63acdddfe5da47d2c2d3a60816
 - kind: project-relative
   target: claude
-  value: .claude/skills/soft-skill
-  runtime: null
-  scope: project
-  owners:
-  - leonxlnx/taste-skill/skills/soft-skill
-  active_owner: leonxlnx/taste-skill/skills/soft-skill
-  content_hash: null
-- kind: project-relative
-  target: claude
-  value: .claude/skills/soft-skill/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - leonxlnx/taste-skill/skills/soft-skill
-  active_owner: leonxlnx/taste-skill/skills/soft-skill
-  content_hash: sha256:e1e32f5e2d420872c6c7332b53d5ff7721946766b78c4822b424c2d512c8fdbc
-- kind: project-relative
-  target: claude
-  value: .claude/skills/to-spec
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/to-spec
-  active_owner: mattpocock/skills/skills/engineering/to-spec
-  content_hash: null
-- kind: project-relative
-  target: claude
-  value: .claude/skills/to-spec/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/to-spec
-  active_owner: mattpocock/skills/skills/engineering/to-spec
-  content_hash: sha256:5d26479544b08048d3a8f79d937b39bc613a617f026b3fd083bafc1e99a7b811
-- kind: project-relative
-  target: claude
-  value: .claude/skills/to-spec/agents/openai.yaml
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/to-spec
-  active_owner: mattpocock/skills/skills/engineering/to-spec
-  content_hash: sha256:1c5b4d1e3d8e52287ef19cc2742fdbbfae1914ac75d33af3e4c8174f08cc55bb
-- kind: project-relative
-  target: claude
   value: .claude/skills/using-jj
   runtime: null
   scope: project
@@ -9200,24 +8648,6 @@ deployments:
   content_hash: sha256:eacb24b2a618cfb81dacb0416f4fdd75ddf3a8060f8ddb99aae1b1e301907e4b
 - kind: project-relative
   target: codex
-  value: .agents/skills/adhd
-  runtime: null
-  scope: project
-  owners:
-  - uditakhourii/adhd
-  active_owner: uditakhourii/adhd
-  content_hash: null
-- kind: project-relative
-  target: codex
-  value: .agents/skills/adhd/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - uditakhourii/adhd
-  active_owner: uditakhourii/adhd
-  content_hash: sha256:06debe68a370206acd93e0b2ee54d6395bc367fdfbc079f2348e3ce2966dac0a
-- kind: project-relative
-  target: codex
   value: .agents/skills/code-review
   runtime: null
   scope: project
@@ -9234,159 +8664,6 @@ deployments:
   - vectorize-io/hindsight/.claude/skills/code-review
   active_owner: vectorize-io/hindsight/.claude/skills/code-review
   content_hash: sha256:d4a7d72968f48041df63dabf62ec63a7189d7922a51f3bfb3b225a40e9bc0bc2
-- kind: project-relative
-  target: codex
-  value: .agents/skills/codebase-design
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/codebase-design
-  active_owner: mattpocock/skills/skills/engineering/codebase-design
-  content_hash: null
-- kind: project-relative
-  target: codex
-  value: .agents/skills/codebase-design/DEEPENING.md
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/codebase-design
-  active_owner: mattpocock/skills/skills/engineering/codebase-design
-  content_hash: sha256:125e6b77413ad2bc7cf7a772bc74336d580a50f9e797db2178ed133d62333d06
-- kind: project-relative
-  target: codex
-  value: .agents/skills/codebase-design/DESIGN-IT-TWICE.md
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/codebase-design
-  active_owner: mattpocock/skills/skills/engineering/codebase-design
-  content_hash: sha256:09f9948ea7636a4d3704c5ab909762e876c0b39849eefb14d2e03a398cc9c7e7
-- kind: project-relative
-  target: codex
-  value: .agents/skills/codebase-design/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/codebase-design
-  active_owner: mattpocock/skills/skills/engineering/codebase-design
-  content_hash: sha256:a8d50abac5a4018f60e1d911d4b6f4e36454ca14d6c390c0695a578c7de65dad
-- kind: project-relative
-  target: codex
-  value: .agents/skills/codebase-design/agents/openai.yaml
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/codebase-design
-  active_owner: mattpocock/skills/skills/engineering/codebase-design
-  content_hash: sha256:edebc9e4fcfe102114012575eaa9600b9b5fd08c311664f389c36e7bc717740f
-- kind: project-relative
-  target: codex
-  value: .agents/skills/command-development
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: null
-- kind: project-relative
-  target: codex
-  value: .agents/skills/command-development/README.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:dd4ba7eded93d7ba698f05ec63d06d110a6b5543664af359b005dd976ce811b8
-- kind: project-relative
-  target: codex
-  value: .agents/skills/command-development/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:cf4372aa8f5e86ef0b587aa3703b4af9b22996e0dc7fd0ea6ffae49770136a2a
-- kind: project-relative
-  target: codex
-  value: .agents/skills/command-development/examples/plugin-commands.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:7d71d7b516020a6c171171399b40dd2cad02b842c9faa78b90e0983906c9ee94
-- kind: project-relative
-  target: codex
-  value: .agents/skills/command-development/examples/simple-commands.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:f2533ed834305166603bcb4dd870d695af4a33b9a49d330937a4c70ed964767c
-- kind: project-relative
-  target: codex
-  value: .agents/skills/command-development/references/advanced-workflows.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:eb258095b5a411b68377c96730effe597884a14b619cb0c1a7ab1c801d80a7d9
-- kind: project-relative
-  target: codex
-  value: .agents/skills/command-development/references/documentation-patterns.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:70c6c9b0a9b2d46a925ada6c45808a73498a457e1d641c82cc05de8a29a33b05
-- kind: project-relative
-  target: codex
-  value: .agents/skills/command-development/references/frontmatter-reference.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:db1ea175ca4b0bb7d11c75cb8a7d00b353ea7cf4df2027b4263e45ded4d39475
-- kind: project-relative
-  target: codex
-  value: .agents/skills/command-development/references/interactive-commands.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:09ab1f18bfa3ff5f7088e45d5810ac20eb25ffc97fc9e8bb79416d40e0b4516b
-- kind: project-relative
-  target: codex
-  value: .agents/skills/command-development/references/marketplace-considerations.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:ab30835431d06a8e65cd629ba0e73b3f1de5b043126c6fef7ea70163400e90f4
-- kind: project-relative
-  target: codex
-  value: .agents/skills/command-development/references/plugin-features-reference.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:57e11ae6a4bbc1a4a295d1f036202970911d6029d64f4ab058b63a4c5a899072
-- kind: project-relative
-  target: codex
-  value: .agents/skills/command-development/references/testing-strategies.md
-  runtime: null
-  scope: project
-  owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:e6ccf78d85c23bc58582dbc8b91731c4e412568705ed2c87ac699a1ded9adc67
 - kind: project-relative
   target: codex
   value: .agents/skills/context7
@@ -11036,60 +10313,6 @@ deployments:
   content_hash: sha256:e7785d6c61d368f5ea5270c979753aea02f776f5b6aa220137ec4585abd720c2
 - kind: project-relative
   target: codex
-  value: .agents/skills/image-to-code-skill
-  runtime: null
-  scope: project
-  owners:
-  - leonxlnx/taste-skill/skills/image-to-code-skill
-  active_owner: leonxlnx/taste-skill/skills/image-to-code-skill
-  content_hash: null
-- kind: project-relative
-  target: codex
-  value: .agents/skills/image-to-code-skill/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - leonxlnx/taste-skill/skills/image-to-code-skill
-  active_owner: leonxlnx/taste-skill/skills/image-to-code-skill
-  content_hash: sha256:4c060a8064a8b13380bc2ef3d6e6a1d0b1e316aa093cd9807d0ce9e4eeb037fa
-- kind: project-relative
-  target: codex
-  value: .agents/skills/improve-codebase-architecture
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/improve-codebase-architecture
-  active_owner: mattpocock/skills/skills/engineering/improve-codebase-architecture
-  content_hash: null
-- kind: project-relative
-  target: codex
-  value: .agents/skills/improve-codebase-architecture/HTML-REPORT.md
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/improve-codebase-architecture
-  active_owner: mattpocock/skills/skills/engineering/improve-codebase-architecture
-  content_hash: sha256:0b0936104158abeef7246ff6cbabefa4dc055f17589f2833f2d93001421910a1
-- kind: project-relative
-  target: codex
-  value: .agents/skills/improve-codebase-architecture/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/improve-codebase-architecture
-  active_owner: mattpocock/skills/skills/engineering/improve-codebase-architecture
-  content_hash: sha256:7b76f01b0eefe49a127754c9027a6235a036a21348df5dad988893d8b2f384d6
-- kind: project-relative
-  target: codex
-  value: .agents/skills/improve-codebase-architecture/agents/openai.yaml
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/improve-codebase-architecture
-  active_owner: mattpocock/skills/skills/engineering/improve-codebase-architecture
-  content_hash: sha256:c8cb20f68ebf0edb4e497bc11ae5fcaa196004e661cd189015b04f4109ced7f1
-- kind: project-relative
-  target: codex
   value: .agents/skills/interface-design
   runtime: null
   scope: project
@@ -11639,24 +10862,6 @@ deployments:
   content_hash: sha256:8f389a3d1146f005c23292da8d83e63fe1c37e2202d53dcd3191abb98551b8b8
 - kind: project-relative
   target: codex
-  value: .agents/skills/redesign-skill
-  runtime: null
-  scope: project
-  owners:
-  - leonxlnx/taste-skill/skills/redesign-skill
-  active_owner: leonxlnx/taste-skill/skills/redesign-skill
-  content_hash: null
-- kind: project-relative
-  target: codex
-  value: .agents/skills/redesign-skill/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - leonxlnx/taste-skill/skills/redesign-skill
-  active_owner: leonxlnx/taste-skill/skills/redesign-skill
-  content_hash: sha256:98ad3e5b051bfb71b2795f7e8a6aa0d32b51ee095606c098a4b2822ac07926c9
-- kind: project-relative
-  target: codex
   value: .agents/skills/review-animations
   runtime: null
   scope: project
@@ -11882,51 +11087,6 @@ deployments:
   content_hash: sha256:8c0ce23bb87be91f5b0853c2e9815617c3858b63acdddfe5da47d2c2d3a60816
 - kind: project-relative
   target: codex
-  value: .agents/skills/soft-skill
-  runtime: null
-  scope: project
-  owners:
-  - leonxlnx/taste-skill/skills/soft-skill
-  active_owner: leonxlnx/taste-skill/skills/soft-skill
-  content_hash: null
-- kind: project-relative
-  target: codex
-  value: .agents/skills/soft-skill/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - leonxlnx/taste-skill/skills/soft-skill
-  active_owner: leonxlnx/taste-skill/skills/soft-skill
-  content_hash: sha256:e1e32f5e2d420872c6c7332b53d5ff7721946766b78c4822b424c2d512c8fdbc
-- kind: project-relative
-  target: codex
-  value: .agents/skills/to-spec
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/to-spec
-  active_owner: mattpocock/skills/skills/engineering/to-spec
-  content_hash: null
-- kind: project-relative
-  target: codex
-  value: .agents/skills/to-spec/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/to-spec
-  active_owner: mattpocock/skills/skills/engineering/to-spec
-  content_hash: sha256:5d26479544b08048d3a8f79d937b39bc613a617f026b3fd083bafc1e99a7b811
-- kind: project-relative
-  target: codex
-  value: .agents/skills/to-spec/agents/openai.yaml
-  runtime: null
-  scope: project
-  owners:
-  - mattpocock/skills/skills/engineering/to-spec
-  active_owner: mattpocock/skills/skills/engineering/to-spec
-  content_hash: sha256:1c5b4d1e3d8e52287ef19cc2742fdbbfae1914ac75d33af3e4c8174f08cc55bb
-- kind: project-relative
-  target: codex
   value: .agents/skills/writing-for-agents
   runtime: null
   scope: project
@@ -11961,96 +11121,6 @@ deployments:
   - mattpocock/skills/skills/productivity/writing-for-agents
   active_owner: mattpocock/skills/skills/productivity/writing-for-agents
   content_hash: sha256:eacb24b2a618cfb81dacb0416f4fdd75ddf3a8060f8ddb99aae1b1e301907e4b
-- kind: project-relative
-  target: codex
-  value: .codex/agents/commit-review.toml
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:cef2665827e082372f51627dc6e12cd291ce5fb38b2c2803604d8b646d226231
-- kind: project-relative
-  target: codex
-  value: .codex/agents/review-backend.toml
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:eb73c00a161c85a0f67447c149b810fcc81344350cf01b3ac14bb7f225d05381
-- kind: project-relative
-  target: codex
-  value: .codex/agents/review-devops.toml
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:59bb03b9ae5cfd2ef380df800bbb0511535db4aaee2b5fee7a1f7adbebf95acd
-- kind: project-relative
-  target: codex
-  value: .codex/agents/review-frontend.toml
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:39117bf674ee8c676529205bb9e0f76c966b1cbf2303b91030051de58a63b2d7
-- kind: project-relative
-  target: codex
-  value: .codex/agents/review-lead.toml
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:da291e98681913940fc3e5343582ca9a88a8df39b77e8f1bf28808a22c71cde4
-- kind: project-relative
-  target: cursor
-  value: .cursor/agents/commit-review.md
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:8af3914bc27bb7718933b0aebef453d4bb706a8c879cbd0c384cbdfe3c80323d
-- kind: project-relative
-  target: cursor
-  value: .cursor/agents/review-backend.md
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:516270472c754ce3acef59030c5b73b54ce4a696611e7e93566c3600452f4ee0
-- kind: project-relative
-  target: cursor
-  value: .cursor/agents/review-devops.md
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:0f604b9f2908cf9a459c28baddbe38f352392dfe1485d1e7df959e9bef480b0e
-- kind: project-relative
-  target: cursor
-  value: .cursor/agents/review-frontend.md
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:e891b851c4b0e3864519d6edc3a96eb44b8ad4429971984fdbff0373096ef856
-- kind: project-relative
-  target: cursor
-  value: .cursor/agents/review-lead.md
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:94b1929920c257430fb38eb2ffca134c6cba8cb14bc7d42997ba67c40f0154e5
 - kind: project-relative
   target: cursor
   value: .cursor/commands/export-diagram.md
@@ -12107,24 +11177,6 @@ deployments:
   content_hash: null
 - kind: uri
   target: mcp
-  value: exa
-  runtime: codex
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: null
-- kind: uri
-  target: mcp
-  value: gh_grep
-  runtime: codex
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: null
-- kind: uri
-  target: mcp
   value: node_repl
   runtime: codex
   scope: project
@@ -12161,24 +11213,6 @@ deployments:
   content_hash: null
 - kind: uri
   target: mcp
-  value: exa
-  runtime: cursor
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: null
-- kind: uri
-  target: mcp
-  value: gh_grep
-  runtime: cursor
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: null
-- kind: uri
-  target: mcp
   value: node_repl
   runtime: cursor
   scope: project
@@ -12198,8 +11232,6 @@ deployments:
 mcp_servers:
 - chrome-devtools
 - context7
-- exa
-- gh_grep
 - node_repl
 - openaiDeveloperDocs
 mcp_configs:
@@ -12219,16 +11251,6 @@ mcp_configs:
     url: https://mcp.context7.com/mcp
     env_http_headers:
       CONTEXT7_API_KEY: CONTEXT7_API_KEY
-  exa:
-    name: exa
-    transport: http
-    registry: false
-    url: https://mcp.exa.ai/mcp
-  gh_grep:
-    name: gh_grep
-    transport: http
-    registry: false
-    url: https://mcp.grep.app
   node_repl:
     name: node_repl
     transport: stdio
@@ -12265,15 +11287,11 @@ mcp_target_servers:
   codex:
   - chrome-devtools
   - context7
-  - exa
-  - gh_grep
   - node_repl
   - openaiDeveloperDocs
   cursor:
   - chrome-devtools
   - context7
-  - exa
-  - gh_grep
   - node_repl
   - openaiDeveloperDocs
 local_deployed_files:
@@ -12550,11 +11568,6 @@ local_deployed_files:
 - .agents/skills/modern-web-guidance/guides/webmcp/webmcp.md
 - .agents/skills/using-jj
 - .agents/skills/using-jj/SKILL.md
-- .claude/agents/commit-review.md
-- .claude/agents/review-backend.md
-- .claude/agents/review-devops.md
-- .claude/agents/review-frontend.md
-- .claude/agents/review-lead.md
 - .claude/rules/personal-agent-guide.md
 - .claude/skills/atlassian-api-guidelines
 - .claude/skills/atlassian-api-guidelines/SKILL.md
@@ -12583,9 +11596,6 @@ local_deployed_files:
 - .claude/skills/elixir/testing-examples.md
 - .claude/skills/elixir/testing-reference.md
 - .claude/skills/elixir/type-system.md
-- .claude/skills/feature-planner
-- .claude/skills/feature-planner/SKILL.md
-- .claude/skills/feature-planner/plan-template.md
 - .claude/skills/find-skills
 - .claude/skills/find-skills/SKILL.md
 - .claude/skills/hindsight
@@ -12829,16 +11839,6 @@ local_deployed_files:
 - .claude/skills/modern-web-guidance/guides/webmcp/webmcp.md
 - .claude/skills/using-jj
 - .claude/skills/using-jj/SKILL.md
-- .codex/agents/commit-review.toml
-- .codex/agents/review-backend.toml
-- .codex/agents/review-devops.toml
-- .codex/agents/review-frontend.toml
-- .codex/agents/review-lead.toml
-- .cursor/agents/commit-review.md
-- .cursor/agents/review-backend.md
-- .cursor/agents/review-devops.md
-- .cursor/agents/review-frontend.md
-- .cursor/agents/review-lead.md
 - .cursor/rules/personal-agent-guide.mdc
 local_deployed_file_hashes:
   .agents/skills/atlassian-api-guidelines/SKILL.md: sha256:474aa98c4cfba8bfacadcc2c9baf039b125a30810c6222238f239d82dfa7bc07
@@ -13103,11 +12103,6 @@ local_deployed_file_hashes:
   .agents/skills/modern-web-guidance/guides/webmcp/agentic-javascript-tools.md: sha256:828beedc9ced24f721a19e01f7611e273f2b751f9319be2d881723e95dadcfe7
   .agents/skills/modern-web-guidance/guides/webmcp/webmcp.md: sha256:c18d9a10992f4f6eb1db56c89b8cbe1fd1a9faf464ded579f8821fc0287beab7
   .agents/skills/using-jj/SKILL.md: sha256:319acee29c0a20dad12a4143d14aa40fea13c121bd1e45f231c88f370f227114
-  .claude/agents/commit-review.md: sha256:8af3914bc27bb7718933b0aebef453d4bb706a8c879cbd0c384cbdfe3c80323d
-  .claude/agents/review-backend.md: sha256:516270472c754ce3acef59030c5b73b54ce4a696611e7e93566c3600452f4ee0
-  .claude/agents/review-devops.md: sha256:0f604b9f2908cf9a459c28baddbe38f352392dfe1485d1e7df959e9bef480b0e
-  .claude/agents/review-frontend.md: sha256:e891b851c4b0e3864519d6edc3a96eb44b8ad4429971984fdbff0373096ef856
-  .claude/agents/review-lead.md: sha256:94b1929920c257430fb38eb2ffca134c6cba8cb14bc7d42997ba67c40f0154e5
   .claude/rules/personal-agent-guide.md: sha256:7513a9192c385b27c18bca0734cd562ec1a64866eaf316dddbdfac137008e794
   .claude/skills/atlassian-api-guidelines/SKILL.md: sha256:474aa98c4cfba8bfacadcc2c9baf039b125a30810c6222238f239d82dfa7bc07
   .claude/skills/atlassian-api-guidelines/bitbucket-endpoints.md: sha256:9908f711a7a445fa7ea89267687d7b509be910040ccbe2de7e68a932dbf8fe24
@@ -13134,8 +12129,6 @@ local_deployed_file_hashes:
   .claude/skills/elixir/testing-examples.md: sha256:a9fdcdc084a2bb375c4d2cb662d4e524759b0abfd5a292c313b6f3c5d13616a4
   .claude/skills/elixir/testing-reference.md: sha256:76db526102e211615d47c42e59b49b692a1cb00a87a3ce82fdd099ae9169c4cb
   .claude/skills/elixir/type-system.md: sha256:2f3e4075e3a1b75fd52772dc3292729873f36db5085f98ed1878be68c64ec740
-  .claude/skills/feature-planner/SKILL.md: sha256:4986e9d2e66f266eb5450adc393f82d92a816f68b917aa295f071efaa101ec09
-  .claude/skills/feature-planner/plan-template.md: sha256:fd927dbfbb514f84697690a54284f2f8883288fa7ef6edbce2e9c3b5cc87c7f8
   .claude/skills/find-skills/SKILL.md: sha256:b0fe819fb1b9b69bcb89f854a4a17101140d1e00734e259e216e4c485faa07fe
   .claude/skills/hindsight/SKILL.md: sha256:dbb0a0c50e02248102dd7dff0cc59b9196df370f27a0176548ceb1b64b36c64c
   .claude/skills/jj-review-branch/SKILL.md: sha256:011db6f31971e640a80f5db7fc3333e3c1f3d2cfc910862e6db555afb9612053
@@ -13371,14 +12364,4 @@ local_deployed_file_hashes:
   .claude/skills/modern-web-guidance/guides/webmcp/agentic-javascript-tools.md: sha256:828beedc9ced24f721a19e01f7611e273f2b751f9319be2d881723e95dadcfe7
   .claude/skills/modern-web-guidance/guides/webmcp/webmcp.md: sha256:c18d9a10992f4f6eb1db56c89b8cbe1fd1a9faf464ded579f8821fc0287beab7
   .claude/skills/using-jj/SKILL.md: sha256:319acee29c0a20dad12a4143d14aa40fea13c121bd1e45f231c88f370f227114
-  .codex/agents/commit-review.toml: sha256:cef2665827e082372f51627dc6e12cd291ce5fb38b2c2803604d8b646d226231
-  .codex/agents/review-backend.toml: sha256:eb73c00a161c85a0f67447c149b810fcc81344350cf01b3ac14bb7f225d05381
-  .codex/agents/review-devops.toml: sha256:59bb03b9ae5cfd2ef380df800bbb0511535db4aaee2b5fee7a1f7adbebf95acd
-  .codex/agents/review-frontend.toml: sha256:39117bf674ee8c676529205bb9e0f76c966b1cbf2303b91030051de58a63b2d7
-  .codex/agents/review-lead.toml: sha256:da291e98681913940fc3e5343582ca9a88a8df39b77e8f1bf28808a22c71cde4
-  .cursor/agents/commit-review.md: sha256:8af3914bc27bb7718933b0aebef453d4bb706a8c879cbd0c384cbdfe3c80323d
-  .cursor/agents/review-backend.md: sha256:516270472c754ce3acef59030c5b73b54ce4a696611e7e93566c3600452f4ee0
-  .cursor/agents/review-devops.md: sha256:0f604b9f2908cf9a459c28baddbe38f352392dfe1485d1e7df959e9bef480b0e
-  .cursor/agents/review-frontend.md: sha256:e891b851c4b0e3864519d6edc3a96eb44b8ad4429971984fdbff0373096ef856
-  .cursor/agents/review-lead.md: sha256:94b1929920c257430fb38eb2ffca134c6cba8cb14bc7d42997ba67c40f0154e5
   .cursor/rules/personal-agent-guide.mdc: sha256:b0066e6f2600e5b4c579588566b611c67c4ac883d88c822a4dc73eb5306e1963

@@ -19,7 +19,6 @@ dependencies:
     - git: https://github.com/anthropics/claude-code.git
       path: plugins/plugin-dev
       skills:
-        - command-development
         - hook-development
         - mcp-integration
         - skill-development
@@ -33,19 +32,10 @@ dependencies:
         - context7-cli
         - context7-mcp
         - find-docs
-    - mattpocock/skills/skills/engineering/codebase-design
     - mattpocock/skills/skills/productivity/grill-me
     - mattpocock/skills/skills/engineering/grill-with-docs
-    - mattpocock/skills/skills/engineering/improve-codebase-architecture
-    - mattpocock/skills/skills/engineering/to-spec
     - mattpocock/skills/skills/productivity/writing-for-agents
     - agentspace-so/agent-skills/gpt-image-2
-    - git: https://github.com/Leonxlnx/taste-skill.git
-      path: skills/soft-skill
-    - git: https://github.com/Leonxlnx/taste-skill.git
-      path: skills/image-to-code-skill
-    - git: https://github.com/Leonxlnx/taste-skill.git
-      path: skills/redesign-skill
     - dammyjay93/interface-design/.claude/skills/interface-design
     - michalzubkowicz/nixos-management-skill/nixos-managing
     - git: https://github.com/kepano/obsidian-skills.git
@@ -61,7 +51,6 @@ dependencies:
       skills:
         - diagram-design
 
-    - uditakhourii/adhd
   mcp:
     - name: chrome-devtools
       registry: false
@@ -86,16 +75,6 @@ dependencies:
       # tracked generated files during `apm install`.
       env_http_headers:
         CONTEXT7_API_KEY: CONTEXT7_API_KEY
-
-    - name: gh_grep
-      registry: false
-      transport: http
-      url: https://mcp.grep.app
-
-    - name: exa
-      registry: false
-      transport: http
-      url: https://mcp.exa.ai/mcp
 
     - name: node_repl
       registry: false

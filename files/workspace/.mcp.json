@@ -20,14 +20,6 @@
         "CONTEXT7_API_KEY": "CONTEXT7_API_KEY"
       }
     },
-    "gh_grep": {
-      "type": "http",
-      "url": "https://mcp.grep.app"
-    },
-    "exa": {
-      "type": "http",
-      "url": "https://mcp.exa.ai/mcp"
-    },
     "node_repl": {
       "type": "stdio",
       "command": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl",

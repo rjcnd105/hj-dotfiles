@@ -88,10 +88,6 @@ hooks = true
 enabled = false
 
 [[skills.config]]
-path = "/Users/hj/.agents/skills/slack/SKILL.md"
-enabled = false
-
-[[skills.config]]
 path = "/Users/hj/work/gm/ps-frontend-admin/.agents/skills/material-ui-tailwind/SKILL.md"
 enabled = false
 
@@ -116,27 +112,7 @@ path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/skill-development/
 enabled = false
 
 [[skills.config]]
-path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/caveman-compress/SKILL.md"
-enabled = false
-
-[[skills.config]]
 path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/context7-mcp/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/create-pr/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/create-agentsmd/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-primary-runtime/documents/26.709.11516/skills/documents/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/gpt-taste/SKILL.md"
 enabled = false
 
 [[skills.config]]
@@ -144,99 +120,11 @@ path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/hindsight/SKILL.md
 enabled = false
 
 [[skills.config]]
-path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/hindsight-docs/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/high-end-visual-design/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/image-to-code/SKILL.md"
-enabled = false
-
-[[skills.config]]
 path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/markdown-converter/SKILL.md"
 enabled = false
 
 [[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-business-review/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-financial-budget/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-experiment-analysis/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-market-trends-report/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-legal-memorandum/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-investment-committee-memo/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-minimal-letterhead/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-operating-calendar/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-operating-review/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-project-kickoff/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-project-tracker/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-sales-pipeline/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-simple-dark-mode/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-simple-light-mode/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-strategy-memorandum/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-system-design/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-team-alignment/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.0/skills/artifact-template-three-statement-forecast/SKILL.md"
-enabled = false
-
-[[skills.config]]
 path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/pdf/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-primary-runtime/spreadsheets/26.709.11516/skills/excel-live-control/SKILL.md"
 enabled = false
 
 [[skills.config]]
@@ -286,8 +174,8 @@ source_type = "local"
 source = "/Users/hj/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
 [marketplaces.agent-skills]
-last_updated = "2026-08-12T08:29:45Z"
-last_revision = "be42637c5af93fdc8526b68ec2f2651b930f316c"
+last_updated = "2026-08-18T07:55:59Z"
+last_revision = "df1edb2e05487d0aa6d93c747141e0aed1187f25"
 source_type = "git"
 source = "https://github.com/addyosmani/agent-skills.git"
 
@@ -402,14 +290,6 @@ id = ""
 
 [mcp_servers.context7.env_http_headers]
 CONTEXT7_API_KEY = "CONTEXT7_API_KEY"
-
-[mcp_servers.gh_grep]
-url = "https://mcp.grep.app"
-id = ""
-
-[mcp_servers.exa]
-url = "https://mcp.exa.ai/mcp"
-id = ""
 
 [mcp_servers.node_repl]
 command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
