@@ -84,6 +84,11 @@ version = "latest"
 [tools."npm:@vtsls/language-server"]
 version = "latest"
 
+# Claude Code typescript-lsp 플러그인이 커맨드 이름을 typescript-language-server로
+# 하드코딩해 둬서 vtsls로는 못 찾는다. vtsls와 중복처럼 보여도 지우지 말 것.
+[tools."npm:typescript-language-server"]
+version = "latest"
+
 [tools."npm:vscode-langservers-extracted"]
 version = "latest"
 
