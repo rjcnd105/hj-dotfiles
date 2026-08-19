@@ -31,6 +31,7 @@
     ],
     "defaultMode": "auto"
   },
+  "model": "claude-fable-5",
   "enabledMcpjsonServers": [
     "chrome-devtools",
     "context7",
@@ -41,11 +42,12 @@
   ],
   "enabledPlugins": {
     "claude-md-management@claude-plugins-official": true,
-    "gopls-lsp@claude-plugins-official": true,
+    "gopls-lsp@claude-plugins-official": false,
     "honey@greenpt": true,
     "typescript-lsp@claude-plugins-official": true,
     "agent-skills@addy-agent-skills": true,
-    "frontend-design@claude-plugins-official": true
+    "frontend-design@claude-plugins-official": true,
+    "cyclomatic-complexity@cyclomatic-complexity-skill": true
   },
   "extraKnownMarketplaces": {
     "greenpt": {
@@ -67,11 +69,24 @@
         "repo": "addyosmani/agent-skills"
       },
       "autoUpdate": true
+    },
+    "cyclomatic-complexity-skill": {
+      "source": {
+        "source": "github",
+        "repo": "saurabhkumar8112/cyclomatic-complexity-skill"
+      }
     }
   },
   "language": "Korean",
   "effortLevel": "xhigh",
+  "modelSettings": {
+    "claude-fable-5": {
+      "effortLevel": "high"
+    }
+  },
+  "askUserQuestionTimeout": "never",
   "skipDangerousModePermissionPrompt": true,
+  "editorMode": "normal",
   "verbose": true,
   "skipAutoPermissionPrompt": true
 }

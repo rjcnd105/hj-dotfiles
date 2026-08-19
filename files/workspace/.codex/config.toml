@@ -8,10 +8,8 @@ approvals_reviewer = "user"
 service_tier = "default"
 
 
-notify = [
-  "/Users/hj/.codex/plugins/cache/openai-bundled/computer-use/1.0.1000366/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient",
-  "turn-ended",
-]
+
+notify = ["/Users/hj/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
 
 [projects]
 [projects.'/Users/hj/work/gm/gentle-renewal']
@@ -66,6 +64,12 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/hj/study/korea-law"]
+trust_level = "trusted"
+
+[projects."/Users/hj/study-g"]
+trust_level = "trusted"
+
+[projects."/Users/hj/study-g/first-godot"]
 trust_level = "trusted"
 
 [notice]
@@ -163,11 +167,6 @@ enabled = true
 [plugins."template-creator@openai-primary-runtime"]
 enabled = true
 
-[marketplaces.openai-bundled]
-last_updated = "2026-07-19T08:10:58Z"
-source_type = "local"
-source = "/Users/hj/.codex/.tmp/bundled-marketplaces/openai-bundled"
-
 [marketplaces.openai-primary-runtime]
 last_updated = "2026-07-19T08:59:59Z"
 source_type = "local"
@@ -178,6 +177,10 @@ last_updated = "2026-08-18T07:55:59Z"
 last_revision = "df1edb2e05487d0aa6d93c747141e0aed1187f25"
 source_type = "git"
 source = "https://github.com/addyosmani/agent-skills.git"
+
+[marketplaces.openai-bundled]
+source_type = "local"
+source = "/Users/hj/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [tui]
 status_line = [
@@ -273,6 +276,9 @@ enabled = true
 [plugins."visualize@openai-bundled"]
 enabled = true
 
+[plugins."codex-app-tools@openai-bundled"]
+enabled = true
+
 [mcp_servers.chrome-devtools]
 command = "npx"
 args = ["chrome-devtools-mcp@latest", "--auto-connect", "--channel=stable"]
@@ -292,23 +298,48 @@ id = ""
 CONTEXT7_API_KEY = "CONTEXT7_API_KEY"
 
 [mcp_servers.node_repl]
-command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
 args = []
-id = ""
+command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
 startup_timeout_sec = 120
 
 [mcp_servers.node_repl.env]
 NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
 NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
 NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
-NODE_REPL_TRUSTED_CODE_PATHS = "/Users/hj/.codex"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/hj/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
 CODEX_HOME = "/Users/hj/.codex"
-NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f,c8b7e809d7cf9e20a57123b2530d476ccec9a01a6230a7b2b924fea7d94d7f4a"
 BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+BROWSER_USE_TINYSKY_ENABLED = "0"
 NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
 NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.707.31428"
-SKY_CUA_SERVICE_PATH = "/Users/hj/.codex/plugins/cache/openai-bundled/computer-use/1.0.1000366/Codex Computer Use.app"
-CODEX_CLI_PATH = "/Users/hj/.cache/.bun/bin/codex"
+BROWSER_USE_CODEX_APP_VERSION = "26.820.71523"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/hj/.codex/plugins/cache/openai-bundled/browser/26.820.71523/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
+SKY_CUA_SERVICE_PATH = "/Users/hj/.codex/computer-use/Codex Computer Use.app"
+CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
+
+# Cloudflare MCP — developers.cloudflare.com/agent-setup 안내대로 등록.
+# `codex mcp add`를 5번 연속 돌리면 매번 OAuth가 끼어들어 마지막 하나만 남으므로
+# 여기에 직접 선언한다. 첫 도구 사용 시 OAuth가 자동으로 뜬다.
+# cloudflare-docs는 공개 서버라 인증이 필요 없다.
+[mcp_servers.cloudflare]
+url = "https://mcp.cloudflare.com/mcp"
+
+[mcp_servers.cloudflare-docs]
+url = "https://docs.mcp.cloudflare.com/mcp"
+
+[mcp_servers.cloudflare-bindings]
+url = "https://bindings.mcp.cloudflare.com/mcp"
+
+[mcp_servers.cloudflare-builds]
+url = "https://builds.mcp.cloudflare.com/mcp"
+
+[mcp_servers.cloudflare-observability]
+url = "https://observability.mcp.cloudflare.com/mcp"
+
+[mcp_servers.computer-use]
+command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
+args = ["mcp"]
+cwd = "."
+enabled = false
