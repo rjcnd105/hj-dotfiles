@@ -27,8 +27,15 @@ Source you provide (URL / skill name / folder path)
       ↓
 [5] write the diff (with your approval)
       ↓
+[6] offer to save as a named client profile
+      ↓
 future diagrams use your tokens
 ```
+
+Gate-only choices use the same finish:
+
+- **(d) Manual:** accept the user's tokens, write them under a new `Custom tokens` section in `style-guide.md`, then offer to save a named profile.
+- **(e) Default:** proceed with the shipped skin. To persist that choice for this project, offer to write a `.diagram-design` marker containing exactly `profile: default`; write it only with explicit consent.
 
 ---
 
@@ -38,7 +45,7 @@ future diagrams use your tokens
 
 ### Invocation
 
-> *"Onboard Schematic to my site — `https://example.com`"*
+> *"Onboard diagram-design to my site — `https://example.com`"*
 
 ---
 
@@ -111,7 +118,7 @@ Before writing, validate:
 
 - **AA contrast**: `ink` on `paper` ≥ 4.5:1. `muted` on `paper` ≥ 4.5:1 for body text.
 - **Accent is the most saturated color**: not muted-ish, not near-grey.
-- **paper ≠ pure white**: if the site uses `#ffffff`, fall back to `#fafaf7` to preserve Schematic's warm-neutral feel — or ask the user to confirm pure-white is intentional.
+- **paper ≠ pure white**: if the site uses `#ffffff`, fall back to `#fafaf7` to preserve Diagram Design's warm-neutral feel — or ask the user to confirm pure-white is intentional.
 
 If any check fails, propose an adjusted value and explain why.
 
@@ -146,11 +153,13 @@ The receipt is required when the user says “match this site,” “use their b
 
 ## Step 5 — apply
 
+Before overwriting a still-pristine guide, create the recoverable `default` snapshot if it does not exist, following [`profiles.md`](profiles.md). Retain the pre-diff body for that snapshot; never snapshot newly customized tokens as `default`.
+
 Write the new tokens to `style-guide.md`. Suggest running the `/regenerate-examples` flow (if it exists) or rebuilding one example to verify the new skin reads cleanly.
 
 After onboarding, the user should:
 
-1. Open `assets/index.html` (gallery) and confirm the new palette feels coherent across all 27 types.
+1. Open `assets/index.html` (gallery) and confirm the new palette feels coherent across all 39 types.
 2. If any type looks off, they usually need to tune `muted` (often too dark or too light against the new `paper`).
 
 ---
@@ -170,7 +179,7 @@ Extract tokens from an installed Agent Skill that carries its own design system 
 
 ### Invocation
 
-> *"Onboard Schematic from my `acme-design` skill"*
+> *"Onboard diagram-design from my `acme-design` skill"*
 
 Or the gate offers this as option (b) and the user names the skill.
 
@@ -188,6 +197,12 @@ Use the installed-skill location exposed by the current agent when available. Ot
 
 1. `~/.claude/skills/<skill-name>/` (user install)
 2. `.claude/skills/<skill-name>/` (project install)
+
+**Factory Droid:**
+
+1. `~/.factory/skills/<skill-name>/` (personal install)
+2. `.factory/skills/<skill-name>/` from the current directory through the repo root (folder-specific or project install)
+3. The active path shown in `/skills` under **Plugins**; installed plugins keep the shared `skills/<skill-name>/` directory inside Droid's plugin cache
 
 Finally, check any path the user provides explicitly. If the skill is still not found, ask the user to confirm the name or provide its path.
 
@@ -243,7 +258,7 @@ Extract tokens from a local directory — a checked-out design system repo, a Fi
 
 ### Invocation
 
-> *"Onboard Schematic from my design system at `~/projects/brand/design-tokens/`"*
+> *"Onboard diagram-design from my design system at `~/projects/brand/design-tokens/`"*
 
 Or the gate offers this as option (c) and the user provides the path.
 
@@ -292,6 +307,6 @@ Same as the URL method: run contrast checks, show the full diff against current 
 
 ---
 
-## Future: per-project skins
+## Multiple clients? Save a profile
 
-If the user wants multiple skins (one per project), duplicate `style-guide.md` as `style-guides/<project>.md` and add a header comment pointing the build to the active one. That's a v5.2 feature — for now, one skin per skill install.
+After every onboarding method, offer to save the completed guide as a named client profile. Follow [`profiles.md`](profiles.md) for the canonical home-directory library, metadata header, strict slug validation, and project marker. A project with a `.diagram-design` marker reads its profile directly, so parallel client workspaces do not overwrite one shared working copy.

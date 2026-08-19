@@ -25,7 +25,8 @@ Accepts `.mmd`, `.mermaid`, and Markdown files containing fenced `mermaid` block
 - `--detail=balanced` · `--audience=mixed`.
 - `--variant=light` — the minimal light template.
 - A single diagram selects diagram 0; a multi-block Markdown file lists blocks and asks which to use.
-- Type is chosen from the extracted grammar and structure; `--type` forces one of the 27.
+- Type is chosen from the extracted grammar and structure; `--type` forces one of the visual
+  types in [`SKILL.md` §3](../../apm_modules/cathrynlavery/diagram-design/.apm/skills/diagram-design/SKILL.md).
 
 ## Flags
 

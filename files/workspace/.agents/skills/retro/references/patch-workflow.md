@@ -1,0 +1,330 @@
+# Patch Workflow
+
+How `/retro` materializes the repo-patching destinations: `skill-update`,
+`new-skill` (both against a *skill source repo*), and `harness-artefact`
+(against the *target repo where the friction happened*). See
+"Harness artefacts" below for what differs in the third case.
+
+## Core rule
+
+**Patches always target the source repo. Never the local plugin cache.**
+
+Cache (`~/.claude/plugins/cache/`) is overwritten on plugin update. Edits there are lost.
+
+## Workspace selection
+
+For each skill-update target, select a working directory in this order:
+
+1. **Existing worktree:** `~/p/<skill-name>/main/` exists as worktree AND is clean
+   → Use it. Enables seamless manual follow-up by user.
+2. **Existing flat checkout:** `~/p/<skill-name>/` exists as flat git checkout AND is clean AND on main
+   → Use it.
+3. **Fresh clone:** Otherwise clone into `/tmp/retro-workspace/<skill-name>/`
+   → Tell user where the clone lives in case they want to inspect.
+
+If the existing checkout is **dirty** (uncommitted changes), do NOT use it — fall back to /tmp clone. Tell the user why:
+
+```
+~/p/<skill>/main/ has 3 uncommitted changes; using /tmp/retro-workspace/<skill>/ instead.
+```
+
+## Dedup check: has the fix already landed?
+
+Before authoring anything, search the target repo for the fix already existing —
+the incident that produced this finding was usually also worked by someone else
+(a sibling session, a parallel retro, the maintainer). After fetching, on the
+current default branch:
+
+```bash
+git log --oneline -20 origin/main -- <files the fix would touch>
+git log --grep '<incident keyword>' --oneline origin/main
+gh pr list --repo <owner/repo> --state all --search '<incident keyword>' --limit 10
+```
+
+A duplicate found is a proposal **withdrawn** (or re-scoped to the delta the
+landed fix lacks), not a second PR. Skipping this check does not fail fast — it
+fails at merge time, days later, as a rebase conflict whose main side already
+contains the feature, and the reflexive keep-my-side resolution then *reverts*
+whatever the landed version gained since. Observed 2026-08-18:
+`netresearch/jira-skill` #194, a retro-authored port that an independently
+merged commit (39ed9ce) had superseded with a hardened variant; the PR survived
+five days and two review passes before the conflict exposed it, and preferring
+the PR side would have silently dropped main's mention gate.
+
+## Branch naming
+
+```
+feat/retro-<short-slug>
+```
+
+Slug derived from finding title, kebab-case, max 40 chars.
+
+Examples:
+- `feat/retro-add-bun-vs-npm-rule`
+- `feat/retro-fix-yaml-parse-tool-choice`
+
+## Commit conventions
+
+- **Conventional Commits format:** `<type>(<scope>): <summary>`
+- **`Learning-Id:` trailer** in every retro materialization commit: a stable
+  id minted at Phase 7 per finding (`retro-YYYYMMDD-<slug>`, e.g.
+  `retro-20260814-copilot-quota-monthly`). The same id goes into the PR body,
+  a materialized checkpoint's `learning_id:` field, and an eval stub's
+  frontmatter. It is the provenance chain: `git log --grep 'Learning-Id:'`
+  and a grep over `checkpoints.yaml` recover every artefact a finding
+  produced — which is what makes a landed learning traceable, and prunable
+  when superseded (D12).
+  - Types: `feat`, `fix`, `docs`, `refactor`, `chore`
+- **DCO sign-off (required).** Commit with `git commit -s` so a `Signed-off-by:`
+  trailer matching the commit author is added. Netresearch skill repos enforce
+  the DCO check — **without sign-off the PR is BLOCKED even when every other
+  check is green** (this is the single most common reason retro-created PRs
+  stall). Before pushing, verify:
+  ```bash
+  git log -1 --format='%(trailers:key=Signed-off-by)'   # must be non-empty
+  ```
+- **Pass the message via `-F <file>`, not inline `-m`,** whenever it contains
+  quotes, backticks, or other shell-special characters — inline `-m` mangles
+  them mid-shell and produces a corrupted or partial commit message.
+- **No bot attribution.** Never add "Generated with Claude Code" or "Co-Authored-By: Claude" — see the user's global rules.
+- **Preserve signing.** Never pass `--no-gpg-sign` or `-c commit.gpgsign=false` — see the user's global rules (`~/.claude/CLAUDE.md`). (GPG signing and DCO sign-off are independent — you need *both*.)
+- **Preserve hooks.** Never pass `--no-verify`. If a hook fails, investigate.
+- **Atomic.** One logical change per commit.
+
+Commit message body should reference the friction:
+
+```
+feat(triggers): add bun detection to trigger description
+
+A /retro session on 2026-05-11 found the assistant suggested npm
+in 4 turns despite the project using bun. The skill description
+didn't include 'bun' as a trigger keyword.
+```
+
+## Self-review before push
+
+A `/retro` skill-update **authors content into another skill** — commands,
+recipes, code examples. That content can be plausible but wrong, and once
+merged it ships as authoritative guidance. Before pushing, re-read your own
+diff and check:
+
+- Every command/recipe you wrote **would actually run as written** (flags exist,
+  quoting is correct, the example is internally consistent — e.g. don't claim an
+  *unescaped* quote closes a string while showing an *escaped* one).
+- Any "do X then Y" sequence is coherent (no step that contradicts a prior step).
+- The root cause in the commit/PR body is one you **verified**, not inferred — if
+  you didn't confirm it, say "suspected" rather than asserting it.
+- **Prefer deletion over exception.** If the friction is caused by an obsolete or
+  harmful instruction, a `skill-update` may be a pure *removal* diff — don't add a
+  new exception alongside the bad rule (see `classification-heuristic.md` →
+  "Instruction pruning"). Cite where the behaviour is already covered.
+- **Reject wording-only churn.** If an edit only rephrases without changing
+  behaviour, drop it — it is noise the next retro will re-flag.
+- **Run the target skill's own gates locally — reading the diff is not enough.**
+  Before pushing, run the destination repo's validator (`skill-repo`'s
+  `validate-skill.sh`: SKILL.md word cap, frontmatter, structure), its linters,
+  and any script self-tests. A structural gate like the 500-word SKILL.md limit
+  fails in CI, never in a re-read — and note SKILL.md often sits *at* the cap, so
+  put new prose in a reference file, not SKILL.md.
+- **Change every occurrence of a recurring rule in one pass.** When the fix is a
+  policy stated in more than one place (a SKILL.md step, a reference section, a
+  script header/output), grep the term and update all of them together, then
+  confirm no file still states the old rule. Reactive one-spot edits leave the
+  skill contradicting itself.
+
+Observed failures: a retro shipped a self-contradictory `--force-with-lease`
+recipe and a contradictory escaping example, both caught only by an external
+reviewer, plus a wrong "main lags origin" root cause that only the user caught. A
+later retro broke the target's Skill Validation CI (the SKILL.md edit went over
+the 500-word cap, invisible to a diff read), and a policy change patched one spot
+at a time, leaving a SKILL.md step contradicting its own reference across several
+review rounds until the user demanded it be done in one coherent pass. A
+30-second self-review plus running the target's validator would have caught all
+of these.
+
+## PR creation
+
+GitHub:
+```bash
+gh pr create --title "<title>" --body "<body>"
+```
+
+GitLab (Netresearch internal):
+```bash
+glab mr create --hostname git.netresearch.de --title "<title>" --description "<body>"
+```
+
+If `$GITLAB_HOST` is set, omit `--hostname`.
+
+### PR body template
+
+```markdown
+## Summary
+
+<1-2 sentences>
+
+## Came from
+
+`/retro` session on <date>: <session-id>
+Finding: <friction signal id> — <one-line description>
+Learning-Id: <retro-YYYYMMDD-slug>
+
+- **Symptom:** <what was observed going wrong>
+- **Cause:** <root cause, not the trigger>
+- **Required behavior:** <what the agent must do instead>
+- **Verification:** <eval id (`evals/evals.json` name) or checkpoint id (`checkpoints.yaml` key)>
+
+## Change
+
+<what was changed>
+
+## Test plan
+
+- [ ] <verification step>
+- [ ] <verification step>
+```
+
+The Symptom/Cause/Required behavior/Verification fields follow the canonical
+failure-pattern schema defined in `skill-repo-skill`'s
+[skills/skill-repo/references/materialization-contract.md](https://github.com/netresearch/skill-repo-skill/blob/main/skills/skill-repo/references/materialization-contract.md) — do not redefine the schema here.
+
+## Per-private-repo confirmation
+
+Before pushing to a private host, prompt the user:
+
+```
+Target: git.netresearch.de/x/y (private)
+This will push to a private host. Proceed? [y/N]
+```
+
+Decision is remembered for the (session, repo URL) pair.
+
+## Harness artefacts — target repo, not skill repo
+
+`harness-artefact` (destination 6) patches the repo the friction happened in.
+Everything above still applies — branch naming, Conventional Commits, DCO
+sign-off, signing, no `--no-verify`, self-review, PR body — with five
+differences.
+
+### 1. Target selection
+
+The target is the repo the session was working in, not a skill repo. Skill
+discovery does not apply; there is nothing to look up. The instrument is chosen
+by enforcement strength, not convenience — see
+`agent-harness-skill/references/enforcement-mechanisms.md`, which ranks all ten
+from server-side to convention-based.
+
+That repo is usually **dirty**, because the session just worked in it. Do not
+stash and do not commit unrelated work. Add a worktree off the same repo and
+patch there:
+
+```bash
+git -C <repo>/.bare worktree add ../feat-retro-<slug> -b feat/retro-<slug> origin/<default-branch>
+```
+
+Fall back to the /tmp clone rule above if the repo is not worktree-shaped. Never
+patch a repo the user did not work in during the session without asking.
+
+### 2. Verify before bootstrapping
+
+`agent-harness-skill` requires **verify first, bootstrap second**. Before
+proposing any artefact, check whether it already exists —
+`agent-harness-skill/scripts/verify-harness.sh` reports this, and
+`agent-harness-skill/checkpoints.yaml` (`AH-*`) names the exact file globs. A
+hook config, a CI workflow, and a PR template are almost never absent outright;
+the real finding is usually that the existing one does not cover this check.
+
+Extend the existing artefact. Never overwrite a hook config or a workflow file
+with a template — that silently drops whatever the team already enforces.
+
+### 3. CI/hook parity is part of the materialization
+
+If the proposed artefact is a CI check meeting the fast-check definition
+(deterministic, under ~5s, no external dependencies — see
+`enforcement-mechanisms.md`), the same command must also land in the repo's
+pre-commit hook config, in the **same PR**. A CI check without the matching hook
+is a half-materialized proposal; say so rather than shipping the half.
+
+The reverse does not hold: a hook may exist without a CI counterpart only when
+the check cannot run in CI at all, which is rare.
+
+### 4. Server-side instruments are not a PR
+
+Branch protection and rulesets are the only instruments nobody bypasses, and
+they are an API call, not a file. They cannot be materialized as a patch and
+must never be applied silently. Emit the command for the user to run and mark
+the row `manual` in the Phase-11 report:
+
+```bash
+gh api -X PUT repos/<owner>/<repo>/branches/<branch>/protection --input <spec>.json
+```
+
+State what the rule would enforce and what it would block. The user runs it.
+
+### 5. Linter and analyzer rules
+
+A new rule in a linter the repo already runs needs no new instrument and no new
+file — it is a config edit (`phpstan.neon` level, an ESLint rule entry, a
+`.yamllint.yml` rule, `fail_level: error` on a reviewdog action). Prefer it over
+a new hook or workflow whenever the analyzer is already wired in.
+
+Verify the rule actually fires on the friction as it occurred before proposing
+it. A rule that does not reproduce the failure is not a gate.
+
+## New-skill workflow
+
+For `new-skill` destination:
+
+1. Confirm name with user (kebab-case)
+2. Confirm target org (default: same org as similar existing skills)
+3. Invoke `skill-repo-skill` scaffolding (see its [skills/skill-repo/references/materialization-contract.md](https://github.com/netresearch/skill-repo-skill/blob/main/skills/skill-repo/references/materialization-contract.md))
+4. Initial commit includes:
+   - Standard scaffolding (plugin.json, composer.json, licenses, README, AGENTS.md)
+   - One reference doc covering the friction pattern
+   - One eval covering the friction (TDD)
+   - SKILL.md with initial trigger description and workflow
+
+User confirms before push. Marketplace listing is a separate manual step (out of scope).
+
+## Reporting
+
+At end of `/retro`, output a table:
+
+```
+| # | Destination | Action | Target | Status |
+|---|---|---|---|---|
+| 1 | personal-rule | wrote | ~/.claude/CLAUDE.md | ✓ |
+| 2 | skill-update | opened PR | github.com/.../foo-skill#42 | ✓ |
+| 3 | checkpoint | edited | bar-skill/checkpoints.yaml (AH-12) | ✓ pending push |
+| 4a | harness-artefact | opened PR | github.com/.../app#77 (lefthook.yml) | ✓ |
+| 4b | skill-update | opened PR | github.com/.../baz-skill#12 (install recipe) | ✓ |
+| 5 | harness-artefact | manual | branch protection — command emitted, not applied | ⚠ user action |
+```
+
+A paired materialization (`destination-taxonomy.md`, "Paired materialization")
+occupies two rows sharing one number, as `4a`/`4b` above — one approval, two
+artefacts, each with its own status so a half-failed pair stays visible.
+Server-side instruments are reported `manual`; they are never applied by retro.
+
+## See also
+
+- `references/skill-discovery.md` — How targets are identified
+- `references/destination-taxonomy.md` — Materialization formats per destination
+- [skill-repo-skill/skills/skill-repo/references/materialization-contract.md](https://github.com/netresearch/skill-repo-skill/blob/main/skills/skill-repo/references/materialization-contract.md) — Canonical failure-pattern schema
+- User memory: `feedback_preserve-commit-signing`, `feedback_merge-strategy`
+
+## Bulk / outward materializations: deterministic text, byte verification
+
+When one finding materializes into MANY artefacts (a PR fan-out) or into a
+foreign org, do not let each agent re-type the approved text:
+
+1. Encode the exact approved content in a patch script (anchored inserts
+   with assertions) — the approval covers bytes, not intent.
+2. Agents apply the script mechanically; an assertion failure is returned,
+   never repaired creatively.
+3. A verifier rebuilds base + patch and compares **byte-identical** (sha256)
+   against each pushed head, plus trailers/sign-off — "looks the same" is
+   not verification.
+
+Same materialize-then-verify discipline as promote mode, applied to outward
+writes; nine upstream PRs shipped drift-free this way (2026-08-14).
