@@ -113,10 +113,6 @@ version = "latest"
 [tools."aqua:tamasfe/taplo"]
 version = "latest"
 
-[tools."aqua:biomejs/biome"]
-version = "latest"
-
-
 [tools.aws-cli]
 version = "latest"
 
