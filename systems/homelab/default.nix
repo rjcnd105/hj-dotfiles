@@ -10,6 +10,8 @@
     ./app-admissions.nix
     ./github-actions-runner.nix
     ./thermal-alert.nix
+    ./operator.nix
+    ./comin-notify.nix
   ];
 
   networking.hostName = "homelab";
@@ -66,6 +68,14 @@
       port = 8080;
     };
   };
+
+  # 자동 GC — comin GitOps 박스는 rebuild마다 세대가 쌓인다. 주간 정리 + store 중복 제거.
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 14d";
+  };
+  nix.optimise.automatic = true;
 
   # comin — GitOps: GitHub main 브랜치를 poll하여 자동 nixos-rebuild switch
   services.comin = {
