@@ -61,8 +61,11 @@ rule·dry-run 출력 계약 유지, v1(해시)·v2(digest-only) manifest 겸용 
 metadata로 dry-run 수락/변조 4종 거부 로컬 실측. bash 전용 check
 2종(deploy-invariants grep, release-transaction)은 go test로 대체(Phase 5의
 grep-invariants 삭제 항목 선반영). 배포 가이드를 v2 self-service 문서로 전면 개정
-(앱 레포가 가이드만 보고 배포 가능해야 한다는 요구 반영). dev 실배포 1회 검증은
-머지 후 수행.
+(앱 레포가 가이드만 보고 배포 가능해야 한다는 요구 반영). dev 실배포 검증 완료:
+Go appctl 2.0.0 라이브에서 v0.16.2 → v0.17.0 왕복 실배포 2회, 풀 트랜잭션
+(manifest 다운로드/검증 → digest pull → 태그 activate → migrate → 단일 restart →
+smoke → record → 이미지 retention prune, 사용 중 이미지 보호 동작 확인) 및
+동일 target no-op 판정 정상.
 
 ## Phase 3 — deopjib v2 이관 (다운타임 윈도우)
 
