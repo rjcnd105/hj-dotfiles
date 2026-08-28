@@ -12,6 +12,7 @@
     ./thermal-alert.nix
     ./operator.nix
     ./comin-notify.nix
+    ./backup.nix
   ];
 
   networking.hostName = "homelab";
