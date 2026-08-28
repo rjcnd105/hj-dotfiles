@@ -9,6 +9,16 @@ includes: auto
 
 dependencies:
   apm:
+    # Local adapters keep RTK integration declarative and target-specific.
+    - path: ./.apm/packages/rtk-claude
+      alias: rtk-claude
+      targets:
+        - claude
+    - path: ./.apm/packages/rtk-codex
+      alias: rtk-codex
+      targets:
+        - codex
+
     # TODO(agent-skills#361): Move this dependency back under APM after shared
     # repo-root references work in per-skill installs. Until then, Codex owns
     # it through `agent-skills@agent-skills` in `.codex/config.toml`.
@@ -52,6 +62,7 @@ dependencies:
         - diagram-design
 
     - warpdotdev/common-skills/.agents/skills/skill-doctor
+    - uizze/uizze/skills/anti-ui-slop
   mcp:
     - name: chrome-devtools
       registry: false

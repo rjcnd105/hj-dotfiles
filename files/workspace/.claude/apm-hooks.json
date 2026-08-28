@@ -1,0 +1,14 @@
+{
+  "PreToolUse": [
+    {
+      "matcher": "Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "rtk hook claude"
+        }
+      ],
+      "_apm_source": "_local/rtk-claude"
+    }
+  ]
+}

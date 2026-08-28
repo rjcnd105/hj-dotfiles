@@ -1,0 +1,5 @@
+name: rtk-claude
+version: 1.0.0
+description: Claude Code RTK shell rewrite hook
+target: claude
+includes: auto
