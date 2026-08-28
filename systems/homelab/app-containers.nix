@@ -270,12 +270,20 @@ let
           "sops-install-secrets.service"
           podmanDnsLifecycleService
         ]
-        ++ dependencyServices;
+        ++ dependencyServices
+        ++ lib.optional (usesSharedPostgres app) "postgresql.service";
+        # 비밀번호 동기화 oneshot은 Wants로 끌어오고 After로만 순서를 강제한다
+        # (Requires면 앱 재시작마다 재실행 실패가 앱을 함께 내린다).
+        Wants = lib.optional (usesSharedPostgres app) "homelab-postgres-credentials.service";
         After = [
           "sops-install-secrets.service"
           podmanDnsLifecycleService
         ]
-        ++ dependencyServices;
+        ++ dependencyServices
+        ++ lib.optionals (usesSharedPostgres app) [
+          "postgresql.service"
+          "homelab-postgres-credentials.service"
+        ];
         PartOf = [
           networkService
           podmanDnsLifecycleService
@@ -362,7 +370,9 @@ let
       ]
       ++ lib.optional (!releaseManaged service) imageService
       ++ dependencyServices
-      ++ volumeServices;
+      ++ volumeServices
+      ++ lib.optional (usesSharedPostgres app) "postgresql.service";
+      wants = lib.optional (usesSharedPostgres app) "homelab-postgres-credentials.service";
       after = [
         "sops-install-secrets.service"
         "network-online.target"
@@ -370,7 +380,11 @@ let
       ]
       ++ lib.optional (!releaseManaged service) imageService
       ++ dependencyServices
-      ++ volumeServices;
+      ++ volumeServices
+      ++ lib.optionals (usesSharedPostgres app) [
+        "postgresql.service"
+        "homelab-postgres-credentials.service"
+      ];
       serviceConfig.Type = "oneshot";
       script = ''
         ${pkgs.podman}/bin/podman rm -f ${lib.escapeShellArg "${unitPrefix}-migrate"} >/dev/null 2>&1 || true

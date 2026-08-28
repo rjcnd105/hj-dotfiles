@@ -33,13 +33,13 @@ in
     passwordFile = config.sops.secrets.BACKUP_RESTIC_PASSWORD.path;
     environmentFile = config.sops.templates."restic-r2.env".path;
     paths = [ dumpDir ];
-    # 백업 직전 컨테이너 PG 논리 덤프. platform-v2 Phase 3 이관 후에는
-    # 호스트 PostgreSQL 대상으로 교체한다 (docs/plans/platform-v2.md).
+    # 백업 직전 호스트 공유 PG 논리 덤프 (platform-v2 Phase 3에서 컨테이너 PG 대체).
+    # root 유닛에서 postgres 사용자로 강등해 peer 인증으로 덤프한다.
     backupPrepareCommand = ''
       set -euo pipefail
-      ${pkgs.podman}/bin/podman exec deopjib-dev-db \
-        pg_dump -U deopjib --clean --if-exists deopjib \
-        | ${pkgs.zstd}/bin/zstd -q -f -o ${dumpDir}/deopjib.sql.zst
+      ${pkgs.util-linux}/bin/runuser -u postgres -- \
+        ${config.services.postgresql.package}/bin/pg_dump --clean --if-exists deopjib_dev \
+        | ${pkgs.zstd}/bin/zstd -q -f -o ${dumpDir}/deopjib_dev.sql.zst
     '';
     pruneOpts = [
       "--keep-daily 7"
@@ -54,9 +54,13 @@ in
 
   # Persistent 타이머가 부팅 직후 발화할 수 있으므로 secrets 렌더 이후로 순서 고정.
   systemd.services.restic-backups-homelab = {
-    requires = [ "sops-install-secrets.service" ];
+    requires = [
+      "sops-install-secrets.service"
+      "postgresql.service"
+    ];
     after = [
       "sops-install-secrets.service"
+      "postgresql.service"
       "network-online.target"
     ];
     wants = [ "network-online.target" ];
