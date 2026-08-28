@@ -35,6 +35,9 @@ jobs:
       - name: Check homelab release dry-run
         run: nix build .#checks.x86_64-linux.homelab-appctl-release-dry-run --show-trace
 
+      - name: Check homelab unit executables exist
+        run: nix build .#checks.x86_64-linux.homelab-unit-executables-exist --show-trace
+
       - name: Check sops secrets are strings
         run: nix build .#checks.x86_64-linux.sops-secrets-are-strings --show-trace
 
