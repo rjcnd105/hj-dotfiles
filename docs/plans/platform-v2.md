@@ -69,11 +69,21 @@ smoke → record → 이미지 retention prune, 사용 중 이미지 보호 동�
 
 ## Phase 3 — deopjib v2 이관 (다운타임 윈도우)
 
-1. 공유 PG role/db 생성 → 컨테이너 PG pg_dump → 복원 → 검증 쿼리
-2. 계약 v2 전환 + admission 갱신 + input 범프 → comin 활성화
-3. smoke + 실사용 확인 → 구 db 컨테이너 중지. **구 볼륨은 2주 보존 후 삭제 (롤백 창구).**
-4. 백업 대상을 호스트 PG dump로 전환, 복원 리허설 재실행
-- 앱 레포 선행 작업: backend/web PORT 3000 대응.
+- [x] 1. 공유 PG role/db 생성 → 컨테이너 PG pg_dump → 복원 → 검증 쿼리
+- [x] 2. 계약 v2 전환 + admission 갱신 + input 범프 → comin 활성화
+- [x] 3. smoke + 실사용 확인 → 구 db 컨테이너 중지. **구 볼륨(deopjib-dev-db-data)은
+      2026-09-11까지 보존 후 삭제 (롤백 창구).**
+- [x] 4. 백업 대상을 호스트 PG dump로 전환, 복원 리허설 재실행
+- [x] 앱 레포 선행 작업: backend/web PORT 3000 대응 (my-app#70).
+
+2026-08-28 완료. 앱: runtime.exs PORT 우선, web nginx envsubst 템플릿, manifest v2를
+CI에서 jq로 생성(전용 generator 삭제). 호스트(nix-dots#92): admit-app 전환(subnetId 10),
+렌더러에 공유 PG systemd 의존성 배선, backup을 호스트 pg_dump(deopjib_dev)로 교체.
+컷오버 실측: 덤프→switch→복원(행 수 8/8 일치)→v0.18.0 v2 실배포(마이그레이션·smoke
+통과)→R2 복원 리허설 재실행(라이브와 일치). 발견·수정: homelab-postgres-credentials가
+postgresql-setup(ensureUsers) 이전에 실행되어 ALTER ROLE이 조용히 실패 — after 순서
+추가 + psql ON_ERROR_STOP=1. 구 sops 키 DEOPJIB_DEV_DATABASE_URL은 미사용(Phase 5
+정리 대상).
 
 ## Phase 4 — 모니터링
 

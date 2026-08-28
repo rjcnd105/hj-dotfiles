@@ -67,8 +67,11 @@ in
         "postgresql.service"
         "sops-install-secrets.service"
       ];
+      # ensureUsers(role 생성)는 postgresql-setup.service가 수행한다 — 그 전에
+      # ALTER ROLE이 실행되면 role이 없다 (Phase 3 컷오버에서 실측).
       after = [
         "postgresql.service"
+        "postgresql-setup.service"
         "sops-install-secrets.service"
       ];
       wantedBy = [ "multi-user.target" ];
@@ -84,7 +87,8 @@ in
         map (app: ''
           PG_APP_PASSWORD=$(cat "$CREDENTIALS_DIRECTORY/${app.host.postgresPasswordSecret}") \
             ${config.services.postgresql.package}/bin/psql \
-            --dbname postgres --no-psqlrc --quiet --file - <<'SQL'
+            --dbname postgres --no-psqlrc --quiet \
+            --set ON_ERROR_STOP=1 --file - <<'SQL'
           \getenv pw PG_APP_PASSWORD
           ALTER ROLE ${pgNameFor app} WITH PASSWORD :'pw';
           SQL
