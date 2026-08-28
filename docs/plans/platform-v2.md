@@ -35,10 +35,17 @@ db(8테이블)와 일치. comin 훅은 성공 시 debug 로그만 남기므로 j
 
 ## Phase 1 — 플랫폼 v2: 계약·렌더러
 
-- [ ] 1.1 계약 v2 스키마 (컨벤션 반영, db 서비스 블록 삭제, `needs.postgres`)
-- [ ] 1.2 렌더러: PG 프로비저닝 모듈, admitApp helper, 다채널 자리
-- [ ] 1.3 flake.nix 픽스처 ~520줄 → `checks/` 분리 + 앱 파라미터화
+- [x] 1.1 계약 v2 스키마 (컨벤션 반영, db 서비스 블록 삭제, `needs.postgres`)
+- [x] 1.2 렌더러: PG 프로비저닝 모듈, admitApp helper, 다채널 자리
+- [x] 1.3 flake.nix 픽스처 ~520줄 → `checks/` 분리 + 앱 파라미터화
 - 검증: `nix eval` 생성물 스냅샷 비교, `just check`. 호스트 무변경(deopjib은 v1 경로 유지).
+
+2026-08-28 완료. `contract.schemaVersion = 2`가 digest-only 검증(소스 해시 4종 금지)과
+컨벤션(PORT=internalPort 주입, 기본 3000; `needs.postgres` → 공유 PG role/db + DATABASE_URL
+합성)을 켠다. v2 앱 브리지는 `host.subnetId`로 10.90.N.0/24 고정, 게이트웨이 10.90.N.1이
+호스트 PG 경로. `systems/homelab/postgres.nix`(postgresql_18, LoadCredential 비밀번호 동기화),
+`admit-app.nix` 헬퍼, `checks/`(example v2 픽스처 nixosSystem eval 단정) 추가. 검증: 변경
+전후 homelab toplevel drvPath 동일(2nb4pgd8…), flake check 전체 통과.
 
 ## Phase 2 — appctl v2 (Go)
 

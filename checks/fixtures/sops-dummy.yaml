@@ -1,0 +1,2 @@
+# eval 픽스처 전용 더미 sops 파일 (sops.validateSopsFiles = false와 함께 사용).
+{}

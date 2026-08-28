@@ -72,6 +72,16 @@ let
 
   releaseManaged = service: service.updatePolicy == "manual";
 
+  # Contract v2: digest-only admission + platform conventions (PORT, needs.postgres).
+  isV2 = app: app.contract.schemaVersion == 2;
+  usesSharedPostgres = app: isV2 app && app.contract.needs.postgres;
+
+  # Shared-PostgreSQL role/db name; PostgreSQL identifiers use underscores.
+  sharedPostgresNameFor =
+    app: lib.replaceStrings [ "-" ] [ "_" ] "${app.contract.name}_${app.contract.channel}";
+  appSubnetFor = app: "10.90.${toString app.host.subnetId}.0/24";
+  appGatewayFor = app: "10.90.${toString app.host.subnetId}.1";
+
   envTemplateNameFor = app: serviceName: "${unitPrefixFor app}-${serviceName}.env";
 
   releaseChannelFor =
@@ -114,10 +124,18 @@ let
         in
         "${envName}=${builtins.getAttr secretName config.sops.placeholder}";
 
-      envLines = mapAttrsToList (key: value: "${key}=${value}") service.env;
+      # v2 convention: containers listen on PORT (= internalPort); contract env wins.
+      effectiveEnv =
+        lib.optionalAttrs (isV2 app) { PORT = toString service.internalPort; } // service.env;
+      envLines = mapAttrsToList (key: value: "${key}=${value}") effectiveEnv;
       secretLines = map secretLine service.requiredSecretEnv;
+      platformLines = lib.optional (usesSharedPostgres app) (
+        "DATABASE_URL=postgresql://${sharedPostgresNameFor app}:"
+        + builtins.getAttr app.host.postgresPasswordSecret config.sops.placeholder
+        + "@${appGatewayFor app}:5432/${sharedPostgresNameFor app}"
+      );
     in
-    concatStringsSep "\n" (envLines ++ secretLines) + "\n";
+    concatStringsSep "\n" (envLines ++ secretLines ++ platformLines) + "\n";
 
   appSecretNames =
     app:
@@ -137,7 +155,12 @@ let
     );
 
   secretNames = builtins.filter (name: name != null) (
-    unique (flatten (mapAttrsToList (_appName: app: appSecretNames app) enabledApps))
+    unique (
+      flatten (mapAttrsToList (_appName: app: appSecretNames app) enabledApps)
+      ++ mapAttrsToList (
+        _appName: app: if usesSharedPostgres app then app.host.postgresPasswordSecret else null
+      ) enabledApps
+    )
   );
 
   sopsSecrets = listToAttrs (
@@ -306,6 +329,10 @@ let
       networkConfig = {
         name = unitPrefix;
         interfaceName = bridgeInterfaceFor app;
+      }
+      // lib.optionalAttrs (isV2 app) {
+        subnets = [ (appSubnetFor app) ];
+        gateways = [ (appGatewayFor app) ];
       };
     };
 
@@ -390,10 +417,6 @@ let
       appKey = appName;
       name = app.contract.name;
       channel = app.contract.channel;
-      runtimeContractSourceSha256 = app.runtimeContractSourceSha256;
-      homelabAdmissionSourceSha256 = app.homelabAdmissionSourceSha256;
-      manifestSchemaSourceSha256 = app.manifestSchemaSourceSha256;
-      manifestGeneratorSourceSha256 = app.manifestGeneratorSourceSha256;
       unitPrefix = unitPrefix;
       domain = app.host.domain;
       caddyUrl = "http://127.0.0.1:${toString caddyPort}";
@@ -428,7 +451,14 @@ let
             migrate = releaseChannel.migrate;
             smokePaths = releaseChannel.smokePaths;
           };
-    };
+    }
+    // lib.optionalAttrs (!isV2 app) {
+      runtimeContractSourceSha256 = app.runtimeContractSourceSha256;
+      homelabAdmissionSourceSha256 = app.homelabAdmissionSourceSha256;
+      manifestSchemaSourceSha256 = app.manifestSchemaSourceSha256;
+      manifestGeneratorSourceSha256 = app.manifestGeneratorSourceSha256;
+    }
+    // lib.optionalAttrs (isV2 app) { contractVersion = 2; };
 
   metadataEtcFor =
     appName: app:
@@ -1158,6 +1188,12 @@ let
       migrationServiceIsRegistryAuto =
         migrationService != null && builtins.hasAttr migrationService registryAutoServices;
       manualServices = filterAttrs (_: service: releaseManaged service) contract.services;
+      sourceHashes = [
+        app.runtimeContractSourceSha256
+        app.homelabAdmissionSourceSha256
+        app.manifestSchemaSourceSha256
+        app.manifestGeneratorSourceSha256
+      ];
     in
     [
       {
@@ -1204,20 +1240,32 @@ let
         message = "homelab.apps.${appName}: registry-auto is not allowed on the migration service.";
       }
       {
-        assertion = builtins.match "^[0-9a-f]{64}$" app.runtimeContractSourceSha256 != null;
-        message = "homelab.apps.${appName}: runtimeContractSourceSha256 must be a lowercase SHA-256 hex digest.";
+        assertion =
+          isV2 app
+          || builtins.all (hash: hash != null && builtins.match "^[0-9a-f]{64}$" hash != null) sourceHashes;
+        message = "homelab.apps.${appName}: schemaVersion 1 requires all four deployment source hashes as lowercase SHA-256 hex digests.";
       }
       {
-        assertion = builtins.match "^[0-9a-f]{64}$" app.homelabAdmissionSourceSha256 != null;
-        message = "homelab.apps.${appName}: homelabAdmissionSourceSha256 must be a lowercase SHA-256 hex digest.";
+        assertion = !isV2 app || builtins.all (hash: hash == null) sourceHashes;
+        message = "homelab.apps.${appName}: schemaVersion 2 admits releases by digest only; source hashes must not be set.";
       }
       {
-        assertion = builtins.match "^[0-9a-f]{64}$" app.manifestSchemaSourceSha256 != null;
-        message = "homelab.apps.${appName}: manifestSchemaSourceSha256 must be a lowercase SHA-256 hex digest.";
+        assertion = !isV2 app || app.host.subnetId != null;
+        message = "homelab.apps.${appName}: schemaVersion 2 requires host.subnetId (bridge subnet 10.90.<id>.0/24).";
       }
       {
-        assertion = builtins.match "^[0-9a-f]{64}$" app.manifestGeneratorSourceSha256 != null;
-        message = "homelab.apps.${appName}: manifestGeneratorSourceSha256 must be a lowercase SHA-256 hex digest.";
+        assertion = !usesSharedPostgres app || app.host.postgresPasswordSecret != null;
+        message = "homelab.apps.${appName}: needs.postgres requires host.postgresPasswordSecret.";
+      }
+      {
+        assertion =
+          !usesSharedPostgres app
+          || builtins.all (
+            service:
+            !(builtins.hasAttr "DATABASE_URL" service.env)
+            && !(builtins.elem "DATABASE_URL" service.requiredSecretEnv)
+          ) (builtins.attrValues contract.services);
+        message = "homelab.apps.${appName}: DATABASE_URL is platform-injected under needs.postgres; the contract must not declare it.";
       }
       {
         assertion =
@@ -1329,6 +1377,10 @@ let
 
   domainList = mapAttrsToList (_appName: app: app.host.domain) enabledApps;
   caddyPorts = mapAttrsToList (_appName: app: caddyPortFor app) enabledApps;
+  unitPrefixes = mapAttrsToList (_appName: app: unitPrefixFor app) enabledApps;
+  v2SubnetIds = builtins.filter (id: id != null) (
+    mapAttrsToList (_appName: app: if isV2 app then app.host.subnetId else null) enabledApps
+  );
   serviceLoopbackPorts = flatten (
     mapAttrsToList (_appName: app: servicePortClaimsForApp app) enabledApps
   );
@@ -1374,23 +1426,27 @@ in
             enable = mkEnableOption "homelab app container admission";
 
             runtimeContractSourceSha256 = mkOption {
-              type = types.str;
-              description = "SHA-256 of the app-owned runtime contract source.";
+              type = types.nullOr types.str;
+              default = null;
+              description = "SHA-256 of the app-owned runtime contract source (schemaVersion 1 only).";
             };
 
             homelabAdmissionSourceSha256 = mkOption {
-              type = types.str;
-              description = "SHA-256 of the pinned app-owned homelab admission source.";
+              type = types.nullOr types.str;
+              default = null;
+              description = "SHA-256 of the pinned app-owned homelab admission source (schemaVersion 1 only).";
             };
 
             manifestSchemaSourceSha256 = mkOption {
-              type = types.str;
-              description = "SHA-256 of the pinned app-owned release manifest schema.";
+              type = types.nullOr types.str;
+              default = null;
+              description = "SHA-256 of the pinned app-owned release manifest schema (schemaVersion 1 only).";
             };
 
             manifestGeneratorSourceSha256 = mkOption {
-              type = types.str;
-              description = "SHA-256 of the pinned app-owned release manifest generator.";
+              type = types.nullOr types.str;
+              default = null;
+              description = "SHA-256 of the pinned app-owned release manifest generator (schemaVersion 1 only).";
             };
 
             contract = mkOption {
@@ -1398,13 +1454,34 @@ in
                 options = {
                   name = mkOption { type = types.str; };
                   channel = mkOption { type = types.str; };
+                  schemaVersion = mkOption {
+                    type = types.enum [
+                      1
+                      2
+                    ];
+                    default = 1;
+                    description = "Contract schema version. v2 admits releases by digest only and enables the PORT and needs.postgres platform conventions.";
+                  };
+                  needs = mkOption {
+                    type = types.submodule {
+                      options.postgres = mkOption {
+                        type = types.bool;
+                        default = false;
+                        description = "Provision a role/database on the shared host PostgreSQL and inject DATABASE_URL (schemaVersion 2 only).";
+                      };
+                    };
+                    default = { };
+                  };
                   images = mkOption { type = types.attrsOf types.str; };
                   services = mkOption {
                     type = types.attrsOf (
                       types.submodule {
                         options = {
                           image = mkOption { type = types.str; };
-                          internalPort = mkOption { type = types.port; };
+                          internalPort = mkOption {
+                            type = types.port;
+                            default = 3000;
+                          };
                           healthPath = mkOption {
                             type = types.nullOr types.str;
                             default = null;
@@ -1581,6 +1658,16 @@ in
                 type = types.nullOr types.str;
                 default = null;
               };
+              postgresPasswordSecret = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "sops secret holding this app's shared-PostgreSQL role password (schemaVersion 2 with needs.postgres).";
+              };
+              subnetId = mkOption {
+                type = types.nullOr (types.ints.between 1 250);
+                default = null;
+                description = "Third octet of the v2 app bridge subnet 10.90.<id>.0/24; containers reach host services via the .1 gateway.";
+              };
               releaseManifestOrigins = mkOption {
                 type = types.listOf types.str;
                 default = [ ];
@@ -1635,6 +1722,14 @@ in
           unique serviceLoopbackPorts == serviceLoopbackPorts
           && builtins.all (port: !(builtins.elem port caddyPorts)) serviceLoopbackPorts;
         message = "homelab.apps entries must use unique service loopback ports, and service ports must not collide with host.caddyPort.";
+      }
+      {
+        assertion = unique unitPrefixes == unitPrefixes;
+        message = "homelab.apps entries must render unique <name>-<channel> unit prefixes.";
+      }
+      {
+        assertion = unique v2SubnetIds == v2SubnetIds;
+        message = "homelab.apps v2 entries must use unique host.subnetId values.";
       }
     ]
     ++ flatten (mapAttrsToList assertionsForApp enabledApps);
