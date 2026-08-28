@@ -17,8 +17,10 @@
     ./beszel.nix
   ];
 
-  # Beszel hub — agent는 사용자가 hub UI에서 KEY/TOKEN 발급해 sops에 넣은 뒤 활성화.
-  homelab.beszel.enable = true;
+  homelab.beszel = {
+    enable = true;
+    agent.enable = true;
+  };
 
   networking.hostName = "homelab";
 
