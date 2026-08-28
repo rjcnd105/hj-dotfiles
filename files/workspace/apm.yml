@@ -51,6 +51,7 @@ dependencies:
       skills:
         - diagram-design
 
+    - warpdotdev/common-skills/.agents/skills/skill-doctor
   mcp:
     - name: chrome-devtools
       registry: false
