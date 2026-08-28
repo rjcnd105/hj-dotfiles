@@ -1,108 +1,119 @@
-# Homelab Image Deploy Guide
+# Homelab App Deploy Guide (Contract v2)
 
-Audience: agents and operators changing an app repository or its NixOS homelab
-admission.
+대상: 자기 앱을 이 homelab에 배포하려는 앱 저장소의 에이전트/운영자.
+이 문서만 보고 계약 작성 → 릴리스 발행 → 배포까지 그대로 따라갈 수 있어야 한다.
+(deopjib이 아직 사용 중인 구 계약 v1은 [부록 A](#부록-a--계약-v1-레거시) 참고.)
 
-## Decision
-
-Each app repository owns its release artifacts and runtime intent. `nix-dots`
-owns whether and how that intent is admitted to the homelab.
+## 큰 그림
 
 ```text
-app repo
-  runtime-contract.nix + homelab-admission.nix
-  release manifest + exact OCI image digests
+앱 레포 (당신)
+  devops/runtime-contract.nix   ← 런타임 의도 (순수 Nix 데이터)
+  devops/homelab-admission.nix  ← 호스트 바인딩 제안
+  release manifest (v2)         ← 릴리스마다: 이미지 name + digest
                 |
                 v
-nix-dots flake input (pinned app revision)
-  typed admission + assertions
-  sops/network/storage/Caddy/Quadlet/systemd
+nix-dots (호스트)
+  admit-app.nix로 계약을 pin·승인 → Quadlet/Caddy/Cloudflared/sops/PG 렌더링
                 |
                 v
-homelab-appctl deploy --target <release-id>
-  validate -> exact pull/tag -> migrate -> one restart -> smoke -> record
+homelab-appctl deploy <app> <channel> --target <release-id>
+  검증 → digest pull → 로컬 태그 이동 → migrate → 단일 restart → smoke → 기록
 ```
 
-This is intentionally smaller than Kubernetes, Nomad, or a separate app
-catalog. Revisit a controller only when several apps need continuous
-reconciliation, rollout strategies, or shared cluster primitives that are
-simpler than this host-local path.
+책임 경계:
 
-## Ownership
-
-| Concern | Authority |
+| 관심사 | 권한 |
 |---|---|
-| App version and release target | app repository |
-| Backend/web image build and release manifest | app repository |
-| Runtime services, dependencies, readiness, routes, and migrations | app-owned `devops/runtime-contract.nix` |
-| Proposed homelab binding | app-owned `devops/homelab-admission.nix` |
-| Admission and pinned app revision | `nix-dots` |
-| Secret values | sops-backed host configuration |
-| Network, storage, Caddy, Cloudflared, Quadlet, systemd | `nix-dots` |
-| Exact host activation and deploy records | `homelab-appctl` |
+| 앱 버전·릴리스 target·이미지 빌드/발행 | 앱 저장소 |
+| 런타임 서비스·routes·migrations 의도 | 앱 소유 `devops/runtime-contract.nix` |
+| 승인·pin·secrets·네트워크·스토리지·PG | `nix-dots` |
+| 실제 배포 트랜잭션·기록 | `homelab-appctl` (Go, `packages/homelab-appctl/`) |
 
-Do not copy an app's service graph into `systems/homelab/default.nix`. Import
-the app-owned admission through `systems/homelab/app-admissions.nix`, then let
-the typed `homelab.apps` module render it.
+## 플랫폼 컨벤션 (v2)
 
-## App Contract
+- **PORT**: 컨테이너는 env `PORT`에서 리슨한다. 호스트가 `PORT`(기본 3000,
+  `internalPort`와 동일 값)를 주입한다. 다른 포트가 필요하면 `internalPort`만 바꾼다.
+- **/data**: 영속 데이터는 단일 볼륨을 `/data`에 마운트한다.
+- **PostgreSQL**: 계약에 `needs.postgres = true` 한 줄이면 호스트 공유 PG에
+  role/db(`<name>_<channel>`)가 프로비저닝되고, 모든 서비스 env에 `DATABASE_URL`이
+  주입된다. 계약은 `DATABASE_URL`을 직접 선언하면 안 된다(거부됨).
+  앱 컨테이너는 db 서비스를 계약에 넣지 않는다.
+- 공개 포트는 없다. 서비스는 loopback으로만 노출되고 Caddy + Cloudflared가 ingress다.
 
-`devops/runtime-contract.nix` must be pure Nix data. It may be a function of
-admission parameters such as `channel` and `domain`, but must not import
-`nixpkgs`, read secrets, perform I/O, or contain host activation logic.
+## 1. 앱 레포: runtime-contract.nix
 
-The current typed contract supports:
-
-- `images`: fully qualified OCI references;
-- `services`: image key, internal port, env, required secret names, update
-  policy, mounts, `dependsOn`, optional HTTP health path, and optional native
-  container readiness command;
-- `routes`: domain/path/service mapping;
-- `migrations`: `none` or a manual one-shot command;
-- `release`: external versioning, HTTPS manifest URL containing `{target}`, and
-  channel tag/mode/target-pattern/strategy/smoke/migration policy;
-- `volumes`: stable logical volume requests.
-
-Update policies have distinct meanings:
-
-| Policy | Use |
-|---|---|
-| `manual` | Release-coordinated app services. The manifest supplies the exact digest. |
-| `pinned-digest` | Independently pinned infrastructure images such as PostgreSQL. |
-| `registry-auto` | Stateless services with explicitly safe independent updates only. |
-
-A `manual` service image must end in the admitted channel tag, for example
-`:dev-current`. That tag is a local activation pointer, not the release
-authority. The host pulls `name@sha256:...` from the release manifest and tags
-that exact image locally before restarting the service.
-
-A `pinned-digest` image must end in `@sha256:<64 lowercase hex>`. It remains a
-normal declarative Quadlet image unit and does not participate in an app
-release transaction.
-
-Example release section:
+`devops/runtime-contract.nix` — 순수 Nix 데이터 함수. nixpkgs import, secret 읽기,
+I/O 금지. 전체 스키마를 담은 시작점:
 
 ```nix
-release = {
-  versioning = "external";
-  manifestUrl = "https://github.com/example/my-app/releases/download/{target}/release.json";
-  channels.${channel} = {
-    tag = "${channel}-current";
-    mode = if channel == "prod" then "approved" else "auto";
-    targetPattern = if channel == "prod" then "^my-app-v[0-9]+\\.[0-9]+\\.[0-9]+$" else "^my-app-v.*$";
-    strategy = "coordinated";
-    smokePaths = [
-      "/health"
-      "/"
+{ channel, domain }:
+let
+  imageTag = "${channel}-current";
+in
+{
+  schemaVersion = 2;
+  name = "my-app"; # ^[a-z0-9][a-z0-9-]*$; "br-<name>-<channel>"이 15자 이하여야 함
+  inherit channel;
+
+  needs.postgres = true; # DB가 필요 없으면 생략
+
+  images.app = "ghcr.io/OWNER/my-app:${imageTag}";
+
+  services.app = {
+    image = "app"; # images의 키
+    # internalPort = 3000;      # 기본 3000. env PORT로 주입됨
+    healthPath = "/health"; # 없으면 null
+    updatePolicy = "manual"; # 릴리스 조율 배포 대상
+    volumeMounts = [
+      {
+        volume = "data";
+        mountPath = "/data";
+      }
     ];
-    migrate = "manual";
+    # env = { ... };            # 정적 env
+    # requiredSecretEnv = [ "MY_SECRET" ];  # sops secret 이름은 호스트 admission의 secretMap이 결정
+    # dependsOn = [ "other-service" ];
+    # readiness = { command = [ ... ]; interval = "1s"; retries = 30; timeout = "5s"; };
   };
-};
+
+  routes = [
+    {
+      host = domain;
+      path = "/";
+      service = "app";
+    }
+  ];
+
+  # 수동 마이그레이션이 있으면:
+  # migrations = { mode = "manual"; service = "app"; command = [ "/app/bin/migrate" ]; };
+
+  release = {
+    manifestUrl = "https://github.com/OWNER/my-app/releases/download/{target}/release.json";
+    channels.${channel} = {
+      tag = imageTag;
+      targetPattern = "^my-app-v.*$"; # ^…$ 앵커 필수
+      smokePaths = [ "/health" ];
+      # migrate = "manual";  # migrations.mode = manual일 때
+    };
+  };
+
+  volumes.data.notes = "persistent app data, mounted at /data";
+}
 ```
 
-## Admission
+핵심 규칙:
 
-`devops/homelab-admission.nix` proposes a host binding:
+- `updatePolicy = "manual"` 서비스의 이미지는 `:<channel>-current` 태그로 끝나야
+  한다. 이 태그는 로컬 활성화 포인터일 뿐, 배포되는 바이트는 항상 manifest의
+  digest가 결정한다.
+- `pinned-digest` 서비스(외부 인프라 이미지)는 `@sha256:<64hex>`로 끝나야 한다.
+- v2에서 소스 해시 4종은 존재하지 않는다. 검증은 앱명/target 패턴/이미지명/digest
+  문법/HTTPS origin으로 끝난다.
+
+## 2. 앱 레포: homelab-admission.nix
+
+`devops/homelab-admission.nix` — 호스트 바인딩 제안:
 
 ```nix
 let
@@ -118,168 +129,133 @@ in
     };
     host = {
       domain = "dev.my-app.example";
-      loopbackPortBase = 18100;
-      secretMap.DATABASE_URL = "MY_APP_DATABASE_URL";
-      volumes.db-data.backup = true;
+      loopbackPortBase = 18300; # 호스트에서 비어 있는 대역 (nix-dots가 확인)
+      secretMap.MY_SECRET = "MY_APP_DEV_MY_SECRET"; # 계약 env 이름 → sops secret 이름
+      volumes.data = { };
     };
   };
 }
 ```
 
-The app file contains only secret names. Actual values remain in sops files and
-render to `/run/secrets/...` on the host. Public container ports bind to
-loopback; ingress remains Caddy plus Cloudflared.
+secret **값**은 절대 앱 레포에 두지 않는다. 이름만 매핑하면 호스트가 sops로
+`/run/secrets/...`에 렌더링한다.
 
-`nix-dots` imports the proposal from its pinned flake input:
+## 3. 앱 레포: release manifest v2
+
+릴리스(GitHub Release 권장)마다 `release.json` 자산을 발행한다. 스키마 전체:
+
+```json
+{
+  "schemaVersion": 2,
+  "app": "my-app",
+  "target": "my-app-v1.2.3",
+  "images": {
+    "app": {
+      "name": "ghcr.io/OWNER/my-app",
+      "digest": "sha256:<64 lowercase hex>"
+    }
+  }
+}
+```
+
+- `images`의 키는 계약 `images`의 키와 같아야 하고, `name`은 태그를 뗀 이미지
+  이름과 같아야 한다. `digest`는 레지스트리에 push된 정확한 digest다.
+- 별도 generator 스크립트가 필요 없다. CI에서 이미지 push 후 얻은 digest로 jq 한
+  번이면 된다:
+
+```sh
+digest=$(docker buildx imagetools inspect "ghcr.io/OWNER/my-app:${TAG}" --format '{{json .Manifest}}' | jq -r .digest)
+jq -n --arg app my-app --arg target "my-app-v${VERSION}" --arg name ghcr.io/OWNER/my-app --arg digest "$digest" \
+  '{schemaVersion: 2, app: $app, target: $target, images: {app: {name: $name, digest: $digest}}}' > release.json
+gh release upload "my-app-v${VERSION}" release.json
+```
+
+`target`은 계약의 `targetPattern`과 일치해야 한다. 추가 필드(version, sourceRev
+등)는 자유롭게 넣어도 무시된다.
+
+## 4. nix-dots: 승인 (호스트 쪽 1회 작업)
+
+`nix-dots` 쪽 PR 한 번 (앱 레포는 여기까지 관여하지 않는다):
+
+1. `flake.nix` inputs에 앱 레포 추가 (`flake = false`).
+2. `systems/homelab/app-admissions.nix`에서 헬퍼로 승인:
 
 ```nix
-let
-  admissionSource = "${inputs.myApp}/devops/homelab-admission.nix";
-  runtimeContractSource = "${inputs.myApp}/devops/runtime-contract.nix";
-  manifestSchemaSource = "${inputs.myApp}/devops/release-manifest.schema.json";
-  manifestGeneratorSource = "${inputs.myApp}/scripts/generate-release-manifest";
-  admission = import admissionSource;
-in
-{
-  homelab.apps.${admission.key} = admission.app // {
-    runtimeContractSourceSha256 = builtins.hashFile "sha256" runtimeContractSource;
-    homelabAdmissionSourceSha256 = builtins.hashFile "sha256" admissionSource;
-    manifestSchemaSourceSha256 = builtins.hashFile "sha256" manifestSchemaSource;
-    manifestGeneratorSourceSha256 = builtins.hashFile "sha256" manifestGeneratorSource;
-    host = admission.app.host // {
-      releaseManifestOrigins = [ "https://github.com/example/my-app" ];
-    };
+homelab.apps = import ./admit-app.nix {
+  admission = import "${inputs.myApp}/devops/homelab-admission.nix";
+  releaseManifestOrigins = [ "https://github.com/OWNER/my-app" ];
+  host = {
+    subnetId = 8; # 10.90.<id>.0/24 — 앱별 유일
+    postgresPasswordSecret = "MY_APP_DEV_PG_PASSWORD"; # needs.postgres일 때
   };
-}
+};
 ```
 
-The module rejects invalid ids, routes, dependencies, secret mappings, volume
-mappings, unsafe migration/auto-update combinations, malformed digests, and
-manual services without an HTTPS manifest URL under a host-admitted origin and
-a matching channel tag.
+3. sops(`secrets/homelab/services.yaml`)에 secretMap의 secret들과 PG 비밀번호를
+   추가한다 (모두 문자열로).
+4. `nix flake check --all-systems --no-build` 통과 확인 후 merge → comin이 활성화.
 
-## Release Manifest
+호스트가 렌더링하는 것: Quadlet 네트워크(고정 서브넷)/볼륨/컨테이너, sops env
+템플릿, 공유 PG role/db + `DATABASE_URL`, Caddy 라우트, Cloudflared ingress,
+`/etc/homelab-apps/<app>/<channel>.json` 메타데이터, 마이그레이션 oneshot 유닛.
 
-For release-managed services, the app's release manifest is the immutable
-artifact identity. It must include:
+## 5. 배포 실행
 
-- schema version, app id, release target, version, source revision, and creation
-  time;
-- every admitted release-managed image name and exact digest;
-- SHA-256 of the app-owned runtime contract, admission, manifest schema, and
-  manifest generator sources.
-
-The host accepts a manifest only when its app, target, all deployment source hashes,
-image names, and digest syntax match generated admission metadata. This makes
-the release artifact authoritative for image identity without giving the app
-repository authority over host secrets or topology.
-
-Pointer tags such as `dev-current` and `prod-current` remain useful for humans
-and local container references. They must never decide which remote bytes are
-deployed.
-
-## Generated NixOS Runtime
-
-The `homelab.apps` module renders:
-
-- Podman networks, volumes, containers, and only the independently managed
-  Quadlet image units;
-- native systemd `Requires`/`After` edges from `dependsOn`;
-- Quadlet health checks and `Notify=healthy` from `readiness`;
-- sops-backed env files;
-- manual migration one-shot units;
-- loopback Caddy routes and Cloudflared ingress;
-- `/etc/homelab-apps/<app>/<channel>.json` admission metadata;
-- the generic `homelab-appctl` package and a deploy-only sudo rule.
-
-Release-managed containers use the admitted channel reference with
-`Pull=never`. `homelab-appctl` is the single owner of exact pull/tag and release
-restart. This avoids the former double restart where Quadlet image units moved
-tags and the deploy command restarted containers a second time.
-
-## Deploy Flow
-
-The host interface is:
+수동 (homelab에서, 또는 ssh):
 
 ```sh
 homelab-appctl list
-homelab-appctl status <app> <channel>
-homelab-appctl smoke <app> <channel>
-homelab-appctl deploy <app> <channel> --target <release-id> --dry-run
-sudo -n homelab-appctl deploy <app> <channel> --target <release-id>
-homelab-appctl logs <app> <channel>
+homelab-appctl deploy my-app dev --target my-app-v1.2.3 --dry-run
+sudo -n homelab-appctl deploy my-app dev --target my-app-v1.2.3
+homelab-appctl status my-app dev
+homelab-appctl smoke my-app dev
+homelab-appctl logs my-app dev
 ```
 
-`--dry-run` performs read-only manifest download and admission validation, then
-prints exact images, migration unit, release service units, and smoke paths.
+CI (앱 레포 → 호스트 레포 dispatch): `hj-dotfiles`의 `Deploy Homelab App`
+workflow를 `workflow_dispatch`로 호출한다. 입력: `app`, `channel`, `target`.
+self-hosted runner가 위의 `sudo -n homelab-appctl deploy`를 실행한다.
 
-A real deploy:
+deploy 트랜잭션 (실패 시 자동 태그 복원):
 
-1. Rejects an invalid target or missing metadata.
-2. Acquires a host-local app/channel lock and treats a target as a no-op only
-   when the latest successful record used byte-identical admitted metadata.
-3. Downloads and validates the release manifest.
-4. Snapshots current local image ids.
-5. Pulls each admitted `image@digest` and moves only its local channel tag.
-6. Runs the declared migration once.
-7. Restarts all release-managed services in one systemd transaction. Pinned
-   dependencies such as PostgreSQL are not restarted.
-8. Runs declared Caddy-loopback smoke checks once.
-9. Publishes an `in-progress` record before image mutation, then records target,
-   metadata, images, migration, smoke, and final result under
-   `/var/lib/homelab-appctl/<app>/<channel>/`.
+1. 앱/채널 락 → 같은 target이 최신 성공 기록과 metadata까지 동일하면 no-op
+2. manifest 다운로드(HTTPS만; GitHub private release는 호스트 토큰으로 REST API 해석) → 검증
+3. 각 `name@digest` pull → 로컬 채널 태그 이동
+4. 선언된 migration oneshot 1회
+5. 릴리스 서비스 전체를 systemd 트랜잭션 1회로 restart (pinned 인프라는 건드리지 않음)
+6. Caddy-loopback smoke → 기록(`/var/lib/homelab-appctl/<app>/<channel>/`)
+7. retention: 배포 기록 최근 10개, 릴리스 이미지 name별 최근 3개 id 유지
 
-If pull, tag, or migration fails, the command records failure and restores prior
-local channel tags where applicable. If restart or smoke fails, deploy a known
-good release target. If its source hashes differ, first revert the pinned app
-input through PR/comin, then deploy that target. There is no separate rollback
-subcommand because it would create a second release authority. Image rollback
-never rolls back database migrations automatically.
+pull/tag/migration 실패는 이전 태그로 복원된다. restart/smoke 실패는 정상이었던
+target을 다시 deploy하는 것이 롤백이다(별도 rollback 부명령 없음 — 릴리스 권한을
+둘로 만들지 않기 위해). 이미지 롤백은 DB 마이그레이션을 자동으로 되돌리지 않는다.
 
-## Change and Activation Workflow
+## 새 앱 체크리스트
 
-Routine app releases whose runtime contract is unchanged do not update the Nix
-flake or rebuild NixOS. App CI publishes a release manifest and dispatches the
-host-owned deploy workflow with the release target.
+앱 레포:
+- [ ] `devops/runtime-contract.nix` (schemaVersion 2, PORT/`/data`/needs.postgres 컨벤션)
+- [ ] `devops/homelab-admission.nix` (secret 이름 매핑만)
+- [ ] CI: 이미지 push → digest로 release manifest v2 발행
+- [ ] 컨테이너가 env `PORT`에서 리슨하는지 확인
 
-When runtime intent changes:
+nix-dots:
+- [ ] flake input + `admit-app.nix` 승인 (subnetId, PG secret)
+- [ ] sops secrets 추가 (문자열만)
+- [ ] `nix flake check` → merge → comin 활성화 확인
+- [ ] 첫 배포는 `--dry-run` 먼저, 이후 실배포 + smoke
+- [ ] 데이터가 있으면 백업 대상 편입과 복원 리허설까지 끝내고 prod 승인
 
-1. Merge the app contract/admission change and publish its release manifest.
-2. App CI must not auto-deploy while any deployment source hash is not admitted.
-3. Update only the app input in `nix-dots` and review the lock diff.
-4. Run Nix evaluation and generated-runtime checks.
-5. Merge the `nix-dots` PR; let comin activate it on the homelab.
-6. Dispatch the same release target. The host now accepts its source hashes and
-   exact image digests.
+## 부록 A — 계약 v1 (레거시)
 
-Do not run ad-hoc `nixos-rebuild` from a development Mac for this GitOps host.
-Local work proves evaluation; the PR, CI, and comin path owns activation.
+deopjib이 이관(Phase 3) 전까지 사용하는 구 형식. 차이점:
 
-Focused local validation while developing both repositories:
+- `schemaVersion` 없음(=1). release manifest는 `schemaVersion: 1`이며
+  `sourceRev`와 `deploymentContract`의 소스 해시 4종
+  (runtime/admission/schema/generator)이 admission 메타데이터와 일치해야 한다.
+- 승인 시 `builtins.hashFile`로 4종 해시를 계산해 붙인다
+  (`systems/homelab/app-admissions.nix`의 deopjib 항목 참고).
+- db를 계약 안의 `pinned-digest` 서비스로 직접 운영한다.
+- 런타임 의도가 바뀌면: 앱 계약 merge → nix-dots input 범프 merge → comin 활성화
+  → 그 다음에야 새 해시의 release가 배포된다.
 
-```sh
-nix fmt --override-input myApp path:/absolute/path/to/app
-nix flake check --all-systems --no-build --show-trace --no-write-lock-file \
-  --override-input myApp path:/absolute/path/to/app
-```
-
-The Linux-only checks build in CI. They execute the app-owned manifest producer,
-negative admission cases, the generated appctl dry-run, a stubbed full deploy
-transaction including failure recovery and concurrent calls, and Quadlet
-dependencies/readiness. Release deployment must exclude the pinned database
-service.
-
-## New App Checklist
-
-- Add a pure app-owned runtime contract and structured admission request.
-- Use exact digests for independently pinned stateful dependencies.
-- Declare service dependencies and readiness in the contract, not in shell
-  sleeps.
-- Keep secret values in sops and ports loopback-only.
-- Import the admission from one pinned flake input.
-- Verify generated metadata, Quadlet, Caddy, and migration units.
-- Publish an immutable release manifest for manual services.
-- Use the generic host workflow and `homelab-appctl`; do not add per-app SSH or
-  systemd scripts.
-- Prove backup/restore and decide data-retention semantics before production
-  admission.
+v1 관련 상세가 필요하면 git 히스토리의 이 파일 이전 버전을 참고.

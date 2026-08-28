@@ -23,17 +23,20 @@ jobs:
       - name: Evaluate root flake outputs
         run: nix flake check --all-systems --no-build --show-trace
 
-      - name: Check homelab deploy invariants
-        run: nix build .#checks.x86_64-linux.homelab-appctl-deploy-invariants --show-trace
+      - name: Build homelab-appctl (unit + stub E2E tests)
+        run: nix build .#checks.x86_64-linux.homelab-appctl-package --show-trace
 
       - name: Check homelab Quadlet lifecycle
         run: nix build .#checks.x86_64-linux.homelab-quadlet-lifecycle-invariants --show-trace
 
+      - name: Check homelab contract v2 invariants
+        run: nix build .#checks.x86_64-linux.homelab-contract-v2-invariants --show-trace
+
       - name: Check homelab release dry-run
         run: nix build .#checks.x86_64-linux.homelab-appctl-release-dry-run --show-trace
 
-      - name: Check homelab release transaction
-        run: nix build .#checks.x86_64-linux.homelab-appctl-release-transaction --show-trace
+      - name: Check sops secrets are strings
+        run: nix build .#checks.x86_64-linux.sops-secrets-are-strings --show-trace
 
       - name: Check root formatting
         run: nix build .#checks.x86_64-linux.formatting --show-trace
