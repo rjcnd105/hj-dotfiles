@@ -73,8 +73,10 @@ in
         environment = {
           LISTEN = "127.0.0.1:${toString agentPort}";
           HUB_URL = "http://127.0.0.1:${toString hubPort}";
+          # %d = LoadCredential 디렉토리. secret 값이 유닛 파일에 남지 않는다.
           KEY_FILE = "%d/agent-key";
           TOKEN_FILE = "%d/agent-token";
+          DATA_DIR = "/var/lib/beszel-agent";
           # Podman docker-호환 소켓 — 컨테이너별 지표.
           DOCKER_HOST = "unix:///run/docker.sock";
         };
@@ -84,7 +86,6 @@ in
           ProtectSystem = "strict";
           ProtectHome = true;
           StateDirectory = "beszel-agent";
-          Environment = [ "DATA_DIR=/var/lib/beszel-agent" ];
           LoadCredential = [
             "agent-key:${config.sops.secrets.BESZEL_AGENT_KEY.path}"
             "agent-token:${config.sops.secrets.BESZEL_AGENT_TOKEN.path}"
