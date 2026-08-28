@@ -8,6 +8,7 @@
     ./podman-dns-lifecycle.nix
     ./app-containers.nix
     ./app-admissions.nix
+    ./postgres.nix
     ./github-actions-runner.nix
     ./thermal-alert.nix
     ./operator.nix
