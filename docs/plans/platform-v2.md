@@ -49,10 +49,20 @@ db(8테이블)와 일치. comin 훅은 성공 시 debug 로그만 남기므로 j
 
 ## Phase 2 — appctl v2 (Go)
 
-- [ ] `packages/homelab-appctl/`: deploy 트랜잭션 + retention(이미지 최근 K digest, 기록 최근 N개)
-- [ ] manifest v2 스키마 `{app, target, images{name,digest}}` + 앱 레포 generator 단순화
-- [ ] Go 단위 테스트 + 축소 E2E 스텁 1개
+- [x] `packages/homelab-appctl/`: deploy 트랜잭션 + retention(이미지 최근 3 id, 기록 최근 10개)
+- [x] manifest v2 스키마 `{app, target, images{name,digest}}` + 앱 레포 generator 단순화
+      (호스트 검증 + 가이드 완료 — v2는 jq 한 줄이면 manifest 생성, 전용 generator 불필요.
+      deopjib 앱 레포 적용은 Phase 3 이관과 함께)
+- [x] Go 단위 테스트 + 축소 E2E 스텁 1개 (buildGoModule checkPhase에서 실행)
 - 검증: dry-run 출력 계약 테스트 → dev 실배포 1회.
+
+2026-08-28 구현 완료. Go(stdlib 전용) 재작성: argv ABI·metadata JSON·record 경로·sudo
+rule·dry-run 출력 계약 유지, v1(해시)·v2(digest-only) manifest 겸용 검증. 실제 deopjib
+metadata로 dry-run 수락/변조 4종 거부 로컬 실측. bash 전용 check
+2종(deploy-invariants grep, release-transaction)은 go test로 대체(Phase 5의
+grep-invariants 삭제 항목 선반영). 배포 가이드를 v2 self-service 문서로 전면 개정
+(앱 레포가 가이드만 보고 배포 가능해야 한다는 요구 반영). dev 실배포 1회 검증은
+머지 후 수행.
 
 ## Phase 3 — deopjib v2 이관 (다운타임 윈도우)
 
