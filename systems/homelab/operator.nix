@@ -20,6 +20,7 @@
             "/run/current-system/sw/bin/homelab-appctl *"
             "/run/current-system/sw/bin/nix-collect-garbage *"
             "/run/current-system/sw/bin/btrfs *"
+            "/run/current-system/sw/bin/restic-homelab *"
           ];
     }
   ];
