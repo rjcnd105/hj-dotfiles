@@ -205,6 +205,21 @@
             ;
         };
 
+      # sops 암호문은 값 타입을 평문 마커(type:int 등)로 노출한다. sops-install-secrets는
+      # 문자열만 허용하므로 비문자열 타입은 다음 switch를 죽인다 — 복호화 없이 조기 검출.
+      sopsSecretsAreStrings =
+        system:
+        let
+          pkgs = pkgsFor system;
+        in
+        pkgs.runCommand "sops-secrets-are-strings" { } ''
+          if ${pkgs.gnugrep}/bin/grep -rnE 'type:(int|bool|float)\]' ${./secrets}; then
+            echo 'sops secrets must be strings: re-quote the offending value via sops set' >&2
+            exit 1
+          fi
+          touch "$out"
+        '';
+
       homelabAppctlDeployInvariants =
         system:
         let
@@ -685,6 +700,7 @@
             formatting = treefmtEval.${system}.config.build.check self;
             homelab-appctl-deploy-invariants = homelabAppctlDeployInvariants system;
             homelab-thermal-alert-smoke = homelabThermalAlertSmoke system;
+            sops-secrets-are-strings = sopsSecretsAreStrings system;
           });
         in
         lib.recursiveUpdate baseChecks {
