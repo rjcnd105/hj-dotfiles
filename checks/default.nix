@@ -393,6 +393,40 @@ let
     pkgs.runCommand "homelab-contract-v2-invariants" { inherit fixtureToplevel; } ''
       touch "$out"
     '';
+
+  # systemd 유닛의 ExecStart 실행 파일이 실제로 존재하는지 확인한다. Nix는 잘못된
+  # 바이너리 이름을 store 경로 문자열로 그대로 통과시키고, 호스트에서 status=203/EXEC로
+  # 터진다 (Phase 4 beszel `bin/beszel` vs `bin/beszel-hub`에서 실측).
+  homelabUnitExecutablesExist =
+    let
+      pkgs = pkgsFor "x86_64-linux";
+      homelab = self.nixosConfigurations.homelab_hj.config;
+      # ExecStart는 문자열/문자열 목록이며 `-`, `@`, `+` 등 접두 문자가 붙을 수 있다.
+      execPath =
+        entry:
+        builtins.head (
+          lib.splitString " " (
+            lib.removePrefix "+" (lib.removePrefix "@" (lib.removePrefix "-" (toString entry)))
+          )
+        );
+      execStarts = lib.flatten (
+        lib.mapAttrsToList (_name: unit: map execPath (lib.toList unit.serviceConfig.ExecStart)) (
+          lib.filterAttrs (_: unit: (unit.serviceConfig.ExecStart or null) != null) homelab.systemd.services
+        )
+      );
+      paths = lib.unique (builtins.filter (path: lib.hasPrefix builtins.storeDir path) execStarts);
+    in
+    pkgs.runCommand "homelab-unit-executables-exist" { inherit paths; } ''
+      status=0
+      for path in $paths; do
+        if [ ! -x "$path" ]; then
+          echo "ExecStart target is missing or not executable: $path" >&2
+          status=1
+        fi
+      done
+      [ "$status" -eq 0 ] || exit 1
+      touch "$out"
+    '';
 in
 lib.recursiveUpdate
   (eachSystem (system: {
@@ -408,4 +442,5 @@ lib.recursiveUpdate
     x86_64-linux.homelab-appctl-release-dry-run = homelabAppctlReleaseDryRun;
     x86_64-linux.homelab-quadlet-lifecycle-invariants = homelabQuadletLifecycleInvariants;
     x86_64-linux.homelab-contract-v2-invariants = homelabContractV2Invariants;
+    x86_64-linux.homelab-unit-executables-exist = homelabUnitExecutablesExist;
   }

@@ -34,7 +34,7 @@ in
         after = [ "network-online.target" ];
         environment.BESZEL_HUB_APP_URL = "https://${domain}";
         serviceConfig = {
-          ExecStart = "${pkgs.beszel}/bin/beszel serve --http 127.0.0.1:${toString hubPort}";
+          ExecStart = "${pkgs.beszel}/bin/beszel-hub serve --http 127.0.0.1:${toString hubPort}";
           DynamicUser = true;
           StateDirectory = "beszel-hub";
           WorkingDirectory = "/var/lib/beszel-hub";
