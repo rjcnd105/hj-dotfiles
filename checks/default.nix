@@ -21,34 +21,34 @@ let
       metadata = pkgs.writeText "deopjib-dev-metadata.json" (
         homelab.environment.etc."homelab-apps/deopjib/dev.json".text
       );
+      # v2 manifest는 jq로 직접 생성한다 (앱 레포 CI와 같은 방식; 전용 generator 없음).
       releaseManifest =
         pkgs.runCommand "deopjib-release-manifest-fixture"
           {
             nativeBuildInputs = [
               pkgs.check-jsonschema
-              pkgs.coreutils
               pkgs.jq
             ];
           }
           ''
-            ${pkgs.bash}/bin/bash ${inputs.deopjibRuntime}/scripts/deopjib-generate-release-manifest \
-              --version 0.0.0-dev.0000000 \
-              --source-rev 0000000000000000000000000000000000000000 \
-              --backend-name ghcr.io/rjcnd105/deopjib-backend \
-              --backend-tag 0000000000000000000000000000000000000000 \
-              --backend-digest sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa \
-              --backend-status changed \
-              --web-name ghcr.io/rjcnd105/deopjib-web \
-              --web-tag 0000000000000000000000000000000000000000 \
-              --web-digest sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb \
-              --web-status changed \
-              --deployment-contract-status changed \
-            --runtime-contract-source ${inputs.deopjibRuntime}/deopjib/devops/runtime-contract.nix \
-            --homelab-admission-source ${inputs.deopjibRuntime}/deopjib/devops/homelab-admission.nix \
-            --manifest-schema-source ${inputs.deopjibRuntime}/deopjib/devops/release-manifest.schema.json \
-            --manifest-generator-source ${inputs.deopjibRuntime}/scripts/deopjib-generate-release-manifest \
-              --generated-at 2026-07-20T00:00:00Z \
-              --output "$out"
+            jq -n '{
+              schemaVersion: 2,
+              app: "deopjib",
+              target: "deopjib-v0.0.0-dev.0000000",
+              version: "0.0.0-dev.0000000",
+              sourceRev: "0000000000000000000000000000000000000000",
+              generatedAt: "2026-07-20T00:00:00Z",
+              images: {
+                backend: {
+                  name: "ghcr.io/rjcnd105/deopjib-backend",
+                  digest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                },
+                web: {
+                  name: "ghcr.io/rjcnd105/deopjib-web",
+                  digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                }
+              }
+            }' > "$out"
             check-jsonschema \
               --schemafile ${inputs.deopjibRuntime}/deopjib/devops/release-manifest.schema.json \
               "$out"
@@ -142,14 +142,11 @@ let
           fi
         }
 
-        expect_rejected schema-version '.schemaVersion = 2'
+        expect_rejected schema-version '.schemaVersion = 1'
         expect_rejected target '.target = "deopjib-v0.0.0-dev.1111111"'
-        expect_rejected runtime-hash '.deploymentContract.runtimeSourceSha256 = ("0" * 64)'
-        expect_rejected admission-hash '.deploymentContract.admissionSourceSha256 = ("0" * 64)'
-        expect_rejected schema-hash '.deploymentContract.schemaSourceSha256 = ("0" * 64)'
-        expect_rejected generator-hash '.deploymentContract.generatorSourceSha256 = ("0" * 64)'
         expect_rejected backend-name '.images.backend.name = "ghcr.io/rjcnd105/not-admitted"'
         expect_rejected backend-digest '.images.backend.digest = "sha256:not-a-digest"'
+        expect_rejected missing-image 'del(.images.web)'
 
         cp dry-run.out "$out"
       '';
@@ -165,14 +162,12 @@ let
       dnsLifecycleUnit = homelab.systemd.services.podman-dns-lifecycle;
       expectedDnsLifecycleMembers = [
         "deopjib-dev-backend.service"
-        "deopjib-dev-db.service"
         "deopjib-dev-network.service"
         "deopjib-dev-web.service"
       ];
       podman = homelab.virtualisation.podman.package;
       pkgs = pkgsFor "x86_64-linux";
       backendContainer = quadlet.containers.deopjib-dev-backend;
-      dbContainer = quadlet.containers.deopjib-dev-db;
       deopjibImages = lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.images;
       networkText = builtins.unsafeDiscardStringContext network._configText;
       podmanPath = builtins.unsafeDiscardStringContext "${podman}";
@@ -197,15 +192,15 @@ let
     assert network.networkConfig.name == "deopjib-dev";
     assert network.networkConfig.interfaceName == "br-deopjib-dev";
     assert builtins.elem 53 homelab.networking.firewall.interfaces.br-deopjib-dev.allowedUDPPorts;
-    assert builtins.attrNames deopjibImages == [ "deopjib-dev-db" ];
+    # v2: 컨테이너 db 없음 — 공유 호스트 PostgreSQL에 systemd 의존성으로 연결.
+    assert builtins.attrNames deopjibImages == [ ];
+    assert !(quadlet.containers ? deopjib-dev-db);
     assert backendContainer.containerConfig.image == "ghcr.io/rjcnd105/deopjib-backend:dev-current";
     assert backendContainer.containerConfig.pull == "never";
-    assert builtins.elem "deopjib-dev-db.service" backendContainer.unitConfig.Requires;
-    assert builtins.elem "deopjib-dev-db.service" backendContainer.unitConfig.After;
-    assert dbContainer.containerConfig.notify == "healthy";
-    assert dbContainer.containerConfig.healthInterval == "1s";
-    assert dbContainer.containerConfig.healthRetries == 30;
-    assert dbContainer.containerConfig.healthTimeout == "5s";
+    assert builtins.elem "postgresql.service" backendContainer.unitConfig.Requires;
+    assert builtins.elem "postgresql.service" backendContainer.unitConfig.After;
+    assert builtins.elem "homelab-postgres-credentials.service" backendContainer.unitConfig.After;
+    assert builtins.elem "deopjib_dev" homelab.services.postgresql.ensureDatabases;
     assert builtins.all (
       container:
       builtins.elem networkService container.unitConfig.PartOf
@@ -226,9 +221,12 @@ let
       ${pkgs.gnugrep}/bin/grep -F '${dnsLifecycleService}' generated-units.txt >/dev/null
       ${pkgs.gnugrep}/bin/grep -F 'Requires=${networkService}' generated-units.txt >/dev/null
       ${pkgs.gnugrep}/bin/grep -F 'After=${networkService}' generated-units.txt >/dev/null
-      ${pkgs.gnugrep}/bin/grep -F 'Requires=deopjib-dev-db.service' generated-units.txt >/dev/null
-      ${pkgs.gnugrep}/bin/grep -F 'Notify=healthy' generated-units.txt >/dev/null
-      ${pkgs.gnugrep}/bin/grep -F 'HealthInterval=1s' generated-units.txt >/dev/null
+      ${pkgs.gnugrep}/bin/grep -F 'Requires=postgresql.service' generated-units.txt >/dev/null
+      ${pkgs.gnugrep}/bin/grep -F 'After=homelab-postgres-credentials.service' generated-units.txt >/dev/null
+      if ${pkgs.gnugrep}/bin/grep -F 'deopjib-dev-db' generated-units.txt >/dev/null; then
+        echo 'v2 units must not reference the removed container database' >&2
+        exit 1
+      fi
       ${pkgs.gnugrep}/bin/grep -F 'ExecStop=${podman}/bin/podman network rm deopjib-dev' generated-units.txt >/dev/null
       ${pkgs.gnugrep}/bin/grep -F -- '--interface-name br-deopjib-dev' generated-units.txt >/dev/null
 
@@ -388,6 +386,10 @@ let
     assert builtins.elem 5432 fixture.networking.firewall.interfaces.br-example-dev.allowedTCPPorts;
     assert fixture.virtualisation.quadlet.containers ? example-dev-app;
     assert !(fixture.virtualisation.quadlet.containers ? example-dev-db);
+    assert builtins.elem "postgresql.service"
+      fixture.virtualisation.quadlet.containers.example-dev-app.unitConfig.Requires;
+    assert builtins.elem "homelab-postgres-credentials.service"
+      fixture.virtualisation.quadlet.containers.example-dev-app.unitConfig.After;
     pkgs.runCommand "homelab-contract-v2-invariants" { inherit fixtureToplevel; } ''
       touch "$out"
     '';
