@@ -20,12 +20,18 @@
 
 ## Phase 0 — 운영권 + 안전망
 
-- [ ] 0.1 `operator.nix`: hj NOPASSWD 허용목록 (systemctl/journalctl/podman/appctl/nix-collect-garbage/btrfs)
-- [ ] 0.2 comin `postDeploymentCommand` → Telegram 알림 (thermal-alert 배관 재사용)
-- [ ] 0.3 `nix.gc.automatic` + `nix.optimise.automatic`
-- [ ] 0.4 백업: 컨테이너 PG pg_dump 타이머 + restic→R2. **복원 리허설까지가 완료 기준.**
+- [x] 0.1 `operator.nix`: hj NOPASSWD 허용목록 (systemctl/journalctl/podman/appctl/nix-collect-garbage/btrfs)
+- [x] 0.2 comin `postDeploymentCommand` → Telegram 알림 (thermal-alert 배관 재사용)
+- [x] 0.3 `nix.gc.automatic` + `nix.optimise.automatic`
+- [x] 0.4 백업: 컨테이너 PG pg_dump 타이머 + restic→R2. **복원 리허설까지가 완료 기준.**
       (사용자 액션: R2 버킷 + API 토큰 생성 → sops 추가. 토큰 없이 restic 모듈을 먼저
       merge하지 말 것 — sops-install-secrets는 누락 키에서 switch를 죽인다.)
+
+2026-08-28 완료. 검증: 첫 스냅샷 `3e36343d`(28KiB) 저장·retention 7d/4w 적용, R2에서
+`restic dump`로 꺼내 동일 digest postgres 컨테이너에 복원 — 8테이블/약 937행으로 라이브
+db(8테이블)와 일치. comin 훅은 성공 시 debug 로그만 남기므로 journal이 조용한 것이 정상
+(실패 시에만 error 로그). 수동 리허설 편의를 위해 `restic-homelab` wrapper를 sudo
+허용목록에 추가.
 
 ## Phase 1 — 플랫폼 v2: 계약·렌더러
 
