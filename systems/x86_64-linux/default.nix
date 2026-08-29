@@ -6,6 +6,9 @@
 {
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  # comin GitOps는 main push마다 세대를 만든다. 상한이 없으면 커널/initrd가
+  # /boot(487M)를 채운다 — nix.gc 주기와 무관하게 부팅 엔트리를 직접 제한한다.
+  boot.loader.systemd-boot.configurationLimit = 10;
 
   networking.firewall = {
     enable = true;

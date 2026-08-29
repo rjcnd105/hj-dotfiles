@@ -30,7 +30,7 @@
 
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
 
-    deopjibRuntime = {
+    deopjibApp = {
       url = "github:rjcnd105/my-app";
       flake = false;
     };
@@ -48,7 +48,7 @@
       sops-nix,
       comin,
       quadlet-nix,
-      deopjibRuntime,
+      deopjibApp,
     }:
     let
       # 형태는 ${host}_${username}

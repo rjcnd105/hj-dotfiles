@@ -53,12 +53,12 @@ let
 in
 {
   schemaVersion = 2;
-  name = "my-app"; # ^[a-z0-9][a-z0-9-]*$; "br-<name>-<channel>"이 15자 이하여야 함
+  name = "example"; # ^[a-z0-9][a-z0-9-]*$; "br-<name>-<channel>"이 15자 이하여야 함
   inherit channel;
 
   needs.postgres = true; # DB가 필요 없으면 생략
 
-  images.app = "ghcr.io/OWNER/my-app:${imageTag}";
+  images.app = "ghcr.io/OWNER/example-app:${imageTag}";
 
   services.app = {
     image = "app"; # images의 키
@@ -89,10 +89,10 @@ in
   # migrations = { mode = "manual"; service = "app"; command = [ "/app/bin/migrate" ]; };
 
   release = {
-    manifestUrl = "https://github.com/OWNER/my-app/releases/download/{target}/release.json";
+    manifestUrl = "https://github.com/OWNER/example-app/releases/download/{target}/release.json";
     channels.${channel} = {
       tag = imageTag;
-      targetPattern = "^my-app-v.*$"; # ^…$ 앵커 필수
+      targetPattern = "^example-v.*$"; # ^…$ 앵커 필수
       smokePaths = [ "/health" ];
       # migrate = "manual";  # migrations.mode = manual일 때
     };
@@ -120,17 +120,17 @@ let
   runtimeContract = ./runtime-contract.nix;
 in
 {
-  key = "my-app";
+  key = "example";
   app = {
     enable = true;
     contract = import runtimeContract {
       channel = "dev";
-      domain = "dev.my-app.example";
+      domain = "dev.example.test";
     };
     host = {
-      domain = "dev.my-app.example";
+      domain = "dev.example.test";
       loopbackPortBase = 18300; # 호스트에서 비어 있는 대역 (nix-dots가 확인)
-      secretMap.MY_SECRET = "MY_APP_DEV_MY_SECRET"; # 계약 env 이름 → sops secret 이름
+      secretMap.MY_SECRET = "EXAMPLE_DEV_MY_SECRET"; # 계약 env 이름 → sops secret 이름
       volumes.data = { };
     };
   };
@@ -147,11 +147,11 @@ secret **값**은 절대 앱 레포에 두지 않는다. 이름만 매핑하면 
 ```json
 {
   "schemaVersion": 2,
-  "app": "my-app",
-  "target": "my-app-v1.2.3",
+  "app": "example",
+  "target": "example-v1.2.3",
   "images": {
     "app": {
-      "name": "ghcr.io/OWNER/my-app",
+      "name": "ghcr.io/OWNER/example-app",
       "digest": "sha256:<64 lowercase hex>"
     }
   }
@@ -164,10 +164,10 @@ secret **값**은 절대 앱 레포에 두지 않는다. 이름만 매핑하면 
   번이면 된다:
 
 ```sh
-digest=$(docker buildx imagetools inspect "ghcr.io/OWNER/my-app:${TAG}" --format '{{json .Manifest}}' | jq -r .digest)
-jq -n --arg app my-app --arg target "my-app-v${VERSION}" --arg name ghcr.io/OWNER/my-app --arg digest "$digest" \
+digest=$(docker buildx imagetools inspect "ghcr.io/OWNER/example-app:${TAG}" --format '{{json .Manifest}}' | jq -r .digest)
+jq -n --arg app example --arg target "example-v${VERSION}" --arg name ghcr.io/OWNER/example-app --arg digest "$digest" \
   '{schemaVersion: 2, app: $app, target: $target, images: {app: {name: $name, digest: $digest}}}' > release.json
-gh release upload "my-app-v${VERSION}" release.json
+gh release upload "example-v${VERSION}" release.json
 ```
 
 `target`은 계약의 `targetPattern`과 일치해야 한다. 추가 필드(version, sourceRev
@@ -183,10 +183,10 @@ gh release upload "my-app-v${VERSION}" release.json
 ```nix
 homelab.apps = import ./admit-app.nix {
   admission = import "${inputs.myApp}/devops/homelab-admission.nix";
-  releaseManifestOrigins = [ "https://github.com/OWNER/my-app" ];
+  releaseManifestOrigins = [ "https://github.com/OWNER/example-app" ];
   host = {
     subnetId = 8; # 10.90.<id>.0/24 — 앱별 유일
-    postgresPasswordSecret = "MY_APP_DEV_PG_PASSWORD"; # needs.postgres일 때
+    postgresPasswordSecret = "EXAMPLE_DEV_PG_PASSWORD"; # needs.postgres일 때
   };
 };
 ```
@@ -205,11 +205,11 @@ homelab.apps = import ./admit-app.nix {
 
 ```sh
 homelab-appctl list
-homelab-appctl deploy my-app dev --target my-app-v1.2.3 --dry-run
-sudo -n homelab-appctl deploy my-app dev --target my-app-v1.2.3
-homelab-appctl status my-app dev
-homelab-appctl smoke my-app dev
-homelab-appctl logs my-app dev
+homelab-appctl deploy example dev --target example-v1.2.3 --dry-run
+sudo -n homelab-appctl deploy example dev --target example-v1.2.3
+homelab-appctl status example dev
+homelab-appctl smoke example dev
+homelab-appctl logs example dev
 ```
 
 CI (앱 레포 → 호스트 레포 dispatch): `hj-dotfiles`의 `Deploy Homelab App`
