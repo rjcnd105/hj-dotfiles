@@ -43,7 +43,7 @@
         "type": "github"
       }
     },
-    "deopjibRuntime": {
+    "deopjibApp": {
       "flake": false,
       "locked": {
         "lastModified": 1787898502,
@@ -163,7 +163,7 @@
       "inputs": {
         "comin": "comin",
         "darwin": "darwin",
-        "deopjibRuntime": "deopjibRuntime",
+        "deopjibApp": "deopjibApp",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs_2",
         "nixpkgsPwgen": "nixpkgsPwgen",

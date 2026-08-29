@@ -50,7 +50,7 @@ let
               }
             }' > "$out"
             check-jsonschema \
-              --schemafile ${inputs.deopjibRuntime}/deopjib/devops/release-manifest.schema.json \
+              --schemafile ${inputs.deopjibApp}/deopjib/devops/release-manifest.schema.json \
               "$out"
           '';
     in
@@ -350,6 +350,7 @@ let
       ./fixtures/fixture-host.nix
       {
         homelab.apps = import ../systems/homelab/admit-app.nix {
+          inherit lib;
           admission = import ./fixtures/example/homelab-admission.nix;
           releaseManifestOrigins = [ "https://github.com/example/example" ];
           host = {

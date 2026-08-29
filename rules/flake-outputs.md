@@ -57,7 +57,7 @@ nix flake update
 Good targeted lock update:
 
 ```sh
-nix flake lock --update-input deopjibRuntime
+nix flake lock --update-input deopjibApp
 ```
 
 Bad local reference:

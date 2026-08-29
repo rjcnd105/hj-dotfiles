@@ -105,8 +105,23 @@ vhost(18090) → hub. Cloudflare Access 앱/이메일 정책은 CF API로 생성
 
 ## Phase 5 — 문서·네이밍
 
-- [ ] 가이드 재작성: placeholder `example-app`으로 (실레포 `my-app`과 충돌 해소), 자격증명 표, 컨벤션 문서화
-- [ ] `deopjibRuntime` input 이름 정리, grep-invariants check 삭제
+- [x] 가이드 placeholder 정리: 실레포 `my-app`과의 충돌 해소. 계약 `name`은 `example`
+      (브리지 `br-<name>-<channel>` 15자 제약을 예시 자신이 지키도록), 레포/이미지는
+      `example-app`, 도메인은 `dev.example.test`. appctl argv·jq 예시까지 계약과 일치.
+- [x] `deopjibRuntime` → `deopjibApp` (input은 계약뿐 아니라 앱 레포 전체다), grep-invariants
+      check 삭제(Phase 2에서 선반영)
+
+`/nixos-managing` 기준 점검에서 함께 수정한 것:
+
+- `boot.loader.systemd-boot.configurationLimit = 10` — comin이 main push마다 세대를 만드는데
+  상한이 없었다(/boot 487M, 엔트리 13개). nix.gc 주기와 무관하게 부팅 엔트리를 직접 제한.
+- `admit-app.nix`가 호스트 정책을 `//`로 얹어 `host.volumes`/`secretMap` 같은 중첩 속성을
+  통째로 덮어쓸 수 있었다 → `lib.recursiveUpdate`.
+
+점검했으나 문제 없음: Nix 언어 안티패턴 0건(`rec`/파일스코프 `with pkgs;`/`<nixpkgs>`/
+`config = if`), sops 외 비밀 리터럴 없음(CI 검사 존재), `stateVersion` 고정, SSH 하드닝
+(`PasswordAuthentication=false`, `PermitRootLogin=no`), `nix.gc`+`nix.optimise` 활성,
+공유 input `follows` 정리됨(중복 nixpkgs는 의도된 `nixpkgsPwgen` 핀 1건).
 
 ## 원칙
 
