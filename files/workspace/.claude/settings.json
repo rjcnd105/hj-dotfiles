@@ -32,6 +32,9 @@
     "defaultMode": "auto"
   },
   "model": "claude-fable-5",
+  "fallbackModel": [
+    "claude-opus-5"
+  ],
   "enabledMcpjsonServers": [
     "chrome-devtools",
     "context7",
