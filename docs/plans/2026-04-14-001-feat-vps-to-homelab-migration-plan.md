@@ -646,7 +646,7 @@ Phase A는 VPS와 병행 가능. 문제 발견 시 Phase A만 되돌리면 VPS�
 
 **P0-1: 공개 저장소 OPSEC 노출 (이미 commit됨)**
 
-- **발견**: `docs/guides/iptime-ssh-port-forwarding.md:61`의 `ssh -p 2323` 예시 + 이 플랜/ideation 문서의 "iptime DDNS + 비표준 포트" 서술이 `feedback_security_in_public_docs.md` 원칙에 위배
+- **발견**: `docs/guides/iptime-ssh-port-forwarding.md`의 실제 외부 포트 예시 + 이 플랜/ideation 문서의 "iptime DDNS + 비표준 포트" 서술이 `feedback_security_in_public_docs.md` 원칙에 위배 (해당 가이드는 2026-08-29 SSH 무차별 대입 사건 후 접근법 자체가 폐기되어 삭제됨 — docs/solutions/security-issues/ 참고)
 - **임팩트**: `*.iptime.org` 브루트포스의 단서 공개, `feat/vps-to-homelab-migration` 작업과 독립된 선재적 보안 이슈
 - **렌즈**: security
 - **status**: `out-of-plan` — git history 정리는 별도 분기 작업으로 처리. 이 플랜에서는 새로 추가되는 서술에 민감정보 금지 원칙만 준수
