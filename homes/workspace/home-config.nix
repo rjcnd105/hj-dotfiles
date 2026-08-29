@@ -72,6 +72,7 @@ in
       pwgen # 패스워드 생성
       # fastfetch # 빠른 fetch
       curl # 다운로드
+      cloudflared # homelab SSH 접속 (CF Access ProxyCommand)
       # procs
       gping # ping 대체, 그래프 표시 기능
       dua # 디스크 사용량

@@ -19,6 +19,9 @@
     enable = true;
     settings = {
       PasswordAuthentication = false;
+      # PasswordAuthentication=no만으로는 PAM 경유 keyboard-interactive 비밀번호
+      # 경로가 남는다 — 무차별 대입 로그의 "Failed keyboard-interactive/pam"이 그 증거.
+      KbdInteractiveAuthentication = false;
       PermitRootLogin = "no";
     };
   };
