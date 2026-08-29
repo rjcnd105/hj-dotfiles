@@ -87,10 +87,21 @@ postgresql-setup(ensureUsers) 이전에 실행되어 ALTER ROLE이 조용히 실
 
 ## Phase 4 — 모니터링
 
-- [ ] beszel-agent 네이티브 + podman 소켓 (컨테이너별 지표)
-- [ ] beszel hub — 플랫폼 서드파티 레인, Caddy + cloudflared + Cloudflare Access
+- [x] beszel-agent 네이티브 + podman 소켓 (컨테이너별 지표)
+- [x] beszel hub — **nixpkgs 네이티브**(계획서의 pinned-digest 컨테이너 대신; 사용자 확정),
+      Caddy + cloudflared + Cloudflare Access
 - [ ] llama-server UI/`/slots` 라우트
 - 비목표: GPU 지표 (gfx1150 iGPU는 rocm-smi 미지원).
+
+2026-08-28. `systems/homelab/beszel.nix`: hub(loopback 18091) + agent(loopback 45876,
+`DOCKER_HOST=/run/docker.sock`), 노출은 `beszel.deopjib.site` → cloudflared → Caddy
+vhost(18090) → hub. Cloudflare Access 앱/이메일 정책은 CF API로 생성
+(`CLOUDFLARE_ACCESS_APPS_TOKEN`, workspace sops). 실측 결함 2건:
+
+1. 패키지 실행 파일은 `bin/beszel-hub`(≠`bin/beszel`) — `203/EXEC` 재시작 루프.
+   `homelab-unit-executables-exist` check 추가로 이 클래스를 CI에서 차단.
+2. 새 sops secret과 소비 서비스를 같은 switch에 넣어 `243/CREDENTIALS`로 switch 실패
+   (status 4). secret은 소비 서비스보다 **한 배포 먼저** 올려야 한다.
 
 ## Phase 5 — 문서·네이밍
 
