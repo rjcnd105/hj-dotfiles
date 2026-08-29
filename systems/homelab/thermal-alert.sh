@@ -9,9 +9,15 @@ telegram_chat_id="$(cat "$credential_dir/telegram-chat-id")"
 # Telegram.
 threshold_millic="${THERMAL_ALERT_THRESHOLD_MILLIC:-85000}"
 cooldown_seconds="${THERMAL_ALERT_COOLDOWN_SECONDS:-1800}"
+# Require the threshold to be breached on this many consecutive timer runs before
+# alerting. The timer fires every minute, so the default filters out momentary
+# single-core boosts (a few seconds of high Tctl) and only reports temperatures
+# that stay high for ~3 minutes.
+consecutive_required="${THERMAL_ALERT_CONSECUTIVE:-3}"
 state_dir="${STATE_DIRECTORY:-/var/lib/homelab-thermal-alert}"
 runtime_dir="${RUNTIME_DIRECTORY:-$state_dir}"
 last_alert_file="$state_dir/last-alert-epoch"
+breach_file="$state_dir/breach-count"
 hwmon_root="${HWMON_ROOT:-/sys/class/hwmon}"
 proc_root="${PROC_ROOT:-/proc}"
 curl_bin="${CURL_BIN:-curl}"
@@ -57,6 +63,29 @@ temp_c=$((max_temp / 1000))
 temp_dec=$(((max_temp % 1000) / 100))
 
 if [ "$max_temp" -lt "$threshold_millic" ]; then
+  # Temperature is fine now: clear the streak so a later isolated spike starts
+  # counting from zero rather than inheriting an old partial breach.
+  rm -f "$breach_file" 2>/dev/null || true
+  exit 0
+fi
+
+# At/above threshold: extend the consecutive-breach streak and hold off until it
+# reaches the required length. This is what turns a one-shot boost spike into a
+# non-event while still catching sustained overheating.
+breach=0
+if [ -r "$breach_file" ]; then
+  breach="$(cat "$breach_file" 2>/dev/null || echo 0)"
+fi
+case "$breach" in
+  "" | *[!0-9]*) breach=0 ;;
+esac
+breach=$((breach + 1))
+
+breach_tmp="$state_dir/breach-count.$$"
+printf '%s\n' "$breach" > "$breach_tmp"
+mv -f "$breach_tmp" "$breach_file"
+
+if [ "$breach" -lt "$consecutive_required" ]; then
   exit 0
 fi
 

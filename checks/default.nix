@@ -288,6 +288,7 @@ let
         RUNTIME_DIRECTORY="$work/runtime" \
         CURL_BIN="$work/bin/curl" \
         PS_BIN="$work/bin/ps" \
+        THERMAL_ALERT_CONSECUTIVE="''${THERMAL_ALERT_CONSECUTIVE:-1}" \
         NOW_EPOCH="$1" \
           ${thermalAlert}/bin/homelab-thermal-alert
       }
@@ -322,6 +323,54 @@ let
       cp "$CURL_ARGV_LOG" "$work/curl-argv.first"
       run_alert 2100
       cmp "$work/curl-argv.first" "$CURL_ARGV_LOG"
+
+      # Sustained-breach requirement: a fresh streak must reach the required
+      # length before any alert. Start from clean state so the earlier cooldown
+      # timestamp does not mask the streak behavior under test.
+      rm -f "$work/state/last-alert-epoch" "$work/state/breach-count"
+      rm -f "$CURL_ARGV_LOG" "$CURL_STDIN_LOG"
+      export THERMAL_ALERT_CONSECUTIVE=3
+
+      set_sensor 90000
+      run_alert 3000
+      if [ -e "$CURL_ARGV_LOG" ]; then
+        echo "1st consecutive breach must not alert" >&2
+        exit 1
+      fi
+      test "$(cat "$work/state/breach-count")" = 1
+
+      run_alert 3060
+      if [ -e "$CURL_ARGV_LOG" ]; then
+        echo "2nd consecutive breach must not alert" >&2
+        exit 1
+      fi
+      test "$(cat "$work/state/breach-count")" = 2
+
+      run_alert 3120
+      grep -F -- '--data-urlencode' "$CURL_ARGV_LOG" >/dev/null
+      test "$(cat "$work/state/last-alert-epoch")" = 3120
+
+      # A drop below threshold resets the streak, so the next isolated spike must
+      # start counting from one again rather than alerting immediately.
+      rm -f "$work/state/last-alert-epoch"
+      rm -f "$CURL_ARGV_LOG" "$CURL_STDIN_LOG"
+      set_sensor 84999
+      run_alert 3180
+      if [ -e "$work/state/breach-count" ]; then
+        echo "sub-threshold run must clear the breach streak" >&2
+        exit 1
+      fi
+      set_sensor 90000
+      run_alert 3240
+      if [ -e "$CURL_ARGV_LOG" ]; then
+        echo "spike after reset must not alert on the first breach" >&2
+        exit 1
+      fi
+      test "$(cat "$work/state/breach-count")" = 1
+
+      unset THERMAL_ALERT_CONSECUTIVE
+      rm -f "$work/state/last-alert-epoch" "$work/state/breach-count"
+      rm -f "$CURL_ARGV_LOG" "$CURL_STDIN_LOG"
 
       rm -f "$work/hwmon/hwmon0/name" "$work/hwmon/hwmon0/temp1_label" "$work/hwmon/hwmon0/temp1_input"
       if run_alert 4000 2>"$work/no-sensor.err"; then
