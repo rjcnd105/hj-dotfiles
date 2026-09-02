@@ -164,6 +164,9 @@ let
         "deopjib-dev-backend.service"
         "deopjib-dev-network.service"
         "deopjib-dev-web.service"
+        "deopjib-prod-backend.service"
+        "deopjib-prod-network.service"
+        "deopjib-prod-web.service"
       ];
       podman = homelab.virtualisation.podman.package;
       pkgs = pkgsFor "x86_64-linux";
