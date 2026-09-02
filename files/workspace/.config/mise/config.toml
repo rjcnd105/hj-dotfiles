@@ -110,6 +110,9 @@ version = "latest"
 [tools."npm:dockerfile-language-server-nodejs"]
 version = "latest"
 
+[tools."aqua:colbymchenry/codegraph"]
+version = "latest"
+
 [tools."aqua:tamasfe/taplo"]
 version = "latest"
 
