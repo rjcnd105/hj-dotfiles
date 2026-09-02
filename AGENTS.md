@@ -19,6 +19,11 @@ macOS through nix-darwin and the homelab through NixOS. Key surfaces are:
   commands; if `VCS_KIND=git`, use Git. If `VCS_KIND` is absent, establish it
   once with `jj root >/dev/null 2>&1`.
 - Preserve unrelated dirty work. Do not revert user edits.
+- Prefer surgical edits over whole-file rewrites when the end result is the
+  same.
+- Report pre-existing bugs or improvements the task does not mention as
+  follow-ups instead of folding them into the change. Verify however you like,
+  but keep scratch scripts and one-off checks out of the repo.
 - Use `rg` / `rg --files` for search.
 - Read [rules/README.md](rules/README.md) before making non-trivial Nix,
   NixOS, flake, or homelab runtime changes.
@@ -84,6 +89,9 @@ nix flake check --all-systems --no-build --show-trace
   web search.
 - Keep source-specific claims tied to the fetched docs, and cite the source URL
   when using external documentation in a final answer.
+- Recognizing a name is not knowing its current state. For fast-moving names
+  (nixpkgs options, module APIs, CLI tools, AI models), look up current docs
+  before answering, including the name as written in at least one query.
 
 ## Nix Analysis In Codex
 
