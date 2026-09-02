@@ -52,6 +52,8 @@ dependencies:
         - diagram-design
 
     - warpdotdev/common-skills/.agents/skills/skill-doctor
+    - mattpocock/skills/skills/engineering/domain-modeling
+    - mattpocock/skills/skills/productivity/grilling
   mcp:
     - name: chrome-devtools
       registry: false
