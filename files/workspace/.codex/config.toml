@@ -86,6 +86,9 @@ multi_agent = true
 memories = true
 hooks = true
 
+[features.context_management]
+experimental_mode = true
+
 # Disable the ChatGPT Apps GitHub connector; the Codex GitHub plugin is
 # configured separately below.
 [apps.connector_76869538009648d5b282a4bb21c3d157]
