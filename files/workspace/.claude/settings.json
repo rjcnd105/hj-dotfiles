@@ -29,6 +29,15 @@
       "WebFetch",
       "WebSearch"
     ],
+    "deny": [
+      "Read(**/.env*)",
+      "Edit(**/.env*)",
+      "Read(**/*.pem)",
+      "Edit(**/*.pem)",
+      "Read(**/.git/**)",
+      "Edit(**/.git/**)"
+    ],
+    "ask": ["Bash(git push *)", "Bash(git merge *)", "Bash(git rebase *)"],
     "defaultMode": "auto"
   },
   "model": "claude-fable-5-1",

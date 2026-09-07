@@ -22,20 +22,9 @@ dependencies:
         - hook-development
         - mcp-integration
         - skill-development
-    - vectorize-io/hindsight/.claude/skills/code-review
-    - git: https://github.com/intellectronica/agent-skills.git
-      skills:
-        - context7
-        - markdown-converter
-    - git: https://github.com/upstash/context7.git
-      skills:
-        - context7-cli
-        - context7-mcp
-        - find-docs
     - mattpocock/skills/skills/productivity/grill-me
     - mattpocock/skills/skills/engineering/grill-with-docs
     - mattpocock/skills/skills/productivity/writing-for-agents
-    - agentspace-so/agent-skills/gpt-image-2
     - dammyjay93/interface-design/.claude/skills/interface-design
     - michalzubkowicz/nixos-management-skill/nixos-managing
     - git: https://github.com/kepano/obsidian-skills.git
@@ -51,9 +40,9 @@ dependencies:
       skills:
         - diagram-design
 
-    - warpdotdev/common-skills/.agents/skills/skill-doctor
     - mattpocock/skills/skills/engineering/domain-modeling
     - mattpocock/skills/skills/productivity/grilling
+    - git: Xerxes-2/jujutsu-suki
   mcp:
     - name: chrome-devtools
       registry: false

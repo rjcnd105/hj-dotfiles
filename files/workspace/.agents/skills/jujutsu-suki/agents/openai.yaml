@@ -1,0 +1,3 @@
+interface:
+  display_name: "jj"
+  short_description: "DAG-native version control discipline for jj repos"

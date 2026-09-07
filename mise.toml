@@ -5,7 +5,7 @@
 # 여기서 {{env.SOPS_AGE_KEY_FILE}}로 덮어쓰면 환경변수 없는 셸에서 복호화가 깨진다.
 
 [tools]
-jj = "0.41.0"
+jj = "0.45.1"
 
 [env]
 _.file = [

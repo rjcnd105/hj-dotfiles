@@ -319,25 +319,6 @@ NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/hj/.codex/plugins/cache/openai-
 SKY_CUA_SERVICE_PATH = "/Users/hj/.codex/computer-use/Codex Computer Use.app"
 CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
 
-# Cloudflare MCP — developers.cloudflare.com/agent-setup 안내대로 등록.
-# `codex mcp add`를 5번 연속 돌리면 매번 OAuth가 끼어들어 마지막 하나만 남으므로
-# 여기에 직접 선언한다. 첫 도구 사용 시 OAuth가 자동으로 뜬다.
-# cloudflare-docs는 공개 서버라 인증이 필요 없다.
-[mcp_servers.cloudflare]
-url = "https://mcp.cloudflare.com/mcp"
-
-[mcp_servers.cloudflare-docs]
-url = "https://docs.mcp.cloudflare.com/mcp"
-
-[mcp_servers.cloudflare-bindings]
-url = "https://bindings.mcp.cloudflare.com/mcp"
-
-[mcp_servers.cloudflare-builds]
-url = "https://builds.mcp.cloudflare.com/mcp"
-
-[mcp_servers.cloudflare-observability]
-url = "https://observability.mcp.cloudflare.com/mcp"
-
 [mcp_servers.computer-use]
 command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
 args = ["mcp"]
