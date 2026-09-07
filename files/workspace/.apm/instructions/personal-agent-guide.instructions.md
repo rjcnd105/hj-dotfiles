@@ -88,6 +88,25 @@ applyTo: "**"
 - Never simplify away required behavior, data-loss protection, accessibility,
   required UX polish, or an explicit request.
 
+## Implementation simplicity
+
+- Treat the requested behavior and relevant existing architecture as the design
+  boundary. Inspect enough to identify the correct owner and data or control
+  flow, then make the narrowest change that satisfies both. If the work expands
+  into new files, layers, infrastructure, or adjacent cleanup, re-check each
+  addition.
+- Keep short, single-use logic at the call site when clearer. Add a helper,
+  type, layer, service, or setting only if it enforces a concrete invariant,
+  isolates a real boundary, removes meaningful repetition, or is required by
+  an established project pattern. Hypothetical future reuse is not enough.
+- Add a dependency, fallback, compatibility shim, generalized extension point,
+  or infrastructure only for a current requirement that the existing owner
+  cannot meet. Preserve mechanisms required by contract or a concrete risk.
+- For a non-trivial design, compare one simpler alternative. Prefer fewer
+  concepts when behavior, clarity, safety, and real extension needs are equal.
+  Small local duplication can be cheaper than premature abstraction; do not
+  duplicate business rules or public contracts that can drift.
+
 ## Hard problem protocol
 
 Use only when a task has material uncertainty or risk, or several plausible
