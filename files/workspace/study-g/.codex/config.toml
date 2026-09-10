@@ -1,0 +1,33 @@
+# Shared MCP configuration for /Users/hj/study-g and its game projects.
+[mcp_servers.godot-ai]
+command = "/Users/hj/.local/share/mise/installs/uv/latest/bin/uvx"
+args = [
+  "--isolated",
+  "--no-config",
+  "--no-env-file",
+  "--no-sources",
+  "--no-build",
+  "--index-strategy",
+  "first-index",
+  "--keyring-provider",
+  "disabled",
+  "--index",
+  "https://pypi.org/simple",
+  "--default-index",
+  "https://pypi.org/simple",
+  "--find-links",
+  "https://pypi.org/simple/godot-ai/",
+  "--link-mode",
+  "copy",
+  "--from",
+  "godot-ai==4.0.0",
+  "godot-ai",
+  "attach",
+  "--port",
+  "8000",
+  "--ws-port",
+  "9500",
+]
+enabled = true
+startup_timeout_sec = 60
+tool_timeout_sec = 360
