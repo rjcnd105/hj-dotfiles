@@ -139,7 +139,7 @@ enabled = false
 
 [[skills.config]]
 path = "/Users/hj/dot/nix-dots/files/workspace/.codex/skills/.system/imagegen/SKILL.md"
-enabled = false
+enabled = true
 
 [[skills.config]]
 path = "/Users/hj/.codex/plugins/cache/openai-bundled/visualize/1.0.11/skills/visualize/SKILL.md"
