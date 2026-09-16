@@ -168,7 +168,7 @@
   "js/ts.inlayHints.parameterNames.enabled": "all",
   "window.newWindowDimensions": "maximized",
   "window.titleBarStyle": "custom",
-  "mise.binPath": "/opt/homebrew/bin/mise",
+  "mise.binPath": "/Users/hj/.local/bin/mise",
   "redhat.telemetry.enabled": true,
   "cursor.composer.textSizeScale": 0.85,
   "files.trimTrailingWhitespace": true,

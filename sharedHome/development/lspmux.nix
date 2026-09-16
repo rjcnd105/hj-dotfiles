@@ -6,7 +6,7 @@
   ...
 }:
 let
-  miseBin = "/opt/homebrew/bin/mise";
+  miseBin = "${config.home.homeDirectory}/.local/bin/mise";
   profileBin = "/etc/profiles/per-user/${config.home.username}/bin";
 
   lspmuxConfig = ''
