@@ -59,7 +59,8 @@
     "typescript-lsp@claude-plugins-official": true,
     "agent-skills@addy-agent-skills": true,
     "frontend-design@claude-plugins-official": true,
-    "cyclomatic-complexity@cyclomatic-complexity-skill": true
+    "cyclomatic-complexity@cyclomatic-complexity-skill": true,
+    "fast-jev-compaction@fast-jev-compaction": true
   },
   "extraKnownMarketplaces": {
     "greenpt": {
@@ -86,6 +87,12 @@
       "source": {
         "source": "github",
         "repo": "saurabhkumar8112/cyclomatic-complexity-skill"
+      }
+    },
+    "fast-jev-compaction": {
+      "source": {
+        "source": "github",
+        "repo": "tamaratran/fast-jev-compaction"
       }
     }
   },
