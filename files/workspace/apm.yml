@@ -46,6 +46,7 @@ dependencies:
     - git: typesafe-ai/skills
       skills:
         - typesafe-ai
+    - adhhamdev/modern-react-guidance
   mcp:
     - name: chrome-devtools
       registry: false

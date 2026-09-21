@@ -99,6 +99,9 @@ BUILTIN_SLASH_COMMANDS = frozenset(
 #: inline (the client expanded the slash command), so the skill IS in effect without
 #: a Skill tool call.
 INLINE_SKILL_MIN_CHARS = 1500
+#: How far into the following user event to look for the command naming itself.
+#: Measured at well under 200 characters for every slash command of one session.
+EXPANSION_HEAD_CHARS = 400
 GIT_BRANCH_MAIN = re.compile(r"\b(?:main|master)\b")
 # Each alternative skips the flags that come before its branch-creating one via
 # its own negative lookahead (`(?!-b\b)` / `(?!-c\b)`), so the `*` cannot eat the
@@ -195,6 +198,18 @@ A11_STRUCTURED_EXT_RE = re.compile(
 A11_STRUCTURED_TOOLS = {"grep", "egrep", "fgrep", "sed", "awk", "gawk"}
 A11_CAT_TOOLS = {"cat", "head", "tail"}
 A11_PIPELINE_OPS = {"|", "||", "&&", ";", ">", ">>", "<"}
+
+# Redirect operators. Misuse 1 scans a segment's tokens for the tool's file
+# argument, and segments are split at `| || && ;` only — so anything a redirect
+# names still trails into the segment. Stopping the scan there keeps a redirect
+# target from being read as an argument.
+#
+# Matched by shape rather than enumerated: shlex with punctuation_chars emits
+# `&>>`, `>|`, `>&`, `<&` and `<>` as single tokens, and a hand-written set
+# quietly misses whichever ones nobody thought of — each miss restoring the
+# false positive for that one spelling. A bare `|` cannot match (the pattern
+# requires a `<` or `>`), and is a segment separator anyway.
+A11_REDIRECT_RE = re.compile(r"(?:\d*[<>][<>&|]*|&>>?)\Z")
 # The Read tool addresses files in the project; it has no last-N-lines mode and
 # is not the way to poll a background task's output, a log, or a scratch file.
 # The harness gate that enforces "Read instead of cat/head/tail" says so
@@ -206,6 +221,11 @@ A11_CAT_EXEMPT_PATH_RE = re.compile(
     r"(?:"
     r"(?:^|/)(?:tmp|var/log|var/tmp|logs?)/"  # a scratch or log directory
     r"|/tasks/"  # a background task's output
+    # The session scratchpad when it is rooted outside /tmp — under a cache
+    # directory, typically. Anchored to that root on purpose: a bare
+    # `/scratchpad/` also exempts a project's own scratchpad/ directory, and
+    # reads of files inside the repository are exactly what A11 exists for.
+    r"|(?:^|/)\.?cache/(?:[^/]+/)*scratchpad/"
     r"|\.(?:log|out|output)$"  # an output file by extension
     r")"
 )
@@ -218,7 +238,11 @@ A13_CLAIM_PATTERNS = re.compile(
     r"|all\s+tests?\s+(?:pass|green)"  # "all tests pass" / "all tests green"
     r"|build\s+(?:passes|works|succeeds|succeeded)"
     r"|(?:the\s+)?bug\s+is\s+fixed"  # "the bug is fixed"
-    r"|behoben"  # DE: "fixed"
+    # DE: "fixed". Negative lookbehind because the English alternatives all
+    # carry a subject ("tests pass", "the bug is fixed") while a bare participle
+    # does not, so "nicht behoben" — a CORRECTION of an earlier claim — was
+    # counted as the claim itself, and C6 counts A13.
+    r"|(?<!nicht )(?<!noch nicht )behoben"
     r"|tests?\s+laufen(?:\s+(?:jetzt|wieder|durch))?"
     r"|läuft\s+jetzt(?:\s+wieder)?"  # DE: "läuft jetzt"
     r"|funktioniert\s+jetzt(?:\s+wieder)?"  # DE: "funktioniert jetzt"
@@ -466,6 +490,23 @@ _PROGRAM_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_.+-]*$")
 _WRAPPERS = {"env", "sudo", "command", "time", "timeout", "nohup", "nice", "stdbuf"}
 # Only these git subcommands leave the machine; git status/log/diff are local.
 _REMOTE_GIT = {"fetch", "pull", "push", "clone", "ls-remote", "remote", "submodule"}
+
+
+# A PreToolUse hook that refuses a call reports it as that call's tool result,
+# so the presence of a deployed gate is readable from the transcript itself —
+# no need to inspect the reader's live configuration from a transcript analysis,
+# which would answer for whichever machine the retro happens to run on rather
+# than for the session under review.
+HOOK_DENIAL_RE = re.compile(r"PreToolUse:?\w*\s+hook\b", re.IGNORECASE)
+
+
+def extract_hook_denials(tool_uses) -> list[str]:
+    """The result texts of tool calls a PreToolUse hook intercepted."""
+    return [
+        result
+        for _i, _name, _inp, result, _err in tool_uses
+        if result and HOOK_DENIAL_RE.search(result)
+    ]
 
 
 def is_remote_shape(shape: str) -> bool:
@@ -934,7 +975,38 @@ def signal_skill_reminder_vs_invoke(events) -> list[dict]:
         # its full instructions inline — neither is a skill that failed to trigger.
         if all(m.strip() in BUILTIN_SLASH_COMMANDS for m in matches):
             continue
-        if len(text) >= INLINE_SKILL_MIN_CHARS:
+        # The expansion is usually its OWN event: the anchor carries only
+        # <command-message> and <command-name> (~110 chars), and the skill body
+        # arrives as the next user message. Measuring the anchor alone therefore
+        # never reached the threshold in practice — six slash commands in one
+        # session were all reported as skills that failed to trigger, /retro
+        # itself among them — while the same body inlined into the anchor was
+        # correctly skipped. Both layouts have to be measured.
+        body = text
+        if i + 1 < len(events):
+            ev_next = events[i + 1]
+            nxt = ev_next.get("message", {}) or {}
+            # The role sits on the event in some transcripts and inside the
+            # message in others; either one identifies the expansion.
+            if "user" in (ev_next.get("type"), nxt.get("role")):
+                content_n = nxt.get("content", "")
+                if isinstance(content_n, list):
+                    following = " ".join(
+                        b.get("text", "") for b in content_n if isinstance(b, dict)
+                    )
+                else:
+                    following = str(content_n)
+                # Being a long user message is not enough — an unrelated one
+                # would then suppress the signal for a skill that really was
+                # named and not invoked. The expansion opens by naming itself,
+                # measured across every slash command of one session: the bare
+                # command (`/git-workflow:pr-finish` -> `pr-finish`) appears
+                # within the first 200 characters of the body every time.
+                bare = [m.strip().lstrip("/").split(":")[-1].lower() for m in matches]
+                head = following[:EXPANSION_HEAD_CHARS].lower()
+                if any(b and b in head for b in bare):
+                    body += " " + following
+        if len(body) >= INLINE_SKILL_MIN_CHARS:
             continue
         # Look at next 3 events for Skill tool invocation
         invoked = False
@@ -1222,18 +1294,342 @@ def _split_pipeline_segments(tokens: list[str]) -> list[list[str]]:
     return segments
 
 
+# grep short options that consume the next token. A pattern given through `-e`
+# may itself start with a dash — `grep -e '-l' version package.json` searches
+# for the literal "-l" — so reading every dash-prefixed token as flags would
+# collect an `l` from the pattern and exempt an extraction as a presence search.
+A11_GREP_ARG_OPTS = set("efmABCD")
+
+
+def _a11_grep_flags(segment: list[str]) -> str:
+    """The short flags of a grep-family segment, concatenated.
+
+    Option arity is honoured: a token consumed as the argument of `-e`, `-f`,
+    `-m` or a context option is not a flag, whatever it looks like.
+    """
+    out = []
+    skip_next = False
+    for tok in segment[1:]:
+        if skip_next:
+            skip_next = False
+            continue
+        if tok == "--":
+            break
+        if not tok.startswith("-") or tok.startswith("--") or tok == "-":
+            continue
+        # Walk the bundle: an arg-taking option ends the flag run. What follows
+        # it inside the same token is its argument (`-ePAT`); if nothing
+        # follows, the argument is the next token (`-e PAT`).
+        body = tok[1:]
+        for pos, ch in enumerate(body):
+            if ch in A11_GREP_ARG_OPTS:
+                if pos == len(body) - 1:
+                    skip_next = True
+                break
+            out.append(ch)
+    return "".join(out)
+
+
+def _a11_is_presence_or_locate_grep(
+    segment: list[str], pipeline: list[list[str]]
+) -> bool:
+    """True for a grep that asks WHETHER or WHERE, not WHICH VALUE.
+
+    The harness gate this signal mirrors exempts these deliberately: `-c/-q/-l`
+    answer a question no structured parser can be handed, and `-n` locates a
+    line whose `file:line:text` output is not a field value. They are also the
+    only way to find a COMMENT, which jq and yq cannot see at all. Without the
+    exemption every `grep -rn` over a repo is reported as wrong-tool friction —
+    and, because C6 counts A11 findings, a run of them is read as proof that
+    the prose rule failed and escalates to "propose a mechanical gate", for a
+    gate that already exists and already permits exactly this.
+    """
+    if segment[0] not in {"grep", "egrep", "fgrep"}:
+        return False
+    flags = _a11_grep_flags(segment)
+    if "o" in flags:
+        return False  # -o prints the match itself: extraction, not location
+    if any(f in flags for f in "cqlL"):
+        return True
+    if "n" not in flags:
+        return False
+    # `grep -n … | cut -d: -f2` is still extraction; a lone locate is not.
+    # `grep -n … | cut -d: -f2` is still extraction, so a locate loses its
+    # exemption once a field-splitting sink follows. A lone `sed` does not
+    # count: piping `file:line:text` through it is almost always cosmetic
+    # (trimming the prefix for display), and the gate exempts that by name.
+    # `pipeline` is the segments of ONE statement (see _a11_structured_file_misuse),
+    # so this walk cannot reach past a `;`, `&&` or `||` into a different command.
+    # It used to: the segment list was built from the whole Bash call, so
+    # `grep -n '<<<<<<<' x.json | head; echo; awk '/<<</,/>>>/' x.json` lost the
+    # locate exemption on an `awk` that was never downstream of the grep at all.
+    # The enforcing gate splits statements first for the same reason.
+    idx = pipeline.index(segment)
+    for seg in pipeline[idx + 1 :]:
+        if not seg:
+            continue
+        if seg[0] in {"awk", "gawk", "cut"}:
+            return False
+        if seg[0] in {"head", "tail"} and "-1" in seg:
+            return False
+    return True
+
+
+# A sed script that only prints a line address: `5p`, `1,80p`, `12,+3p`, `$p`,
+# and the `M,Np` form the Read tool cannot express when the file is not in the
+# project. Anchored whole, so `1,80s/a/b/p` and `/key/p` do not qualify — the
+# first edits, the second selects by content, and both are what A11 exists for.
+A11_SED_LINE_ADDRESS_RE = re.compile(r"\A(?:\$|\d+)(?:,(?:\$|\+?\d+))?p\Z")
+
+
+def _a11_is_line_addressed_read(segment: list[str]) -> bool:
+    """True for a `sed -n <line-address>p` that reads a document, not a value.
+
+    `sed -n '1,80p' compose.yml` is the same question as opening the file: it
+    asks for a RANGE OF LINES, keeps comments and ordering, and has no field to
+    extract. yq cannot answer it — it reformats, drops comments and cannot
+    address line 80 at all. Reporting it as wrong-tool friction is the defect
+    `_a11_is_presence_or_locate_grep` already fixed for the grep half: C6 counts
+    A11 findings, so a run of ordinary document reads is read as proof that the
+    prose rule failed and escalates to "propose a mechanical gate" — here, a
+    gate against reading a file.
+
+    Measured on the session that produced this fix: 9 of 15 A11 hits were this
+    shape, and 2 were genuine extraction (`grep -H '^name:' *.yml`, an awk range
+    over compose.yml).
+
+    Only `-n` counts. Without it sed prints every line anyway, so an explicit
+    address is doing something other than paging through the file.
+    """
+    if segment[0] != "sed":
+        return False
+    scripts: list[str] = []
+    flags = ""
+    script_options = 0
+    for tok in segment[1:]:
+        if tok.startswith("--"):
+            # Long options are matched whole. Counting an "e" inside them would
+            # read --regexp-extended as a second script and refuse a read that
+            # is one.
+            if tok in {"--expression", "--file"} or tok.startswith(
+                ("--expression=", "--file=")
+            ):
+                script_options += 1
+            continue
+        if tok.startswith("-") and len(tok) > 1:
+            short = tok[1:]
+            flags += short
+            # Bundled as well as separate: `-ne '1,80p' -e 's/x/y/'` carries
+            # two scripts and only one of them is a line address.
+            script_options += short.count("e")
+            continue
+        if not scripts and not A11_STRUCTURED_EXT_RE.search(tok):
+            scripts.append(tok)
+    if script_options > 1:
+        # More than one script means the addresses are not the whole story:
+        # only the first was ever validated, so `-e '1,80p' -e 's/x/y/'` bought
+        # an edit the exemption written for a read.
+        return False
+    if "n" not in flags or "i" in flags:
+        return False
+    return bool(scripts) and all(A11_SED_LINE_ADDRESS_RE.match(s) for s in scripts)
+
+
+# The address a substitution may carry in front of it: `5s/…`, `1,80s/…`,
+# `$s/…`, `/^key:/s/…`.
+A11_SED_ADDRESS_RE = re.compile(r"\A(?:\d+(?:,(?:\d+|\$))?|\$|/(?:[^/\\]|\\.)*/)?")
+
+
+# The flags GNU sed accepts after a substitution. `w file` is excluded on
+# purpose: it writes a second file, which is not what this exemption is about.
+A11_SED_SUB_FLAGS_RE = re.compile(r"\A[0-9gpiImMe]*\Z")
+
+
+def _a11_sed_substitution_flags(script: str) -> str | None:
+    """The flags of a script that is ONE substitution and nothing else.
+
+    None when the script is not a substitution, and none when something
+    follows it. The trailing text is validated against the flag grammar rather
+    than returned raw: `s/a/b/;d` puts a delete behind the substitution, and
+    handing `;d` back as "flags" let a destructive command inherit an
+    exemption written for a version bump. Found in review.
+    """
+    rest = script[A11_SED_ADDRESS_RE.match(script).end() :]
+    if len(rest) < 2 or rest[0] != "s" or rest[1].isalnum() or rest[1].isspace():
+        return None
+    delim, i, seen = rest[1], 2, 0
+    while i < len(rest) and seen < 2:
+        if rest[i] == "\\":
+            i += 2
+            continue
+        if rest[i] == delim:
+            seen += 1
+        i += 1
+    if seen != 2:
+        return None
+    flags = rest[i:]
+    return flags if A11_SED_SUB_FLAGS_RE.match(flags) else None
+
+
+def _a11_is_line_precise_edit(segment: list[str]) -> bool:
+    """True for a `sed -i` whose every script is a substitution.
+
+    Editing a structured file this way is not the misuse A11 looks for - it is
+    what the data-tools rule PRESCRIBES. The rule forbids reading values with
+    grep and forbids writing a file back through a serializer, because
+    `json.dumps` and `jq .` re-emit the whole document in their own formatting
+    and turn a three-line change into a full-file diff. What it names as the
+    correct form is the Edit tool or a targeted sed on one anchored line, which
+    is exactly this shape.
+
+    So the flag fired on the prescribed technique, and because C6 counts A11
+    findings it argued for a gate against following the rule. Measured on the
+    session that produced this: three of the nine remaining A11 hits were a
+    `sed -i` version bump - `ext_emconf.php`, `plugin.json`, `composer.json` -
+    each replacing one anchored version string, and one of them was followed by
+    a `json.load` check in the same call.
+
+    Narrow on purpose, and the `g` flag is where the line runs. Without it a
+    substitution replaces at most once per line, which together with a pattern
+    naming the thing being changed is the targeted edit the rule asks for. With
+    it the command sweeps every occurrence anywhere in the document, including
+    inside keys, comments and substrings - `sed -i 's|foo|bar|g' config.yaml`
+    is the sledgehammer A11 exists to catch, and it keeps firing. `g` is a
+    proxy rather than a proof of intent, but it is the one signal in the
+    command text that separates the two.
+
+    Also only `-i`, so a substitution over a pipe is untouched, and only
+    substitutions: `sed -i '5d'` and `sed -i -f edit.sed` still fire because
+    neither shows what it does to the document.
+    """
+    if segment[0] != "sed":
+        return False
+    # sed's grammar decides where the scripts are, and getting it wrong breaks
+    # the check in both directions. With any -e/--expression present, EVERY
+    # script comes from those and every positional is a file; without one, the
+    # first positional is the script and the rest are files. Reading only the
+    # first positional in both cases missed the second script of
+    # `-e 's/a/b/' -e 'd'`, which is how a delete inherited this exemption.
+    scripts: list[str] = []
+    positionals: list[str] = []
+    flags = ""
+    expect_script = False
+    saw_expression = False
+    for tok in segment[1:]:
+        if expect_script:
+            scripts.append(tok)
+            expect_script = False
+            continue
+        if tok in {"-e", "--expression"}:
+            saw_expression = True
+            expect_script = True
+            continue
+        if tok.startswith("--expression="):
+            saw_expression = True
+            scripts.append(tok.split("=", 1)[1])
+            continue
+        if tok.startswith("--"):
+            continue
+        if tok.startswith("-") and len(tok) > 1:
+            flags += tok[1:]
+            if tok.endswith("e"):  # bundled, e.g. `-ne` or `-ie`
+                saw_expression = True
+                expect_script = True
+            continue
+        positionals.append(tok)
+    if not saw_expression and positionals:
+        scripts.append(positionals[0])
+    if "i" not in flags or "f" in flags:
+        return False
+    if not scripts:
+        return False
+    for script in scripts:
+        sub_flags = _a11_sed_substitution_flags(script)
+        if sub_flags is None or "g" in sub_flags:
+            return False
+    return True
+
+
+# A git conflict marker is the one thing in a structured file that no structured
+# parser can be asked about: while the markers are there the file is not JSON or
+# YAML at all, and jq/yq/dasel refuse it outright. The enforcing gate permits the
+# search (measured: it denied 0 of the conflict-marker scans in the session that
+# produced this fix), so reporting it is friction the harness does not agree is
+# friction — and C6 counts A11 findings, so a merge with three conflicted
+# manifests escalates to "propose a mechanical gate" against looking for them.
+#
+# Atoms are the three markers; the surrounding characters are only what a regex
+# or an awk range needs to join them (`\|`, `/…/,/…/`, an anchor). Anything else
+# in the pattern — a key name, an `s///` body — loses the exemption.
+A11_CONFLICT_MARKER_ATOM_RE = re.compile(r"<{7}|={7}|>{7}")
+A11_CONFLICT_MARKER_ONLY_RE = re.compile(r"\A(?:<{7}|={7}|>{7}|[\\|/,^$ ])+\Z")
+
+
+def _a11_is_conflict_marker_search(segment: list[str]) -> bool:
+    """True when the only thing this segment searches for is a conflict marker.
+
+    The structured filename is not a pattern, so it is excluded; every remaining
+    non-flag token must be marker-only, and at least one marker must be present.
+    A second, ordinary pattern in the same segment therefore keeps the finding.
+    """
+    if segment[0] in {"grep", "egrep", "fgrep"} and "o" in _a11_grep_flags(segment):
+        return False  # `-o` prints the match: the gate denies that either way
+    patterns = [
+        tok
+        for tok in segment[1:]
+        if not tok.startswith("-") and not A11_STRUCTURED_EXT_RE.search(tok)
+    ]
+    if not patterns:
+        return False
+    return all(
+        A11_CONFLICT_MARKER_ATOM_RE.search(p) and A11_CONFLICT_MARKER_ONLY_RE.match(p)
+        for p in patterns
+    )
+
+
 def _a11_structured_file_misuse(i: int, cmd: str, tokens: list[str]) -> dict | None:
     """Misuse 1: grep/sed/awk acting on a structured-file argument.
 
     At most one finding per Bash call — a pipeline that greps two JSON files is
     one habit, and the C6 tally that decides whether prose has failed counts
     findings.
+
+    Statements first, pipelines inside them: a downstream-sink test that walked
+    the whole call read the next statement's command as this grep's sink.
     """
-    for segment in _split_pipeline_segments(tokens):
+    for statement in _split_statements(tokens):
+        pipeline = _split_pipeline_segments(statement)
+        finding = _a11_statement_misuse(i, cmd, pipeline)
+        if finding is not None:
+            return finding
+    return None
+
+
+def _a11_statement_misuse(i: int, cmd: str, pipeline: list[list[str]]) -> dict | None:
+    """The misuse-1 scan over the pipeline segments of ONE statement."""
+    for segment in pipeline:
         if not segment or segment[0] not in A11_STRUCTURED_TOOLS:
+            continue
+        if _a11_is_presence_or_locate_grep(segment, pipeline):
+            continue
+        if _a11_is_conflict_marker_search(segment):
+            continue
+        if _a11_is_line_addressed_read(segment):
+            continue
+        if _a11_is_line_precise_edit(segment):
             continue
         tool = segment[0]
         for tok in segment[1:]:
+            # A redirect target is never the tool's positional file argument.
+            # Segments split at `| || && ;` only, so a loop's own redirect —
+            # `while read …; do … sed 's|x||' …; done < data/opened.jsonl` —
+            # trails into the segment holding the body's sed/awk and gets
+            # attributed to it. That is the data-tools-prescribed form (jq
+            # reads the file, sed edits the stream) reported as its own
+            # violation, and a run of them drives C6 to demand a gate against
+            # correct behaviour.
+            if A11_REDIRECT_RE.match(tok):
+                break
             if tok.startswith("-"):
                 continue
             if A11_STRUCTURED_EXT_RE.search(tok):
@@ -1249,6 +1645,57 @@ def _a11_structured_file_misuse(i: int, cmd: str, tokens: list[str]) -> dict | N
     return None
 
 
+# A value that is not a plain literal cannot be resolved without running the
+# shell, so it does not register: `/tmp/$(mktemp -d)` starts with a slash and
+# would otherwise be trusted as one.
+A11_UNRESOLVABLE_VALUE_RE = re.compile(r"[$`()]")
+A11_VAR_REF_RE = re.compile(r"\$(?:\{(\w+)\}|([A-Za-z_]\w*))")
+
+
+def _a11_leading_assignments(statement: list[str]) -> dict[str, str]:
+    """The `VAR=/literal` prefix of one statement, as shell reads it.
+
+    Only the run of assignments before the first ordinary word counts, which is
+    what makes `echo "S=/tmp/a"` contribute nothing: the statement starts with
+    `echo`, so the argument that merely looks like an assignment is an argument.
+    shlex strips quotes, so without this the quoted text — and a heredoc body —
+    would register as environment.
+    """
+    env: dict[str, str] = {}
+    for tok in statement:
+        name, sep, value = tok.partition("=")
+        if not (sep and name.isidentifier()):
+            break  # the first ordinary word ends the assignment prefix
+        if value.startswith("/") and not A11_UNRESOLVABLE_VALUE_RE.search(value):
+            env[name] = value
+    return env
+
+
+def _a11_expand_path_vars(arg: str, env: dict[str, str]) -> str:
+    """Substitute assignments made earlier in the SAME command into `arg`.
+
+    The exemption below is path-literal, and the scratchpad path a session is
+    told to use is long enough that assigning it once — `S=/tmp/.../scratchpad`
+    — and reading `$S/out.txt` is the idiomatic form. Matching the raw token
+    then sees `$S/out.txt`, misses the `/tmp/` the exemption is looking for, and
+    reports a permitted read-back as friction. The better the scratchpad
+    discipline, the more false positives, and C6 turns a run of them into
+    "the prose rule failed, propose a gate" for a gate that already exists.
+
+    Substitution matches a whole identifier. A plain `str.replace` per name lets
+    a short name eat a longer one — with `S` assigned before `SRC`, `$SRC/main.go`
+    becomes `/tmp/aRC/main.go` and a project file stops being reported — and it
+    also rewrites `$Sfoo`, which the shell reads as an unset `Sfoo`.
+
+    An unresolvable variable is left as-is, so nothing is exempted on a guess.
+    """
+    if "$" not in arg:
+        return arg
+    return A11_VAR_REF_RE.sub(
+        lambda m: env.get(m.group(1) or m.group(2), m.group(0)), arg
+    )
+
+
 def _a11_cat_instead_of_read(i: int, cmd: str, tokens: list[str]) -> dict | None:
     """Misuse 2: cat/head/tail used as the terminal command (no pipe/redirect).
 
@@ -1259,12 +1706,18 @@ def _a11_cat_instead_of_read(i: int, cmd: str, tokens: list[str]) -> dict | None
     `cat f | wc -l` is for. Returns at most one finding per call: two such reads
     in one call are one habit, and counting twice inflates the C6 tally.
     """
+    env: dict[str, str] = {}
     for sub in _split_statements(tokens):
+        # Assignments are collected as the command runs, so a statement sees
+        # only what preceded it: `cat $S/main.go; S=/tmp/y` read $S unset.
+        env |= _a11_leading_assignments(sub)
         if not sub or sub[0] not in A11_CAT_TOOLS:
             continue
         if any(tok in A11_PIPELINE_OPS for tok in sub):
             continue
-        file_args = [t for t in sub[1:] if not t.startswith("-")]
+        file_args = [
+            _a11_expand_path_vars(t, env) for t in sub[1:] if not t.startswith("-")
+        ]
         if file_args and not all(A11_CAT_EXEMPT_PATH_RE.search(t) for t in file_args):
             return {
                 "signal": "A11",
@@ -1483,16 +1936,51 @@ def signal_wait_loop_inefficiency(tool_uses) -> list[dict]:
     return out
 
 
-def signal_rule_exists_but_violated(findings, rules_text: str) -> list[dict]:
+# How many of a signal's keywords a denial set must hit before it counts as
+# THIS rule's gate. One is not enough: the keywords were written to find a rule
+# in prose, where a generic word like "verification" is surrounded by context,
+# and a hook message is one paragraph. Measured on the session behind this fix,
+# a truncation gate ("a verification command is piped into head/tail") matched
+# A13 on that single word and would have been reported as the gate for
+# "claimed success without running anything" — a different control entirely.
+# A11's real gate matched four: "structured file", "jq", "yq", "dasel".
+C6_GATE_MIN_KEYWORDS = 2
+
+
+def _c6_gate_denials(
+    denials: list[str], keywords: list[str]
+) -> tuple[list[str], set[str]]:
+    """The denials attributable to one rule, and which keywords they hit."""
+    hits = [d for d in denials if any(k.lower() in d.lower() for k in keywords)]
+    matched = {k for d in hits for k in keywords if k.lower() in d.lower()}
+    if len(matched) < min(C6_GATE_MIN_KEYWORDS, len(keywords)):
+        return [], matched
+    return hits, matched
+
+
+def signal_rule_exists_but_violated(
+    findings, rules_text: str, hook_denials: list[str] | None = None
+) -> list[dict]:
     """C6: a written rule was violated repeatedly anyway — mechanize it.
 
     When a rule already exists in the always-loaded instructions and the session
     still trips it N times, another sentence will not help: the same prose has
     already failed. The answer is a hook or a check that makes the violation
     impossible, which is a harness-artefact, not a skill-update.
+
+    Unless the hook is already installed. Recommending the construction of a
+    control that is deployed and firing is worse than saying nothing: it sends
+    the retro's reader to build a duplicate, and it buries the question that
+    matters — why these N got through a gate that denies this rule. So the
+    escalation asks whether a gate was OBSERVED, from the transcript rather than
+    from the reader's live config: a PreToolUse denial arrives as a tool result,
+    and its text is matched against the same keywords that decide whether the
+    written rule exists. With none seen the hint no longer asserts that no
+    control exists — only that this session did not show one.
     """
     if not rules_text:
         return []
+    denials = hook_denials or []
     out = []
     by_sig: dict[str, int] = defaultdict(int)
     for f in findings:
@@ -1503,18 +1991,37 @@ def signal_rule_exists_but_violated(findings, rules_text: str) -> list[dict]:
             continue
         if not any(k.lower() in rules_text.lower() for k in keywords):
             continue
+        gate_denials, matched = _c6_gate_denials(denials, keywords)
+        if gate_denials:
+            hint = (
+                f"{sig} fired {n}x while a matching rule is already present in "
+                f"the always-loaded instructions — and a PreToolUse gate for "
+                f"that rule denied {len(gate_denials)} call(s) in this same "
+                f"session (matched on {', '.join(sorted(matched))}). The "
+                "mechanical control exists: do not propose building one. Ask "
+                "instead why these findings passed it — the gate may exempt "
+                "the shape on purpose, or the detector may be counting what "
+                "the gate permits."
+            )
+        else:
+            hint = (
+                f"{sig} fired {n}x while a matching rule is already present in "
+                "the always-loaded instructions. Prose has demonstrably not "
+                "worked. No denial clearly attributable to this rule appeared "
+                "in this session, which is not proof that no gate is installed "
+                "— check the configured hooks first, and only if none covers "
+                "this rule "
+                "propose a mechanical gate (PreToolUse hook, checkpoint, CI "
+                "check) rather than another rule."
+            )
         out.append(
             {
                 "signal": "C6",
                 "name": "written_rule_violated_repeatedly",
                 "violated_signal": sig,
                 "occurrences": n,
-                "hint": (
-                    f"{sig} fired {n}x while a matching rule is already present in "
-                    "the always-loaded instructions. Prose has demonstrably not "
-                    "worked — propose a mechanical gate (PreToolUse hook, "
-                    "checkpoint, CI check), not another rule."
-                ),
+                "gate_observed": bool(gate_denials),
+                "hint": hint,
             }
         )
     return out
@@ -1618,7 +2125,11 @@ def main() -> int:
                 rules = cand.read_text(encoding="utf-8")
             except OSError:
                 pass
-        findings.extend(signal_rule_exists_but_violated(findings_for_c6, rules))
+        findings.extend(
+            signal_rule_exists_but_violated(
+                findings_for_c6, rules, extract_hook_denials(tool_uses)
+            )
+        )
 
     summary = {
         "transcript": str(args.transcript_file),

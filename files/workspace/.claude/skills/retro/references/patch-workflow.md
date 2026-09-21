@@ -69,8 +69,10 @@ Examples:
 - **`Learning-Id:` trailer** in every retro materialization commit: a stable
   id minted at Phase 7 per finding (`retro-YYYYMMDD-<slug>`, e.g.
   `retro-20260814-copilot-quota-monthly`). The same id goes into the PR body,
-  a materialized checkpoint's `learning_id:` field, and an eval stub's
-  frontmatter. It is the provenance chain: `git log --grep 'Learning-Id:'`
+  a materialized checkpoint's `learning_id:` field, and an eval stub where its
+  layout has a place for it (retro's own Markdown fixtures have frontmatter; an
+  `evals.json` record has no such field, so there the trailer and the checkpoint
+  carry the chain). It is the provenance chain: `git log --grep 'Learning-Id:'`
   and a grep over `checkpoints.yaml` recover every artefact a finding
   produced — which is what makes a landed learning traceable, and prunable
   when superseded (D12).
@@ -86,7 +88,14 @@ Examples:
 - **Pass the message via `-F <file>`, not inline `-m`,** whenever it contains
   quotes, backticks, or other shell-special characters — inline `-m` mangles
   them mid-shell and produces a corrupted or partial commit message.
-- **No bot attribution.** Never add "Generated with Claude Code" or "Co-Authored-By: Claude" — see the user's global rules.
+- **No attribution the harness invented; keep the attribution the user defined.**
+  Never add "Generated with Claude Code" or "Co-Authored-By: Claude" — the
+  harness suggests those, and `Co-Authored-By` asserts a legal person who shares
+  liability. But where the user's own rules *prescribe* a disclosure — a
+  vendor-neutral `Assisted-by:` / `Agent-Session:` trailer, say — that is a
+  requirement, not a violation, and a commit without it is the defect. Read
+  `~/.claude/CLAUDE.md` before deciding, and check the target repo's own history:
+  if its commits carry the trailers, so must yours.
 - **Preserve signing.** Never pass `--no-gpg-sign` or `-c commit.gpgsign=false` — see the user's global rules (`~/.claude/CLAUDE.md`). (GPG signing and DCO sign-off are independent — you need *both*.)
 - **Preserve hooks.** Never pass `--no-verify`. If a hook fails, investigate.
 - **Atomic.** One logical change per commit.
@@ -126,6 +135,16 @@ diff and check:
   and any script self-tests. A structural gate like the 500-word SKILL.md limit
   fails in CI, never in a re-read — and note SKILL.md often sits *at* the cap, so
   put new prose in a reference file, not SKILL.md.
+- **An eval you add or tighten carries `samples`.** A pattern-bearing assertion
+  with no `samples.passing` / `samples.failing` is never executed by anything —
+  see `eval-integration.md`. Run the check before committing:
+  ```bash
+  python3 ${CLAUDE_SKILL_DIR}/scripts/check-eval-samples.py --repo . <path>/evals.json
+  ```
+  It compares each eval against the base revision and reports the ones that are
+  new or whose assertions changed without samples. `materialize-pr.sh finish`
+  (promote mode) runs it itself and refuses to commit; on the hand-rolled path
+  below it is this step. Add the samples — do not stage the file separately.
 - **Change every occurrence of a recurring rule in one pass.** When the fix is a
   policy stated in more than one place (a SKILL.md step, a reference section, a
   script header/output), grep the term and update all of them together, then
