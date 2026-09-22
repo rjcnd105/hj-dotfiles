@@ -1680,7 +1680,7 @@ deployments:
   owners:
   - .
   active_owner: .
-  content_hash: sha256:be3acd14f30808d996900ed83fbc3a28d5fb375127544e608abf4e2c63961526
+  content_hash: sha256:bd7ea8374ab23c4b6dac29de63176742d689b08c661a356274471b4017a3fbfe
 - kind: project-relative
   target: claude
   value: .claude/skills/atlassian-api-guidelines
@@ -7404,7 +7404,7 @@ deployments:
   owners:
   - .
   active_owner: .
-  content_hash: sha256:645015b2a5fda1bb42d6b4496b747fd33b5d7d4f6ab71b031107a5100bccb70b
+  content_hash: sha256:a4caceb43135ac1cddccdfd500d74cd5bf60fb6b7001fbfadfa2e44bc620c909
 - kind: project-relative
   target: legacy
   value: .agents/skills/atlassian-api-guidelines
@@ -13999,7 +13999,7 @@ local_deployed_file_hashes:
   .agents/skills/modern-web-guidance/guides/webmcp/agentic-forms.md: sha256:c9210a53221ae230c3820b94b75f4b7b21196d9b0b6b0979b789866c2f2a8396
   .agents/skills/modern-web-guidance/guides/webmcp/agentic-javascript-tools.md: sha256:828beedc9ced24f721a19e01f7611e273f2b751f9319be2d881723e95dadcfe7
   .agents/skills/modern-web-guidance/guides/webmcp/webmcp.md: sha256:c18d9a10992f4f6eb1db56c89b8cbe1fd1a9faf464ded579f8821fc0287beab7
-  .claude/rules/personal-agent-guide.md: sha256:be3acd14f30808d996900ed83fbc3a28d5fb375127544e608abf4e2c63961526
+  .claude/rules/personal-agent-guide.md: sha256:bd7ea8374ab23c4b6dac29de63176742d689b08c661a356274471b4017a3fbfe
   .claude/skills/atlassian-api-guidelines/SKILL.md: sha256:474aa98c4cfba8bfacadcc2c9baf039b125a30810c6222238f239d82dfa7bc07
   .claude/skills/atlassian-api-guidelines/bitbucket-endpoints.md: sha256:9908f711a7a445fa7ea89267687d7b509be910040ccbe2de7e68a932dbf8fe24
   .claude/skills/atlassian-api-guidelines/jira-endpoints.md: sha256:5560bb3f05701165d31ee4d0fe7da572344cef6db329745a0b5552ae5de8d1be
@@ -14258,4 +14258,4 @@ local_deployed_file_hashes:
   .claude/skills/modern-web-guidance/guides/webmcp/agentic-forms.md: sha256:c9210a53221ae230c3820b94b75f4b7b21196d9b0b6b0979b789866c2f2a8396
   .claude/skills/modern-web-guidance/guides/webmcp/agentic-javascript-tools.md: sha256:828beedc9ced24f721a19e01f7611e273f2b751f9319be2d881723e95dadcfe7
   .claude/skills/modern-web-guidance/guides/webmcp/webmcp.md: sha256:c18d9a10992f4f6eb1db56c89b8cbe1fd1a9faf464ded579f8821fc0287beab7
-  .cursor/rules/personal-agent-guide.mdc: sha256:645015b2a5fda1bb42d6b4496b747fd33b5d7d4f6ab71b031107a5100bccb70b
+  .cursor/rules/personal-agent-guide.mdc: sha256:a4caceb43135ac1cddccdfd500d74cd5bf60fb6b7001fbfadfa2e44bc620c909
