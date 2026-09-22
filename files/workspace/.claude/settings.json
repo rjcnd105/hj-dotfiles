@@ -37,7 +37,11 @@
       "Read(**/.git/**)",
       "Edit(**/.git/**)"
     ],
-    "ask": ["Bash(git push *)", "Bash(git merge *)", "Bash(git rebase *)"],
+    "ask": [
+      "Bash(git push *)",
+      "Bash(git merge *)",
+      "Bash(git rebase *)"
+    ],
     "defaultMode": "auto"
   },
   "model": "claude-fable-5-1",
@@ -58,8 +62,7 @@
     "honey@greenpt": false,
     "typescript-lsp@claude-plugins-official": true,
     "agent-skills@addy-agent-skills": true,
-    "frontend-design@claude-plugins-official": true,
-    "cyclomatic-complexity@cyclomatic-complexity-skill": true
+    "frontend-design@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "greenpt": {
@@ -81,12 +84,6 @@
         "repo": "addyosmani/agent-skills"
       },
       "autoUpdate": true
-    },
-    "cyclomatic-complexity-skill": {
-      "source": {
-        "source": "github",
-        "repo": "saurabhkumar8112/cyclomatic-complexity-skill"
-      }
     }
   },
   "language": "Korean",

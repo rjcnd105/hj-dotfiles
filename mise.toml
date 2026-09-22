@@ -9,6 +9,6 @@ jj = "0.45.1"
 
 [env]
 _.file = [
-  { path = "./secrets/$USER_HOST:workspace/secrets.yaml", redact = true, read_only = true },
+  { path = "./secrets/${USER_HOST:-workspace}/secrets.yaml", redact = true, read_only = true },
 ]
 _.source = { path = "./scripts/mise-vcs-env.sh", tools = true }

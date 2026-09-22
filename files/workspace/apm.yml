@@ -43,6 +43,10 @@ dependencies:
     - mattpocock/skills/skills/engineering/domain-modeling
     - mattpocock/skills/skills/productivity/grilling
     - git: Xerxes-2/jujutsu-suki
+    - git: typesafe-ai/skills
+      skills:
+        - typesafe-ai
+    - adhhamdev/modern-react-guidance
   mcp:
     - name: chrome-devtools
       registry: false
