@@ -261,6 +261,9 @@ trusted_hash = "sha256:44c7861834fd1ae5590a6447f8709cda4ae1992af80c4cfdc8450611c
 enabled = false
 trusted_hash = "sha256:e57b811de94b257c81cbacec569ef2906e2bc71ccc3f0ffc7c996bc575a681f4"
 
+[hooks.state."/Users/hj/.codex/hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:be6c6fcb2978ea348dd05101efed0afcf00efcbfb5d7e78949108142c875a77d"
+
 [desktop]
 usePointerCursors = true
 followUpQueueMode = "queue"
