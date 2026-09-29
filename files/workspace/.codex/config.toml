@@ -148,10 +148,6 @@ enabled = false
 [plugins."github@openai-curated"]
 enabled = true
 
-# Temporary whole-repo fallback for addyosmani/agent-skills issue #361.
-[plugins."agent-skills@agent-skills"]
-enabled = true
-
 [plugins."documents@openai-primary-runtime"]
 enabled = true
 
@@ -177,12 +173,6 @@ enabled = true
 last_updated = "2026-07-19T08:59:59Z"
 source_type = "local"
 source = "/Users/hj/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
-
-[marketplaces.agent-skills]
-last_updated = "2026-08-18T07:55:59Z"
-last_revision = "df1edb2e05487d0aa6d93c747141e0aed1187f25"
-source_type = "git"
-source = "https://github.com/addyosmani/agent-skills.git"
 
 [marketplaces.openai-bundled]
 source_type = "local"
@@ -256,13 +246,6 @@ trusted_hash = "sha256:94ebd4f1bcd6f7537f701e6a787b14b21862f561783e17beb82348ed7
 
 [hooks.state."/Users/hj/dot/nix-dots/files/workspace/.codex/hooks.json:session_start:0:0"]
 trusted_hash = "sha256:44c7861834fd1ae5590a6447f8709cda4ae1992af80c4cfdc8450611c3e5232d"
-
-[hooks.state."agent-skills@agent-skills:hooks/hooks.json:session_start:0:0"]
-enabled = false
-trusted_hash = "sha256:e57b811de94b257c81cbacec569ef2906e2bc71ccc3f0ffc7c996bc575a681f4"
-
-[hooks.state."/Users/hj/.codex/hooks.json:pre_tool_use:0:0"]
-trusted_hash = "sha256:be6c6fcb2978ea348dd05101efed0afcf00efcbfb5d7e78949108142c875a77d"
 
 [desktop]
 usePointerCursors = true

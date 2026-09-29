@@ -5,6 +5,7 @@
     ./home-config.nix
     ./ssh-config.nix
     ./sops.nix
+    ./pi.nix
     ../../sharedHome/cli
     ../../sharedHome/development
     # ../../sharedHome/app

@@ -9,18 +9,11 @@ includes: auto
 
 dependencies:
   apm:
-    # TODO(agent-skills#361): Move this dependency back under APM after shared
-    # repo-root references work in per-skill installs. Until then, Codex owns
-    # it through `agent-skills@agent-skills` in `.codex/config.toml`.
-    # Tracking: https://github.com/addyosmani/agent-skills/issues/361
-    # - addyosmani/agent-skills
-
     # Public skills previously managed by the Skills CLI.
     - git: https://github.com/anthropics/claude-code.git
       path: plugins/plugin-dev
       skills:
         - hook-development
-        - mcp-integration
         - skill-development
     - mattpocock/skills/skills/productivity/grill-me
     - mattpocock/skills/skills/engineering/grill-with-docs
@@ -34,7 +27,6 @@ dependencies:
       skills:
         - pdf
         - skill-creator
-    - saschb2b/skills/skills/engineering/react-stinky
     - emilkowalski/skills/skills/review-animations
     - git: https://github.com/cathrynlavery/diagram-design.git
       skills:

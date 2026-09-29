@@ -1,0 +1,6 @@
+{
+  "defaultSubagentContext": "fresh",
+  "globalConcurrencyLimit": 2,
+  "maxActiveAsyncRunsPerSession": 1,
+  "maxSubagentDepth": 1
+}

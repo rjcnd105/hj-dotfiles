@@ -1,0 +1,84 @@
+{
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-6-astra",
+  "defaultThinkingLevel": "high",
+  "modelThinkingLevels": {
+    "openai-codex/gpt-6-astra": "high",
+    "openai-codex/gpt-6-sol": "max",
+    "openrouter/deepseek/deepseek-v4.1-flash": "off"
+  },
+  "enabledModels": [
+    "openai-codex/gpt-6-astra",
+    "openai-codex/gpt-6-sol",
+    "openrouter/aion-labs/aion-3.5",
+    "openrouter/deepseek/deepseek-v4.1-flash",
+    "openrouter/xiaomi/mimo-v2.6-pro"
+  ],
+  "packages": [
+    "npm:pi-subagents@0.73.1",
+    "npm:pi-mcp-adapter@3.2.0",
+    "npm:@sting8k/pi-vcc@0.8.0",
+    "npm:pi-interactive-shell@0.17.0",
+    "npm:pi-ask-user@0.15.1"
+  ],
+  "subagents": {
+    "defaultModel": "openai-codex/gpt-6-sol",
+    "defaultThinking": "xhigh",
+    "defaultExtensions": [],
+    "agentOverrides": {
+      "scout": {
+        "thinking": "xhigh",
+        "inheritGlobalContext": true
+      },
+      "researcher": {
+        "thinking": "xhigh",
+        "inheritGlobalContext": true,
+        "inheritSkills": true,
+        "tools": [
+          "read",
+          "bash",
+          "write"
+        ],
+        "systemPrompt": "Research the assigned question with the ego-browser skill. Read ~/.agents/skills/ego-browser/SKILL.md before browsing, then use ego-browser through bash. Verify material claims on original sources; distinguish evidence from inference, cite source URLs, and report contradictions and gaps. Write the concise brief to the runtime-specified output path and return a summary."
+      },
+      "evidence-auditor": {
+        "thinking": "xhigh",
+        "inheritGlobalContext": true,
+        "inheritSkills": true,
+        "tools": [
+          "read",
+          "bash"
+        ],
+        "systemPrompt": "Independently audit decision-critical claims with the ego-browser skill. Read ~/.agents/skills/ego-browser/SKILL.md before browsing, then use ego-browser through bash to inspect cited original sources. Mark each claim supported, contradicted, unclear, or missing evidence; report source-quality concerns, contradictions, and effect on the conclusion."
+      },
+      "worker": {
+        "thinking": "xhigh",
+        "inheritGlobalContext": true,
+        "inheritSkills": true
+      },
+      "reviewer": {
+        "thinking": "xhigh",
+        "inheritGlobalContext": true
+      },
+      "oracle": {
+        "thinking": "xhigh",
+        "inheritGlobalContext": true
+      },
+      "delegate": {
+        "thinking": "xhigh",
+        "inheritGlobalContext": true
+      }
+    }
+  },
+  "lastChangelogVersion": "0.87.1",
+  "theme": "dark",
+  "skills": [
+    "-/Users/hj/.agents/skills/claude-api/SKILL.md",
+    "-skills/academy-guide",
+    "-skills/hook-development",
+    "-skills/mcp-integration",
+    "-skills/retro",
+    "-skills/skill-development",
+    "-skills/web-artifacts-builder"
+  ]
+}
