@@ -1,15 +1,17 @@
 {
   "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-6-astra",
-  "defaultThinkingLevel": "high",
+  "defaultModel": "gpt-6.1-sol",
+  "defaultThinkingLevel": "xhigh",
   "modelThinkingLevels": {
     "openai-codex/gpt-6-astra": "high",
     "openai-codex/gpt-6-sol": "max",
+    "openai-codex/gpt-6.1-sol": "xhigh",
     "openrouter/deepseek/deepseek-v4.1-flash": "off"
   },
   "enabledModels": [
     "openai-codex/gpt-6-astra",
     "openai-codex/gpt-6-sol",
+    "openai-codex/gpt-6.1-sol",
     "openrouter/aion-labs/aion-3.5",
     "openrouter/deepseek/deepseek-v4.1-flash",
     "openrouter/xiaomi/mimo-v2.6-pro"
@@ -22,16 +24,16 @@
     "npm:pi-ask-user@0.15.1"
   ],
   "subagents": {
-    "defaultModel": "openai-codex/gpt-6-sol",
-    "defaultThinking": "xhigh",
+    "defaultModel": "openai-codex/gpt-6.1-sol",
+    "defaultThinking": "high",
     "defaultExtensions": [],
     "agentOverrides": {
       "scout": {
-        "thinking": "xhigh",
+        "thinking": "high",
         "inheritGlobalContext": true
       },
       "researcher": {
-        "thinking": "xhigh",
+        "thinking": "high",
         "inheritGlobalContext": true,
         "inheritSkills": true,
         "tools": [
@@ -42,7 +44,7 @@
         "systemPrompt": "Research the assigned question with the ego-browser skill. Read ~/.agents/skills/ego-browser/SKILL.md before browsing, then use ego-browser through bash. Verify material claims on original sources; distinguish evidence from inference, cite source URLs, and report contradictions and gaps. Write the concise brief to the runtime-specified output path and return a summary."
       },
       "evidence-auditor": {
-        "thinking": "xhigh",
+        "thinking": "high",
         "inheritGlobalContext": true,
         "inheritSkills": true,
         "tools": [
@@ -52,25 +54,25 @@
         "systemPrompt": "Independently audit decision-critical claims with the ego-browser skill. Read ~/.agents/skills/ego-browser/SKILL.md before browsing, then use ego-browser through bash to inspect cited original sources. Mark each claim supported, contradicted, unclear, or missing evidence; report source-quality concerns, contradictions, and effect on the conclusion."
       },
       "worker": {
-        "thinking": "xhigh",
+        "thinking": "high",
         "inheritGlobalContext": true,
         "inheritSkills": true
       },
       "reviewer": {
-        "thinking": "xhigh",
+        "thinking": "high",
         "inheritGlobalContext": true
       },
       "oracle": {
-        "thinking": "xhigh",
+        "thinking": "high",
         "inheritGlobalContext": true
       },
       "delegate": {
-        "thinking": "xhigh",
+        "thinking": "high",
         "inheritGlobalContext": true
       }
     }
   },
-  "lastChangelogVersion": "0.87.1",
+  "lastChangelogVersion": "0.99.1",
   "theme": "dark",
   "skills": [
     "-/Users/hj/.agents/skills/claude-api/SKILL.md",

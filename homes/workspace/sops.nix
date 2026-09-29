@@ -45,7 +45,7 @@ let
     BSKY_APP_PASSWORD = "BSKY_APP_PASSWORD";
   }
   // lib.optionalAttrs (myOptions.hostName == "workspace") {
-    TYPESAFE_API_KEY = "TYPESAFE_AI_API_KEY";
+    TYPESAFE_API_KEY = "TYPESAFE_API_KEY";
   };
 
   workspace_env_vars = [

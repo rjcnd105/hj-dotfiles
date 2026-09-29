@@ -1,0 +1,235 @@
+# Promote Mode — `/retro promote`
+
+Every other retro mode reads the session **flow** (a transcript) and detects
+friction as it happens. Promote reads the accumulated **stock**: the
+cwd-scoped memory files Claude Code's default memory behaviour writes to
+`~/.claude/projects/<slug>/memory/`. It re-homes each note upward to its correct
+destination and drains the source — turning the "never project-local memory"
+rule from a *going-forward* policy into an action you can run on the backlog.
+
+It is a new **front-end** for the existing pipeline, not a new pipeline: it
+replaces Phases 1–3 (transcript detection) with a filesystem inventory and
+reuses Phases 4–10 (classify → approve → materialize → report) unchanged.
+
+## Why this mode exists
+
+Project-local memory (`~/.claude/projects/<slug>/memory/`, a project
+`CLAUDE.md`, `docs/feedback/`) is a **knowledge silo**: cwd-scoped, shared with
+no one, and invisible from any other slug. A note written while `cwd` resolved
+to `-home-sme` is never recalled while working in `-home-sme-p-retro-skill`.
+Promote drains that silo into the shareable destinations the taxonomy already
+defines, in priority order: **canonical-source › skill-update › project-rule
+(`AGENTS.md`) › personal-rule (`~/.claude/CLAUDE.md`)** — see the authority axis
+and the scope-escalation rule in `classification-heuristic.md`. A note whose
+substance is a fact owned outside the agent system (upstream docs, code, a
+schema) promotes to that owner; the skill keeps at most a reference plus the
+agent-specific delta.
+
+## What the scanner reads (and excludes)
+
+`${CLAUDE_SKILL_DIR}/scripts/scan-memory-inventory.py` is read-only by construction. It emits the
+same envelope shape as `detect-mechanical.py`, so Phases 4–10 consume it as-is.
+
+| Scanned | Signal | Note |
+|---|---|---|
+| `<slug>/memory/*.md` (feedback notes) | `C3` memory_drift | The canonical promotable stock |
+| `<slug>/memory/MEMORY.md` | — | Read as the index; pruned on drain, never itself a finding |
+| `<slug>/memory/.promoted/*.md` | — | Tombstones (already drained) — skipped, never re-emitted |
+| `<project>/CLAUDE.md`, `docs/feedback/*.md` | `B8` wrong_destination | **Opt-in** via `--include-flagged-locations` |
+| `~/.claude/CLAUDE.md`, one finding per `##` section | `C2` cross_project_pattern | **Opt-in** via `--include-global-rules` — see "Draining the global rules file" |
+
+**Excluded by construction** (never part of the scan surface — the scanner only
+globs `<slug>/memory/*.md`, so these are never enumerated in the first place):
+`~/.claude/CLAUDE.md` unless `--include-global-rules` is passed and
+`<project>/AGENTS.md` always (they are correct *destinations* — re-promoting
+them by default loops), and `.serena/memories/*.md` (project-overview
+context, not behaviour rules — would pollute global memory).
+
+### Draining the global rules file (`--include-global-rules`)
+
+The global rules file is where personal preferences *land*, so it is not a
+default source. It still accumulates a second kind of content: learned rules
+whose substance is team-usable procedure or domain fact (a CLI gotcha, a
+release recipe, an API trap). Those reach more people as a `skill-update` than
+as private prose, and this opt-in surfaces each `##` section so the classifier
+can judge it. Three binding rules:
+
+1. **Always-on behavior never leaves the file.** A skill loads only when
+   triggered. Rules that must hold in every turn — bans, tone rules,
+   assumption-marking, verification discipline — are not promotable to a
+   skill; at most they *pair* with an enforcement gate (hook/checkpoint) while
+   the prose stays. When in doubt, the section stays.
+2. **Two-direction test.** Promote a section only when BOTH hold: the content
+   generalizes beyond this user, AND losing it from always-loaded context is
+   safe because the owning skill reliably triggers when the content matters.
+3. **Drain is an agent edit, not the `drain` subcommand.** The subcommand
+   refuses paths outside `<slug>/memory/` by design. After the skill PR is
+   verified to exist, remove the section from the rules file with an ordinary
+   approval-gated edit, re-checking the scan's `content_sha256` against the
+   section text first (same race-check semantics). One section per edit.
+   Section-removal is markdown surgery and boundary regexes are FENCE-BLIND: a
+   `#`-anchored section-heading boundary also matches `#` comment lines inside code
+   fences, leaving orphaned section tails (observed live). Remove sections
+   fence-aware (track ``` state, or operate on a parsed structure), and verify
+   afterwards that fences are balanced and the section count dropped by exactly
+   the number removed.
+
+Each finding carries the source note's verbatim `**Why:**` / `**How to apply:**`
+prose, its `origin_session_id`, a `current_location` tag (the load-bearing
+evidence the LLM reads at Phase 5), and a `content_sha256` used as both an
+idempotency key and a drain race-check.
+
+### Scope
+
+`--project` with a leading-dash slug needs the equals form (`--project=-home-user-projects`) — argparse consumes the bare form as an option and errors "expected one argument".
+
+By default the scanner enumerates **every** slug that has a `memory/` dir;
+`--project=<slug>` narrows it to one. There is no `--scope` flag and there never
+was — earlier versions of this page and of the command documented `--scope
+cwd|all`, which the script rejects with exit 2, so every documented promote run
+died at argument parsing. The scanner **always** reports `slugs_scanned`, so an
+empty result reads as "scanned X, found nothing" rather than a silent skip; that
+guards the worktree-vs-parent slug split, since the real stock often lives
+under a sibling slug. Narrow with `--project=` only when you know which slug
+holds it.
+
+## Batch semantics — a proposal absorbs notes, the cap counts proposals
+
+A backlog drain meets hundreds of notes; per-note proposals under the ≤10 cap
+would spread one drain across dozens of sessions. In promote mode a **proposal
+is destination-shaped, not note-shaped**: one proposal = one materialization
+target (one skill PR, one AGENTS.md append), absorbing every scanned note that
+classifies to it. Rules:
+
+- The proposal lists every absorbed note by path, with its `content_sha256`.
+  Approval of the proposal approves the set; the user can strike individual
+  notes from the list.
+- One proposal counts once against the ≤10 cap regardless of how many notes it
+  absorbs.
+- The mechanical halves of a materialization repeat identically per proposal —
+  use `${CLAUDE_SKILL_DIR}/scripts/materialize-pr.sh` (`start` = fetch + fresh worktree off the
+  default branch; `finish` = stage ONLY named files, signed commit, push, PR
+  via `--body-file`) instead of hand-typing the sequence dozens of times.
+- Drain stays per-note: each absorbed note is drained individually (verified
+  materialization first), so a partially-landed proposal leaves the
+  unmaterialized notes in place.
+
+### Classifying a large backlog
+
+Past roughly fifty notes, reading every note and every candidate target in the
+main context does not fit. What worked on a 190-note store:
+
+1. Split the inventory into topic buckets of 20–60 notes (one forge, one
+   tracker, the skill fleet, one product family, general behaviour rules), so
+   each bucket has two to five candidate target skills.
+2. Give each bucket to a read-only classifier agent with the bucket's file list
+   and `content_sha256` values. It fetches each candidate skill repo and greps
+   its `origin/main` (never the installed copy), checks the global rules file,
+   and returns one verdict per note — covered, partial, new, stale, historical
+   — with a `file:line` it actually saw. Run at most three at a time.
+3. Build the destination-shaped proposals from the merged verdict tables, and
+   keep the tables in a durable file next to the proposals.
+4. Materialize one agent per target repository, again read-only except for its
+   own worktree, and drain each note only after its PR or MR URL is read back.
+
+The classifier verdicts are claims. Before a correction ("the skill says X,
+which is false") reaches the user, re-check its `file:line` yourself.
+
+## Verify before promoting — stale facts and paraphrase duplicates
+
+Two checks run at Phase 7, before a note enters a proposal:
+
+- **Stale-check.** Every note records what was true when written — not only
+  `reference` notes. Verify its load-bearing claim against reality before it
+  enters a proposal, and know which of two kinds of claim it makes:
+  - **Existence** — a path, flag, endpoint or version. Check that it still
+    exists.
+  - **State** — something is still open, not yet done, unreleased, waiting on
+    someone. This kind turns false the moment the thing happens, without a
+    word of the note changing, and an existence check passes it. The scanner
+    marks these in English and German (`noch nicht`, `steht aus`, `noch
+    offen`, …): `pending_state` lists the phrases, and
+    `pending_state_in_index` is true when one sits in the description.
+
+    The flag is a reason to look, not a verdict. It skips `feedback` notes,
+    because a rule speaks in conditionals and "still open" inside a rule is
+    not a claim that something is open now. And it deliberately does not
+    match `blocked`: on a real store that word never once marked a pending
+    claim — it named merge states, status enums and resolver behaviour.
+
+  Check the **description first**. It is the line `MEMORY.md` carries, loaded
+  into every session, while the body is read only on demand — so a stale state
+  in the description misleads each session and a stale state in the body only
+  whoever opens it. The note that prompted this was accurate on the day it was
+  written, resolved the next day, and stood in the index for a week reading
+  "all wait on one unreleased repo"; its body stayed historically correct
+  throughout. A stale note is proposed for **tombstone-only drain** (no upward
+  write), clearly labeled — or, where part of it is still true, for a rewrite
+  that keeps only that part.
+- **Paraphrase dedup.** `content_sha256` catches identical text, not the same
+  rule reworded — and stock notes are often already duplicated into
+  `~/.claude/CLAUDE.md` or the target skill. Read the *target* location and
+  compare mechanisms (not titles): if the target already covers the same
+  mechanism, the note is proposed for tombstone-only drain with the covering
+  location cited; if the target covers an adjacent mechanism only, promote and
+  say what is genuinely new. This is the same read-the-target rule as
+  "Instruction pruning" in `classification-heuristic.md`.
+
+## Materialize-then-drain (Phase 9)
+
+Source deletion is **last** and **gated on confirmed materialization**, per item:
+
+1. **Write/PR first** — append the titled rule to `~/.claude/CLAUDE.md` or
+   `<project>/AGENTS.md`, or open the `feat/retro-<slug>` PR with a signed
+   (`git commit -s`) commit.
+2. **Verify** — for file appends, re-read the target and confirm the rule text
+   is present; for PRs, confirm `gh`/`glab` returned a URL (PR *exists* =
+   materialized; merge is not required).
+3. **Drain only now** — `scan-memory-inventory.py drain <path> --expect-sha256 <sha>`
+   tombstone-**moves** the source into `<slug>/memory/.promoted/` (never `rm`)
+   and prunes its `MEMORY.md` entry: only the link to the note goes, with its
+   own hook text and one ` · ` separator. The bullet marker, a leading label,
+   sibling links and rule text outside the link stay; the line goes only when
+   nothing but the marker and a label remains. The `--expect-sha256`
+   race-check aborts the drain if the file changed since the scan.
+
+On any verification failure, **keep the source** and report it. Rejected
+proposals are never drained.
+
+**A memory store that is itself versioned needs a sync after the drain.** When
+the store is backed up in a dotfiles repository, the drained notes still sit in
+that repository. An installer that copies the repository back onto the machine
+then restores every drained note, and a capture that copies only tracked files
+from the machine neither removes them nor picks up the new tombstones. After
+the drain, mirror the store's directory into the repository — note removals
+and new `.promoted/` files included — and commit it before anyone runs the
+installer. Git records each drained note as a rename into `.promoted/`.
+
+## Risk controls
+
+1. **Naming.** `promote` names exactly what Phases 7–9 do (re-home upward by
+   reach) and fits the `/retro <verb>` convention. (`dream` / `upsert` rejected.)
+2. **Team-visibility of personal notes.** Two layers: (a) at Phase 5, personal
+   content (a `$HOME` path, an "I prefer…" style note) is **not** auto-escalated
+   past personal-rule; (b) at Phase 8, every `project-rule` / `skill-update`
+   proposal triggers a mandatory, default-**N** warning stating exactly where it
+   becomes team-visible and that the source is currently private. The promotion
+   and its paired drain are one approval unit.
+3. **Deletion timing / data loss.** Strict write → verify → drain ordering;
+   drain is a reversible tombstone move, never `rm`; no verified success → no
+   drain, ever; sha256 race-check guards concurrent edits.
+4. **Not everything should escalate.** Store-class discrimination keeps the
+   scanner to genuine silos; correct destinations and Serena context are never
+   emitted; the `drain` subcommand refuses any path not under a `<slug>/memory/`
+   store, so a drained note can't be re-filed downward.
+5. **Separation from `audit`.** Clean seam by input and output: `audit` reads
+   cross-session transcripts/git history over weeks and skews to ADR/harness
+   destinations; `promote` reads the filesystem stock of memory files (no
+   transcript, no time window) and skews to user/project/skill destinations.
+
+## See also
+
+- `references/classification-heuristic.md` — the C3/B8 routing and scope-escalation
+- `references/destination-taxonomy.md` — the seven destinations
+- `references/workflow.md` — the other modes
+- `docs/specs/retro-promote-mode.md` — full spec

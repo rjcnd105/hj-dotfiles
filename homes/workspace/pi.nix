@@ -16,5 +16,7 @@ in
     ".pi/agent/interactive-shell.json" = link "interactive-shell.json";
     ".pi/agent/pi-vcc-config.json" = link "pi-vcc-config.json";
     ".pi/agent/extensions/subagent/config.json" = link "extensions/subagent/config.json";
+    ".pi/agent/extensions/prompt-snippets" = link "extensions/prompt-snippets";
+    ".pi/agent/skills/analyze-sessions" = link "skills/analyze-sessions";
   };
 }

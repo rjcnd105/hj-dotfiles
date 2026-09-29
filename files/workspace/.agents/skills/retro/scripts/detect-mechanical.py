@@ -1,0 +1,2383 @@
+#!/usr/bin/env python3
+"""
+detect-mechanical.py — Schicht A mechanical friction detector for retro-skill.
+
+Reads a Claude Code session transcript (JSONL) and emits a structured list of
+mechanical friction candidates. Output is JSON, consumed by the LLM in Schicht B.
+
+Usage:
+    python3 detect-mechanical.py --transcript-file <path> [--output-format json]
+    python3 detect-mechanical.py --transcript-file <path> --signals A1,A6,A17
+
+Signals implemented (Schicht A — full catalog):
+    A1  Tool errors
+    A2  Tool retry clusters
+    A3  Tool output verbosity
+    A4  Tool call count vs task (inefficiency ratio)
+    A5  Sequential calls that could be parallel
+    A6  User correction phrases
+    A7  Prompt repetition (exact)
+    A8  Prompt sequence repetition
+    A9  Tool sequence repetition
+    A10 Skill in reminder vs invoke
+    A11 Wrong tool choice (grep/sed on structured files)
+    A12 Re-read same file
+    A13 Skipped verification (claim without prior test/build)
+    A14 Worked on main/master
+    A15 Bot attribution in commit
+    A16 Outdated tool warnings
+    A17 Upstream failure (git push / gh pr checks)
+    A18 Permission re-approval (same prompt ≥3× spread over session)
+    A19 Repeated command shape (repeated_command_shape — one probe run often
+        enough to be a script)
+    A20 Wait loop (wait_loop / wait_loop_terminal_condition — hand-rolled
+        polling)
+    C6  Written rule violated repeatedly (written_rule_violated_repeatedly —
+        a rule in CLAUDE.md that A11/A13/A14/A15 keep tripping)
+"""
+
+from __future__ import annotations
+
+import argparse
+import functools
+import importlib.util
+import itertools
+import json
+import re
+import shlex
+import sys
+from collections import Counter, defaultdict
+from collections.abc import Iterable
+from pathlib import Path
+from typing import Any
+
+
+def _load_sibling(filename: str):
+    """A sibling script, loaded by path: its name is hyphenated like ours."""
+    path = Path(__file__).resolve().parent / filename
+    spec = importlib.util.spec_from_file_location(path.stem.replace("-", "_"), path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+_masking = _load_sibling("mask-secrets.py")
+mask, squeeze = _masking.mask, _masking.squeeze
+
+# Line-start correction openers (EN + DE). Anchored so a mid-sentence "no" /
+# "nicht" inside ordinary prose does not trip the signal.
+CORRECTION_PATTERNS = re.compile(
+    r"^\s*(no\b|nope\b|nah\b|stop\b|don't\b|wrong\b|"
+    r"nein\b|n[oö]\b|nicht\b|nicht so\b|falsch\b|quatsch\b|unsinn\b|"
+    r"doch nicht\b|warum\b|wieso\b|weshalb\b|manno?\b|mann\b)",
+    re.IGNORECASE | re.MULTILINE,
+)
+# Strong correction phrases that signal friction wherever they appear in the
+# message, not only at line start — German-speaking users correct mid-sentence
+# far more than the anchored EN openers catch. Curated to stay low-false-positive.
+STRONG_CORRECTION_PHRASES = re.compile(
+    r"(so nicht\b|nicht schon wieder\b|schon wieder\b|wieder drin\b|"
+    r"raus damit\b|endlich mal\b|mal merken\b|was soll das\b|"
+    r"das ist (?:so )?nicht\b|stimmt (?:so )?nicht\b|"
+    r"mach(?:'s| es| das)?(?: doch)? selber\b|"
+    r"sei (?:bitte )?(?:mal )?(?:genau|vorsichtig|gr[uü]ndlich)\b|"
+    r"nicht analog\b)",
+    re.IGNORECASE,
+)
+ALL_CAPS_RUN = re.compile(r"[A-ZÄÖÜ]{4,}")
+MULTIPLE_EXCLAIM = re.compile(r"!{3,}")
+BOT_ATTRIBUTION = re.compile(
+    r"(Generated with Claude|Co-Authored-By:\s*Claude|🤖)",
+    re.IGNORECASE,
+)
+# `(?<!HEAD )is now`: git prints "HEAD is now at <sha>" on every checkout/worktree
+# add, which is a position report, not a deprecation — it fired seven times in one
+# session before the lookbehind.
+OUTDATED_TOOL = re.compile(
+    r"\b(deprecated|(?<!HEAD )is now|use\s+\S+\s+instead|no longer supported)\b",
+    re.IGNORECASE,
+)
+#: Slash commands the client handles itself; no Skill call can ever follow them.
+BUILTIN_SLASH_COMMANDS = frozenset(
+    {
+        "/clear",
+        "/compact",
+        "/config",
+        "/cost",
+        "/doctor",
+        "/exit",
+        "/help",
+        "/init",
+        "/login",
+        "/logout",
+        "/memory",
+        "/model",
+        "/quit",
+        "/status",
+    }
+)
+#: A `<command-name>` block whose text body is this long carries the skill content
+#: inline (the client expanded the slash command), so the skill IS in effect without
+#: a Skill tool call.
+INLINE_SKILL_MIN_CHARS = 1500
+#: How far into the following user event to look for the command naming itself.
+#: Measured at well under 200 characters for every slash command of one session.
+EXPANSION_HEAD_CHARS = 400
+GIT_BRANCH_MAIN = re.compile(r"\b(?:main|master)\b")
+# git's own options that take a value and come before the subcommand:
+# `git -C <dir> commit`, `git -c key=value push`. Without skipping them every
+# pattern below that expects the subcommand right after `git` misses the
+# `git -C <worktree> …` form — the form the worktree convention uses most.
+_GIT_GLOBAL_OPTS = r"(?:-[Cc]\s+\S+\s+)*"
+# Each alternative skips the flags that come before its branch-creating one via
+# its own negative lookahead (`(?!-b\b)` / `(?!-c\b)`), so the `*` cannot eat the
+# flag it is looking for: `git checkout -q -b feat` creates a branch just as
+# `git checkout -b feat`
+# does, but without this the switch went unrecognised and the tracked branch
+# stayed on whatever was checked out before it.
+GIT_CHECKOUT_B = re.compile(
+    rf"git\s+{_GIT_GLOBAL_OPTS}checkout\s+(?:(?!-b\b)-\S+\s+)*-b\b"
+    rf"|git\s+{_GIT_GLOBAL_OPTS}switch\s+(?:(?!-c\b)-\S+\s+)*-c\b"
+    # `worktree add` takes `-b` after the path as well as before it
+    # (`git worktree add ../feat -b feat origin/main`), so any token may precede it.
+    rf"|git\s+{_GIT_GLOBAL_OPTS}worktree\s+add\s+(?:(?!-b\b)[^\s;&|]+\s+)*-b\b"
+)
+# A14 branch-state tracking: a checkout/switch to a named branch, a worktree
+# added on an existing branch, or a branch reported in command output. Used to
+# decide whether a commit/push is actually happening on main — replacing the old
+# "the word 'main' appears anywhere in the command or output" heuristic, which
+# fired on every worktree commit and on commit messages mentioning "main".
+# `(?:-[^\s;&|]+\s+)*` skips optional flags (e.g. `-f`, `--quiet`) that may
+# precede the branch name/path before the capture group.
+GIT_SWITCH_TO = re.compile(
+    rf"\bgit\s+{_GIT_GLOBAL_OPTS}(?:checkout|switch)\s+(?:-[^\s;&|]+\s+)*"
+    r"(?P<br>[^\s;&|]+)"
+)
+# `git checkout <ref> -- <path>` (and `git checkout -- <path>`) restores files
+# and leaves HEAD where it was. Checked against the rest of the matched
+# statement, up to the next shell separator.
+GIT_PATHSPEC_SEPARATOR = re.compile(r"(?:^|\s)--(?:\s|$)")
+GIT_WORKTREE_ADD_BRANCH = re.compile(
+    rf"\bgit\s+{_GIT_GLOBAL_OPTS}worktree\s+add\s+(?:-[^\s;&|]+\s+)*\S+\s+"
+    r"(?P<br>[^\s;&|-][^\s;&|]*)"
+)
+# `On branch` is followed by a space, the other two by an optional quote. The
+# missing `\s+` meant the `git status` header — the most common way a branch
+# appears in output — never set the tracked branch at all.
+GIT_ON_BRANCH_OUT = re.compile(
+    r"(?:On branch\s+|Switched to(?: a new)? branch '?|Already on '?)(?P<br>[\w./-]+)"
+)
+# The first line `git commit` prints names the branch the commit landed on:
+# `[main 1a2b3c4] msg`, `[main (root-commit) 1a2b3c4] msg`,
+# `[detached HEAD 1a2b3c4] msg`.
+GIT_COMMIT_OUT = re.compile(
+    r"^\[(?P<br>detached HEAD|[^\s\]]+)(?: \(root-commit\))? [0-9a-f]{7,}\]",
+    re.MULTILINE,
+)
+GIT_COMMIT = re.compile(rf"\bgit\s+{_GIT_GLOBAL_OPTS}commit\b")
+# `(?![\w-])` requires main/master as a full token so "main-menu" / "master2"
+# (where `\b` would otherwise match the "main"/"master" prefix) do not fire.
+# `[^\n;&|]*` stops at a shell command separator so the match stays inside the
+# `git push` invocation itself: `git push | tail && git log origin/main..HEAD`
+# mentions main in a *later, read-only* command, and spanning into it flagged
+# an ordinary feature-branch push as work on main.
+GIT_PUSH_TO_MAIN = re.compile(
+    rf"\bgit\s+{_GIT_GLOBAL_OPTS}push\b[^\n;&|]*\b(?:HEAD:)?(?:main|master)(?![\w-])"
+)
+
+# A1: textual error markers, used as a fallback only when the harness `is_error`
+# flag is absent. The previous bare `"error" in result` substring test fired on
+# benign output ("0 errors", "no errors found", code that mentions error
+# handling), producing the bulk of A1 false positives. Require a real error
+# marker AND exclude success phrasing that merely contains the word "error".
+A1_ERROR_MARKER = re.compile(
+    r"(?:^|\n)\s*(?:error|fatal|panic)\b[:\s]"
+    r"|command not found"
+    r"|no such file or directory"
+    r"|:\s*error:"
+    r"|\bexit code [1-9]"
+    r"|\bnon-zero exit\b"
+    r"|Traceback \(most recent call last\)",
+    re.IGNORECASE,
+)
+A1_BENIGN = re.compile(
+    r"\b(?:0|no|zero|without|found 0)\s+errors?\b"
+    r"|\berrors?\s*[:=]\s*0\b"
+    r"|\berror[- ]free\b"
+    r"|all checks passed"
+    r"|created successfully"
+    r"|\bgood\b.*\bsignature\b",
+    re.IGNORECASE,
+)
+LARGE_TOOL_RESULT_BYTES = 5000
+DEFAULT_RETRY_WINDOW = 5  # turns
+DEFAULT_SEQ_NGRAM = 3
+
+# A4: efficiency ratio
+A4_RATIO_THRESHOLD = 5.0  # tool_uses / user_messages
+A4_MIN_TOOL_USES = 20  # skip tiny sessions
+
+# A5: read-only / independent tools that benefit from batching
+A5_PARALLELIZABLE_TOOLS = {"Read", "Glob", "Grep", "Bash"}
+A5_MIN_SERIAL_RUN = 3  # >=3 calls in separate assistant turns
+A19_MIN_COUNT = 8  # one command shape this often is a script, not a habit
+C6_MIN_VIOLATIONS = 3  # a written rule tripped this often needs a gate
+# Signal -> phrases that indicate a matching rule already exists in the
+# always-loaded instructions.
+C6_RULE_KEYWORDS = {
+    "A11": ["structured file", "jq", "yq", "dasel", "never grep"],
+    "A14": ["feature branch", "never work on main"],
+    "A15": ["bot attribution", "co-authored-by", "generated with"],
+    "A13": ["without pasted command output", "verification", "evidence before"],
+}
+
+# A11: tool-misuse patterns — shlex tokenization to handle quoted regex/sed bodies
+# (e.g. `sed -i 's|a|b|g' file.json`) and to distinguish piped from terminal cat.
+A11_STRUCTURED_EXT_RE = re.compile(
+    r"\.(?:json|jsonl|ya?ml|toml|xml|csv)$", re.IGNORECASE
+)
+A11_STRUCTURED_TOOLS = {"grep", "egrep", "fgrep", "sed", "awk", "gawk"}
+A11_CAT_TOOLS = {"cat", "head", "tail"}
+A11_PIPELINE_OPS = {"|", "||", "&&", ";", ">", ">>", "<"}
+
+# Redirect operators. Misuse 1 scans a segment's tokens for the tool's file
+# argument, and segments are split at `| || && ;` only — so anything a redirect
+# names still trails into the segment. Stopping the scan there keeps a redirect
+# target from being read as an argument.
+#
+# Matched by shape rather than enumerated: shlex with punctuation_chars emits
+# `&>>`, `>|`, `>&`, `<&` and `<>` as single tokens, and a hand-written set
+# quietly misses whichever ones nobody thought of — each miss restoring the
+# false positive for that one spelling. A bare `|` cannot match (the pattern
+# requires a `<` or `>`), and is a segment separator anyway.
+A11_REDIRECT_RE = re.compile(r"(?:\d*[<>][<>&|]*|&>>?)\Z")
+# The Read tool addresses files in the project; it has no last-N-lines mode and
+# is not the way to poll a background task's output, a log, or a scratch file.
+# The harness gate that enforces "Read instead of cat/head/tail" says so
+# explicitly, so flagging those paths reports as friction what the rule permits
+# — and, worse, feeds C6, which reads repeated A11 hits as proof that the prose
+# rule failed and escalates to "propose a mechanical gate". A false positive
+# must not be able to manufacture that escalation.
+A11_CAT_EXEMPT_PATH_RE = re.compile(
+    r"(?:"
+    r"(?:^|/)(?:tmp|var/log|var/tmp|logs?)/"  # a scratch or log directory
+    r"|/tasks/"  # a background task's output
+    # The session scratchpad when it is rooted outside /tmp — under a cache
+    # directory, typically. Anchored to that root on purpose: a bare
+    # `/scratchpad/` also exempts a project's own scratchpad/ directory, and
+    # reads of files inside the repository are exactly what A11 exists for.
+    r"|(?:^|/)\.?cache/(?:[^/]+/)*scratchpad/"
+    r"|\.(?:log|out|output)$"  # an output file by extension
+    r")"
+)
+
+# A13: verification-skip claims — tightened to phrases that are unambiguously
+# success assertions, not incidental status notes ("done", "fixed in v2", etc.).
+A13_CLAIM_PATTERNS = re.compile(
+    r"\b("
+    r"tests?\s+pass(?:es|ed|ing)?"  # "tests pass" / "test passed"
+    r"|all\s+tests?\s+(?:pass|green)"  # "all tests pass" / "all tests green"
+    r"|build\s+(?:passes|works|succeeds|succeeded)"
+    r"|(?:the\s+)?bug\s+is\s+fixed"  # "the bug is fixed"
+    # DE: "fixed". Negative lookbehind because the English alternatives all
+    # carry a subject ("tests pass", "the bug is fixed") while a bare participle
+    # does not, so "nicht behoben" — a CORRECTION of an earlier claim — was
+    # counted as the claim itself, and C6 counts A13.
+    r"|(?<!nicht )(?<!noch nicht )behoben"
+    r"|tests?\s+laufen(?:\s+(?:jetzt|wieder|durch))?"
+    r"|läuft\s+jetzt(?:\s+wieder)?"  # DE: "läuft jetzt"
+    r"|funktioniert\s+jetzt(?:\s+wieder)?"  # DE: "funktioniert jetzt"
+    r")\b",
+    re.IGNORECASE,
+)
+A13_VERIFICATION_CMD = re.compile(
+    r"\b("
+    r"pytest|unittest|jest|vitest|phpunit|composer\s+(?:test|ci:test)"
+    r"|npm\s+(?:test|run\s+test)|yarn\s+test|pnpm\s+(?:test|run\s+test)|bun\s+test"
+    r"|go\s+test|cargo\s+test|mvn\s+test|gradle\s+test"
+    r"|make\s+(?:test|check|lint)|tox|nox"
+    r"|ruff|flake8|mypy|pyright|eslint|tsc|phpstan|psalm|rector|golangci-lint"
+    r"|npm\s+run\s+build|yarn\s+build|pnpm\s+build|cargo\s+build|go\s+build|tsc\s+--build"
+    r")\b",
+)
+A13_LOOKBACK_BASH_CMDS = (
+    10  # examine the most recent N Bash invocations prior to the claim
+)
+
+# A18: allowlist candidate — same Bash command-prefix appearing ≥3× spread out
+# (not a retry burst). Restricted to Bash; non-Bash tools like Read/Glob/Grep
+# are already permission-scoped by name and would generate noisy false positives.
+A18_MIN_OCCURRENCES = 3
+A18_BASH_PREFIX_TOKENS = 2  # e.g. "git status", "gh pr"
+
+
+def load_jsonl(path: Path) -> list[dict[str, Any]]:
+    events: list[dict[str, Any]] = []
+    with path.open("r", encoding="utf-8", errors="replace") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                ev = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            # Every reader below calls `ev.get`; a line holding a JSON array,
+            # string or number is as unusable as one that does not parse.
+            if isinstance(ev, dict):
+                events.append(ev)
+    return events
+
+
+def _message(ev: dict) -> dict:
+    """The event's `message` object, or {} when it is missing, null or not an object."""
+    msg = ev.get("message")
+    return msg if isinstance(msg, dict) else {}
+
+
+# Turns that carry the "user" role but were not typed by a human: harness
+# task/system notifications, scheduled-wakeup re-fired prompts (each firing
+# repeats the same /loop or continuation prompt verbatim), slash-command
+# expansions, and teammate messages. Counting them as user input floods A6
+# (user corrections) and A7 (prompt repetition) with self-inflicted noise in
+# loop-heavy sessions.
+_SYNTHETIC_USER_MARKERS = (
+    "<task-notification>",
+    "[SYSTEM NOTIFICATION",
+    "<system-reminder>",
+    "<command-message>",
+    "<teammate-message",
+    "<agent-message",
+    # Compaction-continuation banner: quotes the session's own emphatic
+    # content back as a "user" turn — 3 false A6 and 1 false A7 from three
+    # banners in one measured session. Fallback for transcripts predating the
+    # isCompactSummary flag handled in extract_user_texts.
+    "This session is being continued from a previous conversation",
+)
+
+
+def _is_synthetic_user_text(text: str) -> bool:
+    head = text.lstrip()[:400]
+    return any(marker in head for marker in _SYNTHETIC_USER_MARKERS)
+
+
+def bypass_permissions_from(events: Iterable[dict]) -> int | None:
+    """Index of the first turn running under bypass-permissions mode, or None.
+
+    In that mode the system prompt tells the assistant to prefer Bash — "read
+    files with cat, head, or sed -n ... rather than using the dedicated Read,
+    Edit, or Write tools" — so A11's cat-instead-of-read arm would report the
+    instructed behaviour as friction, on every such session, and feed C6 the
+    repeat count it reads as a failed prose rule. The harness stamps the mode on
+    the user turn that carries it; it can be switched on mid-session, so this
+    returns the turn it starts at rather than a bare boolean.
+    """
+    for i, ev in enumerate(events):
+        if ev.get("permissionMode") == "bypassPermissions":
+            return i
+    return None
+
+
+def extract_user_texts(events: Iterable[dict]) -> list[tuple[int, str]]:
+    events = list(events)
+    out = []
+    # Prompts the assistant scheduled itself (ScheduleWakeup) come back as
+    # verbatim user turns on every firing. Map prompt -> earliest scheduling
+    # event index: only occurrences AFTER that index are re-firings — a human
+    # may well have typed the same text originally (the /loop pattern).
+    wakeup_prompts: dict[str, int] = {}
+    for j, ev in enumerate(events):
+        if ev.get("type") != "assistant":
+            continue
+        content = _message(ev).get("content")
+        if not isinstance(content, list):
+            continue
+        for block in content:
+            if (
+                isinstance(block, dict)
+                and block.get("type") == "tool_use"
+                and block.get("name") == "ScheduleWakeup"
+            ):
+                inp = block.get("input")
+                prompt = inp.get("prompt") if isinstance(inp, dict) else None
+                if isinstance(prompt, str) and prompt.strip():
+                    wakeup_prompts.setdefault(prompt.strip(), j)
+    for i, ev in enumerate(events):
+        if ev.get("type") != "user":
+            continue
+        # The harness stamps synthetic user turns (slash-command expansions,
+        # scheduled-wakeup re-firings, meta notifications) with isMeta: true —
+        # the authoritative discriminator where present. The marker/prompt
+        # checks below remain as fallback for transcripts predating the flag.
+        if ev.get("isMeta"):
+            continue
+        # Compaction summaries carry the user role but are harness-authored
+        # recaps of earlier turns; isCompactSummary is authoritative where
+        # present (the banner marker above covers older transcripts).
+        if ev.get("isCompactSummary"):
+            continue
+        content = _message(ev).get("content")
+        texts = []
+        if isinstance(content, str):
+            texts.append(content)
+        elif isinstance(content, list):
+            for block in content:
+                if isinstance(block, dict) and block.get("type") == "text":
+                    texts.append(block.get("text", ""))
+        # A slash-command expansion delivers the static command template as a
+        # sibling text block of the <command-message> marker — if any block
+        # in the message is synthetic, the whole message is.
+        if any(_is_synthetic_user_text(t) for t in texts):
+            continue
+        for text in texts:
+            scheduled_at = wakeup_prompts.get(text.strip())
+            if scheduled_at is not None and i > scheduled_at:
+                continue
+            out.append((i, text))
+    return out
+
+
+def extract_assistant_texts(events: Iterable[dict]) -> list[tuple[int, str]]:
+    """Return (event_index, text) for assistant-authored text blocks only."""
+    out = []
+    for i, ev in enumerate(events):
+        if ev.get("type") != "assistant":
+            continue
+        content = _message(ev).get("content")
+        if isinstance(content, str):
+            out.append((i, content))
+        elif isinstance(content, list):
+            for block in content:
+                if isinstance(block, dict) and block.get("type") == "text":
+                    out.append((i, block.get("text", "")))
+    return out
+
+
+class ToolUse(tuple):
+    """(event_index, tool_name, input, result_text, is_error), plus `message_id`.
+
+    Claude Code writes each tool_use of one assistant message as its OWN event,
+    all carrying the same `message.id` and each followed by its tool_result —
+    so calls issued in parallel sit at different event indexes, and only the
+    message id says they were one turn. It rides along as an attribute rather
+    than a sixth field because every signal unpacks exactly five.
+    """
+
+    message_id: str | None
+
+    def __new__(cls, fields: tuple, message_id: str | None = None):
+        obj = super().__new__(cls, fields)
+        obj.message_id = message_id
+        return obj
+
+
+def message_key(tool_use: tuple) -> tuple:
+    """Identity of the assistant message that issued a tool call.
+
+    The message id where the transcript has one; otherwise the event index,
+    which is the right answer for a layout that puts a whole message in one
+    event, and for hand-built plain tuples.
+    """
+    mid = getattr(tool_use, "message_id", None)
+    return ("id", mid) if mid else ("event", tool_use[0])
+
+
+_PendingUse = tuple[int, str, dict, "str | None"]
+
+
+def _use_fields(i: int, msg: dict, block: dict) -> _PendingUse:
+    """(event_index, tool_name, input, message_id) of one tool_use block."""
+    inp = block.get("input")
+    return (
+        i,
+        str(block.get("name") or ""),
+        inp if isinstance(inp, dict) else {},
+        msg.get("id") if isinstance(msg.get("id"), str) else None,
+    )
+
+
+#: Cursor's tool vocabulary, renamed to the one the signals match — as
+#: `opencode-transcript.py` does for opencode, or every shell and file signal
+#: misfires. Measured over 831 Cursor calls: `Shell` takes `command` like
+#: `Bash`, `StrReplace` takes `old_string`/`new_string` like `Edit`, and
+#: `Read`, `StrReplace` and `Write` name their file `path`, not `file_path`.
+#: `ApplyPatch` takes the bare patch text as its input, in opencode's header
+#: format, and becomes the `Patch` call that adapter renders.
+CURSOR_TOOL_NAMES = {"Shell": "Bash", "StrReplace": "Edit", "ApplyPatch": "Patch"}
+CURSOR_FILE_TOOLS = ("Read", "Edit", "Write")
+
+
+@functools.cache
+def _opencode_adapter():
+    """opencode-transcript.py, loaded once and only for a Cursor patch."""
+    return _load_sibling("opencode-transcript.py")
+
+
+def _cursor_patch_files(text: str) -> list[str]:
+    """The files a Cursor patch names, read by opencode's own header parser."""
+    return _opencode_adapter()._patch_files(text, v2=False)
+
+
+def _cursor_fields(i: int, msg: dict, block: dict) -> _PendingUse:
+    """`_use_fields` of an id-less (Cursor) call, in the signals' vocabulary."""
+    i, name, inp, message_id = _use_fields(i, msg, block)
+    name = CURSOR_TOOL_NAMES.get(name, name)
+    if name in CURSOR_FILE_TOOLS and "file_path" not in inp and "path" in inp:
+        inp = {**inp, "file_path": inp["path"]}
+    if name == "Patch" and isinstance(block.get("input"), str):
+        inp = {"file_paths": _cursor_patch_files(block["input"])}
+    return i, name, inp, message_id
+
+
+def _result_text(result) -> str:
+    """Flatten a tool_result's content (a string or a list of blocks) to text."""
+    if isinstance(result, list):
+        result = " ".join(
+            b.get("text", "") if isinstance(b, dict) else str(b) for b in result
+        )
+    return str(result)
+
+
+def _pair_tool_result(block: dict, pending: dict[str, _PendingUse]) -> ToolUse | None:
+    """Turn a tool_result block into a ToolUse if its tool_use is pending."""
+    use_id = block.get("tool_use_id")
+    if use_id not in pending:
+        return None
+    i_use, name, inp, message_id = pending.pop(use_id)
+    result = _result_text(block.get("content", ""))
+    is_error = block.get("is_error", False)
+    return ToolUse((i_use, name, inp, result, bool(is_error)), message_id)
+
+
+def _pair_block(
+    i: int, msg: dict, block, pending: dict[str, _PendingUse]
+) -> ToolUse | None:
+    """Feed one content block into the pairing; return a ToolUse once complete.
+
+    A tool_use without an ``id`` comes from a format that never pairs: Cursor
+    agent transcripts omit both the id and every tool_result. Such a call is
+    emitted at once, with an empty result and Cursor's tool names translated,
+    so the tool-name signals still see it.
+    A call WITH an id stays pending, and one whose result never arrives is left
+    out: the opencode adapter withholds the result of a running call precisely
+    so that it is not counted as a successful one.
+    """
+    if not isinstance(block, dict):
+        return None
+    if block.get("type") == "tool_use":
+        use_id = block.get("id")
+        if not use_id:
+            i_use, name, inp, message_id = _cursor_fields(i, msg, block)
+            return ToolUse((i_use, name, inp, "", False), message_id)
+        pending[use_id] = _use_fields(i, msg, block)
+    elif block.get("type") == "tool_result":
+        return _pair_tool_result(block, pending)
+    return None
+
+
+def extract_tool_uses(events: Iterable[dict]) -> list[ToolUse]:
+    """Return (event_index, tool_name, input, result_text, is_error) per call.
+
+    A call with an id is returned once its tool_result pairs with it; a call
+    without one (Cursor) is returned where it was issued, with an empty result.
+    """
+    out = []
+    tool_uses_pending: dict[str, _PendingUse] = {}
+    for i, ev in enumerate(events):
+        msg = _message(ev)
+        content = msg.get("content") or []
+        if not isinstance(content, list):
+            continue
+        for block in content:
+            paired = _pair_block(i, msg, block, tool_uses_pending)
+            if paired is not None:
+                out.append(paired)
+    return out
+
+
+# --- command shape -----------------------------------------------------------
+# Grouping by tool NAME is blind in a Bash-dominated session: every shell call
+# collapses to "Bash", so 61 identical `gh pr view` probes look like one busy
+# tool. The catalog has always promised "same tool + similar args"; this is the
+# args half. A shape keeps the program and its subcommands and drops every
+# value, so `gh pr view 120 --repo x --json state` and `gh pr view 7 --json url`
+# share the shape `gh pr view`.
+
+_SHELL_NOISE = {
+    "if",
+    "then",
+    "else",
+    "elif",
+    "fi",
+    "for",
+    "do",
+    "done",
+    "while",
+    "until",
+    "case",
+    "esac",
+    "function",
+    "return",
+    "exit",
+    "local",
+    "export",
+    "set",
+    "echo",
+    "printf",
+    "cd",
+    "true",
+    "false",
+    "test",
+    "[",
+    "[[",
+    "]]",
+    "exec",
+    "source",
+    ".",
+    "read",
+    "shift",
+    "eval",
+    "continue",
+    "break",
+}
+# A program name, to reject the shell syntax that survives segmentation: a
+# comment (`# note`), a case arm (`*)`), a brace (`{ echo`, `}`), arithmetic
+# (`(m+1))`). Those were reported as commands nobody ran.
+_PROGRAM_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_.+-]*$")
+# Wrappers do not identify the work — the command they wrap does. Skipping the
+# whole segment on seeing one hides the probe entirely: `timeout 300 gh api ...`
+# counted as "timeout", `sudo gh pr view` as nothing at all.
+_WRAPPERS = {"env", "sudo", "command", "time", "timeout", "nohup", "nice", "stdbuf"}
+# Only these git subcommands leave the machine; git status/log/diff are local.
+_REMOTE_GIT = {"fetch", "pull", "push", "clone", "ls-remote", "remote", "submodule"}
+
+
+# A PreToolUse hook that refuses a call reports it as that call's tool result,
+# so the presence of a deployed gate is readable from the transcript itself —
+# no need to inspect the reader's live configuration from a transcript analysis,
+# which would answer for whichever machine the retro happens to run on rather
+# than for the session under review.
+HOOK_DENIAL_RE = re.compile(r"PreToolUse:?\w*\s+hook\b", re.IGNORECASE)
+
+
+def extract_hook_denials(tool_uses) -> list[str]:
+    """The result texts of tool calls a PreToolUse hook intercepted."""
+    return [
+        result
+        for _i, _name, _inp, result, _err in tool_uses
+        if result and HOOK_DENIAL_RE.search(result)
+    ]
+
+
+def is_remote_shape(shape: str) -> bool:
+    """True when the shape leaves the machine — a round trip worth counting."""
+    parts = shape.split()
+    prog = parts[0]
+    if prog == "git":
+        return len(parts) > 1 and parts[1] in _REMOTE_GIT
+    return prog in _REMOTE_PREFIX
+
+
+_VALUEISH = re.compile(r"""^(-|/|\.|~|\$|\d|['"])""")
+
+
+def split_segments(cmd: str) -> list[str]:
+    """Split one shell string on separators that sit OUTSIDE quotes.
+
+    A regex split treats every `|`, `;` and newline as a separator, including
+    the ones inside a quoted argument. That turns the pipes of a jq program
+    (`--jq '[.[]|select(.x)] | length'`) and the newlines of an inline script
+    (`python3 -c "import yaml\\nprint(x)"`) into statement boundaries, and the
+    first word of each fragment is then reported as a command that was never
+    run — `select(.x)]`, `length'`, `import yaml`.
+
+    Shell rules decide what still separates inside quotes: nothing does inside
+    single quotes, and inside double quotes only command substitution (`$(`
+    and a backtick) opens a new command.
+    """
+    segments: list[str] = []
+    buf: list[str] = []
+    quote: str | None = None
+    i = 0
+    cmd = cmd or ""
+
+    def flush() -> None:
+        segments.append("".join(buf))
+        buf.clear()
+
+    while i < len(cmd):
+        ch = cmd[i]
+        if quote:
+            if quote == '"':
+                if ch == "\\" and i + 1 < len(cmd):
+                    buf.append(ch)
+                    buf.append(cmd[i + 1])
+                    i += 2
+                    continue
+                # Command substitution is the one thing that still starts a
+                # command inside double quotes.
+                if cmd.startswith("$(", i) or ch == "`":
+                    flush()
+                    i += 2 if ch == "$" else 1
+                    continue
+                # Closing the substitution returns to the command that wrapped
+                # it, which has to be examined on its own: without this,
+                # `FOO="$(git rev-parse HEAD)" gh pr view 1` reported only the
+                # inner `git rev-parse` and lost `gh pr view` entirely.
+                if ch == ")":
+                    flush()
+                    i += 1
+                    continue
+            if ch == quote:
+                quote = None
+                # After a substitution flushed, the closing quote would open the
+                # next segment and be tokenised as its program. It carries no
+                # information there, so drop it; elsewhere it is kept, because a
+                # leading quote is what marks a token as a value rather than a
+                # subcommand.
+                if not buf:
+                    i += 1
+                    continue
+            buf.append(ch)
+            i += 1
+            continue
+
+        if ch in "'\"":
+            quote = ch
+            buf.append(ch)
+            i += 1
+            continue
+        if ch in ";\n`":
+            flush()
+            i += 1
+            continue
+        if cmd.startswith("&&", i) or cmd.startswith("||", i):
+            flush()
+            i += 2
+            continue
+        if ch == "|":
+            flush()
+            i += 1
+            continue
+        if cmd.startswith("$(", i):
+            flush()
+            i += 2
+            continue
+        if ch == ")":
+            flush()
+            i += 1
+            continue
+        buf.append(ch)
+        i += 1
+
+    flush()
+    return segments
+
+
+HEREDOC = re.compile(r"<<-?\s*['\"]?(\w+)['\"]?.*?^\1$", re.DOTALL | re.MULTILINE)
+
+
+ASSIGNMENT = re.compile(r"^[A-Za-z_]\w*=")
+# Wrapper options that take a separate value. Dropping the flag but leaving its
+# argument hides the program behind it: `sudo -u root git push` peeled to
+# `root git push`, whose first token is not git, so the operation vanished.
+# `--flag=value` needs no entry here — it is one token.
+_WRAPPER_VALUE_FLAGS = {
+    "sudo": {
+        "-u",
+        "--user",
+        "-g",
+        "--group",
+        "-p",
+        "--prompt",
+        "-h",
+        "--host",
+        "-r",
+        "--role",
+        "-t",
+        "--type",
+        "-C",
+        "--close-from",
+    },
+    "env": {"-u", "--unset", "-C", "--chdir", "-S", "--split-string"},
+    "timeout": {"-s", "--signal", "-k", "--kill-after"},
+    "nice": {"-n", "--adjustment"},
+    "stdbuf": {"-i", "--input", "-o", "--output", "-e", "--error"},
+}
+
+
+def _drop_wrapper_args(toks: list[str], wrapper: str) -> None:
+    """Consume a wrapper's own flags, values included, in place."""
+    takes_value = _WRAPPER_VALUE_FLAGS.get(wrapper, set())
+    while toks:
+        tok = toks[0]
+        if tok.startswith("-"):
+            toks.pop(0)
+            if tok in takes_value and toks and not toks[0].startswith("-"):
+                toks.pop(0)
+            continue
+        if re.match(r"^\d+[smhd]?$", tok):  # `timeout 60`
+            toks.pop(0)
+            continue
+        return
+
+
+def peel_to_program(toks: list[str]) -> list[str]:
+    """Drop leading VAR=value assignments and wrapper commands, in place order.
+
+    `env FOO=1 sudo -u x timeout 60 git push` is a git operation; the wrappers
+    and their own flags say nothing about the work. Shared by command_shapes()
+    and git_segments() so the two cannot drift — a copy of this loop in the
+    latter is what made `sudo git push origin main` stop counting.
+    """
+    peeled = True
+    while peeled and toks:
+        peeled = False
+        while toks and ASSIGNMENT.match(toks[0]):
+            toks.pop(0)
+            peeled = True
+        if toks and toks[0].split("/")[-1] in _WRAPPERS:
+            wrapper = toks.pop(0).split("/")[-1]
+            peeled = True
+            _drop_wrapper_args(toks, wrapper)
+    return toks
+
+
+def git_segments(cmd: str) -> list[str]:
+    """The statements in `cmd` that actually invoke git.
+
+    Matching a pattern like `git push … main` against the raw command string
+    also matches the *words* `git push` wherever they appear as data — in a
+    replacement string, a documentation example, a script being written. That
+    is how editing this file made A14 report "worked on main" seven times for
+    commands that ran no git at all. Segmenting first (quote-aware) and keeping
+    only the segments whose program is git leaves the pattern nothing to
+    misread.
+    """
+    segments = []
+    for seg in split_segments(HEREDOC.sub(" ", cmd or "")):
+        toks = peel_to_program(seg.strip().split())
+        if toks and toks[0].split("/")[-1] == "git":
+            segments.append(" ".join(toks))
+    return segments
+
+
+# Local text plumbing. Repeating these is a pipeline, not a probe worth
+# wrapping in a script; wrong-tool use is A11's job, verbosity is A3's.
+_PLUMBING = {
+    "head",
+    "tail",
+    "cat",
+    "grep",
+    "sed",
+    "awk",
+    "wc",
+    "sort",
+    "uniq",
+    "cut",
+    "tr",
+    "xargs",
+    "find",
+    "ls",
+    "mkdir",
+    "rm",
+    "cp",
+    "mv",
+    "chmod",
+    "touch",
+    "basename",
+    "dirname",
+    "sha256sum",
+    "base64",
+    "diff",
+    "tee",
+    "jq",
+    "yq",
+}
+# Anything that leaves the machine: each call is a round trip and a token cost.
+_REMOTE_PREFIX = (
+    "gh",
+    "glab",
+    "curl",
+    "wget",
+    "git",
+    "docker",
+    "ssh",
+    "uvx",
+    "npm",
+    "composer",
+)
+
+
+def command_shapes(cmd: str) -> list[str]:
+    """Every distinct program+subcommand shape invoked in one shell string."""
+    cmd = HEREDOC.sub(" ", cmd or "")
+    shapes: list[str] = []
+    for seg in split_segments(cmd):
+        toks = peel_to_program(seg.strip().split())
+        if not toks:
+            continue
+        prog = toks[0].split("/")[-1]
+        # A bare "/" or a trailing slash leaves prog empty; an empty shape would
+        # crash every consumer that splits it.
+        if not prog or prog in _SHELL_NOISE or _VALUEISH.match(prog):
+            continue
+        if not _PROGRAM_NAME.match(prog):
+            continue
+        # git subcommands are single-level: everything after `git push` is an
+        # argument, so `git push origin` and `git push` must not split apart.
+        # gh/glab/docker nest two deep (`gh pr view`, `docker compose up`).
+        depth = 1 if prog == "git" else 2
+        args = toks[1:]
+        # `git -C <dir> push` is the shape `git push`, not `git`.
+        while prog == "git" and len(args) >= 2 and args[0] in ("-C", "-c"):
+            args = args[2:]
+        parts = [prog]
+        for t in args[:depth]:
+            if _VALUEISH.match(t) or "=" in t:
+                break
+            if not re.match(r"^[a-z][a-z0-9:_-]*$", t):
+                break
+            parts.append(t)
+        shape = " ".join(parts)
+        if shape not in shapes:
+            shapes.append(shape)
+    return shapes
+
+
+def shape_of(name: str, inp: dict) -> list[str]:
+    """Shapes for any tool use. Non-Bash tools are already one shape each."""
+    if name == "Bash":
+        return command_shapes((inp or {}).get("command", ""))
+    return [name]
+
+
+def shape_histogram(tool_uses) -> dict[str, list[int]]:
+    hist: dict[str, list[int]] = defaultdict(list)
+    for i, name, inp, _result, _err in tool_uses:
+        for sh in shape_of(name, inp):
+            hist[sh].append(i)
+    return hist
+
+
+def signal_tool_errors(tool_uses) -> list[dict]:
+    out = []
+    for i, name, inp, result, is_error in tool_uses:
+        head = result[:200]
+        # Trust the harness is_error flag unconditionally (an authoritative
+        # failure). Only the text-based fallback is gated by A1_BENIGN, so
+        # success output that merely contains the word "error" ("0 errors",
+        # "all checks passed") is not flagged.
+        if is_error or (A1_ERROR_MARKER.search(head) and not A1_BENIGN.search(head)):
+            out.append(
+                {
+                    "signal": "A1",
+                    "name": "tool_error",
+                    "turn": i,
+                    "tool": name,
+                    "snippet": squeeze(result, 200),
+                }
+            )
+    return out
+
+
+def signal_retry_clusters(tool_uses, window: int = DEFAULT_RETRY_WINDOW) -> list[dict]:
+    out = []
+    # Grouped by command shape: "Bash three times" says nothing, "gh pr view
+    # three times in five turns" is the finding.
+    # Counted once per assistant message: a retry needs the previous result, so
+    # it is always a later message, while calls issued together in one message
+    # (a parallel batch) are not retries of each other.
+    by_tool: dict[str, list[int]] = defaultdict(list)
+    seen: set[tuple[str, tuple]] = set()
+    for use in tool_uses:
+        key = message_key(use)
+        for sh in shape_of(use[1], use[2]):
+            if (sh, key) not in seen:
+                seen.add((sh, key))
+                by_tool[sh].append(use[0])
+    for name, turns in by_tool.items():
+        if len(turns) < 3:
+            continue
+        # Detect 3+ within window
+        for j in range(len(turns) - 2):
+            if turns[j + 2] - turns[j] <= window * 2:
+                out.append(
+                    {
+                        "signal": "A2",
+                        "name": "tool_retry_cluster",
+                        "tool": name,
+                        "turns": turns[j : j + 3],
+                    }
+                )
+                break
+    return out
+
+
+def signal_verbose_results(tool_uses) -> list[dict]:
+    out = []
+    for i, name, inp, result, is_error in tool_uses:
+        if len(result) > LARGE_TOOL_RESULT_BYTES:
+            out.append(
+                {
+                    "signal": "A3",
+                    "name": "verbose_tool_output",
+                    "turn": i,
+                    "tool": name,
+                    "bytes": len(result),
+                }
+            )
+    return out
+
+
+def signal_user_corrections(user_texts) -> list[dict]:
+    out = []
+    for i, text in user_texts:
+        if CORRECTION_PATTERNS.search(text) or STRONG_CORRECTION_PHRASES.search(text):
+            out.append(
+                {
+                    "signal": "A6",
+                    "name": "user_correction",
+                    "turn": i,
+                    "snippet": squeeze(text, 200),
+                }
+            )
+        elif ALL_CAPS_RUN.search(text) and len(text) < 500:
+            out.append(
+                {
+                    "signal": "A6",
+                    "name": "all_caps_emphasis",
+                    "turn": i,
+                    "snippet": squeeze(text, 200),
+                }
+            )
+        elif MULTIPLE_EXCLAIM.search(text):
+            out.append(
+                {
+                    "signal": "A6",
+                    "name": "exclamation_emphasis",
+                    "turn": i,
+                    "snippet": squeeze(text, 200),
+                }
+            )
+    return out
+
+
+def signal_prompt_repetition(user_texts) -> list[dict]:
+    """Exact (normalized) prompt repetition detector."""
+    out = []
+    seen: dict[str, list[int]] = defaultdict(list)
+    for i, text in user_texts:
+        # Masked before lowercasing: AKIA…, eyJ… and the like only match
+        # in their original case.
+        key = squeeze(text, 200).lower()
+        if len(key) < 10:
+            continue
+        seen[key].append(i)
+    for key, turns in seen.items():
+        if len(turns) >= 2:
+            out.append(
+                {
+                    "signal": "A7",
+                    "name": "prompt_repetition",
+                    "turns": turns,
+                    "snippet": key[:200],
+                }
+            )
+    return out
+
+
+def signal_prompt_sequence_repetition(
+    user_texts, n: int = DEFAULT_SEQ_NGRAM
+) -> list[dict]:
+    out = []
+    if len(user_texts) < n * 2:
+        return out
+    norm = [squeeze(t[1], 60).lower() for t in user_texts]
+    counter: Counter[tuple[str, ...]] = Counter()
+    for i in range(len(norm) - n + 1):
+        ngram = tuple(norm[i : i + n])
+        if all(len(s) > 5 for s in ngram):
+            counter[ngram] += 1
+    for ngram, cnt in counter.items():
+        if cnt >= 2:
+            out.append(
+                {
+                    "signal": "A8",
+                    "name": "prompt_sequence_repetition",
+                    "count": cnt,
+                    "ngram": list(ngram),
+                }
+            )
+    return out
+
+
+def signal_tool_sequence_repetition(
+    tool_uses, n: int = DEFAULT_SEQ_NGRAM
+) -> list[dict]:
+    out = []
+    if len(tool_uses) < n * 2:
+        return out
+    names = [t[1] for t in tool_uses]
+    counter: Counter[tuple[str, ...]] = Counter()
+    for i in range(len(names) - n + 1):
+        counter[tuple(names[i : i + n])] += 1
+    for ngram, cnt in counter.items():
+        if cnt >= 2:
+            out.append(
+                {
+                    "signal": "A9",
+                    "name": "tool_sequence_repetition",
+                    "count": cnt,
+                    "ngram": list(ngram),
+                }
+            )
+    return out
+
+
+def signal_skill_reminder_vs_invoke(events) -> list[dict]:
+    out = []
+    for i, ev in enumerate(events):
+        msg = _message(ev)
+        content = msg.get("content", "")
+        if isinstance(content, list):
+            text = " ".join(b.get("text", "") for b in content if isinstance(b, dict))
+        else:
+            text = str(content)
+        matches = re.findall(r"<command-name>([^<]+)</command-name>", text)
+        if not matches:
+            continue
+        # Built-ins are handled by the client; an expanded slash command arrives with
+        # its full instructions inline — neither is a skill that failed to trigger.
+        if all(m.strip() in BUILTIN_SLASH_COMMANDS for m in matches):
+            continue
+        # The expansion is usually its OWN event: the anchor carries only
+        # <command-message> and <command-name> (~110 chars), and the skill body
+        # arrives as the next user message. Measuring the anchor alone therefore
+        # never reached the threshold in practice — six slash commands in one
+        # session were all reported as skills that failed to trigger, /retro
+        # itself among them — while the same body inlined into the anchor was
+        # correctly skipped. Both layouts have to be measured.
+        body = text
+        if i + 1 < len(events):
+            ev_next = events[i + 1]
+            nxt = _message(ev_next)
+            # The role sits on the event in some transcripts and inside the
+            # message in others; either one identifies the expansion.
+            if "user" in (ev_next.get("type"), nxt.get("role")):
+                content_n = nxt.get("content", "")
+                if isinstance(content_n, list):
+                    following = " ".join(
+                        b.get("text", "") for b in content_n if isinstance(b, dict)
+                    )
+                else:
+                    following = str(content_n)
+                # Being a long user message is not enough — an unrelated one
+                # would then suppress the signal for a skill that really was
+                # named and not invoked. The expansion opens by naming itself,
+                # measured across every slash command of one session: the bare
+                # command (`/git-workflow:pr-finish` -> `pr-finish`) appears
+                # within the first 200 characters of the body every time.
+                bare = [m.strip().lstrip("/").split(":")[-1].lower() for m in matches]
+                head = following[:EXPANSION_HEAD_CHARS].lower()
+                if any(b and b in head for b in bare):
+                    body += " " + following
+        if len(body) >= INLINE_SKILL_MIN_CHARS:
+            continue
+        # Look at next 3 events for Skill tool invocation
+        invoked = False
+        for j in range(i + 1, min(i + 4, len(events))):
+            content_j = _message(events[j]).get("content", [])
+            if isinstance(content_j, list):
+                for block in content_j:
+                    if (
+                        isinstance(block, dict)
+                        and block.get("type") == "tool_use"
+                        and block.get("name") == "Skill"
+                    ):
+                        invoked = True
+                        break
+            if invoked:
+                break
+        if not invoked:
+            out.append(
+                {
+                    "signal": "A10",
+                    "name": "skill_reminder_not_invoked",
+                    "turn": i,
+                    "skills_mentioned": matches,
+                }
+            )
+    return out
+
+
+def _edited_paths(name: str, inp: dict) -> list[str]:
+    """The files a tool call edits."""
+    if name in ("Edit", "Write", "MultiEdit"):
+        return [inp.get("file_path", "")]
+    if name == "Patch":
+        # opencode's patch tool, as `opencode-transcript.py` renders it: one
+        # call that edits every file its headers name.
+        return list(inp.get("file_paths", []))
+    return []
+
+
+#: Lines the Read tool returns when no `limit` is given ("Reads up to 2000 lines
+#: by default", per its own description).
+READ_DEFAULT_LIMIT = 2000
+
+
+def _read_range(inp: dict) -> tuple[int, int]:
+    """The 1-based, inclusive line range a Read call covers."""
+    offset, limit = inp.get("offset"), inp.get("limit")
+    start = offset if isinstance(offset, int) and offset > 0 else 1
+    count = limit if isinstance(limit, int) and limit > 0 else READ_DEFAULT_LIMIT
+    return start, start + count - 1
+
+
+def signal_reread_same_file(tool_uses) -> list[dict]:
+    """A12: a file read again, with no edit in between, over lines already read.
+
+    Paging through a long file — offset/limit (1, 700), (700, 750), (1450, 740) — is one
+    read of it, not three: a later range only counts when it overlaps an
+    earlier one (since the last edit) by more than the single boundary line
+    that consecutive pages share.
+    """
+    out = []
+    reads: dict[str, list[int]] = defaultdict(list)
+    # Ranges read since the path was last edited.
+    fresh: dict[str, list[tuple[int, int]]] = defaultdict(list)
+    suspicious_paths: set[str] = set()
+    for i, name, inp, _result, _err in tool_uses:
+        if name == "Read":
+            path = inp.get("file_path", "")
+            lo, hi = _read_range(inp)
+            for a, b in fresh[path]:
+                if min(hi, b) - max(lo, a) + 1 > 1:
+                    suspicious_paths.add(path)
+            fresh[path].append((lo, hi))
+            reads[path].append(i)
+        for path in _edited_paths(name, inp):
+            fresh[path] = []
+    for path, read_turns in reads.items():
+        if path in suspicious_paths:
+            out.append(
+                {
+                    "signal": "A12",
+                    "name": "reread_without_edit",
+                    "path": path,
+                    "turns": read_turns,
+                }
+            )
+    return out
+
+
+def signal_main_branch_work(tool_uses) -> list[dict]:
+    """Flag commits/pushes that are positively on main/master.
+
+    Tracks the active branch from explicit checkouts/switches, worktree
+    additions, and branch names echoed in command output. Only fires when we
+    *know* the operation is on main (or a push explicitly targets main) — a
+    worktree checked out on a feature branch, or a commit message that merely
+    mentions "main", no longer trips this signal. A commit *on* main is the
+    violation; a push only counts when it targets the main branch — pushing a
+    tag or another ref while standing on main (e.g. `git push origin v1.2.3`
+    during a release) is legitimate and does not fire.
+    """
+    out = []
+    on_main = None  # None = unknown; only flag when positively known to be on main
+    for i, name, inp, result, is_error in tool_uses:
+        if name != "Bash":
+            continue
+        cmd = inp.get("command", "")
+
+        if GIT_CHECKOUT_B.search(cmd):  # checkout -b / switch -c / worktree add -b
+            on_main = False
+        else:
+            # A checkout that names a pathspec restores files; it is not a switch.
+            m = next(
+                (
+                    s
+                    for s in GIT_SWITCH_TO.finditer(cmd)
+                    if not GIT_PATHSPEC_SEPARATOR.search(
+                        re.split(r"[;&|\n]", cmd[s.start() :], maxsplit=1)[0]
+                    )
+                ),
+                None,
+            )
+            mw = GIT_WORKTREE_ADD_BRANCH.search(cmd)
+            if m and not m.group("br").startswith("-"):
+                on_main = m.group("br") in ("main", "master")
+            elif mw:
+                on_main = mw.group("br") in ("main", "master")
+        # Take the LAST branch reported in the output, not the first: a block
+        # like `git checkout main && git checkout -b feat` echoes two switches,
+        # and the final one is the branch the next command runs on.
+        branch_lines = sorted(
+            [*GIT_ON_BRANCH_OUT.finditer(result), *GIT_COMMIT_OUT.finditer(result)],
+            key=lambda bm: bm.start(),
+        )
+        if branch_lines:
+            on_main = branch_lines[-1].group("br") in ("main", "master")
+
+        # A commit while on main is the violation; a push only counts when it
+        # targets the main branch (a bare push of a tag/other ref is fine).
+        # Both are matched against the segments that really invoke git, so the
+        # words `git push … main` sitting in data do not count as either.
+        git_segs = git_segments(cmd)
+        committed_on_main = (
+            any(GIT_COMMIT.search(seg) for seg in git_segs) and on_main is True
+        )
+        if committed_on_main or any(GIT_PUSH_TO_MAIN.search(seg) for seg in git_segs):
+            out.append(
+                {
+                    "signal": "A14",
+                    "name": "git_op_without_branch",
+                    "turn": i,
+                    "command": squeeze(cmd, 200),
+                }
+            )
+    return out
+
+
+def signal_bot_attribution(tool_uses) -> list[dict]:
+    out = []
+    for i, name, inp, result, is_error in tool_uses:
+        if name != "Bash":
+            continue
+        cmd = inp.get("command", "")
+        if GIT_COMMIT.search(cmd) and BOT_ATTRIBUTION.search(cmd):
+            out.append(
+                {
+                    "signal": "A15",
+                    "name": "bot_attribution_in_commit",
+                    "turn": i,
+                    "snippet": squeeze(cmd, 300),
+                }
+            )
+    return out
+
+
+def signal_outdated_tool(tool_uses) -> list[dict]:
+    out = []
+    for i, name, inp, result, is_error in tool_uses:
+        if OUTDATED_TOOL.search(result[:1000]):
+            out.append(
+                {
+                    "signal": "A16",
+                    "name": "outdated_tool_warning",
+                    "turn": i,
+                    "tool": name,
+                    "snippet": squeeze(result, 300),
+                }
+            )
+    return out
+
+
+def signal_upstream_failure(tool_uses) -> list[dict]:
+    out = []
+    for i, name, inp, result, is_error in tool_uses:
+        if name != "Bash":
+            continue
+        cmd = inp.get("command", "")
+        if is_error and re.search(
+            rf"\bgit\s+{_GIT_GLOBAL_OPTS}push\b"
+            r"|\bgh\s+pr\s+(checks|create|merge)\b|\bglab\s+mr\b",
+            cmd,
+        ):
+            out.append(
+                {
+                    "signal": "A17",
+                    "name": "upstream_failure",
+                    "turn": i,
+                    "command": squeeze(cmd, 200),
+                    "stderr": squeeze(result, 500),
+                }
+            )
+    return out
+
+
+def signal_tool_count_vs_task(tool_uses, user_texts) -> list[dict]:
+    """A4: total tool-call/user-message ratio above threshold on a non-trivial session.
+
+    Denominator counts distinct user *events*, not text blocks — a single user
+    event with multiple text blocks must not skew the ratio downward.
+    """
+    n_tools = len(tool_uses)
+    n_msgs = len({i for i, _ in user_texts}) or 1
+    ratio = n_tools / n_msgs
+    if n_tools >= A4_MIN_TOOL_USES and ratio >= A4_RATIO_THRESHOLD:
+        # A bare ratio is not a proposal: it says "a lot happened" without
+        # naming what to mechanize. Carry the dominant command shapes so the
+        # finding points at something that can become a script.
+        hist = shape_histogram(tool_uses)
+        top = sorted(
+            (
+                (sh, len(t))
+                for sh, t in hist.items()
+                if len(t) >= 3 and sh.split()[0] not in _PLUMBING
+            ),
+            key=lambda kv: -kv[1],
+        )[:10]
+        return [
+            {
+                "signal": "A4",
+                "name": "tool_call_inefficiency_ratio",
+                "top_shapes": [{"shape": sh, "count": c} for sh, c in top],
+                "tool_uses": n_tools,
+                "user_messages": n_msgs,
+                "ratio": round(ratio, 2),
+                "threshold": A4_RATIO_THRESHOLD,
+            }
+        ]
+    return []
+
+
+def signal_sequential_parallelizable(tool_uses) -> list[dict]:
+    """A5: ≥N parallelizable tools (Read/Glob/Grep/Bash) in *separate* assistant
+    messages, back-to-back, without an interleaving non-parallelizable call.
+
+    Calls are grouped by the assistant message that issued them (`message_key`),
+    not by event index: Claude Code writes every tool_use of one message as its
+    own event, so a parallel batch spans several event indexes and would
+    otherwise read as the sequential run this signal exists to report.
+    `assistant_messages` lists the first event index of each message.
+    """
+    out = []
+    run: list[tuple[int, tuple, str]] = []  # (event_index, message_key, name)
+
+    def flush(run):
+        if len(run) < A5_MIN_SERIAL_RUN:
+            return
+        first_event: dict[tuple, int] = {}
+        for ev, key, _ in run:
+            first_event[key] = min(ev, first_event.get(key, ev))
+        if len(first_event) >= A5_MIN_SERIAL_RUN:
+            out.append(
+                {
+                    "signal": "A5",
+                    "name": "sequential_parallelizable",
+                    "tools": [n for _, _, n in run],
+                    "assistant_messages": sorted(first_event.values()),
+                }
+            )
+
+    for use in tool_uses:
+        ev_idx, name = use[0], use[1]
+        if name in A5_PARALLELIZABLE_TOOLS:
+            run.append((ev_idx, message_key(use), name))
+        else:
+            flush(run)
+            run = []
+    flush(run)
+    return out
+
+
+def _tokenize_bash(cmd: str) -> list[str] | None:
+    """shlex-tokenize a Bash command. Returns None on unbalanced quotes etc."""
+    try:
+        lexer = shlex.shlex(cmd, posix=True, punctuation_chars=True)
+        lexer.whitespace_split = True
+        lexer.commenters = ""
+        return list(lexer)
+    except ValueError:
+        return None
+
+
+def _split_statements(tokens: list[str]) -> list[list[str]]:
+    """Split a token list into statements at `;`, `&&`, `||` — keeping pipes.
+
+    A pipeline is one statement: `cat f | wc -l` is legitimate use of cat and
+    must stay intact so the caller can see the `|` and skip it.
+    """
+    statements: list[list[str]] = []
+    current: list[str] = []
+    for tok in tokens:
+        if tok in (";", "&&", "||", "&"):
+            if current:
+                statements.append(current)
+            current = []
+        else:
+            current.append(tok)
+    if current:
+        statements.append(current)
+    return statements
+
+
+def _split_pipeline_segments(tokens: list[str]) -> list[list[str]]:
+    """Split a token list into pipeline segments at | || && ; operators."""
+    segments: list[list[str]] = []
+    current: list[str] = []
+    for tok in tokens:
+        if tok in ("|", "||", "&&", ";"):
+            if current:
+                segments.append(current)
+            current = []
+        else:
+            current.append(tok)
+    if current:
+        segments.append(current)
+    return segments
+
+
+# grep short options that consume the next token. A pattern given through `-e`
+# may itself start with a dash — `grep -e '-l' version package.json` searches
+# for the literal "-l" — so reading every dash-prefixed token as flags would
+# collect an `l` from the pattern and exempt an extraction as a presence search.
+A11_GREP_ARG_OPTS = set("efmABCD")
+
+
+def _a11_grep_flags(segment: list[str]) -> str:
+    """The short flags of a grep-family segment, concatenated.
+
+    Option arity is honoured: a token consumed as the argument of `-e`, `-f`,
+    `-m` or a context option is not a flag, whatever it looks like.
+    """
+    out = []
+    skip_next = False
+    for tok in segment[1:]:
+        if skip_next:
+            skip_next = False
+            continue
+        if tok == "--":
+            break
+        if not tok.startswith("-") or tok.startswith("--") or tok == "-":
+            continue
+        # Walk the bundle: an arg-taking option ends the flag run. What follows
+        # it inside the same token is its argument (`-ePAT`); if nothing
+        # follows, the argument is the next token (`-e PAT`).
+        body = tok[1:]
+        for pos, ch in enumerate(body):
+            if ch in A11_GREP_ARG_OPTS:
+                if pos == len(body) - 1:
+                    skip_next = True
+                break
+            out.append(ch)
+    return "".join(out)
+
+
+def _a11_is_presence_or_locate_grep(
+    segment: list[str], pipeline: list[list[str]]
+) -> bool:
+    """True for a grep that asks WHETHER or WHERE, not WHICH VALUE.
+
+    The harness gate this signal mirrors exempts these deliberately: `-c/-q/-l`
+    answer a question no structured parser can be handed, and `-n` locates a
+    line whose `file:line:text` output is not a field value. They are also the
+    only way to find a COMMENT, which jq and yq cannot see at all. Without the
+    exemption every `grep -rn` over a repo is reported as wrong-tool friction —
+    and, because C6 counts A11 findings, a run of them is read as proof that
+    the prose rule failed and escalates to "propose a mechanical gate", for a
+    gate that already exists and already permits exactly this.
+    """
+    if segment[0] not in {"grep", "egrep", "fgrep"}:
+        return False
+    flags = _a11_grep_flags(segment)
+    if "o" in flags:
+        return False  # -o prints the match itself: extraction, not location
+    if any(f in flags for f in "cqlL"):
+        return True
+    if "n" not in flags:
+        return False
+    # `grep -n … | cut -d: -f2` is still extraction; a lone locate is not.
+    # `grep -n … | cut -d: -f2` is still extraction, so a locate loses its
+    # exemption once a field-splitting sink follows. A lone `sed` does not
+    # count: piping `file:line:text` through it is almost always cosmetic
+    # (trimming the prefix for display), and the gate exempts that by name.
+    # `pipeline` is the segments of ONE statement (see _a11_structured_file_misuse),
+    # so this walk cannot reach past a `;`, `&&` or `||` into a different command.
+    # It used to: the segment list was built from the whole Bash call, so
+    # `grep -n '<<<<<<<' x.json | head; echo; awk '/<<</,/>>>/' x.json` lost the
+    # locate exemption on an `awk` that was never downstream of the grep at all.
+    # The enforcing gate splits statements first for the same reason.
+    idx = pipeline.index(segment)
+    for seg in pipeline[idx + 1 :]:
+        if not seg:
+            continue
+        if seg[0] in {"awk", "gawk", "cut"}:
+            return False
+        if seg[0] in {"head", "tail"} and "-1" in seg:
+            return False
+    return True
+
+
+# A sed script that only prints a line address: `5p`, `1,80p`, `12,+3p`, `$p`,
+# and the `M,Np` form the Read tool cannot express when the file is not in the
+# project. Anchored whole, so `1,80s/a/b/p` and `/key/p` do not qualify — the
+# first edits, the second selects by content, and both are what A11 exists for.
+A11_SED_LINE_ADDRESS_RE = re.compile(r"\A(?:\$|\d+)(?:,(?:\$|\+?\d+))?p\Z")
+
+
+def _a11_is_line_addressed_read(segment: list[str]) -> bool:
+    """True for a `sed -n <line-address>p` that reads a document, not a value.
+
+    `sed -n '1,80p' compose.yml` is the same question as opening the file: it
+    asks for a RANGE OF LINES, keeps comments and ordering, and has no field to
+    extract. yq cannot answer it — it reformats, drops comments and cannot
+    address line 80 at all. Reporting it as wrong-tool friction is the defect
+    `_a11_is_presence_or_locate_grep` already fixed for the grep half: C6 counts
+    A11 findings, so a run of ordinary document reads is read as proof that the
+    prose rule failed and escalates to "propose a mechanical gate" — here, a
+    gate against reading a file.
+
+    Measured on the session that produced this fix: 9 of 15 A11 hits were this
+    shape, and 2 were genuine extraction (`grep -H '^name:' *.yml`, an awk range
+    over compose.yml).
+
+    Only `-n` counts. Without it sed prints every line anyway, so an explicit
+    address is doing something other than paging through the file.
+    """
+    if segment[0] != "sed":
+        return False
+    scripts: list[str] = []
+    flags = ""
+    script_options = 0
+    for tok in segment[1:]:
+        if tok.startswith("--"):
+            # Long options are matched whole. Counting an "e" inside them would
+            # read --regexp-extended as a second script and refuse a read that
+            # is one.
+            if tok in {"--expression", "--file"} or tok.startswith(
+                ("--expression=", "--file=")
+            ):
+                script_options += 1
+            continue
+        if tok.startswith("-") and len(tok) > 1:
+            short = tok[1:]
+            flags += short
+            # Bundled as well as separate: `-ne '1,80p' -e 's/x/y/'` carries
+            # two scripts and only one of them is a line address.
+            script_options += short.count("e")
+            continue
+        if not scripts and not A11_STRUCTURED_EXT_RE.search(tok):
+            scripts.append(tok)
+    if script_options > 1:
+        # More than one script means the addresses are not the whole story:
+        # only the first was ever validated, so `-e '1,80p' -e 's/x/y/'` bought
+        # an edit the exemption written for a read.
+        return False
+    if "n" not in flags or "i" in flags:
+        return False
+    return bool(scripts) and all(A11_SED_LINE_ADDRESS_RE.match(s) for s in scripts)
+
+
+# The address a substitution may carry in front of it: `5s/…`, `1,80s/…`,
+# `$s/…`, `/^key:/s/…`.
+A11_SED_ADDRESS_RE = re.compile(r"\A(?:\d+(?:,(?:\d+|\$))?|\$|/(?:[^/\\]|\\.)*/)?")
+
+
+# The flags GNU sed accepts after a substitution. `w file` is excluded on
+# purpose: it writes a second file, which is not what this exemption is about.
+A11_SED_SUB_FLAGS_RE = re.compile(r"\A[0-9gpiImMe]*\Z")
+
+
+def _a11_sed_substitution_flags(script: str) -> str | None:
+    """The flags of a script that is ONE substitution and nothing else.
+
+    None when the script is not a substitution, and none when something
+    follows it. The trailing text is validated against the flag grammar rather
+    than returned raw: `s/a/b/;d` puts a delete behind the substitution, and
+    handing `;d` back as "flags" let a destructive command inherit an
+    exemption written for a version bump. Found in review.
+    """
+    rest = script[A11_SED_ADDRESS_RE.match(script).end() :]
+    if len(rest) < 2 or rest[0] != "s" or rest[1].isalnum() or rest[1].isspace():
+        return None
+    delim, i, seen = rest[1], 2, 0
+    while i < len(rest) and seen < 2:
+        if rest[i] == "\\":
+            i += 2
+            continue
+        if rest[i] == delim:
+            seen += 1
+        i += 1
+    if seen != 2:
+        return None
+    flags = rest[i:]
+    return flags if A11_SED_SUB_FLAGS_RE.match(flags) else None
+
+
+def _a11_is_line_precise_edit(segment: list[str]) -> bool:
+    """True for a `sed -i` whose every script is a substitution.
+
+    Editing a structured file this way is not the misuse A11 looks for - it is
+    what the data-tools rule PRESCRIBES. The rule forbids reading values with
+    grep and forbids writing a file back through a serializer, because
+    `json.dumps` and `jq .` re-emit the whole document in their own formatting
+    and turn a three-line change into a full-file diff. What it names as the
+    correct form is the Edit tool or a targeted sed on one anchored line, which
+    is exactly this shape.
+
+    So the flag fired on the prescribed technique, and because C6 counts A11
+    findings it argued for a gate against following the rule. Measured on the
+    session that produced this: three of the nine remaining A11 hits were a
+    `sed -i` version bump - `ext_emconf.php`, `plugin.json`, `composer.json` -
+    each replacing one anchored version string, and one of them was followed by
+    a `json.load` check in the same call.
+
+    Narrow on purpose, and the `g` flag is where the line runs. Without it a
+    substitution replaces at most once per line, which together with a pattern
+    naming the thing being changed is the targeted edit the rule asks for. With
+    it the command sweeps every occurrence anywhere in the document, including
+    inside keys, comments and substrings - `sed -i 's|foo|bar|g' config.yaml`
+    is the sledgehammer A11 exists to catch, and it keeps firing. `g` is a
+    proxy rather than a proof of intent, but it is the one signal in the
+    command text that separates the two.
+
+    Also only `-i`, so a substitution over a pipe is untouched, and only
+    substitutions: `sed -i '5d'` and `sed -i -f edit.sed` still fire because
+    neither shows what it does to the document.
+    """
+    if segment[0] != "sed":
+        return False
+    # sed's grammar decides where the scripts are, and getting it wrong breaks
+    # the check in both directions. With any -e/--expression present, EVERY
+    # script comes from those and every positional is a file; without one, the
+    # first positional is the script and the rest are files. Reading only the
+    # first positional in both cases missed the second script of
+    # `-e 's/a/b/' -e 'd'`, which is how a delete inherited this exemption.
+    scripts: list[str] = []
+    positionals: list[str] = []
+    flags = ""
+    expect_script = False
+    saw_expression = False
+    for tok in segment[1:]:
+        if expect_script:
+            scripts.append(tok)
+            expect_script = False
+            continue
+        if tok in {"-e", "--expression"}:
+            saw_expression = True
+            expect_script = True
+            continue
+        if tok.startswith("--expression="):
+            saw_expression = True
+            scripts.append(tok.split("=", 1)[1])
+            continue
+        if tok.startswith("--"):
+            continue
+        if tok.startswith("-") and len(tok) > 1:
+            flags += tok[1:]
+            if tok.endswith("e"):  # bundled, e.g. `-ne` or `-ie`
+                saw_expression = True
+                expect_script = True
+            continue
+        positionals.append(tok)
+    if not saw_expression and positionals:
+        scripts.append(positionals[0])
+    if "i" not in flags or "f" in flags:
+        return False
+    if not scripts:
+        return False
+    for script in scripts:
+        sub_flags = _a11_sed_substitution_flags(script)
+        if sub_flags is None or "g" in sub_flags:
+            return False
+    return True
+
+
+# A git conflict marker is the one thing in a structured file that no structured
+# parser can be asked about: while the markers are there the file is not JSON or
+# YAML at all, and jq/yq/dasel refuse it outright. The enforcing gate permits the
+# search (measured: it denied 0 of the conflict-marker scans in the session that
+# produced this fix), so reporting it is friction the harness does not agree is
+# friction — and C6 counts A11 findings, so a merge with three conflicted
+# manifests escalates to "propose a mechanical gate" against looking for them.
+#
+# Atoms are the three markers; the surrounding characters are only what a regex
+# or an awk range needs to join them (`\|`, `/…/,/…/`, an anchor). Anything else
+# in the pattern — a key name, an `s///` body — loses the exemption.
+A11_CONFLICT_MARKER_ATOM_RE = re.compile(r"<{7}|={7}|>{7}")
+A11_CONFLICT_MARKER_ONLY_RE = re.compile(r"\A(?:<{7}|={7}|>{7}|[\\|/,^$ ])+\Z")
+
+
+def _a11_is_conflict_marker_search(segment: list[str]) -> bool:
+    """True when the only thing this segment searches for is a conflict marker.
+
+    The structured filename is not a pattern, so it is excluded; every remaining
+    non-flag token must be marker-only, and at least one marker must be present.
+    A second, ordinary pattern in the same segment therefore keeps the finding.
+    """
+    if segment[0] in {"grep", "egrep", "fgrep"} and "o" in _a11_grep_flags(segment):
+        return False  # `-o` prints the match: the gate denies that either way
+    patterns = [
+        tok
+        for tok in segment[1:]
+        if not tok.startswith("-") and not A11_STRUCTURED_EXT_RE.search(tok)
+    ]
+    if not patterns:
+        return False
+    return all(
+        A11_CONFLICT_MARKER_ATOM_RE.search(p) and A11_CONFLICT_MARKER_ONLY_RE.match(p)
+        for p in patterns
+    )
+
+
+def _a11_structured_file_misuse(i: int, cmd: str, tokens: list[str]) -> dict | None:
+    """Misuse 1: grep/sed/awk acting on a structured-file argument.
+
+    At most one finding per Bash call — a pipeline that greps two JSON files is
+    one habit, and the C6 tally that decides whether prose has failed counts
+    findings.
+
+    Statements first, pipelines inside them: a downstream-sink test that walked
+    the whole call read the next statement's command as this grep's sink.
+    """
+    for statement in _split_statements(tokens):
+        pipeline = _split_pipeline_segments(statement)
+        finding = _a11_statement_misuse(i, cmd, pipeline)
+        if finding is not None:
+            return finding
+    return None
+
+
+def _a11_statement_misuse(i: int, cmd: str, pipeline: list[list[str]]) -> dict | None:
+    """The misuse-1 scan over the pipeline segments of ONE statement."""
+    for segment in pipeline:
+        if not segment or segment[0] not in A11_STRUCTURED_TOOLS:
+            continue
+        if _a11_is_presence_or_locate_grep(segment, pipeline):
+            continue
+        if _a11_is_conflict_marker_search(segment):
+            continue
+        if _a11_is_line_addressed_read(segment):
+            continue
+        if _a11_is_line_precise_edit(segment):
+            continue
+        tool = segment[0]
+        for tok in segment[1:]:
+            # A redirect target is never the tool's positional file argument.
+            # Segments split at `| || && ;` only, so a loop's own redirect —
+            # `while read …; do … sed 's|x||' …; done < data/opened.jsonl` —
+            # trails into the segment holding the body's sed/awk and gets
+            # attributed to it. That is the data-tools-prescribed form (jq
+            # reads the file, sed edits the stream) reported as its own
+            # violation, and a run of them drives C6 to demand a gate against
+            # correct behaviour.
+            if A11_REDIRECT_RE.match(tok):
+                break
+            if tok.startswith("-"):
+                continue
+            if A11_STRUCTURED_EXT_RE.search(tok):
+                return {
+                    "signal": "A11",
+                    "name": "structured_file_misuse",
+                    "turn": i,
+                    "tool_invoked": tool,
+                    "file": mask(tok),
+                    "hint": "use data-tools (jq / yq / dasel) instead of grep/sed/awk on structured formats",
+                    "snippet": squeeze(cmd, 200),
+                }
+    return None
+
+
+# A value that is not a plain literal cannot be resolved without running the
+# shell, so it does not register: `/tmp/$(mktemp -d)` starts with a slash and
+# would otherwise be trusted as one.
+A11_UNRESOLVABLE_VALUE_RE = re.compile(r"[$`()]")
+A11_VAR_REF_RE = re.compile(r"\$(?:\{(\w+)\}|([A-Za-z_]\w*))")
+
+
+def _a11_leading_assignments(statement: list[str]) -> dict[str, str]:
+    """The `VAR=/literal` prefix of one statement, as shell reads it.
+
+    Only the run of assignments before the first ordinary word counts, which is
+    what makes `echo "S=/tmp/a"` contribute nothing: the statement starts with
+    `echo`, so the argument that merely looks like an assignment is an argument.
+    shlex strips quotes, so without this the quoted text — and a heredoc body —
+    would register as environment.
+    """
+    env: dict[str, str] = {}
+    for tok in statement:
+        name, sep, value = tok.partition("=")
+        if not (sep and name.isidentifier()):
+            break  # the first ordinary word ends the assignment prefix
+        if value.startswith("/") and not A11_UNRESOLVABLE_VALUE_RE.search(value):
+            env[name] = value
+    return env
+
+
+def _a11_expand_path_vars(arg: str, env: dict[str, str]) -> str:
+    """Substitute assignments made earlier in the SAME command into `arg`.
+
+    The exemption below is path-literal, and the scratchpad path a session is
+    told to use is long enough that assigning it once — `S=/tmp/.../scratchpad`
+    — and reading `$S/out.txt` is the idiomatic form. Matching the raw token
+    then sees `$S/out.txt`, misses the `/tmp/` the exemption is looking for, and
+    reports a permitted read-back as friction. The better the scratchpad
+    discipline, the more false positives, and C6 turns a run of them into
+    "the prose rule failed, propose a gate" for a gate that already exists.
+
+    Substitution matches a whole identifier. A plain `str.replace` per name lets
+    a short name eat a longer one — with `S` assigned before `SRC`, `$SRC/main.go`
+    becomes `/tmp/aRC/main.go` and a project file stops being reported — and it
+    also rewrites `$Sfoo`, which the shell reads as an unset `Sfoo`.
+
+    An unresolvable variable is left as-is, so nothing is exempted on a guess.
+    """
+    if "$" not in arg:
+        return arg
+    return A11_VAR_REF_RE.sub(
+        lambda m: env.get(m.group(1) or m.group(2), m.group(0)), arg
+    )
+
+
+def _a11_cat_instead_of_read(i: int, cmd: str, tokens: list[str]) -> dict | None:
+    """Misuse 2: cat/head/tail used as the terminal command (no pipe/redirect).
+
+    Per sub-command, not per Bash call: `head -50 file.py; echo done` is the
+    misuse even though the call also runs something else, while bailing on the
+    whole call whenever any operator appears misses it. A sub-command that
+    pipes or redirects is legitimate use and is skipped — that is what
+    `cat f | wc -l` is for. Returns at most one finding per call: two such reads
+    in one call are one habit, and counting twice inflates the C6 tally.
+    """
+    env: dict[str, str] = {}
+    for sub in _split_statements(tokens):
+        # Assignments are collected as the command runs, so a statement sees
+        # only what preceded it: `cat $S/main.go; S=/tmp/y` read $S unset.
+        env |= _a11_leading_assignments(sub)
+        if not sub or sub[0] not in A11_CAT_TOOLS:
+            continue
+        if any(tok in A11_PIPELINE_OPS for tok in sub):
+            continue
+        file_args = [
+            _a11_expand_path_vars(t, env) for t in sub[1:] if not t.startswith("-")
+        ]
+        if file_args and not all(A11_CAT_EXEMPT_PATH_RE.search(t) for t in file_args):
+            return {
+                "signal": "A11",
+                "name": "cat_instead_of_read",
+                "turn": i,
+                "tool_invoked": sub[0],
+                "hint": "use the Read tool (line-numbered output, ranged reads) instead of cat/head/tail",
+                "snippet": squeeze(cmd, 200),
+            }
+    return None
+
+
+def signal_wrong_tool_choice(tool_uses, bypass_from: int | None = None) -> list[dict]:
+    """A11: Bash invoking grep/sed/awk on structured files, or cat/head/tail
+    *terminally* on a single file (Read would fit).
+
+    Uses shlex so quoted regex/sed bodies like `sed -i 's|a|b|g' file.json`
+    tokenize correctly, and so piped pipelines like `cat file | wc -l`
+    aren't misread as a cat-instead-of-read pattern.
+
+    The two arms are ordered, and the order carries meaning: a structured-file
+    misuse short-circuits the call, and only the cat arm is suppressed under
+    bypass-permissions, where the assistant is told to read with Bash. Misuse 1
+    stays live under every mode — data-tools is about using the wrong parser on
+    a structured file, not about which tool opens it.
+    """
+    out = []
+    for i, name, inp, _result, _err in tool_uses:
+        if name != "Bash":
+            continue
+        cmd = inp.get("command", "")
+        if not cmd:
+            continue
+        tokens = _tokenize_bash(cmd)
+        if not tokens:
+            continue
+
+        structured = _a11_structured_file_misuse(i, cmd, tokens)
+        if structured is not None:
+            out.append(structured)
+            continue
+
+        if bypass_from is not None and i >= bypass_from:
+            continue
+
+        cat_read = _a11_cat_instead_of_read(i, cmd, tokens)
+        if cat_read is not None:
+            out.append(cat_read)
+    return out
+
+
+def signal_skipped_verification(assistant_texts, tool_uses) -> list[dict]:
+    """A13: assistant claims success without any prior test/build/lint Bash
+    call within the last `A13_LOOKBACK_BASH_CMDS` Bash invocations.
+
+    Counting Bash calls (rather than estimating events-per-turn) makes the
+    lookback robust regardless of how many tool_use blocks a turn contains.
+    `tool_uses` is already chronological from `extract_tool_uses`, so no sort
+    is needed.
+    """
+    out = []
+    bash_commands_chronological: list[tuple[int, str]] = [
+        (i, inp.get("command", ""))
+        for i, name, inp, _r, _e in tool_uses
+        if name == "Bash"
+    ]
+
+    def had_verification_before(turn: int) -> bool:
+        recent = [(i, c) for i, c in bash_commands_chronological if i < turn][
+            -A13_LOOKBACK_BASH_CMDS:
+        ]
+        return any(A13_VERIFICATION_CMD.search(c) for _, c in recent)
+
+    for i, text in assistant_texts:
+        m = A13_CLAIM_PATTERNS.search(text)
+        if not m:
+            continue
+        if had_verification_before(i):
+            continue
+        out.append(
+            {
+                "signal": "A13",
+                "name": "claim_without_verification",
+                "turn": i,
+                "claim": m.group(0),
+                "snippet": squeeze(text, 200),
+            }
+        )
+    return out
+
+
+def signal_permission_reapproval(
+    tool_uses, window: int = DEFAULT_RETRY_WINDOW
+) -> list[dict]:
+    """A18: same Bash command-prefix appears ≥3× *spread* over the session.
+
+    Distinct from A2 (retry burst): A18 fires only when the run is dispersed,
+    i.e. median gap between occurrences exceeds the retry window — these are
+    candidates for an allowlist entry, not a misunderstanding.
+
+    Restricted to Bash. Non-Bash tools (Read/Glob/Grep/etc.) are already
+    permission-scoped by tool name, so repeated invocations don't represent
+    re-approval friction.
+    """
+    out = []
+    grouped: dict[str, list[int]] = defaultdict(list)
+    for i, name, inp, _r, _e in tool_uses:
+        if name != "Bash":
+            continue
+        cmd = (inp.get("command") or "").strip()
+        # `GH_TOKEN=ghp_… gh` is a two-token prefix too.
+        prefix = mask(" ".join(cmd.split()[:A18_BASH_PREFIX_TOKENS]))
+        if not prefix:
+            continue
+        grouped[prefix].append(i)
+    for prefix, turns in grouped.items():
+        if len(turns) < A18_MIN_OCCURRENCES:
+            continue
+        gaps = [b - a for a, b in itertools.pairwise(turns)]
+        if not gaps:
+            continue
+        gaps_sorted = sorted(gaps)
+        median = gaps_sorted[len(gaps_sorted) // 2]
+        if median <= window * 2:
+            # Looks like a retry burst — leave it to A2.
+            continue
+        out.append(
+            {
+                "signal": "A18",
+                "name": "permission_reapproval_candidate",
+                "prefix": prefix,
+                "occurrences": len(turns),
+                "median_gap_turns": median,
+            }
+        )
+    return out
+
+
+def signal_repeated_probe(tool_uses, min_count: int = A19_MIN_COUNT) -> list[dict]:
+    """A19: one command shape invoked many times — a script waiting to happen.
+
+    Read-only probes are the expensive case: each one costs a round trip and
+    tokens, and the same derived answer is recomputed from scratch every time.
+    The finding names the shape and the count so the proposal can be concrete
+    ("wrap these in a script") instead of "you used many tools".
+    """
+    out = []
+    hist = shape_histogram(tool_uses)
+    for shape, turns in sorted(hist.items(), key=lambda kv: -len(kv[1])):
+        if len(turns) < min_count:
+            continue
+        prog = shape.split()[0]
+        if prog in _PLUMBING:
+            continue  # pipeline noise, not a probe
+        remote = is_remote_shape(shape)
+        span = turns[-1] - turns[0]
+        out.append(
+            {
+                "signal": "A19",
+                "name": "repeated_command_shape",
+                "shape": shape,
+                "count": len(turns),
+                "first_turn": turns[0],
+                "last_turn": turns[-1],
+                "span_turns": span,
+                "remote": remote,
+                "hint": (
+                    f"`{shape}` ran {len(turns)}x across {span} turns — a single "
+                    "script that returns the whole answer (and the next valid "
+                    "action) removes the repetition. Route to harness-artefact "
+                    "or a skill script, not to prose."
+                ),
+            }
+        )
+    return out
+
+
+def signal_wait_loop_inefficiency(tool_uses) -> list[dict]:
+    """A20: polling that waits for everything instead of the first actionable event.
+
+    `until [ pending == 0 ]` learns nothing until the slowest job finishes, long
+    after the first failure was visible and fixable — and the user is left
+    asking for status. A loop that exits on the first actionable state is the
+    fix; this surfaces the ones that do not.
+    """
+    out = []
+    for i, name, inp, _result, _err in tool_uses:
+        if name != "Bash":
+            continue
+        cmd = (inp or {}).get("command", "") or ""
+        if not re.search(r"\b(until|while)\b", cmd) or "sleep" not in cmd:
+            continue
+        # "waits for everything" = the loop exits only when a backlog counter
+        # reaches zero. The counter and the comparison are usually far apart —
+        # the count is computed inside a nested $( ... --jq ... ) — so proximity
+        # matching misses almost all of them; presence of both is the signal.
+        counts_backlog = re.search(r"\b(pending|in_progress|queued|running)\b", cmd)
+        compares_zero = re.search(r"(==|=|-eq)\s*[\"']?0[\"']?", cmd)
+        terminal = bool(counts_backlog and compares_zero)
+        out.append(
+            {
+                "signal": "A20",
+                "name": "wait_loop_terminal_condition" if terminal else "wait_loop",
+                "turn": i,
+                "waits_for_everything": terminal,
+                "snippet": squeeze(cmd, 180),
+                "hint": (
+                    "Loop waits for every check to settle. Return on the first "
+                    "actionable event instead (a failure, a thread needing an "
+                    "answer, the required checks concluding) and report progress "
+                    "while waiting."
+                )
+                if terminal
+                else "Polling loop — check whether it can exit on the first actionable state.",
+            }
+        )
+    return out
+
+
+# How many of a signal's keywords a denial set must hit before it counts as
+# THIS rule's gate. One is not enough: the keywords were written to find a rule
+# in prose, where a generic word like "verification" is surrounded by context,
+# and a hook message is one paragraph. Measured on the session behind this fix,
+# a truncation gate ("a verification command is piped into head/tail") matched
+# A13 on that single word and would have been reported as the gate for
+# "claimed success without running anything" — a different control entirely.
+# A11's real gate matched four: "structured file", "jq", "yq", "dasel".
+C6_GATE_MIN_KEYWORDS = 2
+
+
+def _c6_gate_denials(
+    denials: list[str], keywords: list[str]
+) -> tuple[list[str], set[str]]:
+    """The denials attributable to one rule, and which keywords they hit."""
+    hits = [d for d in denials if any(k.lower() in d.lower() for k in keywords)]
+    matched = {k for d in hits for k in keywords if k.lower() in d.lower()}
+    if len(matched) < min(C6_GATE_MIN_KEYWORDS, len(keywords)):
+        return [], matched
+    return hits, matched
+
+
+def signal_rule_exists_but_violated(
+    findings, rules_text: str, hook_denials: list[str] | None = None
+) -> list[dict]:
+    """C6: a written rule was violated repeatedly anyway — mechanize it.
+
+    When a rule already exists in the always-loaded instructions and the session
+    still trips it N times, another sentence will not help: the same prose has
+    already failed. The answer is a hook or a check that makes the violation
+    impossible, which is a harness-artefact, not a skill-update.
+
+    Unless the hook is already installed. Recommending the construction of a
+    control that is deployed and firing is worse than saying nothing: it sends
+    the retro's reader to build a duplicate, and it buries the question that
+    matters — why these N got through a gate that denies this rule. So the
+    escalation asks whether a gate was OBSERVED, from the transcript rather than
+    from the reader's live config: a PreToolUse denial arrives as a tool result,
+    and its text is matched against the same keywords that decide whether the
+    written rule exists. With none seen the hint no longer asserts that no
+    control exists — only that this session did not show one.
+    """
+    if not rules_text:
+        return []
+    denials = hook_denials or []
+    out = []
+    by_sig: dict[str, int] = defaultdict(int)
+    for f in findings:
+        by_sig[f.get("signal", "")] += 1
+    for sig, keywords in C6_RULE_KEYWORDS.items():
+        n = by_sig.get(sig, 0)
+        if n < C6_MIN_VIOLATIONS:
+            continue
+        if not any(k.lower() in rules_text.lower() for k in keywords):
+            continue
+        gate_denials, matched = _c6_gate_denials(denials, keywords)
+        if gate_denials:
+            hint = (
+                f"{sig} fired {n}x while a matching rule is already present in "
+                f"the always-loaded instructions — and a PreToolUse gate for "
+                f"that rule denied {len(gate_denials)} call(s) in this same "
+                f"session (matched on {', '.join(sorted(matched))}). The "
+                "mechanical control exists: do not propose building one. Ask "
+                "instead why these findings passed it — the gate may exempt "
+                "the shape on purpose, or the detector may be counting what "
+                "the gate permits."
+            )
+        else:
+            hint = (
+                f"{sig} fired {n}x while a matching rule is already present in "
+                "the always-loaded instructions. Prose has demonstrably not "
+                "worked. No denial clearly attributable to this rule appeared "
+                "in this session, which is not proof that no gate is installed "
+                "— check the configured hooks first, and only if none covers "
+                "this rule "
+                "propose a mechanical gate (PreToolUse hook, checkpoint, CI "
+                "check) rather than another rule."
+            )
+        out.append(
+            {
+                "signal": "C6",
+                "name": "written_rule_violated_repeatedly",
+                "violated_signal": sig,
+                "occurrences": n,
+                "gate_observed": bool(gate_denials),
+                "hint": hint,
+            }
+        )
+    return out
+
+
+SIGNAL_FUNCS = {
+    "A1": signal_tool_errors,
+    "A2": signal_retry_clusters,
+    "A3": signal_verbose_results,
+    "A4": signal_tool_count_vs_task,
+    "A5": signal_sequential_parallelizable,
+    "A6": signal_user_corrections,
+    "A7": signal_prompt_repetition,
+    "A8": signal_prompt_sequence_repetition,
+    "A9": signal_tool_sequence_repetition,
+    "A10": signal_skill_reminder_vs_invoke,
+    "A11": signal_wrong_tool_choice,
+    "A12": signal_reread_same_file,
+    "A13": signal_skipped_verification,
+    "A14": signal_main_branch_work,
+    "A15": signal_bot_attribution,
+    "A16": signal_outdated_tool,
+    "A17": signal_upstream_failure,
+    "A18": signal_permission_reapproval,
+    "A19": signal_repeated_probe,
+    "A20": signal_wait_loop_inefficiency,
+    "C6": signal_rule_exists_but_violated,
+}
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--transcript-file", required=True, type=Path)
+    parser.add_argument("--output-format", choices=["json", "text"], default="json")
+    parser.add_argument(
+        "--signals",
+        default=",".join(SIGNAL_FUNCS.keys()),
+        help="Comma-separated signal IDs to run (default: all)",
+    )
+    args = parser.parse_args()
+
+    if not args.transcript_file.exists():
+        print(f"Transcript not found: {args.transcript_file}", file=sys.stderr)
+        return 2
+
+    events = load_jsonl(args.transcript_file)
+    user_texts = extract_user_texts(events)
+    assistant_texts = extract_assistant_texts(events)
+    tool_uses = extract_tool_uses(events)
+    bypass_from = bypass_permissions_from(events)
+
+    selected = {s.strip() for s in args.signals.split(",") if s.strip()}
+    findings = []
+    for sid, func in SIGNAL_FUNCS.items():
+        if sid not in selected:
+            continue
+        # Dispatch arg shape
+        if func in (
+            signal_user_corrections,
+            signal_prompt_repetition,
+            signal_prompt_sequence_repetition,
+        ):
+            findings.extend(func(user_texts))
+        elif func is signal_skill_reminder_vs_invoke:
+            findings.extend(func(events))
+        elif func is signal_tool_count_vs_task:
+            findings.extend(func(tool_uses, user_texts))
+        elif func is signal_skipped_verification:
+            findings.extend(func(assistant_texts, tool_uses))
+        elif func is signal_wrong_tool_choice:
+            findings.extend(func(tool_uses, bypass_from))
+        elif func is signal_rule_exists_but_violated:
+            continue  # runs last, needs the other findings
+        else:
+            findings.extend(func(tool_uses))
+
+    if "C6" in selected:
+        # C6 counts how often OTHER signals fired. Selecting it alone would
+        # silently report "no violations" — an empty result that reads like a
+        # clean bill of health. Compute its dependencies regardless of the
+        # --signals filter, without adding them to the reported findings.
+        dep_findings = list(findings)
+        for dep in C6_RULE_KEYWORDS:
+            if dep in selected:
+                continue
+            fn = SIGNAL_FUNCS.get(dep)
+            if fn is None:
+                continue
+            if fn is signal_skipped_verification:
+                dep_findings.extend(fn(assistant_texts, tool_uses))
+            elif fn is signal_wrong_tool_choice:
+                # Same suppression as the reported pass — otherwise C6 still
+                # counts the findings A11 just withheld and escalates on them.
+                dep_findings.extend(fn(tool_uses, bypass_from))
+            else:
+                dep_findings.extend(fn(tool_uses))
+        findings_for_c6 = dep_findings
+        rules = ""
+        for cand in (Path.home() / ".claude" / "CLAUDE.md",):
+            try:
+                rules = cand.read_text(encoding="utf-8")
+            except OSError:
+                pass
+        findings.extend(
+            signal_rule_exists_but_violated(
+                findings_for_c6, rules, extract_hook_denials(tool_uses)
+            )
+        )
+
+    summary = {
+        "transcript": str(args.transcript_file),
+        "events_total": len(events),
+        "user_messages": len(user_texts),
+        "tool_uses": len(tool_uses),
+        "findings_total": len(findings),
+        "findings": findings,
+    }
+    if args.output_format == "json":
+        print(json.dumps(summary, indent=2, ensure_ascii=False))
+    else:
+        print(f"Transcript: {summary['transcript']}")
+        print(
+            f"Events: {summary['events_total']}  User msgs: {summary['user_messages']}  Tool uses: {summary['tool_uses']}"
+        )
+        print(f"Findings: {summary['findings_total']}")
+        for f in findings:
+            print(f"  - [{f['signal']}] {f['name']}: {f}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

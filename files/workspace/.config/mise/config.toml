@@ -1,7 +1,7 @@
 [settings]
 experimental = true
-minimum_release_age = "12h"
-upgrade.prune_after = "12h"
+minimum_release_age = "6h"
+upgrade.prune_after = "6h"
 python.uv_venv_auto = true
 idiomatic_version_file_enable_tools = ["ruby"]
 env_shell_expand = true
@@ -96,7 +96,7 @@ version = "latest"
 version = "latest"
 
 [tools."npm:@earendil-works/pi-coding-agent"]
-version = "0.87.1"
+version = "latest"
 
 [tools."npm:bash-language-server"]
 version = "latest"

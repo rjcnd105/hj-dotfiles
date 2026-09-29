@@ -14,6 +14,10 @@
 | [pi-vcc](https://github.com/sting8k/pi-vcc) | 0.8.0 | 모델 호출 없는 세션 압축과 현재 세션 원문 재검색 |
 | [pi-interactive-shell](https://github.com/nicobailon/pi-interactive-shell) | 0.17.0 | 입력이 필요한 CLI를 Pi 안의 PTY에서 실행하고 출력 확인 |
 | [pi-ask-user](https://github.com/edlsh/pi-ask-user) | 0.15.1 | 결정이 필요할 때 선택지·다중 선택·자유 입력으로 사용자에게 묻는 `ask_user` 도구 |
+| 로컬 `prompt-snippets` 확장 | 저장소 관리 | `/snippets`에서 이번 요청에 붙일 짧은 작업 지침 선택 |
+| 로컬 `analyze-sessions` 스킬 | 저장소 관리 | Pi 세션의 비용·반복 요청·과거 대화를 읽기 전용 분석 |
+
+두 로컬 기능은 [amosblomqvist/pi-config의 `f82da56`](https://github.com/amosblomqvist/pi-config/tree/f82da563ab05d66729492d64c7ed4e96db3663f3)를 바탕으로 이 설정에 맞췄다. 원본은 `files/workspace/.config/pi/extensions/prompt-snippets/`와 `skills/analyze-sessions/`이며 Home Manager가 각각 Pi의 확장·스킬 디렉터리에 연결한다. npm 패키지나 전역 공유 스킬을 추가하지 않는다. 사용법은 [작업 가이드](pi-agent-workflows.md#요청별-지침-snippets)에서 확인한다.
 
 ## 새 Mac에서 시작
 

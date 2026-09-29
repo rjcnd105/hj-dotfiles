@@ -2,6 +2,18 @@
 
 확인일: 2026-09-29. 설치 절차는 [Pi 설정](pi-agent.md), 실제 요청 예시는 [작업 가이드](pi-agent-workflows.md)에 있다.
 
+## 로컬 snippets와 세션 분석 추가
+
+`prompt-snippets`와 `analyze-sessions`의 원본을 `files/workspace/.config/pi/`에 두고 Home Manager의 개별 디렉터리 링크를 선언했다. 현재 Mac에도 동일 원본을 가리키는 링크를 연결했다. 전체 시스템 switch는 실행하지 않았다.
+
+- `nix fmt -- homes/workspace/pi.nix`, 두 `home.file` 항목의 `nix eval`, `nix flake check --all-systems --no-build --show-trace`가 통과했다.
+- Pi 0.87.1의 실제 resource loader에서 기존 패키지와 함께 로컬 확장·스킬을 자동 발견했다. 확장 로드 오류와 스킬 진단은 0개였으며 `/snippets`와 `Alt+S` 등록을 확인했다. 직접 SDK로 시작한 검사에서는 기존 `pi-subagents`의 실행 위치 감지 경고가 있었으므로 이 검사로 서브에이전트 지연 로드까지 판정하지 않았다.
+- 별도 인증·세션 디렉터리의 실제 Pi CLI PTY(100×30)에서 `/snippets`, `Alt+S`, 한글 본문 미리보기, 선택 표시와 작업 방식 상호 배제를 확인했다. 모델에 프롬프트를 보내지 않았다.
+- 실제 SDK loader/runner를 쓴 입력 검사에서 앞뒤 지침 순서, 이미지 유지, 전송 후 초기화, extension/RPC 입력의 선택 미소비, 메뉴 취소, tree/shutdown 초기화, 자동 압축 시 선택 유지가 통과했다. 40·60열 메뉴·미리보기의 렌더 폭과 스크롤도 검사했다. 이는 모델의 지침 준수율을 측정한 검사가 아니다.
+- 세션 분석의 임시 JSONL fixture에서 오래된 세션의 최근 메시지 포함, UTC 날짜·모델별 비용, 비용 정보 누락 구분, `openai-codex` 필터, 중첩 서브에이전트 포함/제외와 artifact 복사본 제외를 확인했다. 한국어 요청 추출·검색·세션 열람의 기간 필터도 통과했다. 여기서 복사본 제외는 `subagent-artifacts` 경로에 한정하며 일반 fork/clone 중복 제거를 뜻하지 않는다.
+
+로컬 재현 검사는 `/tmp/pi-prompt-snippets-probe.mjs`, `/tmp/pi-session-analysis-check.py`, `/tmp/pi-config-additions-smoke.mjs`와 `/tmp/pi-config-additions-smoke-report.json`에 있다. 임시 파일은 정리 후 사라질 수 있다.
+
 ## 커뮤니티 벤치마크에서 가져온 판단
 
 사용자가 제공한 [6 harnesses × 11 models × 226 tasks 글](https://www.reddit.com/r/PiCodingAgent/comments/1wki8wq/i_benched_6_harnesses_x_11_models_x_226_tasks/)에서 연결된 원자료와 실행 어댑터를 확인했다. 이 벤치마크는 작은 파일 편집의 바이트 단위 정확도를 측정한다. 설계, 브라우저 검증, 게임 플레이, 긴 협업 작업 전체의 성능 순위는 아니다.
