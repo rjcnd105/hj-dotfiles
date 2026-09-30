@@ -39,6 +39,55 @@ dependencies:
       skills:
         - typesafe-ai
     - adhhamdev/modern-react-guidance
+
+    # Individual pstack skills exclude the root package's harness-specific agents.
+    - backnotprop/pstack/skills/architect#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/arena#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/automate-me#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/blast-radius#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/bro#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/create-verification-skill#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/figure-it-out#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/how#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/interrogate#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/maintain-verification-skill#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/make-bot-ui#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/no-comments#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/poteto-mode#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-attack-the-premise#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-boundary-discipline#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-build-the-lever#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-encode-lessons-in-structure#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-exhaust-the-design-space#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-experience-first#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-fix-root-causes#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-foundational-thinking#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-guard-the-context-window#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-laziness-protocol#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-make-operations-idempotent#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-migrate-callers-then-delete-legacy-apis#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-minimize-reader-load#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-model-the-domain#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-never-block-on-the-human#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-outcome-oriented-execution#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-prove-it-works#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-redesign-from-first-principles#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-separate-before-serializing-shared-state#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-sequence-verifiable-units#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-subtract-before-you-add#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-test-behavior-not-implementation#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/principle-type-system-discipline#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/recall#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/reflect#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/setup-pstack#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/show-me-your-work#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/swarm#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/tdd#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/teach#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/technical-writing#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/typescript-best-practices#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/unslop#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - backnotprop/pstack/skills/why#157aae39a733135e93d8b5b19ff62c6a84b0ad56
   mcp:
     - name: chrome-devtools
       registry: false

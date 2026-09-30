@@ -72,7 +72,7 @@
       }
     }
   },
-  "lastChangelogVersion": "0.99.1",
+  "lastChangelogVersion": "0.99.2",
   "theme": "dark",
   "skills": [
     "-/Users/hj/.agents/skills/claude-api/SKILL.md",
@@ -82,5 +82,8 @@
     "-skills/retro",
     "-skills/skill-development",
     "-skills/web-artifacts-builder"
+  ],
+  "prompts": [
+    "~/.config/pi/prompts"
   ]
 }
