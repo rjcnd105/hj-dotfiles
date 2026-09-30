@@ -2,7 +2,7 @@
 experimental = true
 minimum_release_age = "6h"
 upgrade.prune_after = "6h"
-python.uv_venv_auto = true
+python.uv_venv_auto = "source"
 idiomatic_version_file_enable_tools = ["ruby"]
 env_shell_expand = true
 # age 키를 전역에서 리터럴로 고정한다. SOPS_AGE_KEY_FILE 환경변수에 의존하면
@@ -10,12 +10,10 @@ env_shell_expand = true
 # "no data key retrieved from metadata"로 sops 복호화가 실패한다.
 sops.age_key_file = "{{env.HOME}}/.config/sops/age/keys.txt"
 
-[plugins]
-"nix" = "https://github.com/jbadeau/mise-nix.git"
-
 [tools]
 # POC
 hk = "latest"
+antigravity-cli = "latest"
 
 [tools.acli]
 version = "latest"
@@ -119,7 +117,8 @@ version = "latest"
 
 [tasks.mise-completion]
 run = """
-  mise completion fish > ~/.config/fish/completions/mise.fish
+  # mise가 설치되지 않은 환경(homelab 등)에서는 skip
+  { echo 'command -q mise; or return 0'; mise completion fish; } > ~/.config/fish/completions/mise.fish
   chmod +x ~/.config/fish/completions/mise.fish
 """
 

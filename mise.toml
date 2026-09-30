@@ -4,6 +4,11 @@
 # sops.age_key_file은 전역 ~/.config/mise/config.toml에서 리터럴로 관리한다.
 # 여기서 {{env.SOPS_AGE_KEY_FILE}}로 덮어쓰면 환경변수 없는 셸에서 복호화가 깨진다.
 
+[settings]
+# 도구 버전이 바뀌면 .claude/skills 링크도 따라가고, 비활성 skill 링크는 지운다.
+skills.auto_sync = true
+skills.prune = true
+
 [tools]
 jj = "0.45.1"
 
