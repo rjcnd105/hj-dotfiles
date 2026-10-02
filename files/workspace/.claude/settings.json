@@ -111,5 +111,7 @@
       "**Org-specific CLIs**: None configured",
       "**routine under <user>/ prefix**: none identified"
     ]
-  }
+  },
+  "agentPushNotifEnabled": true,
+  "inputNeededNotifEnabled": true
 }

@@ -21,7 +21,8 @@
     "npm:pi-mcp-adapter@3.2.0",
     "npm:@sting8k/pi-vcc@0.8.0",
     "npm:pi-interactive-shell@0.17.0",
-    "npm:pi-ask-user@0.15.1"
+    "npm:pi-ask-user@0.15.1",
+    "npm:pi-intercom"
   ],
   "subagents": {
     "defaultModel": "openai-codex/gpt-6.1-sol",
@@ -72,7 +73,7 @@
       }
     }
   },
-  "lastChangelogVersion": "0.99.2",
+  "lastChangelogVersion": "1.0.0",
   "theme": "dark",
   "skills": [
     "-/Users/hj/.agents/skills/claude-api/SKILL.md",
