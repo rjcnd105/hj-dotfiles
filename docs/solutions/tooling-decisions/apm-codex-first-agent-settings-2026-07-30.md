@@ -54,6 +54,10 @@ target의 native path로 변환한다.
   - Cursor: `.agents/skills/`, `.cursor/agents/`, `.cursor/rules/`,
     `.cursor/hooks.json`, `.cursor/mcp.json`
   - MCP: `.codex/config.toml`, `.mcp.json`, `.cursor/mcp.json`
+  - Pi: APM target이 없으므로 `homes/workspace/pi.nix`가
+    `~/.pi/agent/AGENTS.md`를 `.codex/AGENTS.md`에 연결하고,
+    `~/.agents/skills/`는 Pi가 직접 탐색한다. Pi 전용 지침은
+    `.config/pi/APPEND_SYSTEM.md`에 둔다.
 
 `.agents/skills/`와 `.claude/skills/`는 더 이상 작성 위치가 아니다.
 직접 만든 skill은 `.apm/skills/<name>/`에서 수정하고 `apm install`로

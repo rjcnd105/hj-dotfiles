@@ -2,6 +2,8 @@
 
 이 flake는 Pi 설정을 `files/workspace/.config/pi/`에 보관하고 Home Manager가 각 파일을 `~/.pi/agent/`에 쓰기 가능한 out-of-store 심볼릭 링크로 연결한다. `auth.json`, 세션, 패키지 캐시는 Pi가 로컬에서 관리한다. OMP는 사용하지 않는다.
 
+Pi는 agent 디렉터리에서 컨텍스트 파일을 하나만 읽는다. 그래서 `~/.pi/agent/AGENTS.md`는 APM이 생성한 공용 지침 `files/workspace/.codex/AGENTS.md`에 연결하고, Pi 전용 지침은 `files/workspace/.config/pi/APPEND_SYSTEM.md`에 둔다. 공용 지침은 `.apm/instructions/`에서 수정하고 [APM 절차](../solutions/tooling-decisions/apm-codex-first-agent-settings-2026-07-30.md#workflow)로 다시 생성한다. 단, 신뢰한 프로젝트에 `.pi/APPEND_SYSTEM.md`가 있으면 그 파일이 전역 `APPEND_SYSTEM.md`를 대체한다.
+
 [작업별 사용법과 복사 가능한 요청 예시](pi-agent-workflows.md), [커뮤니티 벤치마크 해석과 직접 테스트 결과](pi-agent-validation.md)를 함께 참고한다.
 
 ## 고정한 구성
