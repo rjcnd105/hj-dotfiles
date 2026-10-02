@@ -39,7 +39,7 @@ in
     USER_PROFILE = config.home.profileDirectory;
     HM_CURRENT = "/run/current-system/sw";
   }
-  // lib.optionalAttrs pkgs.stdenv.isDarwin {
+  // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
     VISUAL = "/usr/local/bin/zed";
     OBSIDIAN = "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents";
     ZED_ALLOW_ROOT = "true";

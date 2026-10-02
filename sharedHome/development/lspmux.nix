@@ -421,7 +421,7 @@ lib.mkMerge [
     home.file.".local/share/lspmux/cursor-elixir-ls-release-shim".source = cursorElixirLsReleaseShim;
   }
 
-  (lib.mkIf pkgs.stdenv.isDarwin {
+  (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
     launchd.agents.lspmux = {
       enable = true;
       config = {

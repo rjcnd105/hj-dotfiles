@@ -9,7 +9,10 @@
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
   home.homeDirectory =
-    if pkgs.stdenv.isDarwin then "/Users/${myOptions.userName}" else "/home/${myOptions.userName}";
+    if pkgs.stdenv.hostPlatform.isDarwin then
+      "/Users/${myOptions.userName}"
+    else
+      "/home/${myOptions.userName}";
 
   programs.man.generateCaches = false;
 

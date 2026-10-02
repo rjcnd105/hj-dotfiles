@@ -89,7 +89,9 @@ in
     })
     //
       lib.optionalAttrs
-        (pkgs.stdenv.isDarwin && builtins.pathExists (scanBasePath + "/.config/ghostty/config"))
+        (
+          pkgs.stdenv.hostPlatform.isDarwin && builtins.pathExists (scanBasePath + "/.config/ghostty/config")
+        )
         {
           "Library/Application Support/com.mitchellh.ghostty/config" = {
             source = config.lib.file.mkOutOfStoreSymlink (linkBasePath + "/.config/ghostty/config");
