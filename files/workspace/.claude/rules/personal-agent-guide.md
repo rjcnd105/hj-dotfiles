@@ -153,6 +153,10 @@ mechanisms. Ordinary implementation and diagnosis skip this protocol.
   read only relevant bodies. Batch independent reads or tool calls in the same
   session, keep dependent work sequential, and synthesize retrieved evidence
   before writes.
+- In zsh, quote literal arguments that start with `=`, such as separators
+  (`echo '====='`), and use `=` instead of `==` inside `[ ]`. zsh expands a
+  leading `=` as a command path, and a failed expansion aborts the rest of the
+  command line. Leave operators inside `[[ ]]` unquoted.
 - Prefer installed or official primary documentation for current technical
   claims; use Context7 when available for library/framework APIs.
 - Honor explicit search restrictions; otherwise use the smallest useful
