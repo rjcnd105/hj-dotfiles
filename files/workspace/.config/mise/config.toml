@@ -14,6 +14,7 @@ sops.age_key_file = "{{env.HOME}}/.config/sops/age/keys.txt"
 # POC
 hk = "latest"
 antigravity-cli = "latest"
+herdr = "latest"
 
 [tools.acli]
 version = "latest"
@@ -51,7 +52,7 @@ version = "latest"
 version = "latest"
 
 [tools.node]
-version = "24"
+version = "26"
 postinstall = "corepack enable"
 
 [tools.python]

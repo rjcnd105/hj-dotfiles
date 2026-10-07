@@ -1,6 +1,6 @@
 {
   "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-6.1-sol",
+  "defaultModel": "gpt-6-astra",
   "defaultThinkingLevel": "xhigh",
   "modelThinkingLevels": {
     "openai-codex/gpt-6-astra": "high",
@@ -17,7 +17,7 @@
     "openrouter/xiaomi/mimo-v2.6-pro"
   ],
   "packages": [
-    "npm:pi-subagents@0.73.1",
+    "git:github.com/nicobailon/pi-subagents",
     "npm:pi-mcp-adapter@3.2.0",
     "npm:@sting8k/pi-vcc@0.8.0",
     "npm:pi-interactive-shell@0.17.0",
@@ -73,7 +73,7 @@
       }
     }
   },
-  "lastChangelogVersion": "1.0.0",
+  "lastChangelogVersion": "1.0.4",
   "theme": "dark",
   "skills": [
     "-/Users/hj/.agents/skills/claude-api/SKILL.md",

@@ -11,7 +11,7 @@ Pi는 agent 디렉터리에서 컨텍스트 파일을 하나만 읽는다. 그�
 | 구성 | 버전 | 용도 |
 |---|---|---|
 | Pi CLI | 0.87.1 | OpenAI 구독과 OpenRouter 모델 실행 |
-| [pi-subagents](https://github.com/nicobailon/pi-subagents) | 0.73.1 | Sol/xhigh의 독립된 작업 문맥과 결과 회수 |
+| [pi-subagents](https://github.com/nicobailon/pi-subagents) | git main (2026-10-02, Pi 1.0 수정 #2634 포함, npm 릴리스 전) | Sol/xhigh의 독립된 작업 문맥과 결과 회수 |
 | [pi-mcp-adapter](https://github.com/nicobailon/pi-mcp-adapter) | 3.2.0 | 단일 프록시와 필요한 시점의 서버 연결 |
 | [pi-vcc](https://github.com/sting8k/pi-vcc) | 0.8.0 | 모델 호출 없는 세션 압축과 현재 세션 원문 재검색 |
 | [pi-interactive-shell](https://github.com/nicobailon/pi-interactive-shell) | 0.17.0 | 입력이 필요한 CLI를 Pi 안의 PTY에서 실행하고 출력 확인 |

@@ -93,6 +93,21 @@
         "Logs only available actual duration/tools/tokens, keeps compact accepted/rejected learning in the existing authority, and suppresses future task/cooldown draws when overhead/delay/repeated unhelpful episodes warrant it; no observer-of-observer, extra grader pipeline or new knowledge database.",
         "Mode off stops new draws/team dispatch and reconciles the exact active observer via bounded handoff or native stop/checkpoint while preserving partial evidence; these plan decisions are not live monitoring/throughput proof."
       ]
+    },
+    {
+      "id": 7,
+      "prompt": "Enable game-po-async in Pi for a plan-only simulation; do not launch agents, mutate files, or run tools. Installed pi and pi-subagents versions match the ones already recorded in the project plan. A gameplay writer finished a small reversible slice: two GDScript files in its own jj workspace, focused GUT checks passed, and its final report lists one housekeeping choice it made without asking (it deleted .uid files its import generated). A second writer's focused check failed on a UI layout assertion. A third writer finished a pixel concept sample bound for the user's approval gate; its report says two harness checks failed mid-run and passed after it repaired its own script. Separately, a reviewer on a save-schema change is running. Describe main's next actions for each lane and what main reads first in this session. Also say what main does if a worker asks via need_decision whether it may copy a tracked fixture file from main into its workspace.",
+      "expected_output": "Main adopts the small passing slice from its report and VCS diff without a fresh reviewer, treats the failing UI check as ordinary repair work rather than a frozen lane, checks the concept evidence directly and shows it to the user without a reviewer, lets the save-schema review run, skips re-reading large guide topics because versions match, and answers the fixture question as pre-authorized housekeeping.",
+      "files": [],
+      "expectations": [
+        "Adopts the small reversible slice with passing focused checks from the writer report plus jj diff, without scheduling a fresh reviewer.",
+        "Accepts the writer's recorded housekeeping choice instead of reopening it as a decision; does not request hash manifests, file-count audits, or freeze phases.",
+        "Treats the failing UI assertion as a bounded repair and recheck along the verification ladder, not an infrastructure freeze or new gate.",
+        "Checks the concept sample's evidence directly and takes it to the user's gate without a fresh reviewer; failures the writer repaired before its final passing checks do not trigger review. Main views the produced GIF/frames and reads the check results; it does not rebuild frame-timing or pixel measurements the writer's checks already produced.",
+        "Keeps the save-schema review because save/state schemas warrant independent review; does not wait on it before acting on the other lanes.",
+        "Does not reread the large guide topics or package references when recorded versions match; does not poll status without a specific question.",
+        "Answers the fixture-copy request as pre-authorized reversible housekeeping and notes that future briefs should state it so the worker does not block."
+      ]
     }
   ]
 }

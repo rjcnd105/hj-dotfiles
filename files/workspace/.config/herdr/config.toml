@@ -1,0 +1,23 @@
+# Herdr — ghostty(../ghostty/config)의 분할 키 배치를 따른다.
+# ghostty가 alt+h/j/k/l, alt+n, alt+shift+h/j/k/l, alt+w를 먼저 소비하므로
+# Herdr 직접 단축키는 같은 글자에 공식 권장 조합 ctrl+alt를 쓰고, 기본 prefix(ctrl+b) 바인딩도 유지한다.
+# https://herdr.dev/docs/keyboard/ (Going prefix-free)
+onboarding = false
+
+[theme]
+# ghostty 테마(Arcoiris)의 ANSI 팔레트를 그대로 따른다.
+name = "terminal"
+
+[keys]
+focus_pane_left = ["prefix+h", "ctrl+alt+h"]
+focus_pane_down = ["prefix+j", "ctrl+alt+j"]
+focus_pane_up = ["prefix+k", "ctrl+alt+k"]
+focus_pane_right = ["prefix+l", "ctrl+alt+l"]
+# Herdr는 오른쪽/아래 분할만 있다. ghostty alt+n(자동)과 alt+shift+l은 오른쪽, alt+shift+j는 아래로 둔다.
+split_vertical = ["prefix+v", "ctrl+alt+n", "ctrl+alt+shift+l"]
+split_horizontal = ["prefix+minus", "ctrl+alt+shift+j"]
+close_pane = ["prefix+x", "ctrl+alt+w"]
+
+[experimental]
+# 한글 입력 중에도 prefix 명령이 먹도록 prefix 동안 ASCII 입력 소스로 전환한다(macOS 전용).
+switch_ascii_input_source_in_prefix = true

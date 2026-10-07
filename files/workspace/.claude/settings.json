@@ -42,7 +42,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "claude-opus-5-5",
+  "model": "opus",
   "fallbackModel": [
     "claude-sonnet-5"
   ],
@@ -75,13 +75,15 @@
       "effortLevel": "xhigh"
     },
     "claude-opus-5-5": {
-      "effortLevel": "high"
+      "effortLevel": "xhigh"
     }
   },
   "askUserQuestionTimeout": "never",
   "skipDangerousModePermissionPrompt": true,
   "editorMode": "normal",
   "verbose": true,
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
   "autoMode": {
     "environment": [
@@ -111,7 +113,5 @@
       "**Org-specific CLIs**: None configured",
       "**routine under <user>/ prefix**: none identified"
     ]
-  },
-  "agentPushNotifEnabled": true,
-  "inputNeededNotifEnabled": true
+  }
 }
