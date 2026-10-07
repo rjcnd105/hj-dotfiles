@@ -96,6 +96,9 @@ version = "latest"
 
 [tools."npm:@earendil-works/pi-coding-agent"]
 version = "latest"
+# Pi needs zstd from Node >= 22.19. Its bin shim prefers a sibling `node`, so
+# link the global Node 26 there; repos that pin an older Node still run Pi.
+postinstall = { run = 'ln -sfn "${MISE_DATA_DIR:-$HOME/.local/share/mise}/installs/node/26/bin/node" "$MISE_TOOL_INSTALL_PATH/node_modules/.bin/node"', when = "always" }
 
 [tools."npm:bash-language-server"]
 version = "latest"
@@ -193,8 +196,6 @@ SKILLIB = "$HOME/.local/agents/skills"
 ASEPRITE_BIN = "/Applications/Aseprite.app/Contents/MacOS/aseprite"
 
 MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3
-CLAUDE_CODE_COORDINATOR_MODE = 1
-CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING = 1
 ENABLE_LSP_TOOL = "1"
 CLAUDE_CODE_AUTO_COMPACT_WINDOW = 400000
 

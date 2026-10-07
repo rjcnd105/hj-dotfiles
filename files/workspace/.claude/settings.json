@@ -66,7 +66,24 @@
         "source": "github",
         "repo": "anthropics/claude-plugins-official"
       }
+    },
+    "nixos-management-skill": {
+      "source": {
+        "source": "github",
+        "repo": "michalzubkowicz/nixos-management-skill"
+      }
     }
+  },
+  "skillOverrides": {
+    "but": "off",
+    "elixir": "off",
+    "find-docs": "off",
+    "find-skills": "off",
+    "hindsight": "off",
+    "kb": "off",
+    "obsidian-bases": "off",
+    "obsidian-markdown": "off",
+    "setup-pstack": "off"
   },
   "language": "Korean",
   "effortLevel": "xhigh",

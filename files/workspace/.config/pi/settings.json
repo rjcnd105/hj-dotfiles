@@ -3,7 +3,7 @@
   "defaultModel": "gpt-6-astra",
   "defaultThinkingLevel": "xhigh",
   "modelThinkingLevels": {
-    "openai-codex/gpt-6-astra": "high",
+    "openai-codex/gpt-6-astra": "xhigh",
     "openai-codex/gpt-6-sol": "max",
     "openai-codex/gpt-6.1-sol": "xhigh",
     "openrouter/deepseek/deepseek-v4.1-flash": "off"
@@ -18,7 +18,6 @@
   ],
   "packages": [
     "git:github.com/nicobailon/pi-subagents",
-    "npm:pi-mcp-adapter@3.2.0",
     "npm:@sting8k/pi-vcc@0.8.0",
     "npm:pi-interactive-shell@0.17.0",
     "npm:pi-ask-user@0.15.1",
@@ -73,7 +72,7 @@
       }
     }
   },
-  "lastChangelogVersion": "1.0.4",
+  "lastChangelogVersion": "1.1.0",
   "theme": "dark",
   "skills": [
     "-/Users/hj/.agents/skills/claude-api/SKILL.md",
@@ -82,7 +81,17 @@
     "-skills/mcp-integration",
     "-skills/retro",
     "-skills/skill-development",
-    "-skills/web-artifacts-builder"
+    "-skills/web-artifacts-builder",
+    "-skills/setup-pstack",
+    "-skills/typesafe-ai",
+    "-skills/obsidian-bases",
+    "-skills/obsidian-cli",
+    "-skills/obsidian-markdown",
+    "-skills/kb",
+    "-skills/gitbutler",
+    "-skills/find-skills",
+    "-skills/hindsight",
+    "-skills/diagram-design"
   ],
   "prompts": [
     "~/.config/pi/prompts"

@@ -1,3 +1,11 @@
 
 # APM dependencies
 apm_modules/
+
+# Plain `apm compile` also writes a root AGENTS.md and CLAUDE.md. Home Manager
+# links every file here into ~, and Pi and Claude Code read these files from
+# every parent directory, so tracked copies load the personal guide twice and
+# pull dependency CLAUDE.md files into every repo under ~. The guide reaches
+# each agent through .codex/AGENTS.md (see docs/guides/pi-agent.md).
+/AGENTS.md
+/CLAUDE.md

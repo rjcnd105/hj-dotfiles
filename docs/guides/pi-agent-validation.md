@@ -36,7 +36,7 @@
 - [FrontierHarness](https://runta.com/blog/introducing-frontierharness-eval/)는 Kimi K3의 30개 과제에서 Codex 66.7%, Pi 60.0%를 보고한다. Pi의 성공당 중앙 비용은 더 낮았다. 성공률과 비용을 따로 봐야 한다.
 - [Databricks의 실제 코드베이스 평가](https://www.databricks.com/blog/benchmarking-coding-agents-databricks-multi-million-line-codebase)는 같은 모델·추론 수준에서도 하네스가 매 턴 넣는 문맥이 비용에 영향을 준다고 보고한다. 모든 코드베이스에서 Pi가 우세하다는 증거는 아니다.
 
-이 설정에서는 Pi 기본 편집 도구를 유지하고, MCP와 서브에이전트 도구는 필요한 시점에 활성화한다. Astra/high 기본값과 Sol/max 위임은 사용자의 작업 방식과 명시한 선호를 반영한다. 위 벤치마크가 그 조합의 최적성을 입증한 것은 아니다.
+이 설정에서는 Pi 기본 편집 도구를 유지하고, MCP와 서브에이전트 도구는 필요한 시점에 활성화한다. Astra/high 기본값과 Sol/max 위임은 사용자의 작업 방식과 명시한 선호를 반영한다. 위 벤치마크가 그 조합의 최적성을 입증한 것은 아니다. 2026-10-07 비교 뒤 위임 강제는 제거했고 Astra 기본값은 xhigh로 바꿨다([위임 강제 제거](#위임-강제-제거-2026-10-07)).
 
 ## 최초 구성에서 직접 실행한 작업
 
@@ -105,3 +105,72 @@ Pi 0.87.1과 당시 설치된 확장을 실제로 실행했다. 아래 Brave·Ex
 최종 전체 확장 구성에서도 `createAgentSession` 후 `bindExtensions({ mode: "rpc" })`를 거친 실제 시작 상태를 확인했다. 확장 로드 오류는 없었고, 초기 활성 도구에는 `enable_interactive_shell`이 있으며 `interactive_shell`과 이전 네 웹 도구는 없었다. 7개 역할의 최종 Sol/max, 조사 역할의 도구·스킬 상속·빈 확장 목록도 검사했다. PTY 재현 스크립트는 `/tmp/pi-interactive-shell-review/run-probe.mjs`이며 TUI 화면의 사용자 입력 인계는 검증하지 않았다.
 
 OpenAI 모델 경고도 카탈로그와 인증을 나누어 확인했다. 설치된 Pi 0.87.1의 오프라인 전체 카탈로그에는 `openai-codex/gpt-6-astra`와 `openai-codex/gpt-6-sol`이 모두 있다. 현재 OpenAI 구독 인증이 없어 available 모델 수가 0이며 `--list-models`와 enabledModels 검사에서 no-match 경고가 난다. 모델 ID 미지원으로 판정하지 않았고, 실제 구독 응답은 로그인 후 확인해야 한다.
+
+## 위임 강제 제거 (2026-10-07)
+
+실제 업무에서 가져온 미션 8종으로 Pi 1.0.4와 Codex CLI 0.160.1을 비교했다. 미션은 nix-dots 평가 오류 수정, 홈랩 변경 리뷰, Pi 문서 정리, Godot 게임 기능, ps-frontend-admin 기능 2건, gentle-renewal 버그 2건이다. 각 미션은 실제 저장소의 APFS 복제본에서 herdr headless 세션으로 TUI를 띄워 실행했다. 채점은 에이전트가 볼 수 없는 숨은 테스트, 기존 회귀 테스트, 타입·린트 기준선, 범위 검사로 했다. 리뷰와 문서 미션은 rubric으로 판정했다.
+
+비교한 하네스는 네 가지다. cur는 실험 전 실제 설정이며 홈 아래에서 실행했다. lean은 위임 강제와 중복 지침을 걷어내고 내장 MCP와 스킬 10개 제외를 더한 별도 agent 디렉터리이며 Astra는 high다. final은 아래 변경을 모두 반영한 실제 설정(Astra xhigh)이며, switch 이후 상태와 같도록 홈 밖에서 실행했다. Codex에는 final과 지침이 같고 Astra만 high인 final·high를 더해 반복 측정했다.
+
+| 비교 (미션별 중앙값, 8미션) | 시간 | API 환산 비용 | 처리 토큰 |
+|---|---:|---:|---:|
+| Pi cur → lean | −40% | −33% | −58% |
+| Codex cur → lean | −46% | −44% | −78% |
+| cur → final (Pi·Codex) | −1% | −12% | −60% |
+| Pi lean → final (high → xhigh) | +59% | +25% | +14% |
+| Codex final·high → final (high → xhigh) | +61% | +46% | +35% |
+| Codex lean → final·high (반복 측정 평균) | +4% | −5% | +7% |
+
+60회 실행이 모두 채점을 통과했다. cur 실행은 거의 매번 서브에이전트를 1~2개 띄웠고(16회 중 18개), 나머지 설정은 한 번도 띄우지 않았다. 시간·비용 차이는 대부분 강제 위임에서 나왔다. Codex는 Pi 전용 지침 없이 공용 지침만 읽는데도 cur에서 `gpt-6-sol` 서브 스레드를 띄웠다. Codex 비용은 rollout의 요청별 토큰에 Pi 1.0.4의 같은 가격표를 적용한 추정이다.
+
+Astra xhigh는 그 시간 이득을 대부분 되돌렸다. Pi와 Codex 모두 8개 미션 전부에서 high보다 오래 걸렸고, 출력 토큰 중앙값이 약 1.6배, Codex 추론 토큰 중앙값이 922에서 2,726으로 늘었다. 품질은 모두 통과했고, rubric 차이는 N2에서 Pi가 secret을 먼저 배포하는 두 단계 순서까지 짚어 3.5점에서 4.0점이 된 한 건이다. 기본값 xhigh는 사용자 결정으로 반영했다.
+
+Codex lean과 final·high는 설정 파일이 같고 공용 지침이 "결과를 기다려 검토한다"는 한 문장만 다르다. 같은 설정을 두 번 돌린 P1·R2에서도 시간이 최대 1.8배 벌어졌다. 미션당 1회 실행의 차이로 하네스의 우열을 판단하지 않는다.
+
+Pi cur의 system prompt는 51.6K자였다. 홈 아래 저장소에서는 `~/.pi/agent/AGENTS.md`와 `~/AGENTS.md`로 개인 지침을 두 번 읽었다(10.1K자 중복). final은 33.6K자다. 스킬 목록이 16.4K자에서 10.7K자로, Pi 전용 지침이 2.0K자에서 0.6K자로 줄었다.
+
+반영한 변경은 다음과 같다.
+
+- 공용 지침의 위임 규칙을 바꿨다. 메인 세션이 계획·구현·검증을 직접 맡고, 병렬 독립 작업, 긴 기계적 처리, 명시 요청이 있을 때만 위임한다. 위임 모델은 런타임이 제공하면 `gpt-6.1-sol`/high이고, 아니면 런타임 기본 서브에이전트 모델이다(2026-10-08, [Claude Code 측정](#claude-code-측정-2026-10-08)). 위임하면 결과를 기다려 검토한다. Pi cur는 비동기 서브에이전트를 띄운 뒤 "진행 중" 답으로 턴을 끝냈다가 완료 알림에 다시 깨어났다.
+- 일반 `apm compile`이 만드는 `files/workspace/AGENTS.md`와 `CLAUDE.md`의 추적을 해제하고 `.gitignore`로 제외했다. `~/CLAUDE.md`는 agent-playbook의 CLAUDE.md를 Claude Code에 불러오고 있었다.
+- `APPEND_SYSTEM.md`를 2.0K자에서 0.6K자로 줄였다. 위임 절차와 공용 지침과 겹치는 문단을 빼고 도구 메모만 남겼다.
+- pi-mcp-adapter를 Pi 내장 MCP로 바꿨다. `files/workspace/.config/pi/mcp.json`이 Context7과 CodeGraph를 `deferred`로 선언한다. 내장 MCP는 신뢰한 프로젝트의 `.pi/mcp.json`만 읽으므로, gentle-renewal과 my-backend의 `.mcp.json` Figma 서버는 Pi에서 로드되지 않는다.
+- 코딩 작업에서 쓰지 않는 스킬 10개를 Pi에서만 제외했다.
+- Pi와 Codex의 기본값을 `gpt-6-astra`/xhigh로 맞췄다. Codex 저장소 원본에는 live 파일에만 있던 brilliant MCP를 옮겼다.
+- ps-frontend-admin처럼 Node 22.14를 고정한 저장소에서는 Pi 1.0.4가 zstd 응답을 받는 순간 `zlib.createZstdDecompress` 오류로 멈췄다. cur와 lean은 `MISE_NODE_VERSION=26`으로 우회했다. 전역 mise 설정의 `postinstall`이 Pi shim 옆에 Node 26 링크를 두게 한 뒤, final의 P1·P2는 우회 없이 Node 26으로 실행돼 통과했다.
+
+## Claude Code 측정 (2026-10-08)
+
+같은 미션 8종을 Claude Code 2.1.293(Opus 5.5)로 74회 실행했다. 실행은 `claude -p --setting-sources project,local`로 사용자 설정을 빼고, 변형별 settings·지침·스킬과 실험용 MCP 설정만 주입했다. lean과 high는 미션마다 두 번 돌려 미션별 평균을 비교했다. claude.ai 플랜 사용량 한도에 걸린 16회는 무효로 빼고 다시 돌렸다. 동시 실행 부하로 시간이 흔들렸으므로 비용과 API 시간을 우선 본다.
+
+변형은 다음과 같다. cur는 10-07 이전 지침을 두 번 읽고 스킬을 모두 올린 실험 전 설정이다. lean은 지침을 한 번만 읽고, 위임 문장이 런타임 중립이며, 스킬 9개를 끈 설정이다. 나머지는 lean 위에 하나씩 바꿨다. high는 effort high, coord는 `CLAUDE_CODE_COORDINATOR_MODE=1`(N1·P1·R2만), opus+adv·sonnet+adv·haiku+adv는 메인 모델을 Opus 5.5·Sonnet 5.5·Haiku 5.5로 두고 `--advisor opus`를 붙였다. scout는 "Use proactively" 설명을 단 Haiku 5.5 읽기 전용 서브에이전트를 등록했다. effort는 high를 빼고 모두 xhigh다.
+
+숨은 테스트는 통과와 실패만 가리므로 품질을 따로 쟀다. 미션마다 채점자 서브에이전트 하나가 변형 이름을 가린 제출물(diff, 최종 보고, 채점 출력)을 무작위 순서로 받아 정확성·설계·테스트·보고를 1~5점, 종합을 10점으로 매겼다. 8개 미션의 제출 98개를 채점했고, 변형마다 돌린 미션이 달라 같은 미션의 Claude lean 점수와의 차이를 비교한다.
+
+| 변형 (비교 기준) | 시간 | 비용 | 품질 차이 | 주요 결함 |
+|---|---:|---:|---:|---:|
+| lean (cur 대비) | +3% | −12% | +0.5점 | 1건/16회 (cur 2건/8회) |
+| high (lean 대비) | −26% | −31% | −1.3점 | 8건/16회 |
+| coord (lean 대비, 3미션) | +65% | +70% | −1.8점 | 3건/3회 |
+| opus+adv (lean 대비) | +72% | +94% | +0.1점 | 0건/9회 |
+| sonnet+adv (lean 대비) | +33% | +4% | −0.3점 | 3건/9회 |
+| haiku+adv (lean 대비) | +31% | −48% | −0.7점 | 1건/9회 |
+| scout (lean 대비, 4미션) | −3% | +24% | +0.0점 | 1건/4회 |
+
+시간과 비용은 미션별 평균 비율의 중앙값이다. 같은 설정을 두 번 돌리면 한 미션 안에서 채점 점수가 평균 1.1점 벌어졌으므로 0.5점 안쪽 차이는 변동으로 본다. 자동 채점은 74회 중 72회가 통과했고, 실패한 N3 high와 R2 coord 실행은 채점자도 해당 미션 최하위에 두었다. P1·P2는 처음 묶음의 채점 출력 경로에 변형 이름이 남아 있어 경로를 지우고 다시 채점했다. 두 채점의 순위 상관은 0.82, 제출당 점수 차이는 평균 0.4점이었다. 채점자도 Claude이므로 Claude식 보고를 선호할 수 있고, Pi·Codex는 diff가 남은 실행만 들어가 Claude 변형끼리의 비교에만 쓴다.
+
+판단은 다음과 같다.
+
+- 이전 위임 문구는 Claude를 위임시키지 않았다. 코디네이터 모드 밖의 Claude 실행은 서브에이전트를 한 번도 띄우지 않았다. lean의 이득은 컨텍스트와 비용이다. 세션 시작 메모리가 6.2K에서 3.1K 토큰으로, 스킬 목록이 9.3K에서 8.5K 토큰으로 줄었다.
+- effort는 xhigh를 유지한다. high는 8개 미션 모두에서 더 쌌지만, 요구 누락(N1 "경고 없이"), 날짜 기록 수정과 거짓 보고(N3), 문자열 입력에 `string | null | undefined`를 돌려주는 `maskName` 시그니처(P2)가 모두 high에서 나왔다. 숨은 테스트는 그중 N3만 잡았다.
+- advisor는 기본값으로 두지 않는다. Opus advisor는 주요 결함이 없었지만 평균 점수가 lean과 같았고 비용은 거의 두 배였다. advisor 호출 42회 중 10회는 429·overloaded로 실패해 조언 없이 진행됐다. Opus 5.5 메인에 Haiku advisor를 주면 경고만 내고 무시한다. 위험한 변경에서만 `claude --advisor opus`나 `/advisor opus`로 켠다.
+- Haiku 5.5 + Opus advisor는 비용이 절반이고 모든 실행이 숨은 테스트를 통과했지만, 설계 판단이 많은 G1에서 가장 낮았다. 비용의 68%가 advisor이며, advisor가 실패한 P1에서는 Haiku 단독으로 $0.06~0.08에 통과했다. 기본 설정으로 두지 않고, 위험이 낮은 반복 작업에서 세션 단위로 고른다.
+- Haiku scout는 4개 미션에서 한 번도 호출되지 않아 `files/workspace/.claude/agents/`에 추가하지 않았다.
+- 코디네이터 모드는 메인 스레드에 도구 6개만 남긴다. R2에서는 worker가 도는 중에 "진행 중" 보고로 끝나고 tsc 기준선을 깼고, N1에서는 확인하지 않은 내용을 검증했다고 보고했다.
+
+반영한 변경은 다음과 같다.
+
+- `files/workspace/.claude/CLAUDE.md`를 지웠다. `~/.claude/CLAUDE.md`가 `@../.codex/AGENTS.md`를 import하고 APM이 배포한 `~/.claude/rules/personal-agent-guide.md`도 같은 지침을 실어 두 번 읽고 있었다.
+- 공용 지침의 실행 서브에이전트 모델 문장을 런타임 중립으로 바꿨다(위 10-07 변경 참고).
+- `files/workspace/.claude/settings.json`의 `skillOverrides`로 최근 120일 Claude 세션에서 호출 0회인 스킬 9개(`but`, `elixir`, `find-docs`, `find-skills`, `hindsight`, `kb`, `obsidian-bases`, `obsidian-markdown`, `setup-pstack`)를 껐다.
+- 전역 mise `[env]`에서 `CLAUDE_CODE_COORDINATOR_MODE=1`과 `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1`을 지웠다. 앞의 것은 문서에 없는 플래그로 `claude -p`와 SDK 실행을 코디네이터 모드로 바꿨고, 뒤의 것은 Opus 5.5에 효과가 없다.

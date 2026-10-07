@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "context7": {
+      "url": "https://mcp.context7.com/mcp",
+      "headers": { "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}" },
+      "exposure": "deferred",
+      "description": "Current library, framework, SDK, and CLI documentation lookup"
+    },
+    "codegraph": {
+      "command": "codegraph",
+      "args": ["serve", "--mcp"],
+      "exposure": "deferred",
+      "description": "Symbol graph and verbatim source for repos that have a .codegraph/ index"
+    }
+  }
+}

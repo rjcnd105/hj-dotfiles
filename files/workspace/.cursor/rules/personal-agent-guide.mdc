@@ -1,6 +1,6 @@
 ---
-description: "Codex-first personal engineering collaboration and verification guide"
-globs: "**"
+description: Codex-first personal engineering collaboration and verification guide
+globs: **
 ---
 
 # Personal Agent Guide
@@ -122,27 +122,17 @@ mechanisms. Ordinary implementation and diagnosis skip this protocol.
 
 ## Model routing and delegation
 
-- Use Astra for complex planning, ideation, design decisions, ambiguous problem
-  analysis, and coordination. Retain the selected Astra reasoning effort.
-- Once the goal, constraints, and acceptance criteria are clear, Astra delegates
-  bounded implementation, execution, and processing to a Sol subagent. This is
-  standing authorization to delegate those steps with the relevant context; no
-  per-step delegation confirmation is needed.
-- Select `gpt-6-sol` explicitly from the runtime's available models and set
-  `reasoning_effort="max"` for that subagent. If that combination is unavailable,
-  report the limitation instead of silently substituting a different model or
-  reasoning effort.
-- Give each execution agent the objective, scope and exclusions, decisions and
-  rationale, authoritative files or evidence, relevant current state, owned
-  paths, and acceptance checks. Pass the model and reasoning explicitly; use
-  task-specific context when full-history inheritance prevents overrides.
-- Execution agents return their result, changed artifacts, verification
-  evidence, and unresolved issues. Return material ambiguity or required
-  redesign to Astra before continuing dependent work.
-- Keep dependent work sequential and parallel work independent with disjoint
-  ownership. Astra reviews the combined result against the goal and acceptance
-  criteria. Delegate other work only when the user or an applicable project or
-  skill instruction explicitly requests it.
+- Work in the main session by default; the selected model plans, implements,
+  and verifies.
+- Delegate to a subagent only when it clearly helps: independent work that can
+  run in parallel with disjoint file ownership, long mechanical processing that
+  would flood the main context, or an explicit request from the user, project,
+  or skill. For execution subagents, use `gpt-6.1-sol` with `high` reasoning
+  when the runtime offers it; otherwise keep the runtime's default subagent
+  model. A model named in the request takes precedence.
+- Give a subagent the objective, scope and exclusions, owned paths, relevant
+  evidence, and acceptance checks. Wait for its result and review it against
+  the goal before reporting.
 
 ## Workflow
 
