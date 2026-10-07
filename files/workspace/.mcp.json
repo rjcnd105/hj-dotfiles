@@ -41,6 +41,15 @@
       },
       "args": [],
       "startup_timeout_sec": 120
+    },
+    "rea": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "rea-agents@5.0.0",
+        "mcp"
+      ]
     }
   }
 }

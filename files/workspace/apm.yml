@@ -88,6 +88,8 @@ dependencies:
     - backnotprop/pstack/skills/typescript-best-practices#157aae39a733135e93d8b5b19ff62c6a84b0ad56
     - backnotprop/pstack/skills/unslop#157aae39a733135e93d8b5b19ff62c6a84b0ad56
     - backnotprop/pstack/skills/why#157aae39a733135e93d8b5b19ff62c6a84b0ad56
+    - humanlayer/skills/plugins/show-me/skills/show-me
+    - morluto/rea/skills/reverse-engineer-anything#rea-agents-5.0.0
   mcp:
     - name: chrome-devtools
       registry: false
@@ -97,6 +99,16 @@ dependencies:
         - chrome-devtools-mcp@latest
         - --auto-connect
         - --channel=stable
+
+    # Keep this version aligned with the reverse-engineer-anything skill ref.
+    - name: rea
+      registry: false
+      transport: stdio
+      command: npx
+      args:
+        - -y
+        - rea-agents@5.0.0
+        - mcp
 
     - name: openaiDeveloperDocs
       registry: false

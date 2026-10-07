@@ -15,10 +15,7 @@
     },
     "context7": {
       "type": "http",
-      "url": "https://mcp.context7.com/mcp",
-      "env_http_headers": {
-        "CONTEXT7_API_KEY": "CONTEXT7_API_KEY"
-      }
+      "url": "https://mcp.context7.com/mcp"
     },
     "node_repl": {
       "type": "stdio",
@@ -41,6 +38,15 @@
       },
       "args": [],
       "startup_timeout_sec": 120
+    },
+    "rea": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "rea-agents@5.0.0",
+        "mcp"
+      ]
     }
   }
 }

@@ -9,7 +9,7 @@ argument-hint: <html-file> [--svg-only|--png-only] [--scale=N] [--output=<path>]
 description: Export a diagram-design HTML file to .svg and .png next to the source
 ---
 
-Export the diagram HTML at `$1` to `.svg` and/or `.png`, following the procedure documented in [`skills/diagram-design/references/export.md`](../../apm_modules/cathrynlavery/diagram-design/.apm/skills/diagram-design/references/export.md). Treat that reference as the source of truth — don't reimplement the logic here. If `--registry` is present, also follow [`skills/diagram-design/references/export-registry.md`](../../apm_modules/cathrynlavery/diagram-design/.apm/skills/diagram-design/references/export-registry.md) to emit the metadata sidecar — a separate procedure from the SVG/PNG rasterization above.
+Export the diagram HTML at `$1` to `.svg` and/or `.png`, following the procedure documented in [`skills/diagram-design/references/export.md`](../../apm_modules/cathrynlavery/diagram-design/.apm/skills/diagram-design/references/export.md). Treat that reference as the source of truth — don't reimplement the logic here. For SVG output, prefer running the packaged helper at `skills/diagram-design/scripts/export_svg.py` when available (it implements the CSS carry-forward and defs ID namespacing steps). If `--registry` is present, also follow [`skills/diagram-design/references/export-registry.md`](../../apm_modules/cathrynlavery/diagram-design/.apm/skills/diagram-design/references/export-registry.md) to emit the metadata sidecar — a separate procedure from the SVG/PNG rasterization above.
 
 Full argument string: `$ARGUMENTS`
 
