@@ -28,6 +28,16 @@
     "defaultModel": "openai-codex/gpt-6.1-sol",
     "defaultThinking": "high",
     "defaultExtensions": [],
+    "watchdog": {
+      "enabled": true,
+      "main": {
+        "model": "openrouter/deepseek/deepseek-v4.1-flash",
+        "thinking": "off"
+      },
+      "cadence": {
+        "everyNTools": 10
+      }
+    },
     "agentOverrides": {
       "scout": {
         "thinking": "high",
