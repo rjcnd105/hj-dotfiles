@@ -1,6 +1,6 @@
 # Shared MCP configuration for /Users/hj/study-g and its game projects.
 [mcp_servers.godot-ai]
-command = "/Users/hj/.local/share/mise/installs/uv/latest/bin/uvx"
+command = "/Users/hj/.local/share/mise/shims/uvx"
 args = [
   "--isolated",
   "--no-config",
