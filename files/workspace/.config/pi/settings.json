@@ -22,7 +22,8 @@
     "npm:@sting8k/pi-vcc",
     "npm:pi-interactive-shell",
     "npm:pi-ask-user",
-    "npm:pi-intercom"
+    "npm:pi-intercom",
+    "npm:pi-claude-bridge"
   ],
   "subagents": {
     "defaultModel": "openai-codex/gpt-6.1-sol",
