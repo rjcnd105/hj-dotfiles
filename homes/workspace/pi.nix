@@ -12,6 +12,7 @@ in
   # ~/.pi/agent. Link only the repository-owned configuration files.
   home.file = {
     ".pi/agent/settings.json" = link "settings.json";
+    ".pi/agent/claude-bridge.json" = link "claude-bridge.json";
     # Pi reads one context file from its agent directory, so the APM-generated
     # shared guide takes AGENTS.md and Pi-specific rules use APPEND_SYSTEM.md.
     ".pi/agent/AGENTS.md" = {
