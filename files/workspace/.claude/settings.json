@@ -54,6 +54,17 @@
   "disabledMcpjsonServers": [
     "openaiDeveloperDocs"
   ],
+  "skillOverrides": {
+    "but": "off",
+    "elixir": "off",
+    "find-docs": "off",
+    "find-skills": "off",
+    "hindsight": "off",
+    "kb": "off",
+    "obsidian-bases": "off",
+    "obsidian-markdown": "off",
+    "setup-pstack": "off"
+  },
   "enabledPlugins": {
     "claude-md-management@claude-plugins-official": true,
     "gopls-lsp@claude-plugins-official": false,
@@ -72,18 +83,13 @@
         "source": "github",
         "repo": "michalzubkowicz/nixos-management-skill"
       }
+    },
+    "aseprite-ai-artist": {
+      "source": {
+        "source": "github",
+        "repo": "with-pebbly/aseprite-ai-artist"
+      }
     }
-  },
-  "skillOverrides": {
-    "but": "off",
-    "elixir": "off",
-    "find-docs": "off",
-    "find-skills": "off",
-    "hindsight": "off",
-    "kb": "off",
-    "obsidian-bases": "off",
-    "obsidian-markdown": "off",
-    "setup-pstack": "off"
   },
   "language": "Korean",
   "effortLevel": "xhigh",
