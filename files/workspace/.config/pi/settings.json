@@ -18,9 +18,9 @@
   ],
   "packages": [
     "git:github.com/nicobailon/pi-subagents",
-    "npm:@sting8k/pi-vcc@0.8.0",
-    "npm:pi-interactive-shell@0.17.0",
-    "npm:pi-ask-user@0.15.1",
+    "npm:@sting8k/pi-vcc",
+    "npm:pi-interactive-shell",
+    "npm:pi-ask-user",
     "npm:pi-intercom"
   ],
   "subagents": {
