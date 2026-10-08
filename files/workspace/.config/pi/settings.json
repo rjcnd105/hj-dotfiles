@@ -2,7 +2,9 @@
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-6-astra",
   "defaultThinkingLevel": "xhigh",
-  "defaultTools": ["+codemode"],
+  "defaultTools": [
+    "+codemode"
+  ],
   "modelThinkingLevels": {
     "openai-codex/gpt-6-astra": "xhigh",
     "openai-codex/gpt-6-sol": "max",
@@ -36,7 +38,7 @@
         "thinking": "off"
       },
       "cadence": {
-        "everyNTools": 10
+        "everyNTools": null
       }
     },
     "agentOverrides": {
@@ -107,5 +109,6 @@
   ],
   "prompts": [
     "~/.config/pi/prompts"
-  ]
+  ],
+  "deviceId": "df451236-3396-4dfc-8308-482aa2450a0b"
 }
