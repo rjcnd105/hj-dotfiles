@@ -2,6 +2,7 @@
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-6-astra",
   "defaultThinkingLevel": "xhigh",
+  "defaultTools": ["+codemode"],
   "modelThinkingLevels": {
     "openai-codex/gpt-6-astra": "xhigh",
     "openai-codex/gpt-6-sol": "max",
