@@ -69,6 +69,26 @@ let
         }
     ) { } (builtins.readDir currentScanPath));
 
+  # Nix path — store로 복사되어 pure evaluation에서 builtins.readDir 가능
+  scanBasePath = ../files + "/${myOptions.filesHost}";
+  # String path — 실제 파일시스템 경로, mkOutOfStoreSymlink 대상
+  linkBasePath = myOptions.absoluteProjectPath + "/files/${myOptions.filesHost}";
+
+  # 로그인 직후 macOS가 Ghostty를 다시 열 때 암호화된 Nix Store 볼륨은 아직 마운트 전일 수 있다.
+  # home.file 링크는 /nix/store를 거치므로 그 순간 끊겨 Ghostty가 설정 없이 기본 셸(zsh)로 뜬다.
+  # Ghostty가 읽는 설정과 command wrapper만 store를 거치지 않고 repo 파일을 직접 가리키게 한다.
+  # { "~/ 기준 링크 경로" = "files/${filesHost} 기준 원본 경로"; }
+  ghosttyDirectLinks =
+    lib.optionalAttrs
+      (
+        pkgs.stdenv.hostPlatform.isDarwin
+        && builtins.pathExists (scanBasePath + "/.config/ghostty/config.ghostty")
+      )
+      {
+        ".config/ghostty/config.ghostty" = ".config/ghostty/config.ghostty";
+        ".config/ghostty/ghostty-nix-env.sh" = ".config/ghostty/ghostty-nix-env.sh";
+      };
+
 in
 {
 
@@ -76,35 +96,26 @@ in
   home.preferXdgDirectories = true;
   xdg.enable = true;
   # ${PROJECT_ROOT}/files/${hostName} 내의 모든 파일/폴더를 ~/ 기준으로 매핑
-  home.file =
-    let
-      # Nix path — store로 복사되어 pure evaluation에서 builtins.readDir 가능
-      scanBasePath = ../files + "/${myOptions.filesHost}";
-      # String path — 실제 파일시스템 경로, mkOutOfStoreSymlink 대상
-      linkBasePath = myOptions.absoluteProjectPath + "/files/${myOptions.filesHost}";
-    in
-    (mkLinkFolders {
-      scanPath = scanBasePath;
-      linkPath = linkBasePath;
-    })
-    //
-      lib.optionalAttrs
-        (
-          pkgs.stdenv.hostPlatform.isDarwin && builtins.pathExists (scanBasePath + "/.config/ghostty/config")
-        )
-        {
-          "Library/Application Support/com.mitchellh.ghostty/config" = {
-            source = config.lib.file.mkOutOfStoreSymlink (linkBasePath + "/.config/ghostty/config");
-            force = true;
-          };
-          "Library/Application Support/com.mitchellh.ghostty/config.ghostty" = {
-            source = config.lib.file.mkOutOfStoreSymlink (linkBasePath + "/.config/ghostty/config");
-            force = true;
-          };
-          ".config/ghostty/config.ghostty" = {
-            source = config.lib.file.mkOutOfStoreSymlink (linkBasePath + "/.config/ghostty/config");
-            force = true;
-          };
-        };
+  home.file = removeAttrs (mkLinkFolders {
+    scanPath = scanBasePath;
+    linkPath = linkBasePath;
+  }) (builtins.attrNames ghosttyDirectLinks);
+
+  home.activation.linkGhosttyDirect = lib.mkIf (ghosttyDirectLinks != { }) (
+    lib.hm.dag.entryAfter [ "linkGeneration" ] (
+      lib.concatStrings (
+        lib.mapAttrsToList (
+          target: source:
+          let
+            targetPath = "${config.home.homeDirectory}/${target}";
+          in
+          ''
+            run mkdir -p ${lib.escapeShellArg (dirOf targetPath)}
+            run ln -sfn ${lib.escapeShellArg "${linkBasePath}/${source}"} ${lib.escapeShellArg targetPath}
+          ''
+        ) ghosttyDirectLinks
+      )
+    )
+  );
 
 }

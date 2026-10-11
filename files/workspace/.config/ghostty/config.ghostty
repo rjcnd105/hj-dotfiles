@@ -1,0 +1,35 @@
+# https://ghostty.org/docs/config/keybind/reference
+
+macos-option-as-alt = true
+theme = Arcoiris
+command = /Users/hj/.config/ghostty/ghostty-nix-env.sh
+shell-integration = fish
+font-family = "Menlo"
+font-codepoint-map = U+1100-U+11FF,U+3130-U+318F,U+A960-U+A97F,U+AC00-U+D7AF,U+D7B0-U+D7FF=Sarasa Mono K
+font-size = 11
+
+# split 경계선 가시성
+split-divider-color = #6e5e80
+unfocused-split-opacity = 0.7
+
+# Cmd + c : 선택 영역을 복사하되, 마우스가 링크 위에 있으면 링크 전체 URL로 덮어씀
+# (TUI가 줄을 나눠 그린 OSC 8 링크도 전체 URL이 복사됨)
+keybind = super+c=copy_to_clipboard:mixed
+keybind = chain=copy_url_to_clipboard
+
+# key_* 는 물리 키 기준이라 한글 입력 모드에서도 동일하게 동작한다
+
+# Alt + n : 자동 분할 (창 비율에 맞춰 가로/세로 중 자동으로 분할)
+keybind = alt+key_n=new_split:auto
+
+# Alt + Shift + h, j, k, l : 지정된 방향으로 분할
+keybind = alt+shift+key_h=new_split:left
+keybind = alt+shift+key_j=new_split:down
+keybind = alt+shift+key_k=new_split:up
+keybind = alt+shift+key_l=new_split:right
+keybind = alt+key_w=close_surface
+
+keybind = alt+key_j=goto_split:down
+keybind = alt+key_h=goto_split:left
+keybind = alt+key_l=goto_split:right
+keybind = alt+key_k=goto_split:up
