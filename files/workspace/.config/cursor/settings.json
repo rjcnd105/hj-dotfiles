@@ -326,5 +326,8 @@
   "i18n-ally.displayLanguage": "ko",
   "i18n-ally.enabledFrameworks": [
     "next-intl"
+  ],
+  "cursor.cpp.disabledLanguages": [
+    "plaintext"
   ]
 }

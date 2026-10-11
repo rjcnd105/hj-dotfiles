@@ -1,4 +1,4 @@
-model = "gpt-6-astra"
+model = "gpt-6.1-sol"
 model_reasoning_effort = "xhigh"
 model_reasoning_summary = "concise"
 personality = 'pragmatic'
@@ -88,6 +88,13 @@ apps = true
 multi_agent = true
 memories = true
 hooks = true
+login_shell_package_path = true
+
+# Per-thread extraction runs on a fast model, like ProPerAgent's memory filter
+# (arXiv 2610.22671); global consolidation reconciles MEMORY.md on a stronger one.
+[memories]
+extract_model = "gpt-6-luna"
+consolidation_model = "gpt-6.1-terra"
 
 [features.multi_agent_v2]
 enabled = true
@@ -172,15 +179,6 @@ enabled = true
 [plugins."template-creator@openai-primary-runtime"]
 enabled = true
 
-[marketplaces.openai-primary-runtime]
-last_updated = "2026-07-19T08:59:59Z"
-source_type = "local"
-source = "/Users/hj/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
-
-[marketplaces.openai-bundled]
-source_type = "local"
-source = "/Users/hj/.codex/.tmp/bundled-marketplaces/openai-bundled"
-
 [tui]
 status_line = [
   "model-with-reasoning",
@@ -198,6 +196,9 @@ screen_reader_detection_done = true
 "gpt-5.5" = 4
 "gpt-5.6-sol" = 4
 "gpt-6.1-sol" = 4
+
+[tui.effects]
+starfield = true
 
 [hooks.state]
 
@@ -267,6 +268,14 @@ global = "cursor"
 [desktop.open-in-target-preferences.perPath]
 "/Users/hj/work/gm/gentle-renewal" = "cursor"
 
+[marketplaces.openai-bundled]
+source_type = "local"
+source = "/Users/hj/.codex/.tmp/bundled-marketplaces/openai-bundled"
+
+[marketplaces.openai-primary-runtime]
+source_type = "local"
+source = "/Users/hj/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
+
 [plugins."visualize@openai-bundled"]
 enabled = true
 
@@ -276,27 +285,19 @@ enabled = true
 [plugins."unified-computer-use@openai-bundled"]
 enabled = true
 
-[plugins."code-review@openai-bundled"]
-enabled = true
-
 [mcp_servers.chrome-devtools]
 command = "npx"
 args = ["chrome-devtools-mcp@latest", "--auto-connect", "--channel=stable"]
-id = ""
 
 [mcp_servers.chrome-devtools.env]
 
 [mcp_servers.openaiDeveloperDocs]
 url = "https://developers.openai.com/mcp"
-id = ""
-
-[mcp_servers.context7]
-url = "https://mcp.context7.com/mcp"
-id = ""
 
 [mcp_servers.node_repl]
 args = []
 command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
+env_vars = ["BROWSER_USE_ACCESS_EXECUTOR_ID", "BROWSER_USE_ACCESS_PIPE_PATH", "BROWSER_USE_ACCESS_VERIFYING_IDENTITY"]
 startup_timeout_sec = 120
 
 [mcp_servers.node_repl.env]
@@ -311,8 +312,8 @@ NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = ""
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.930.51102"
-NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/hj/.codex/plugins/cache/openai-bundled/browser/26.930.51102/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
+BROWSER_USE_CODEX_APP_VERSION = "26.1023.51421"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/hj/.codex/plugins/cache/openai-bundled/browser/26.1023.51421/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
 SKY_CUA_SERVICE_PATH = "/Users/hj/.codex/computer-use/Codex Computer Use.app"
 CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex"
 
@@ -327,7 +328,6 @@ url = "http://127.0.0.1:3333/mcp"
 
 [mcp_servers.rea]
 command = "npx"
-args = ["-y", "rea-agents@5.0.0", "mcp"]
-id = ""
+args = ["-y", "rea-agents@latest", "mcp"]
 
 [mcp_servers.rea.env]

@@ -1,5 +1,6 @@
 {
   "env": {
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "50",
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "permissions": {
@@ -29,10 +30,8 @@
     ],
     "deny": [
       "Read(**/.env*)",
-      "Edit(**/.env*)",
       "Read(**/*.pem)",
       "Edit(**/*.pem)",
-      "Read(**/.git/**)",
       "Edit(**/.git/**)"
     ],
     "ask": [
@@ -48,7 +47,6 @@
   ],
   "enabledMcpjsonServers": [
     "chrome-devtools",
-    "context7",
     "node_repl"
   ],
   "disabledMcpjsonServers": [
@@ -62,14 +60,14 @@
     "hindsight": "off",
     "kb": "off",
     "obsidian-bases": "off",
-    "obsidian-markdown": "off",
-    "setup-pstack": "off"
+    "obsidian-markdown": "off"
   },
   "enabledPlugins": {
     "claude-md-management@claude-plugins-official": true,
     "gopls-lsp@claude-plugins-official": false,
     "typescript-lsp@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true
+    "frontend-design@claude-plugins-official": true,
+    "code-modernization@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
@@ -91,6 +89,7 @@
       }
     }
   },
+  "outputStyle": "Concise",
   "language": "Korean",
   "effortLevel": "xhigh",
   "modelSettings": {
@@ -102,26 +101,42 @@
     }
   },
   "askUserQuestionTimeout": "never",
+  "pluginConfigs": {
+    "code-modernization@claude-plugins-official": {
+      "options": {
+        "track": "auto",
+        "panel": "auto",
+        "xray": true,
+        "telemetry": true
+      }
+    }
+  },
   "skipDangerousModePermissionPrompt": true,
   "editorMode": "normal",
   "verbose": true,
+  "preferredNotifChannel": "auto",
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
   "autoMode": {
+    "allow": [
+      "$defaults",
+      "Homelab app deploys the user asked agents to run on their own: fast-forward pushes of rjcnd105/hj-dotfiles `main` to a commit whose branch CI passed (comin then activates the homelab), dispatching or re-running hj-dotfiles' `Deploy Homelab App` workflow for an admitted app, and pushing a homelab app's deploy branch (for example front-vibe-helper `master`) once the user approved that push in the conversation.",
+      "Homelab onboarding steps from hj-dotfiles docs/guides/homelab-image-deploy-guide.md: creating or updating DNS records in the deopjib.cc zone that point at the homelab Cloudflare Tunnel, setting an app repo's `HOMELAB_DEPLOY_DISPATCH_TOKEN` Actions secret from `gh auth token`, and changing the user's own GHCR container packages (ghcr.io/rjcnd105/*) that homelab apps run to public, because the homelab pulls images without registry credentials."
+    ],
     "environment": [
       "### Org-wide",
       "**Organization**: None configured",
       "**Cloud provider(s)**: None configured",
-      "**Repository visibility**: Not queryable here (no git remotes configured on this repo) — assume private per shipped default",
+      "**Repository visibility**: github.com/rjcnd105/hj-dotfiles is public; app repos such as rjcnd105/front-vibe-helper and rjcnd105/my-app are private",
       "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
       "**Secrets management**: None configured",
-      "**Default / protected branches**: Not queryable here (no git remotes configured; default branch unknown — origin/HEAD unset)",
-      "**CI/CD deploy targets**: None configured",
+      "**Default / protected branches**: rjcnd105/hj-dotfiles `main` (comin activates the homelab from it); rjcnd105/front-vibe-helper `master`; rjcnd105/my-app `main`",
+      "**CI/CD deploy targets**: the user's personal homelab. hj-dotfiles `main` is its NixOS config (comin applies each push); app repos publish GHCR images and GitHub releases, then dispatch hj-dotfiles' `Deploy Homelab App` workflow (`deploy-homelab-app.yml`), which runs `homelab-appctl deploy` on a self-hosted runner. Onboarding steps: hj-dotfiles docs/guides/homelab-image-deploy-guide.md",
       "**Network posture**: None configured",
       "**Host containment**: None configured — assume Claude Code runs on an ordinary developer machine or CI runner with open internet",
-      "**Source control**: The trusted repo (front-vibe-helper, local working copy — no remotes configured) only",
-      "**Trusted internal domains**: None configured",
+      "**Source control**: the user's own GitHub account github.com/rjcnd105 (all repos under it)",
+      "**Trusted internal domains**: deopjib.cc (the user's Cloudflare zone; homelab apps are served through its Cloudflare Tunnel)",
       "**Trusted cloud buckets**: None configured",
       "**Key internal services**: None configured",
       "**Internal package registry**: None configured",
@@ -132,8 +147,8 @@
       "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
       "### User-specific",
       "**Primary use of Claude Code**: software development",
-      "**Trusted repo**: /Users/hj/work/gm/front-vibe-helper (working directory; no remotes configured)",
-      "**Org-specific CLIs**: None configured",
+      "**Trusted repos**: local checkouts of github.com/rjcnd105 repos, including /Users/hj/dot/nix-dots (hj-dotfiles, plus its jj workspaces), /Users/hj/work/gm/front-vibe-helper and /Users/hj/study_ex/my-backend (my-app)",
+      "**Org-specific CLIs**: `cf` (Cloudflare CLI, logged in as the user), `cloudflared`, `gh`, `jj`, `homelab-appctl`",
       "**routine under <user>/ prefix**: none identified"
     ]
   }
