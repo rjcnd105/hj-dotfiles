@@ -10,7 +10,7 @@ Pi는 agent 디렉터리에서 컨텍스트 파일을 하나 읽고, 작업 디�
 
 | 구성 | 버전 | 용도 |
 |---|---|---|
-| Pi CLI | mise `latest` (2026-10-07 기준 1.0.4) | OpenAI 구독과 OpenRouter 모델 실행, 내장 MCP로 CodeGraph 연결 |
+| Pi CLI | mise `latest` (2026-10-07 기준 1.0.4) | OpenAI 구독과 OpenRouter 모델 실행, 내장 MCP로 CodeGraph·godot-ai 연결 |
 | [pi-subagents](https://github.com/nicobailon/pi-subagents) | git main (2026-10-02, Pi 1.0 수정 #2634 포함, npm 릴리스 전) | Sol 6.1/high의 독립된 작업 문맥과 결과 회수 |
 | [pi-vcc](https://github.com/sting8k/pi-vcc) | 0.8.0 | 모델 호출 없는 세션 압축과 현재 세션 원문 재검색 |
 | [pi-ask-user](https://github.com/edlsh/pi-ask-user) | 0.15.1 | 결정이 필요할 때 선택지·다중 선택·자유 입력으로 사용자에게 묻는 `ask_user` 도구 |
@@ -51,7 +51,7 @@ Pi는 agent 디렉터리에서 컨텍스트 파일을 하나 읽고, 작업 디�
 
 ps-frontend-admin처럼 Node 22.14를 고정한 저장소에서는 PATH의 `node`가 22.14가 된다. Pi 1.0.4는 zstd 응답을 풀 때 Node 22.19 이상의 `zlib.createZstdDecompress`가 필요해 이 상태로는 첫 응답에서 멈춘다. Pi의 bin shim은 옆에 있는 `node`를 PATH보다 먼저 쓰므로, 전역 mise 설정의 `postinstall`이 `mise install` 때마다 그 자리에 전역 Node 26 링크를 만든다. 저장소의 `node`는 그대로 22.14로 남는다.
 
-첫 실행 시 Pi가 `settings.json`의 고정 버전 확장 패키지를 설치한다. `pi list`로 설치 목록을 확인한다. OpenRouter의 Aion 3.5, DeepSeek V4.1 Flash, MiMo V2.6 Pro는 모델 선택기에서 직접 고를 수 있으며, 키는 SOPS에서 mise 환경으로 주입된다. Pi는 `~/.agents/skills`를 기본으로 읽는다. Claude Code나 claude.ai에서만 의미 있는 스킬과 코딩 작업에서 쓰지 않는 스킬(Obsidian, kb, gitbutler, hindsight 등)은 `settings.json`의 `skills` 제외 규칙(`-skills/<이름>`, `~/.agents` 기준)으로 Pi에서만 뺀다. 제외한 스킬은 Claude Code와 Codex에서 계속 쓸 수 있다. 웹 조사와 로그인된 사이트·화면 조작은 공유 `ego-browser` 스킬과 CLI를 사용한다. 별도 웹 확장과 Chrome MCP는 두지 않는다. MCP는 Pi 내장 기능을 쓴다. `~/.pi/agent/mcp.json`(원본 `files/workspace/.config/pi/mcp.json`)이 CodeGraph를 `deferred`로 선언해, 모델이 `tool_search`로 필요한 도구만 불러온다. `pi mcp list`로 연결 상태를 확인한다. CodeGraph는 해당 저장소에 `.codegraph/` 인덱스가 있어야 한다. 내장 MCP는 프로젝트 설정으로 신뢰한 저장소의 `.pi/mcp.json`만 읽고, 프로젝트 루트의 `.mcp.json`이나 Codex 프로젝트 전용 설정은 읽지 않는다. gentle-renewal과 my-backend의 `.mcp.json` Figma 서버를 Pi에서 쓰려면 그 저장소에 `.pi/mcp.json`을 따로 둔다.
+첫 실행 시 Pi가 `settings.json`의 고정 버전 확장 패키지를 설치한다. `pi list`로 설치 목록을 확인한다. OpenRouter의 Aion 3.5, DeepSeek V4.1 Flash, MiMo V2.6 Pro는 모델 선택기에서 직접 고를 수 있으며, 키는 SOPS에서 mise 환경으로 주입된다. Pi는 `~/.agents/skills`를 기본으로 읽는다. Claude Code나 claude.ai에서만 의미 있는 스킬과 코딩 작업에서 쓰지 않는 스킬(Obsidian, kb, gitbutler, hindsight 등)은 `settings.json`의 `skills` 제외 규칙(`-skills/<이름>`, `~/.agents` 기준)으로 Pi에서만 뺀다. 제외한 스킬은 Claude Code와 Codex에서 계속 쓸 수 있다. 웹 조사와 로그인된 사이트·화면 조작은 공유 `ego-browser` 스킬과 CLI를 사용한다. 별도 웹 확장과 Chrome MCP는 두지 않는다. MCP는 Pi 내장 기능을 쓴다. `~/.pi/agent/mcp.json`(원본 `files/workspace/.config/pi/mcp.json`)은 CodeGraph와 godot-ai를 `codemode` 노출로 선언한다. 두 서버의 도구는 모델에 직접 선언되지 않고 `codemode` 스크립트에서 호출한다. `pi mcp list`로 연결 상태를 확인한다. CodeGraph는 해당 저장소에 `.codegraph/` 인덱스가 있어야 한다. 내장 MCP는 프로젝트 설정으로 신뢰한 저장소의 `.pi/mcp.json`만 읽고, 프로젝트 루트의 `.mcp.json`이나 Codex 프로젝트 전용 설정은 읽지 않는다. gentle-renewal과 my-backend의 `.mcp.json` Figma 서버를 Pi에서 쓰려면 그 저장소에 `.pi/mcp.json`을 따로 둔다.
 
 ## 작업 방식
 

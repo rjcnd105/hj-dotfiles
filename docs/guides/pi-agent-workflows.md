@@ -28,7 +28,7 @@ pi auth check --provider openai --json
 
 이 설정은 하위 에이전트를 `openai/gpt-6.1-sol`/xhigh와 새 문맥으로 시작한다. 2026-10-07 비교에서 매번 위임하는 방식은 품질 차이 없이 시간과 비용만 늘렸다([검증 기록](pi-agent-validation.md#위임-강제-제거-2026-10-07)). 한 번에 상위 위임 흐름 하나를 실행하고, 그 흐름 안의 동시 작업은 최대 2개, 위임 깊이는 1단계다. 자식은 부모의 MCP 확장을 자동 상속하지 않아 지정한 Sol 모델을 유지한다. `worker`, `researcher`, `evidence-auditor`는 발견된 스킬 목록을 받는다. 조사 역할은 `~/.agents/skills/ego-browser/SKILL.md`를 읽고 bash로 브라우저를 사용한다. 작업 브리프에도 관련 스킬 경로를 명시한다.
 
-부모의 기본 내장 도구는 `read`, `bash`, `edit`, `write`다. Pi 내장 MCP는 CodeGraph를 `deferred`로 두고, 모델이 `tool_search`로 필요한 도구만 불러온다. 웹 조사와 화면 조작은 `ego-browser` 스킬을 읽고 CLI로 실행한다. 이 구성은 평소 문맥의 도구 수를 줄이지만, Codex보다 품질·속도·비용이 낫다는 보장은 없다.
+부모의 기본 내장 도구는 `read`, `bash`, `edit`, `write`다. Pi 내장 MCP는 CodeGraph와 godot-ai를 `codemode` 노출로 두어, 모델이 `codemode` 스크립트에서 필요한 도구만 호출한다. 웹 조사와 화면 조작은 `ego-browser` 스킬을 읽고 CLI로 실행한다. 이 구성은 평소 문맥의 도구 수를 줄이지만, Codex보다 품질·속도·비용이 낫다는 보장은 없다.
 
 ## Pi 세션 분석
 
@@ -85,7 +85,7 @@ pi auth check --provider openai --json
 
 픽셀 아트 요청은 별도 승인 단계가 있다. 부모는 프로젝트의 디자인·픽셀 품질 문서를 읽고 소스 선택과 원본 크기 시안을 검토한 뒤 승인된 콘셉트만 제작 단계로 넘긴다. 코드 수정 요청에 아트 승인을 섞지 않는다.
 
-현재 전역 Pi MCP에는 CodeGraph를 연결했다. 기존 Godot의 `godot-ai`와 관리자 화면의 `mui-mcp`·`next-devtools-index`는 프로젝트의 Codex 전용 설정에 있으며 Pi로 자동 이전되지 않았다. Pi 내장 MCP는 신뢰한 프로젝트의 `.pi/mcp.json`만 읽고, 프로젝트 루트의 `.mcp.json`이나 Codex 프로젝트 설정은 읽지 않는다. Pi에서 같은 도구가 필요하면 그 저장소에 `.pi/mcp.json`을 추가해야 하며, 현재 구성은 그 연결을 포함하지 않는다. 코드 수정·CLI 검사는 바로 사용할 수 있지만 이번 설치 검증이 실제 Godot 조작이나 프로젝트별 MCP 검증을 대신하지 않는다.
+현재 전역 Pi MCP에는 CodeGraph와 Godot의 `godot-ai`(4.3.0)를 연결했다. 관리자 화면의 `mui-mcp`·`next-devtools-index`는 프로젝트의 Codex 전용 설정에 있으며 Pi로 자동 이전되지 않았다. Pi 내장 MCP는 신뢰한 프로젝트의 `.pi/mcp.json`만 읽고, 프로젝트 루트의 `.mcp.json`이나 Codex 프로젝트 설정은 읽지 않는다. Pi에서 같은 도구가 필요하면 그 저장소에 `.pi/mcp.json`을 추가해야 하며, 현재 구성은 그 연결을 포함하지 않는다. 코드 수정·CLI 검사는 바로 사용할 수 있지만 이번 설치 검증이 실제 Godot 조작이나 프로젝트별 MCP 검증을 대신하지 않는다.
 
 ### 출처가 필요한 기술 조사
 
