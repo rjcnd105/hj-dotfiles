@@ -1,77 +1,106 @@
 ---
 name: game-po-async
-description: Opt-in game designer/PO-led asynchronous delegation in Pi, Codex, or Claude Code. Use only when the user explicitly enables game-po-async by name or its skill command; explaining the mode does not activate it.
+description: Opt-in mode in which main acts as the game's designer/PO and integration owner and keeps bounded work lanes moving asynchronously until the user's goal is met, in Pi, Codex, or Claude Code. Use only when the user enables game-po-async by name or its skill command; explaining or comparing the mode does not activate it.
 ---
 
 # Game PO async
 
-Main is the game designer/PO and integration owner, not a fanout clerk. Advance dependency-ready work with the invoking runtime's verified native primitives. Project instructions, applicable model/effort routing, and user-reserved approval gates remain authoritative.
+The user hands main an open game goal and expects it to keep moving without supervision. Main decides design within delegated scope, cuts the goal into bounded slices, gets each slice done by the executors the project and runtime provide, and lands every verified slice on the project's main line. Progress is integrated, verified player-facing change per hour of the user's wait and per unit of cost. Dispatch counts, review rounds, and protocol artifacts are not progress.
 
-## Activate and select the adapter
+The mode exists to prevent three losses:
 
-Explicit named activation (`game-po-async 모드로 [요청]`) enables this conversation/request until turned off. Explaining/comparing the mode is read-only, not permission to dispatch. New sessions activate by name again and rehydrate evidence; local skill files persist, not immortal live agents.
+- **Stranded work:** a slice finishes but never reaches main, left in a side workspace, branch, or lane report.
+- **Idle time:** main stops at a finished slice while the goal is open, asks the user a choice main could decide, or polls instead of reacting to notifications.
+- **Overhead without information:** re-reading guides, proof manifests, reviews of slices main can judge from the diff, process steps nobody measured.
 
-Identify the actual runtime and exposed capabilities, then read only its adapter before dispatch:
+## Activate
 
-| Runtime | Invocation | Adapter |
-| --- | --- | --- |
-| Pi | `/skill:game-po-async [request]` | [references/pi.md](references/pi.md) |
-| Codex | `$game-po-async [request]` | [references/codex.md](references/codex.md) |
-| Claude Code | `/game-po-async [request]` | [references/claude-code.md](references/claude-code.md) |
+Named activation (`game-po-async 모드로 …`, `/game-po-async …`, `/skill:game-po-async …`, `$game-po-async …`) enables the mode for this conversation until the user turns it off. A new session activates by name again and rehydrates from durable files; live agents do not survive sessions.
 
-One canonical source lives in `~/.agents/skills/game-po-async`; Claude Code's personal skill entry links to it. Pi and Codex discover the canonical location directly. Use the adapter's refresh guidance, not extra copies or settings edits.
+Read the adapter for the runtime you are in, once per session:
 
-**Done:** runtime, native delegation/notification/continuation capabilities, and required routing are identified. If capabilities or the required route are unavailable, report that execution constraint; continue authorized planning/review or unrelated compliant work. Default capability/model inheritance is not permission to substitute a backend, install a bridge, or switch execution mode.
+| Runtime | Adapter |
+| --- | --- |
+| Pi | [references/pi.md](references/pi.md) |
+| Codex | [references/codex.md](references/codex.md) |
+| Claude Code | [references/claude-code.md](references/claude-code.md) |
 
-## 1. Frame the outcome
+## Bind to the project first
 
-Read the user's goal, nearest instructions, canon/contracts, owner routes, and existing plan/report. Reuse local design learning, including recorded video/research lessons; research only a material evidence gap.
+Project instructions outrank this skill and its adapters. Before the first dispatch, read the project's agent instructions and team-workflow binding and note these five bindings once in the task plan (a line each, or a pointer to where the project already states them):
 
-Define the player outcome, bounded deliverables, acceptance evidence, dependencies, exclusive file owners, integration owner, and approval gates. Review choice, feedback, risk/reward, pacing, variety, economy, and saving effects in proportion to the change. Main adopts, revises, or defers within delegated scope; reserved decisions go to the user.
+1. **Executors:** who writes code, art, audio, and docs. That may be runtime-native subagents, an external agent session the project reaches through its own mailbox, or main itself. Note also work main must do itself (for example art drawn in one live editor window).
+2. **Checkout:** shared checkout with disjoint paths, or isolated workspaces.
+3. **Landing:** the project's command that puts a verified slice on main, and whether landing waits for approval.
+4. **Check ladder:** the focused, full-suite, and state-injected scenario commands.
+5. **Gates:** what the user reserves and what main may approve provisionally.
 
-**Done:** a durable plan (one per task; later rounds append a short section) identifies ready work, blocked work, and who can approve each gate.
+Where the project is silent, use this skill's defaults: shared checkout, land when verified, user gates only where instructions reserve them.
 
-## 2. Prepare useful lanes
+## 1. Plan
 
-Partition by deliverable/dependency/file owner, not a fixed roster or agent count. Discover executable roles and actual model/effort capabilities before dispatch. Create only useful roles when prerequisites and capacity permit; preserve configured concurrency/depth/spawn/tool ceilings. Role selection does not authorize profile/settings changes.
+Keep one durable plan per task in the project's plan location, and append a short section each later round. The plan holds:
 
-Give each child a fresh bounded context: objective, cwd/ref, exclusive files or read-only boundary, source pointers, constraints, checks, final-report contract, and stop/ask conditions. Leaves do not fan out. A role name or prompt alone does not remove edit authority; select a verified read-only contract for reviews or report its absence.
+- the player outcome;
+- the decisions main made and why, in player terms;
+- the slices, each with an owner, owned paths, an acceptance check, and its dependencies;
+- the gates and who approves each.
 
-Use `VCS_KIND`. One writer per cwd/workspace; isolate concurrent writers. Main exclusively owns shared files/integration. For jj, including colocated jj, use native jj workspaces/mutations rather than Git worktree shortcuts. Serialize engine imports per checkout. Bound writers by a coherent slice and safe checkpoint, not a hard tool-call cap.
+The plan is the brief. An executor prompt points at its plan section and adds cwd, owned paths, the checks to run, and stop conditions.
 
-**Done:** routing, capacity, ownership, and prerequisites permit non-overlapping launches.
+Review design in proportion to the change: choice, feedback, risk/reward, pacing, variety, economy, saving. Main decides reversible choices within delegated scope and records them where the project tracks open questions. Only reserved gates wait for the user. Reuse local design notes and recorded research; research only a gap that changes a decision.
 
-## 3. Advance branch-locally
+## 2. Lanes
 
-Keep one parent-owned orchestration at a time; children and follow-ups stay within that owner's runtime-native protocol. Validate any executable workflow before launch. Observe all launches/results, including surviving siblings after a lane failure; dispatch receipts are not completed reports.
+- **Partition and size.** Split by deliverable and file ownership. The number of lanes follows ready work and the runtime's configured ceilings, never a fixed roster.
+- **Shared checkout by default.** Concurrent writers own disjoint paths. Main owns shared files: integration points, save schema, project settings, shared instructions. Main also serializes engine imports per checkout. Two slices that must touch the same file run one after the other.
+- **Isolated workspaces.** Use one only when the project allows it and the slice cannot coexist with others. Such a lane ends by landing (§3) and removing its workspace.
+- **Start from main.** Every lane starts from current main; a lane based on stale code tests stale code.
+- **No fan-out below main.** Executors do not spawn further agents.
+- **Read-only means enforced.** Reviewers and scouts get a read-only contract the runtime enforces; a prompt that says "read-only" is not one.
+- **Pre-authorized housekeeping.** Briefs allow reversible housekeeping: restoring tracked files, removing generated output, rerunning imports and checks. An executor stops for main only at a reserved gate, an irreversible action, or a change of scope or design. Otherwise it decides, notes the choice in its final report, and continues.
 
-For each delivered slice: **writer → main PO decision → bounded fix or next step**, with a fresh read-only review when the slice carries risk main cannot judge from the diff and report: save/state schemas, shared integration, or checks still failing at handoff. A sample bound for a user approval gate goes to the user once main has looked at it; the user's gate is its review. Consume actual changes, reports, and checks at each dependency barrier. Keep reviewer verdict and main decision distinct; successful tool exit and verdict prose are not approval. Use verified structured outputs when scripts branch on a verdict, rather than parsing prose.
+## 3. Advance and land
 
-Record main's decision, player-facing rationale, scope, conditions, and exact correlated request/run/artifact evidence. Use native reply on the exact pending request where supported; otherwise main records the gated decision and sends a correlated native continuation only after approval. Steering/delivery receipts alone are not approval proof. Read-only children return complete final evidence using the adapter's supported handoff, without being asked to write shared progress files.
+For each delivered slice, main reads the report, the diff, and the check output, decides **adopt**, **revise**, or **defer**, and then lands it or sends a bounded fix.
 
-On native completion/decision notifications, triage immediately and schedule safe ready follow-ups. Hold only real dependencies or joint integration barriers, not unrelated slow lanes. While the user's goal stays open, the next ready plan item is a safe immediate action, so a finished task is not a stopping point; decide reversible design choices within delegated scope, record them where the project tracks open questions, and block on the user only for reserved gates while other lanes keep moving. Yield only when nothing safe remains, and record the revisit trigger. Use native notifications rather than sleep/status polling; a runtime's bounded event wait is appropriate only when its actual turn contract needs one.
+- **Judge from evidence.** Main judges from the diff, report, and checks. A fresh read-only reviewer is added only for:
+  - a save or state schema change;
+  - a shared integration contract;
+  - checks still failing at handoff.
 
-At genuine phase/completion opportunities, use [references/observer.md](references/observer.md) for occasional bounded observation of **main and the whole portfolio**. Max-one limits observer instances, not observed lanes; observations do not gate production.
-
-**Done:** lanes are accepted, deferred at explicit gates, or blocked with preserved evidence; main verifies integration behavior, not just report aggregation.
+  A sample bound for a user gate goes to the user once main has looked at it; that gate is its review.
+- **Verify the integrated result.** Run the ladder on main plus the slice, not only inside the lane. Go focused check, then one full suite, then a state-injected scenario where the project has one. With deterministic checks, one run is evidence. A result that changes between identical runs is a defect to fix in the project, not a reason to rerun.
+- **Land at once.** Land an adopted slice immediately with the project's landing command. A slice is done when it is on main, or when it is parked on a named bookmark or branch recorded in the plan with its revisit trigger. Nothing finished stays only in a lane's workspace or report.
+- **React to every notification.** On each completion, decide, land, and dispatch the next ready slice. Hold only for a real dependency; unrelated slow lanes keep running. While the goal is open, a finished slice is not a stopping point. Yield only when nothing safe is ready, and record what reopens the work.
+- **Verdicts are not decisions.** A tool's success exit, a reviewer's prose, or a message delivery receipt is not approval. Record main's decision against the exact run or commit it applies to. A reserved gate needs the user's own answer.
 
 ## Keep effort proportional
 
-Every step costs model time and the user's wait, so each one should buy information main does not already have. Reuse what exists: the VCS for provenance (no hash manifests or freeze phases), the writer's checks for measurements, the prior round's tooling for a revised sample, and the user's gate for appearance. Add a step only for a concrete risk nothing else covers.
+Each step should buy information main does not already have.
 
-- Briefs pre-authorize reversible in-scope housekeeping such as restoring or copying tracked files, removing generated artifacts, and rerunning imports and checks. A child blocks on main only for a user-reserved gate, an irreversible action, or a change of scope or design; otherwise it chooses, records the choice in its final report, and continues. Completion travels as the final report.
-- Verify along a ladder: focused check, one full suite, then integration play or a state-injected QA scenario when the project has one. A failure gets the narrowest repair and recheck.
-- A user's revision of a sample is a short loop: resume the prior writer or edit in main, rebuild previews with existing tooling, and show the result.
-- Keep main's context small: read guides once, send large investigations to a read-only scout, and hand off at a lane boundary before context crowds out judgment (around 150K tokens). A handoff is a durable file plus a paste-ready resume prompt; the user starts the new session. Give every child and handoff its explicit cwd.
+- Read guides and adapters once per session. Re-read only after a version change or a failed call.
+- The VCS is the provenance: no hash manifests, file-count audits, or freeze phases.
+- Wait on native notifications, not status polls or sleeps.
+- A user's revision of a sample is a short loop: resume the prior executor or edit in main, reuse its tooling, and show the result.
+- Add a process step only after it prevents a loss that has happened more than once. Prefer to enforce it in the project's lint or owning script, not in prose.
+- Hand off before context crowds out judgment, around 150K tokens. The handoff is a durable file plus a paste-ready resume prompt that names the cwd.
 
 ## Rehydrate, recover, turn off
 
-- Rehydrate: read the durable plan/report, exact run status/originating session, cwd/ref, dirty/partial work and ownership, approval evidence, and available artifact references before dispatch. Try an eligible known retained child before a documented same-role fallback; authoritative continuation eligibility and route must be checked. Never duplicate a live writer, overwrite unrelated edits, or assume cross-session reply authority.
-- Infrastructure failure (runtime, provider, tooling, or ownership breakage, not a failing game test): freeze the affected lane. A failing check is ordinary work: repair it and recheck along the verification ladder. Record exact error/failure kind, run/status, cwd/ref, and clean-state proof or captured partial diff. Preserve sibling evidence and advance independent safe work. Diagnose and retry through the same native protocol, or seek explicit owner approval for another execution mode/model/backend. Repair a review binding/schema mismatch before that gate advances; do not rerun a successful writer merely to recover a review report.
-- Turn off: stop further mode dispatch. Handle active jobs and pending requests explicitly: agree bounded handoff or exact-run stop/checkpoint and preserve partial evidence. Retire completed roles through available native lifecycle controls, retaining run identity for selective continuation; retirement does not authorize deleting workspaces/artifacts.
+- **Rehydrate.** Read the plan and report and compare main with each lane: unlanded commits, dirty paths and their owners, parked bookmarks, pending gates. Integrate or park finished work you find before dispatching anything new.
+- **Continue.** Resume a known retained executor when the runtime allows it; otherwise start a fresh same-role executor from the plan. Never duplicate a live writer or overwrite someone else's edits.
+- **Infrastructure failure.** This means a runtime, provider, or tool breakage, not a failing game check. Freeze only that lane and record the exact error, run id, cwd/ref, and partial diff. Keep other lanes moving and retry through the same route. A different backend, model, or execution mode needs the owner's approval. A failing game check is ordinary work: make the narrowest fix and recheck.
+- **Turn off.** Stop dispatch. Land or park every finished slice. Stop or hand off active lanes with their evidence. Retire a workspace once its work is on main or parked.
 
-## Completion
+## Completion report
 
-Return adopted/revised/deferred outcomes with PO rationale, checks and actual behavior verified, pending gates/material risks, exact run/cwd/ref identities, and returned native report pointers (where available). Omit or normalize absent fields; never invent an artifact mapping or require an optional one. Update the existing project plan/report with next-ready actions and revisit triggers. Static orchestration checks do not establish measured throughput or game quality.
+Report:
 
-Plan-only evaluation cases and rubrics: [evals/evals.json](evals/evals.json). Evaluation runners must provide baseline agents only the derived prompt-only inputs, never this rubric.
+- outcomes: adopted, revised, or deferred, each with its player-facing rationale;
+- what is on main, by commit;
+- the checks actually run;
+- pending gates;
+- parked work and its triggers.
+
+Update the plan with the next ready actions. Plan-only evaluation cases are in [evals/evals.json](evals/evals.json); never give the rubric to the agents being evaluated.

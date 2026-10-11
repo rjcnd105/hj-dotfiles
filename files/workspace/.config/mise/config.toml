@@ -193,6 +193,9 @@ _.file = [
   { path = "$HOME/.config/sops-nix/secrets/rendered/env/TYPESAFE_API_KEY.env", redact = true, read_only = true },
 ]
 SKILLIB = "$HOME/.local/agents/skills"
+# HyperFrames skills are APM dependencies (files/workspace/apm.yml); stop its CLI
+# from installing standalone copies into the APM-owned skill directories.
+HYPERFRAMES_SKIP_SKILLS = "1"
 ASEPRITE_BIN = "/Applications/Aseprite.app/Contents/MacOS/aseprite"
 
 MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3

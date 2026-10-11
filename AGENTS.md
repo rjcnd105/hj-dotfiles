@@ -15,9 +15,6 @@ macOS through nix-darwin and the homelab through NixOS. Key surfaces are:
 
 ## Core Workflow
 
-- Use `VCS_KIND` as the VCS switch. If `VCS_KIND=jj`, prefer `jj`
-  commands; if `VCS_KIND=git`, use Git. If `VCS_KIND` is absent, establish it
-  once with `jj root >/dev/null 2>&1`.
 - Preserve unrelated dirty work. Do not revert user edits.
 - Prefer surgical edits over whole-file rewrites when the end result is the
   same.
@@ -82,9 +79,9 @@ nix flake check --all-systems --no-build --show-trace
 
 ## Technical Documentation Lookup
 
-- For library/framework/API documentation, prefer Context7 MCP when the
-  `context7` MCP server is visible in the current Codex tool list.
-- If the MCP tool is not available, use `ctx7 library <name> <query>` to resolve
+- For library/framework/API documentation, prefer the `context7` MCP server
+  when the runtime exposes it, directly or through `codemode`.
+- If it is not available, use `ctx7 library <name> <query>` to resolve
   the library ID, then `ctx7 docs <libraryId> <query>` before falling back to
   web search.
 - Keep source-specific claims tied to the fetched docs, and cite the source URL
@@ -93,25 +90,15 @@ nix flake check --all-systems --no-build --show-trace
   (nixpkgs options, module APIs, CLI tools, AI models), look up current docs
   before answering, including the name as written in at least one query.
 
-## Nix Analysis In Codex
+## Nix Analysis
 
-`nixd` and `nil` are installed for editor use, and this repo's Zed/Cursor
-settings prefer `nixd` where configured. Codex does not currently expose the
-Claude `LSP` deferred tool or `claude-code-lsps` plugin surface in this repo.
+`nixd` is installed for editor use, and this repo's Zed/Cursor settings prefer
+it where configured. The binary is not an agent-callable code intelligence tool.
 
-For Codex sessions:
-
-- Do not claim LSP-backed answers unless a live Codex LSP/MCP tool is actually
-  visible in the current tool list.
+- Do not claim LSP-backed answers unless a live LSP/MCP tool is visible in the
+  current tool list.
 - Use repo files plus `nix eval`, `nix flake check`, and `just check` as the
   authoritative Nix verification path.
-- Use `nixd --version` only to verify the language server binary exists; it is
-  not by itself an agent-callable code intelligence tool.
-- Tree-sitter can be used as a Codex-native syntax/AST layer for `.nix` files
-  when `tree-sitter-nix` is wired explicitly. It can support structural search,
-  import/attribute extraction, and graph building, but it does not replace
-  nixd's semantic evaluation, option typing, package completion, or cross-file
-  Nixpkgs/module resolution.
 
 ## Homelab App Deployments
 

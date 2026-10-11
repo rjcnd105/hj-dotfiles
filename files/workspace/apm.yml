@@ -27,10 +27,20 @@ dependencies:
       skills:
         - pdf
         - skill-creator
-    - emilkowalski/skills/skills/review-animations
     - git: https://github.com/cathrynlavery/diagram-design.git
       skills:
         - diagram-design
+    # Complete published HyperFrames set (seven skills since upstream #5651).
+    # HYPERFRAMES_SKIP_SKILLS in mise env keeps its CLI from installing or
+    # refreshing copies in the APM-owned skill directories.
+    # Skill paths: the repo root is a Copilot-only Agent Plugin for APM.
+    - heygen-com/hyperframes/skills/hyperframes
+    - heygen-com/hyperframes/skills/hyperframes-cli
+    - heygen-com/hyperframes/skills/hyperframes-registry
+    - heygen-com/hyperframes/skills/media-use
+    - heygen-com/hyperframes/skills/figma
+    - heygen-com/hyperframes/skills/remotion-to-hyperframes
+    - heygen-com/hyperframes/skills/slideshow
 
     - mattpocock/skills/skills/engineering/domain-modeling
     - mattpocock/skills/skills/productivity/grilling
@@ -39,57 +49,10 @@ dependencies:
       skills:
         - typesafe-ai
     - adhhamdev/modern-react-guidance
+    - GoogleChrome/modern-web-guidance/skills/modern-web-guidance
 
-    # Individual pstack skills exclude the root package's harness-specific agents.
-    - backnotprop/pstack/skills/architect#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/arena#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/automate-me#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/blast-radius#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/bro#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/create-verification-skill#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/figure-it-out#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/how#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/interrogate#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/maintain-verification-skill#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/make-bot-ui#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/no-comments#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/poteto-mode#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-attack-the-premise#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-boundary-discipline#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-build-the-lever#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-encode-lessons-in-structure#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-exhaust-the-design-space#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-experience-first#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-fix-root-causes#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-foundational-thinking#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-guard-the-context-window#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-laziness-protocol#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-make-operations-idempotent#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-migrate-callers-then-delete-legacy-apis#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-minimize-reader-load#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-model-the-domain#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-never-block-on-the-human#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-outcome-oriented-execution#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-prove-it-works#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-redesign-from-first-principles#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-separate-before-serializing-shared-state#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-sequence-verifiable-units#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-subtract-before-you-add#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-test-behavior-not-implementation#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/principle-type-system-discipline#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/recall#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/reflect#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/setup-pstack#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/show-me-your-work#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/swarm#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/tdd#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/teach#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/technical-writing#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/typescript-best-practices#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/unslop#157aae39a733135e93d8b5b19ff62c6a84b0ad56
-    - backnotprop/pstack/skills/why#157aae39a733135e93d8b5b19ff62c6a84b0ad56
     - humanlayer/skills/plugins/show-me/skills/show-me
-    - morluto/rea/skills/reverse-engineer-anything#rea-agents-5.0.0
+    - morluto/rea/.agents/skills/reverse-engineer-anything
   mcp:
     - name: chrome-devtools
       registry: false
@@ -100,60 +63,17 @@ dependencies:
         - --auto-connect
         - --channel=stable
 
-    # Keep this version aligned with the reverse-engineer-anything skill ref.
+    # Tracks the latest release, like the reverse-engineer-anything skill.
     - name: rea
       registry: false
       transport: stdio
       command: npx
       args:
         - -y
-        - rea-agents@5.0.0
+        - rea-agents@latest
         - mcp
 
     - name: openaiDeveloperDocs
       registry: false
       transport: http
       url: https://developers.openai.com/mcp
-
-    - name: context7
-      registry: false
-      transport: http
-      url: https://mcp.context7.com/mcp
-      # Codex resolves this header value from the mise-provided environment at
-      # server start. Keeping the native field avoids writing the secret into
-      # tracked generated files during `apm install`.
-      env_http_headers:
-        CONTEXT7_API_KEY: CONTEXT7_API_KEY
-
-    - name: node_repl
-      registry: false
-      transport: stdio
-      command: 
-        /Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl
-      args: []
-      startup_timeout_sec: 120
-      env:
-        NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS: "1000"
-        NODE_REPL_NODE_MODULE_DIRS: 
-          /Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules
-        NODE_REPL_NODE_PATH: 
-          /Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node
-        NODE_REPL_TRUSTED_CODE_PATHS: /Users/hj/.codex
-        CODEX_HOME: /Users/hj/.codex
-        NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S: 
-          6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f,c8b7e809d7cf9e20a57123b2530d476ccec9a01a6230a7b2b924fea7d94d7f4a
-        BROWSER_USE_AVAILABLE_BACKENDS: chrome,iab
-        NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER: Control the in-app browser in 
-          conjunction with the Browser Plugin.
-        NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME: Control the Chrome browser in 
-          conjunction with the Chrome Plugin. Prefer this method of controlling 
-          Chrome over alternatives (such as Computer Use) unless the user 
-          explicitly mentions an alternative.
-        NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE: Control desktop apps on 
-          macOS through Computer Use.
-        BROWSER_USE_CODEX_APP_BUILD_FLAVOR: prod
-        BROWSER_USE_CODEX_APP_VERSION: 26.707.31428
-        SKY_CUA_SERVICE_PATH: 
-          /Users/hj/.codex/plugins/cache/openai-bundled/computer-use/1.0.1000366/Codex
-          Computer Use.app
-        CODEX_CLI_PATH: /Users/hj/.cache/.bun/bin/codex

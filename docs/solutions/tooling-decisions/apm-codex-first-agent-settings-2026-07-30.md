@@ -113,11 +113,10 @@ apm audit --ci
 
 ## Secrets and Target Differences
 
-Context7 인증 키는 mise가 환경에 제공하고 Codex가 시작 시 해석한다.
-`apm.yml`의 `env_http_headers`는 Codex native passthrough field로
-유지한다. APM 0.26.0은 이 필드를 다른 target에도 그대로 기록하고
-unknown-key warning을 출력하지만 secret 값 자체를 생성 파일에 쓰지
-않는다.
+Context7 MCP는 2026-10-27에 모든 target과 Pi에서 제거했다. 라이브러리
+문서 조회는 `ctx7` CLI를 쓴다. APM 0.35.0은 `env_http_headers`를 reserved
+passthrough key로 무시하므로, Codex native header field를 `apm.yml`로
+전달하던 방식은 더 이상 동작하지 않는다.
 
 APM이 표현하지 못하는 runtime 설정은 native file에 남긴다.
 

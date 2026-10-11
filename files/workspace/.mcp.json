@@ -13,13 +13,6 @@
       "type": "http",
       "url": "https://developers.openai.com/mcp"
     },
-    "context7": {
-      "type": "http",
-      "url": "https://mcp.context7.com/mcp",
-      "env_http_headers": {
-        "CONTEXT7_API_KEY": "CONTEXT7_API_KEY"
-      }
-    },
     "node_repl": {
       "type": "stdio",
       "command": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl",
@@ -47,7 +40,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "rea-agents@5.0.0",
+        "rea-agents@latest",
         "mcp"
       ]
     }

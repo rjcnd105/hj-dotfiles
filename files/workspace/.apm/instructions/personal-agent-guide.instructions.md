@@ -26,6 +26,10 @@ applyTo: "**"
 - Avoid stock transitions and conclusions, invented compound labels, and
   mannered prose. Use "X, not Y" only when the distinction resolves a real
   ambiguity.
+- When pointing the user to a local file to open, such as an image, document,
+  or generated output, write a Markdown link whose label is the file name and
+  whose target is the absolute `file://` URL. Percent-encode spaces. Terminal
+  UIs hard-wrap long bare paths, which breaks Cmd-click and selection copy.
 - For tool-using or sustained work, send one short update before the first
   action and name the first concrete step. Keep later updates material. Skip the
   preamble for a simple answer.
@@ -80,6 +84,8 @@ applyTo: "**"
 - Prefer current local truth: the checkout, generated schemas/types, installed
   documentation, and live browser/network/log/API evidence. Diagnose before
   patching and fix the root cause.
+- When the documentation and existing code conflict, follow the code's
+  conventions, and in your final reply, list all the inconsistencies you found.
 - Support non-trivial claims with concrete files, commands, tests, primary
   sources, constructions, or counterexamples in proportion to risk.
 - Retrieve again only for a required missing fact, an explicit exhaustive
@@ -127,9 +133,10 @@ mechanisms. Ordinary implementation and diagnosis skip this protocol.
 - Delegate to a subagent only when it clearly helps: independent work that can
   run in parallel with disjoint file ownership, long mechanical processing that
   would flood the main context, or an explicit request from the user, project,
-  or skill. For execution subagents, use `gpt-6.1-sol` with `high` reasoning
-  when the runtime offers it; otherwise keep the runtime's default subagent
-  model. A model named in the request takes precedence.
+  or skill. For execution subagents, use the runtime's configured subagent
+  model and reasoning (pi: `subagents` in settings); if none is configured, use
+  `gpt-6.1-sol` with `high` reasoning when the runtime offers it. A model named
+  in the request takes precedence.
 - Give a subagent the objective, scope and exclusions, owned paths, relevant
   evidence, and acceptance checks. Wait for its result and review it against
   the goal before reporting.
