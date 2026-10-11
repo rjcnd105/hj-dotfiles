@@ -7,5 +7,6 @@
   },
   "provider": {
     "plan": "max"
-  }
+  },
+  "askClaudeDeprecationShown": "2026-10-19"
 }

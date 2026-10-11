@@ -10,16 +10,18 @@ Pi는 agent 디렉터리에서 컨텍스트 파일을 하나 읽고, 작업 디�
 
 | 구성 | 버전 | 용도 |
 |---|---|---|
-| Pi CLI | mise `latest` (2026-10-07 기준 1.0.4) | OpenAI 구독과 OpenRouter 모델 실행, 내장 MCP로 Context7·CodeGraph 연결 |
+| Pi CLI | mise `latest` (2026-10-07 기준 1.0.4) | OpenAI 구독과 OpenRouter 모델 실행, 내장 MCP로 CodeGraph 연결 |
 | [pi-subagents](https://github.com/nicobailon/pi-subagents) | git main (2026-10-02, Pi 1.0 수정 #2634 포함, npm 릴리스 전) | Sol 6.1/high의 독립된 작업 문맥과 결과 회수 |
 | [pi-vcc](https://github.com/sting8k/pi-vcc) | 0.8.0 | 모델 호출 없는 세션 압축과 현재 세션 원문 재검색 |
-| [pi-interactive-shell](https://github.com/nicobailon/pi-interactive-shell) | 0.17.0 | 입력이 필요한 CLI를 Pi 안의 PTY에서 실행하고 출력 확인 |
 | [pi-ask-user](https://github.com/edlsh/pi-ask-user) | 0.15.1 | 결정이 필요할 때 선택지·다중 선택·자유 입력으로 사용자에게 묻는 `ask_user` 도구 |
 | pi-intercom | 고정하지 않음 (2026-10-07 기준 0.16.1) | Pi 세션 간 1:1 메시지, pi-subagents 하위 에이전트의 `contact_supervisor` |
-| 로컬 `prompt-snippets` 확장 | 저장소 관리 | `/snippets`에서 이번 요청에 붙일 짧은 작업 지침 선택 |
+| [pi-goal](https://github.com/narumiruna/pi-extensions/tree/main/packages/pi-goal) | 고정하지 않음 (2026-10-29 기준 0.54.13) | `/goal <목표>`로 완료·차단·대기 판정까지 자동으로 이어 가는 목표 모드 |
 | 로컬 `analyze-sessions` 스킬 | 저장소 관리 | Pi 세션의 비용·반복 요청·과거 대화를 읽기 전용 분석 |
+| 로컬 `chatgpt-credit-fallback` 확장 | 저장소 관리 | ChatGPT 플랜 한도에 걸린 `openai/*` 실행을 같은 모델의 `openai-codex`로 옮겨 ChatGPT 크레딧으로 이어감 |
 
-두 로컬 기능은 [amosblomqvist/pi-config의 `f82da56`](https://github.com/amosblomqvist/pi-config/tree/f82da563ab05d66729492d64c7ed4e96db3663f3)를 바탕으로 이 설정에 맞췄다. 원본은 `files/workspace/.config/pi/extensions/prompt-snippets/`와 `skills/analyze-sessions/`이며 Home Manager가 각각 Pi의 확장·스킬 디렉터리에 연결한다. npm 패키지나 전역 공유 스킬을 추가하지 않는다. 사용법은 [작업 가이드](pi-agent-workflows.md#요청별-지침-snippets)에서 확인한다.
+`chatgpt-credit-fallback`은 Home Manager 링크 없이 `settings.json`의 `extensions`(메인 세션)와 `subagents.defaultSubagentOnlyExtensions`(하위 에이전트)가 원본 경로를 직접 가리킨다. `openai-codex`에 로그인돼 있어야 동작한다.
+
+`analyze-sessions`는 [amosblomqvist/pi-config의 `f82da56`](https://github.com/amosblomqvist/pi-config/tree/f82da563ab05d66729492d64c7ed4e96db3663f3)를 바탕으로 이 설정에 맞췄다. 원본은 `files/workspace/.config/pi/skills/analyze-sessions/`이며 Home Manager가 Pi의 스킬 디렉터리에 연결한다. npm 패키지나 전역 공유 스킬을 추가하지 않는다. 사용법은 [작업 가이드](pi-agent-workflows.md#pi-세션-분석)에서 확인한다.
 
 ## 새 Mac에서 시작
 
@@ -34,12 +36,12 @@ Pi는 agent 디렉터리에서 컨텍스트 파일을 하나 읽고, 작업 디�
 3. SOPS 렌더 파일이 준비됐는지 값 출력 없이 확인한다.
 
    ```sh
-   for name in OPENROUTER_API_KEY TYPESAFE_API_KEY CONTEXT7_API_KEY; do
+   for name in OPENROUTER_API_KEY TYPESAFE_API_KEY; do
      test -s "$HOME/.config/sops-nix/secrets/rendered/env/$name.env" || printf 'missing: %s\n' "$name"
    done
    ```
 
-4. `pi`를 열고 `/login openai-codex`로 OpenAI 구독 로그인을 완료한다. 로그인 전에는 인증 가능한 OpenRouter 모델로 열릴 수 있다. Pi는 토큰을 로컬 `~/.pi/agent/auth.json`에 저장한다. 로그인 뒤 `/model`에서 `openai-codex/gpt-6-astra`를 선택하고 xhigh를 확인한다. 새 세션의 설정상 기본값은 Astra/xhigh다.
+4. `pi`를 열고 `/login`에서 **OpenAI (ChatGPT subscription)**("Sign in with ChatGPT")를 골라 OpenAI 구독 로그인을 완료한다. 로그인 전에는 인증 가능한 OpenRouter 모델로 열릴 수 있다. Pi는 토큰을 로컬 `~/.pi/agent/auth.json`에 저장한다. 로그인 뒤 `/model`에서 `openai/gpt-6.1-sol`을 선택하고 xhigh를 확인한다. 새 세션의 설정상 기본값은 `openai/gpt-6.1-sol`/xhigh다. `openai-codex`(Pi 1.1.0의 "OpenAI Codex (legacy)", 로그인 항목 "OpenAI (ChatGPT Plus/Pro)")는 토큰을 따로 저장하므로, 그 공급자의 모델이나 하위 에이전트를 쓸 때만 그 항목으로 따로 로그인한다. `pi auth check`는 로컬 토큰만 보므로 서버가 거부한 토큰도 `ready`로 표시한다.
 
    ```sh
    pi
@@ -49,13 +51,19 @@ Pi는 agent 디렉터리에서 컨텍스트 파일을 하나 읽고, 작업 디�
 
 ps-frontend-admin처럼 Node 22.14를 고정한 저장소에서는 PATH의 `node`가 22.14가 된다. Pi 1.0.4는 zstd 응답을 풀 때 Node 22.19 이상의 `zlib.createZstdDecompress`가 필요해 이 상태로는 첫 응답에서 멈춘다. Pi의 bin shim은 옆에 있는 `node`를 PATH보다 먼저 쓰므로, 전역 mise 설정의 `postinstall`이 `mise install` 때마다 그 자리에 전역 Node 26 링크를 만든다. 저장소의 `node`는 그대로 22.14로 남는다.
 
-첫 실행 시 Pi가 `settings.json`의 고정 버전 확장 패키지를 설치한다. `pi list`로 설치 목록을 확인한다. OpenRouter의 Aion 3.5, DeepSeek V4.1 Flash, MiMo V2.6 Pro는 모델 선택기에서 직접 고를 수 있으며, 키는 SOPS에서 mise 환경으로 주입된다. Pi는 `~/.agents/skills`를 기본으로 읽는다. Claude Code나 claude.ai에서만 의미 있는 스킬과 코딩 작업에서 쓰지 않는 스킬(Obsidian, kb, gitbutler, hindsight 등)은 `settings.json`의 `skills` 제외 규칙(`-skills/<이름>`, `~/.agents` 기준)으로 Pi에서만 뺀다. 제외한 스킬은 Claude Code와 Codex에서 계속 쓸 수 있다. 웹 조사와 로그인된 사이트·화면 조작은 공유 `ego-browser` 스킬과 CLI를 사용한다. 별도 웹 확장과 Chrome MCP는 두지 않는다. MCP는 Pi 내장 기능을 쓴다. `~/.pi/agent/mcp.json`(원본 `files/workspace/.config/pi/mcp.json`)이 Context7과 CodeGraph를 `deferred`로 선언해, 모델이 `tool_search`로 필요한 도구만 불러온다. `pi mcp list`로 연결 상태를 확인한다. CodeGraph는 해당 저장소에 `.codegraph/` 인덱스가 있어야 한다. 내장 MCP는 프로젝트 설정으로 신뢰한 저장소의 `.pi/mcp.json`만 읽고, 프로젝트 루트의 `.mcp.json`이나 Codex 프로젝트 전용 설정은 읽지 않는다. gentle-renewal과 my-backend의 `.mcp.json` Figma 서버를 Pi에서 쓰려면 그 저장소에 `.pi/mcp.json`을 따로 둔다.
-
-`pi-interactive-shell`은 `settings.json`에 버전을 고정했다. 현재 Mac에서는 `pi install npm:pi-interactive-shell@0.17.0`으로 설치했고, 저장소 원본을 가리키는 `~/.pi/agent/settings.json` 링크가 유지되는 것을 확인했다. 별도 `interactive-shell.json`의 `defer: true`로 큰 `interactive_shell` 도구를 평소에는 숨기고, 필요할 때 Pi가 작은 `enable_interactive_shell` 도구로 활성화한다. 사용자가 활성화 명령을 직접 입력할 필요는 없다. 사용자는 대화에서 대화형 CLI 실행을 요청하거나 `/attach` 같은 명령을 사용한다. 일반 비대화형 명령은 기존 `bash` 도구를 사용한다. 상세 예시는 [작업별 사용법](pi-agent-workflows.md#대화형-cli와-개발-서버)에 있다.
+첫 실행 시 Pi가 `settings.json`의 고정 버전 확장 패키지를 설치한다. `pi list`로 설치 목록을 확인한다. OpenRouter의 Aion 3.5, DeepSeek V4.1 Flash, MiMo V2.6 Pro는 모델 선택기에서 직접 고를 수 있으며, 키는 SOPS에서 mise 환경으로 주입된다. Pi는 `~/.agents/skills`를 기본으로 읽는다. Claude Code나 claude.ai에서만 의미 있는 스킬과 코딩 작업에서 쓰지 않는 스킬(Obsidian, kb, gitbutler, hindsight 등)은 `settings.json`의 `skills` 제외 규칙(`-skills/<이름>`, `~/.agents` 기준)으로 Pi에서만 뺀다. 제외한 스킬은 Claude Code와 Codex에서 계속 쓸 수 있다. 웹 조사와 로그인된 사이트·화면 조작은 공유 `ego-browser` 스킬과 CLI를 사용한다. 별도 웹 확장과 Chrome MCP는 두지 않는다. MCP는 Pi 내장 기능을 쓴다. `~/.pi/agent/mcp.json`(원본 `files/workspace/.config/pi/mcp.json`)이 CodeGraph를 `deferred`로 선언해, 모델이 `tool_search`로 필요한 도구만 불러온다. `pi mcp list`로 연결 상태를 확인한다. CodeGraph는 해당 저장소에 `.codegraph/` 인덱스가 있어야 한다. 내장 MCP는 프로젝트 설정으로 신뢰한 저장소의 `.pi/mcp.json`만 읽고, 프로젝트 루트의 `.mcp.json`이나 Codex 프로젝트 전용 설정은 읽지 않는다. gentle-renewal과 my-backend의 `.mcp.json` Figma 서버를 Pi에서 쓰려면 그 저장소에 `.pi/mcp.json`을 따로 둔다.
 
 ## 작업 방식
 
-기본 대화는 `openai-codex/gpt-6-astra`/xhigh이고, 기본 대화가 계획·구현·검증을 직접 맡는다. 병렬로 나눌 수 있는 독립 작업, 메인 문맥을 채울 긴 기계적 처리, 사용자·프로젝트·스킬의 명시 요청이 있을 때만 하위 에이전트에 맡긴다. `pi-subagents`의 기본 모델과 내장 역할은 `openai-codex/gpt-6.1-sol`/high다. 부모가 범위와 파일 소유권을 명시해 작업을 맡기고, 결과를 기다려 검토한 뒤 보고한다. 한 번에 하나의 상위 하위 에이전트 작업 흐름을 실행한다. 확장의 동시 실행 한도 2는 각 흐름 안에 적용된다. 위임을 강제하지 않는 근거는 [2026-10-07 하네스 비교](pi-agent-validation.md#위임-강제-제거-2026-10-07)에 있다.
+기본 대화는 `openai/gpt-6.1-sol`/xhigh이고, 기본 대화가 계획·구현·검증을 직접 맡는다. 병렬로 나눌 수 있는 독립 작업, 메인 문맥을 채울 긴 기계적 처리, 사용자·프로젝트·스킬의 명시 요청이 있을 때만 하위 에이전트에 맡긴다. `pi-subagents`의 기본 모델과 내장 역할은 `openai/gpt-6.1-sol`/xhigh다. 부모가 범위와 파일 소유권을 명시해 작업을 맡기고, 결과를 기다려 검토한 뒤 보고한다. 한 번에 하나의 상위 하위 에이전트 작업 흐름을 실행한다. 확장의 동시 실행 한도 2는 각 흐름 안에 적용된다. 위임을 강제하지 않는 근거는 [2026-10-07 하네스 비교](pi-agent-validation.md#위임-강제-제거-2026-10-07)에 있다.
+
+## 확인 기록 (2026-10-29)
+
+`@narumitw/pi-goal`을 추가했다. Pi 1.4.0에는 `/goal`이 없는데 실제 세션에서 `/goal` 입력이 세 번 있었다. 설정은 기본값을 쓰며, 바꿀 때는 `/goal` → Settings가 `~/.pi/agent/pi-goal.json`을 만든다.
+
+## 확인 기록 (2026-10-27)
+
+`pi-interactive-shell`과 로컬 `prompt-snippets` 확장을 뺐다. 최근 한 달의 실제 작업 세션 96개에서 `interactive_shell`·`enable_interactive_shell` 호출과 `/spawn`·`/attach` 입력은 0회였고, 명령 실행은 모두 `bash`가 맡았다. snippets는 네 항목 중 `구현 완료`만 두 세션에서 쓰였다. 대화형 CLI가 다시 필요하면 `pi install npm:pi-interactive-shell`로 설치한다.
 
 ## 확인 기록 (2026-10-07)
 

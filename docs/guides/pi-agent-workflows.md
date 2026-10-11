@@ -1,4 +1,4 @@
-# Pi 사용 가이드: Astra로 작업하고 필요할 때 위임하기
+# Pi 사용 가이드: Sol로 작업하고 필요할 때 위임하기
 
 [설치, 설정 위치, 현재 검증 결과](pi-agent.md)를 먼저 확인한다. 이 문서는 매일 Pi에서 무엇을 입력하고, 어떤 작업을 하위 에이전트에 맡길지 설명한다. 설정 원본은 `files/workspace/.config/pi/`에 있다.
 
@@ -11,41 +11,24 @@ cd /path/to/project
 pi
 ```
 
-Pi 안에서 `/login openai-codex`를 실행하고 구독 계정으로 로그인한다. 이어 `/model`에서 `openai-codex/gpt-6-astra`를 선택하고 `/thinking`에서 xhigh를 확인한다. 별도 터미널에서 아래 명령으로 준비 상태를 확인할 수 있다. `--credentials`는 붙이지 않는다.
+Pi 안에서 `/login`에서 **OpenAI (ChatGPT subscription)**("Sign in with ChatGPT")를 골라 OpenAI 구독 로그인을 완료한다. 이어 `/model`에서 `openai/gpt-6.1-sol`을 선택하고 `/thinking`에서 xhigh를 확인한다. `openai-codex`(Pi 1.1.0의 "OpenAI Codex (legacy)", 로그인 항목 "OpenAI (ChatGPT Plus/Pro)")는 토큰을 따로 저장하므로, 그 공급자의 모델이나 하위 에이전트를 쓸 때만 그 항목으로 따로 로그인한다. `pi auth check`는 로컬 토큰만 보므로 서버가 거부한 토큰도 `ready`로 표시한다. 별도 터미널에서 아래 명령으로 준비 상태를 확인할 수 있다. `--credentials`는 붙이지 않는다.
 
 ```sh
-pi auth check --provider openai-codex --json
+pi auth check --provider openai --json
 ```
 
-로그인 뒤에는 같은 저장소에서 `pi`로 시작한다. 현재 Mac에서는 mise shim이 PATH에 있어 게임 저장소에서도 이 명령이 동작한다. `mise exec -- pi`는 shell의 mise 활성화나 PATH가 준비되지 않았거나 mise 환경을 명시하고 싶을 때 쓰는 선택 사항이다. 기본 대화 모델은 `openai-codex/gpt-6-astra`/xhigh다. 로그인 전에는 인증 가능한 다른 제공자로 초기 모델 선택이 달라질 수 있다. Pi 인증 파일은 `~/.pi/agent/auth.json`에 로컬로 남으며 flake에 들어가지 않는다.
+로그인 뒤에는 같은 저장소에서 `pi`로 시작한다. 현재 Mac에서는 mise shim이 PATH에 있어 게임 저장소에서도 이 명령이 동작한다. `mise exec -- pi`는 shell의 mise 활성화나 PATH가 준비되지 않았거나 mise 환경을 명시하고 싶을 때 쓰는 선택 사항이다. 기본 대화 모델은 `openai/gpt-6.1-sol`/xhigh다. 로그인 전에는 인증 가능한 다른 제공자로 초기 모델 선택이 달라질 수 있다. Pi 인증 파일은 `~/.pi/agent/auth.json`에 로컬로 남으며 flake에 들어가지 않는다.
 
 ## 하루 작업 흐름
 
-1. Astra에게 목표, 현재 증거, 범위, 완료 조건을 말한다. 저장소의 `AGENTS.md`와 관련 스킬을 먼저 적용하도록 요청한다.
-2. Astra가 계획·구현·검증을 직접 한다. 병렬로 나눌 독립 작업이나 메인 문맥을 채울 긴 기계적 처리가 있을 때만 `worker`에게 **소유 파일, 제외 범위, 검증 명령**을 담아 맡기도록 요청한다. Pi는 허가된 위임 요청에서 `subagents_enable`로 도구를 활성화할 수 있다. 사용자는 보통 자연어로 요청하면 된다.
-3. 위임했다면 Astra가 결과를 기다려 변경과 검사 결과를 읽고 필요한 재검증을 수행한다. 브라우저 화면이나 실제 게임 조작처럼 작업자의 기본 도구 밖에 있는 증거는 부모가 확인한다.
+1. 메인 세션에 목표, 현재 증거, 범위, 완료 조건을 말한다. 저장소의 `AGENTS.md`와 관련 스킬을 먼저 적용하도록 요청한다.
+2. 메인 세션이 계획·구현·검증을 직접 한다. 병렬로 나눌 독립 작업이나 메인 문맥을 채울 긴 기계적 처리가 있을 때만 `worker`에게 **소유 파일, 제외 범위, 검증 명령**을 담아 맡기도록 요청한다. Pi는 허가된 위임 요청에서 `subagents_enable`로 도구를 활성화할 수 있다. 사용자는 보통 자연어로 요청하면 된다.
+3. 위임했다면 메인 세션이 결과를 기다려 변경과 검사 결과를 읽고 필요한 재검증을 수행한다. 브라우저 화면이나 실제 게임 조작처럼 작업자의 기본 도구 밖에 있는 증거는 부모가 확인한다.
 4. 완료 후 `/session`으로 사용량과 세션 정보를 확인한다. Pi는 세션을 자동 저장한다. 다음에 같은 디렉터리에서 `pi --continue`로 이어간다.
 
-이 설정은 하위 에이전트를 `openai-codex/gpt-6.1-sol`/high와 새 문맥으로 시작한다. 2026-10-07 비교에서 매번 위임하는 방식은 품질 차이 없이 시간과 비용만 늘렸다([검증 기록](pi-agent-validation.md#위임-강제-제거-2026-10-07)). 한 번에 상위 위임 흐름 하나를 실행하고, 그 흐름 안의 동시 작업은 최대 2개, 위임 깊이는 1단계다. 자식은 부모의 MCP 확장을 자동 상속하지 않아 지정한 Sol 모델을 유지한다. `worker`, `researcher`, `evidence-auditor`는 발견된 스킬 목록을 받는다. 조사 역할은 `~/.agents/skills/ego-browser/SKILL.md`를 읽고 bash로 브라우저를 사용한다. 작업 브리프에도 관련 스킬 경로를 명시한다.
+이 설정은 하위 에이전트를 `openai/gpt-6.1-sol`/xhigh와 새 문맥으로 시작한다. 2026-10-07 비교에서 매번 위임하는 방식은 품질 차이 없이 시간과 비용만 늘렸다([검증 기록](pi-agent-validation.md#위임-강제-제거-2026-10-07)). 한 번에 상위 위임 흐름 하나를 실행하고, 그 흐름 안의 동시 작업은 최대 2개, 위임 깊이는 1단계다. 자식은 부모의 MCP 확장을 자동 상속하지 않아 지정한 Sol 모델을 유지한다. `worker`, `researcher`, `evidence-auditor`는 발견된 스킬 목록을 받는다. 조사 역할은 `~/.agents/skills/ego-browser/SKILL.md`를 읽고 bash로 브라우저를 사용한다. 작업 브리프에도 관련 스킬 경로를 명시한다.
 
-부모의 기본 내장 도구는 `read`, `bash`, `edit`, `write`다. Pi 내장 MCP는 Context7과 CodeGraph를 `deferred`로 두고, 모델이 `tool_search`로 필요한 도구만 불러온다. 웹 조사와 화면 조작은 `ego-browser` 스킬을 읽고 CLI로 실행한다. 이 구성은 평소 문맥의 도구 수를 줄이지만, Codex보다 품질·속도·비용이 낫다는 보장은 없다.
-
-## 요청별 지침: snippets
-
-Snippets는 보내려는 요청에 짧은 작업 지침을 붙이는 기능이다. Pi를 다시 열거나 `/reload`한 뒤 `Alt+S` 또는 `/snippets`로 메뉴를 연다. 방향키로 이동하고 `Space`로 선택, `Tab`으로 본문 미리보기, `Enter`로 적용한다. `Esc`는 메뉴에서 변경한 선택을 취소한다. 선택 항목은 입력창 위에 표시된다.
-
-| 항목 | 이번 요청에서 원하는 결과 |
-|---|---|
-| 진단만 | 파일 수정 없이 원인·근거·수정안 보고 |
-| 구현 완료 | 승인된 범위 구현과 관련 검증까지 완료 |
-| 독립 검토 | 작성자의 설명과 실제 코드·검증 결과를 독립적으로 대조 |
-| 근거 조사 | 현재 원문·코드에서 사실을 확인하고 추론과 구분 |
-
-예를 들어 `로그인 오류를 조사해 줘`를 입력하고 **진단만**을 선택하면 수정하지 않는 조사 요청이 된다. 확인된 수정안을 실행할 때는 새 요청에 **구현 완료**를 선택한다. 모든 항목을 매번 켤 필요는 없다. 모델 선택, 위임 규칙과 공통 작업 원칙은 기존 설정과 `AGENTS.md`를 따른다.
-
-진단만·구현 완료·독립 검토는 하나의 작업 방식만 선택한다. 다른 방식을 선택하면 이전 선택은 해제된다. 근거 조사는 선택한 작업 방식과 함께 사용할 수 있다.
-
-전송 후 선택은 해제된다. 이미 전송된 지침은 대화 기록에 남으므로 권한 통제나 한 턴 뒤 지침을 지우는 기능은 아니다.
+부모의 기본 내장 도구는 `read`, `bash`, `edit`, `write`다. Pi 내장 MCP는 CodeGraph를 `deferred`로 두고, 모델이 `tool_search`로 필요한 도구만 불러온다. 웹 조사와 화면 조작은 `ego-browser` 스킬을 읽고 CLI로 실행한다. 이 구성은 평소 문맥의 도구 수를 줄이지만, Codex보다 품질·속도·비용이 낫다는 보장은 없다.
 
 ## Pi 세션 분석
 
@@ -59,26 +42,18 @@ Snippets는 보내려는 요청에 짧은 작업 지침을 붙이는 기능이�
 /skill:analyze-sessions 최근 7일 Pi의 모델별 기록 비용과 서브에이전트 비용을 집계해줘.
 ```
 
-분석은 기록을 읽는 작업이며 지침·snippets·메모리를 자동 갱신하지 않는다. 반복 요청이 발견되면 공통 규칙의 문제인지, 상황에 따라 선택할 지침인지 구분해 제안한다. 비용은 세션의 `usage.cost` 집계이며 실제 청구액이나 구독 사용 한도 차감량이 아니다. 현재 세션의 원문 회수는 기존 `vcc_recall`을 사용하고, 여러 과거 세션을 비교할 때 이 스킬을 사용한다.
-
-## 대화형 CLI와 개발 서버
-
-Pi에게 입력이 필요한 프로그램이나 계속 실행할 서버를 요청하면 `pi-interactive-shell`을 사용할 수 있다. 평소에는 작은 `enable_interactive_shell` 도구만 활성화되어 있고, Pi가 필요할 때 `interactive_shell`을 켠다. 사용자는 두 도구의 호출 형식을 대화창에 적지 않는다. 예를 들어 다음처럼 말한다.
-
-> 이 저장소에서 `npm run dev`를 대화형 셸로 실행해 줘. 준비 로그를 확인하고 서버는 계속 실행해 둬. 나중에 다시 볼 수 있도록 세션 ID를 알려 줘.
-
-이후 “방금 서버의 상태와 최근 출력을 확인해 줘”라고 요청할 수 있다. 실행 중인 셸을 Pi 화면에서 다시 보려면 `/attach <세션 ID>`를 쓴다. 오버레이에서 `Ctrl+B`는 셸을 백그라운드로 보내며, `/dismiss <세션 ID>`는 실행 중인 세션을 종료한다. 평소의 짧고 비대화형 검사에는 `bash`를 사용한다. 코드 작업 위임은 이 가이드의 `pi-subagents` 흐름을 따른다. 패키지에 포함된 다른 에이전트 실행용 `/spawn` 예시는 이 설정의 기본 위임 흐름에 추가하지 않았다.
+분석은 기록을 읽는 작업이며 지침·메모리를 자동 갱신하지 않는다. 반복 요청이 발견되면 공통 규칙의 문제인지, 상황에 따라 선택할 지침인지 구분해 제안한다. 비용은 세션의 `usage.cost` 집계이며 실제 청구액이나 구독 사용 한도 차감량이 아니다. 현재 세션의 원문 회수는 기존 `vcc_recall`을 사용하고, 여러 과거 세션을 비교할 때 이 스킬을 사용한다.
 
 ## 모델 선택과 세션 관리
 
 | 목적 | Pi에서 하는 일 |
 |---|---|
-| 설계·원인 분석·구현·검증 | Astra가 직접 한다. 현재 기본값은 xhigh다. |
-| 병렬 독립 작업·긴 기계적 처리 | Astra에게 Sol 6.1/high `worker` 위임을 요청한다. |
+| 설계·원인 분석·구현·검증 | 메인 세션(`openai/gpt-6.1-sol`)이 직접 한다. 현재 기본값은 xhigh다. |
+| 병렬 독립 작업·긴 기계적 처리 | 메인 세션에 Sol 6.1/xhigh `worker` 위임을 요청한다. |
 | 부모 모델을 직접 Sol로 전환 | `/model`에서 `openai-codex/gpt-6-sol` 선택 후 `/thinking`에서 max를 확인한다. 한 번의 실행은 `pi --model openai-codex/gpt-6-sol --thinking max`로 시작할 수 있다. |
 | OpenRouter 모델 직접 사용 | `/model`에서 `openrouter/aion-labs/aion-3.5`, `openrouter/deepseek/deepseek-v4.1-flash`, `openrouter/xiaomi/mimo-v2.6-pro` 중 하나를 선택하거나 `pi --model <모델>`로 시작한다. DeepSeek V4.1 Flash의 기본 thinking은 off이고 나머지는 전역 기본 high를 따른다. |
 
-`Ctrl+P`는 현재 설정된 Astra, Sol, Aion 3.5, DeepSeek V4.1 Flash, MiMo V2.6 Pro 다섯 모델 사이를 순환한다. `/model`은 인증 가능한 더 넓은 모델 목록을 검색한다. 모델과 thinking 변경은 현재 세션에 기록되며, 재개하면 복원된다. `/model` 선택 화면에서 `Ctrl+S`는 새 세션의 기본 모델도 저장한다. 이 동작은 링크된 저장소 설정 원본을 수정하므로 전역 기본값을 바꾸려는 경우에만 쓰고 diff를 확인한다.
+`Ctrl+P`는 현재 설정된 `openai/gpt-6.1-sol`, Codex 공급자의 Astra·Sol 6·Sol 6.1, Aion 3.5, DeepSeek V4.1 Flash, MiMo V2.6 Pro 일곱 모델 사이를 순환한다. `/model`은 인증 가능한 더 넓은 모델 목록을 검색한다. 모델과 thinking 변경은 현재 세션에 기록되며, 재개하면 복원된다. `/model` 선택 화면에서 `Ctrl+S`는 새 세션의 기본 모델도 저장한다. 이 동작은 링크된 저장소 설정 원본을 수정하므로 전역 기본값을 바꾸려는 경우에만 쓰고 diff를 확인한다.
 
 `/name`으로 작업 이름을 붙이고, `/resume` 또는 `pi --resume`으로 다른 세션을 고른다. `/tree`는 현재 세션의 이전 지점에서 다른 대화 분기를 만든다. 별도 세션으로 분리하려면 `/fork`, 현재 분기의 복사본이 필요하면 `/clone`을 쓴다.
 
@@ -110,12 +85,12 @@ Pi에게 입력이 필요한 프로그램이나 계속 실행할 서버를 요�
 
 픽셀 아트 요청은 별도 승인 단계가 있다. 부모는 프로젝트의 디자인·픽셀 품질 문서를 읽고 소스 선택과 원본 크기 시안을 검토한 뒤 승인된 콘셉트만 제작 단계로 넘긴다. 코드 수정 요청에 아트 승인을 섞지 않는다.
 
-현재 전역 Pi MCP에는 Context7과 CodeGraph를 연결했다. 기존 Godot의 `godot-ai`와 관리자 화면의 `mui-mcp`·`next-devtools-index`는 프로젝트의 Codex 전용 설정에 있으며 Pi로 자동 이전되지 않았다. Pi 내장 MCP는 신뢰한 프로젝트의 `.pi/mcp.json`만 읽고, 프로젝트 루트의 `.mcp.json`이나 Codex 프로젝트 설정은 읽지 않는다. Pi에서 같은 도구가 필요하면 그 저장소에 `.pi/mcp.json`을 추가해야 하며, 현재 구성은 그 연결을 포함하지 않는다. 코드 수정·CLI 검사는 바로 사용할 수 있지만 이번 설치 검증이 실제 Godot 조작이나 프로젝트별 MCP 검증을 대신하지 않는다.
+현재 전역 Pi MCP에는 CodeGraph를 연결했다. 기존 Godot의 `godot-ai`와 관리자 화면의 `mui-mcp`·`next-devtools-index`는 프로젝트의 Codex 전용 설정에 있으며 Pi로 자동 이전되지 않았다. Pi 내장 MCP는 신뢰한 프로젝트의 `.pi/mcp.json`만 읽고, 프로젝트 루트의 `.mcp.json`이나 Codex 프로젝트 설정은 읽지 않는다. Pi에서 같은 도구가 필요하면 그 저장소에 `.pi/mcp.json`을 추가해야 하며, 현재 구성은 그 연결을 포함하지 않는다. 코드 수정·CLI 검사는 바로 사용할 수 있지만 이번 설치 검증이 실제 Godot 조작이나 프로젝트별 MCP 검증을 대신하지 않는다.
 
 ### 출처가 필요한 기술 조사
 
 > Pi의 현재 세션 분기 기능이 우리 작업 흐름에 맞는지 공식 문서로 확인해 줘. researcher에게 검색과 원문 확인을 맡기고, 인용할 각 주장이 해당 원문의 위치와 내용에 맞는지 확인해. 확인된 사실과 추론을 구분해서 권고안을 제시해. 코드나 설정은 변경하지 마.
 
-`researcher`는 `read`, `bash`, `write`를 사용한다. ego-browser로 검색 결과와 원문을 확인하고 지정된 경로에 조사 결과를 작성한다. `evidence-auditor`는 `read`, `bash`로 핵심 주장과 출처를 독립적으로 대조한다. 두 역할의 기존 웹 확장 전용 지침은 교체했다. 저장소 코드 탐색은 `.codegraph/`가 있으면 CodeGraph부터 사용하고, 최신 라이브러리 문서의 Context7 MCP 조회는 부모가 담당한다. 부모에게 익숙하지 않은 MCP 도구는 먼저 검색하고 인자 설명을 확인한 뒤 호출하라고 요청한다. 프로젝트 `.pi/mcp.json` 서버는 신뢰 확인 뒤 로드된다.
+`researcher`는 `read`, `bash`, `write`를 사용한다. ego-browser로 검색 결과와 원문을 확인하고 지정된 경로에 조사 결과를 작성한다. `evidence-auditor`는 `read`, `bash`로 핵심 주장과 출처를 독립적으로 대조한다. 두 역할의 기존 웹 확장 전용 지침은 교체했다. 저장소 코드 탐색은 `.codegraph/`가 있으면 CodeGraph부터 사용하고, 최신 라이브러리 문서 조회는 부모가 담당한다. 부모에게 익숙하지 않은 MCP 도구는 먼저 검색하고 인자 설명을 확인한 뒤 호출하라고 요청한다. 프로젝트 `.pi/mcp.json` 서버는 신뢰 확인 뒤 로드된다.
 
 참고: [Pi 모델 선택](https://github.com/earendil-works/pi/blob/v1.0.4/packages/coding-agent/docs/models.md), [세션](https://github.com/earendil-works/pi/blob/v1.0.4/packages/coding-agent/docs/sessions.md), [pi-subagents 에이전트](https://github.com/nicobailon/pi-subagents/blob/v0.73.1/docs/agents.md), [pi-vcc 0.8.0](https://github.com/sting8k/pi-vcc/tree/v0.8.0).

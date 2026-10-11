@@ -1,17 +1,19 @@
 {
-  "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-6-astra",
+  "defaultProvider": "openai",
+  "defaultModel": "gpt-6.1-sol",
   "defaultThinkingLevel": "xhigh",
   "defaultTools": [
     "+codemode"
   ],
   "modelThinkingLevels": {
+    "openai/gpt-6.1-sol": "xhigh",
     "openai-codex/gpt-6-astra": "xhigh",
     "openai-codex/gpt-6-sol": "max",
     "openai-codex/gpt-6.1-sol": "xhigh",
     "openrouter/deepseek/deepseek-v4.1-flash": "off"
   },
   "enabledModels": [
+    "openai/gpt-6.1-sol",
     "openai-codex/gpt-6-astra",
     "openai-codex/gpt-6-sol",
     "openai-codex/gpt-6.1-sol",
@@ -22,15 +24,21 @@
   "packages": [
     "git:github.com/nicobailon/pi-subagents",
     "npm:@sting8k/pi-vcc",
-    "npm:pi-interactive-shell",
     "npm:pi-ask-user",
     "npm:pi-intercom",
-    "npm:pi-claude-bridge"
+    "npm:pi-claude-bridge",
+    "npm:@narumitw/pi-goal"
+  ],
+  "extensions": [
+    "/Users/hj/dot/nix-dots/files/workspace/.config/pi/extensions/chatgpt-credit-fallback.ts"
   ],
   "subagents": {
-    "defaultModel": "openai-codex/gpt-6.1-sol",
-    "defaultThinking": "high",
+    "defaultModel": "openai/gpt-6.1-sol",
+    "defaultThinking": "xhigh",
     "defaultExtensions": [],
+    "defaultSubagentOnlyExtensions": [
+      "/Users/hj/dot/nix-dots/files/workspace/.config/pi/extensions/chatgpt-credit-fallback.ts"
+    ],
     "watchdog": {
       "enabled": true,
       "main": {
@@ -43,11 +51,11 @@
     },
     "agentOverrides": {
       "scout": {
-        "thinking": "high",
+        "thinking": "xhigh",
         "inheritGlobalContext": true
       },
       "researcher": {
-        "thinking": "high",
+        "thinking": "xhigh",
         "inheritGlobalContext": true,
         "inheritSkills": true,
         "tools": [
@@ -58,7 +66,7 @@
         "systemPrompt": "Research the assigned question with the ego-browser skill. Read ~/.agents/skills/ego-browser/SKILL.md before browsing, then use ego-browser through bash. Verify material claims on original sources; distinguish evidence from inference, cite source URLs, and report contradictions and gaps. Write the concise brief to the runtime-specified output path and return a summary."
       },
       "evidence-auditor": {
-        "thinking": "high",
+        "thinking": "xhigh",
         "inheritGlobalContext": true,
         "inheritSkills": true,
         "tools": [
@@ -68,25 +76,25 @@
         "systemPrompt": "Independently audit decision-critical claims with the ego-browser skill. Read ~/.agents/skills/ego-browser/SKILL.md before browsing, then use ego-browser through bash to inspect cited original sources. Mark each claim supported, contradicted, unclear, or missing evidence; report source-quality concerns, contradictions, and effect on the conclusion."
       },
       "worker": {
-        "thinking": "high",
+        "thinking": "xhigh",
         "inheritGlobalContext": true,
         "inheritSkills": true
       },
       "reviewer": {
-        "thinking": "high",
+        "thinking": "xhigh",
         "inheritGlobalContext": true
       },
       "oracle": {
-        "thinking": "high",
+        "thinking": "xhigh",
         "inheritGlobalContext": true
       },
       "delegate": {
-        "thinking": "high",
+        "thinking": "xhigh",
         "inheritGlobalContext": true
       }
     }
   },
-  "lastChangelogVersion": "1.1.0",
+  "lastChangelogVersion": "1.4.0",
   "theme": "dark",
   "skills": [
     "-/Users/hj/.agents/skills/claude-api/SKILL.md",
@@ -96,7 +104,6 @@
     "-skills/retro",
     "-skills/skill-development",
     "-skills/web-artifacts-builder",
-    "-skills/setup-pstack",
     "-skills/typesafe-ai",
     "-skills/obsidian-bases",
     "-skills/obsidian-cli",
