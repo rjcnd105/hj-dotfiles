@@ -17,7 +17,7 @@
 }:
 let
   cfg = config.homelab.beszel;
-  domain = "beszel.deopjib.site";
+  domain = "beszel.deopjib.cc";
   # 앱 레인(loopbackPortBase 18100+, caddy 18099)과 겹치지 않는 로컬 포트.
   caddyPort = 18090;
   hubPort = 18091;

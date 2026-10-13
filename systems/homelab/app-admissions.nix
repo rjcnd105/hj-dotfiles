@@ -7,7 +7,7 @@ let
 in
 {
   homelab.apps =
-    # dev — dev.deopjib.site
+    # dev — dev.deopjib.cc
     import ./admit-app.nix {
       inherit lib releaseManifestOrigins;
       admission = admission "dev";
@@ -17,7 +17,7 @@ in
         postgresPasswordSecret = "DEOPJIB_DEV_POSTGRES_PASSWORD";
       };
     }
-    # prod — app.deopjib.site (승인 배포 채널)
+    # prod — app.deopjib.cc (승인 배포 채널)
     // import ./admit-app.nix {
       inherit lib releaseManifestOrigins;
       admission = admission "prod";

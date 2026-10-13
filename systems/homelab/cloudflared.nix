@@ -17,7 +17,7 @@
       # SSH — 라우터 인바운드 포워딩 없이 원격 접속하는 유일한 경로.
       # 클라이언트는 `cloudflared access ssh` ProxyCommand로 접속하며
       # CF Access(이메일 OTP)가 SSH 핸드셰이크 전에 인증을 요구한다.
-      ingress."ssh.deopjib.site" = "ssh://localhost:22";
+      ingress."ssh.deopjib.cc" = "ssh://localhost:22";
     };
   };
 
