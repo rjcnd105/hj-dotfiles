@@ -9,6 +9,7 @@
     ./app-containers.nix
     ./app-admissions.nix
     ./postgres.nix
+    ./ollama.nix
     ./github-actions-runner.nix
     ./thermal-alert.nix
     ./operator.nix

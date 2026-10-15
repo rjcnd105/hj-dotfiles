@@ -72,9 +72,10 @@ let
 
   releaseManaged = service: service.updatePolicy == "manual";
 
-  # Contract v2: digest-only admission + platform conventions (PORT, needs.postgres).
+  # Contract v2: digest-only admission + platform conventions (PORT, needs.postgres, needs.ollama).
   isV2 = app: app.contract.schemaVersion == 2;
   usesSharedPostgres = app: isV2 app && app.contract.needs.postgres;
+  usesSharedOllama = app: isV2 app && app.contract.needs.ollama.models != [ ];
 
   # Shared-PostgreSQL role/db name; PostgreSQL identifiers use underscores.
   sharedPostgresNameFor =
@@ -129,11 +130,15 @@ let
         lib.optionalAttrs (isV2 app) { PORT = toString service.internalPort; } // service.env;
       envLines = mapAttrsToList (key: value: "${key}=${value}") effectiveEnv;
       secretLines = map secretLine service.requiredSecretEnv;
-      platformLines = lib.optional (usesSharedPostgres app) (
-        "DATABASE_URL=postgresql://${sharedPostgresNameFor app}:"
-        + builtins.getAttr app.host.postgresPasswordSecret config.sops.placeholder
-        + "@${appGatewayFor app}:5432/${sharedPostgresNameFor app}"
-      );
+      platformLines =
+        lib.optional (usesSharedPostgres app) (
+          "DATABASE_URL=postgresql://${sharedPostgresNameFor app}:"
+          + builtins.getAttr app.host.postgresPasswordSecret config.sops.placeholder
+          + "@${appGatewayFor app}:5432/${sharedPostgresNameFor app}"
+        )
+        ++ lib.optional (usesSharedOllama app) (
+          "OLLAMA_URL=http://${appGatewayFor app}:${toString config.services.ollama.port}"
+        );
     in
     concatStringsSep "\n" (envLines ++ secretLines ++ platformLines) + "\n";
 
@@ -609,6 +614,16 @@ let
       }
       {
         assertion =
+          !usesSharedOllama app
+          || builtins.all (
+            service:
+            !(builtins.hasAttr "OLLAMA_URL" service.env)
+            && !(builtins.elem "OLLAMA_URL" service.requiredSecretEnv)
+          ) (builtins.attrValues contract.services);
+        message = "homelab.apps.${appName}: OLLAMA_URL is platform-injected under needs.ollama; the contract must not declare it.";
+      }
+      {
+        assertion =
           manualServices == { } || (releaseChannelFor app != null && contract.release.manifestUrl != null);
         message = "homelab.apps.${appName}: manual services require release channel metadata and a manifestUrl.";
       }
@@ -800,7 +815,7 @@ in
                       2
                     ];
                     default = 1;
-                    description = "Contract schema version. v2 admits releases by digest only and enables the PORT and needs.postgres platform conventions.";
+                    description = "Contract schema version. v2 admits releases by digest only and enables the PORT, needs.postgres and needs.ollama platform conventions.";
                   };
                   needs = mkOption {
                     type = types.submodule {
@@ -808,6 +823,11 @@ in
                         type = types.bool;
                         default = false;
                         description = "Provision a role/database on the shared host PostgreSQL and inject DATABASE_URL (schemaVersion 2 only).";
+                      };
+                      options.ollama.models = mkOption {
+                        type = types.listOf types.str;
+                        default = [ ];
+                        description = "Ollama models pulled on the shared host server; a non-empty list injects OLLAMA_URL (schemaVersion 2 only).";
                       };
                     };
                     default = { };
