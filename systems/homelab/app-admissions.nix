@@ -25,5 +25,12 @@ in
         subnetId = 11;
         postgresPasswordSecret = "DEOPJIB_PROD_POSTGRES_PASSWORD";
       };
+    }
+    # live — front-vibe-helper.deopjib.cc (정적 카탈로그, 앱 레포 master push마다 자동 배포)
+    // import ./admit-app.nix {
+      inherit lib;
+      admission = import "${inputs.frontVibeHelperApp}/devops/homelab-admission.nix";
+      releaseManifestOrigins = [ "https://github.com/rjcnd105/front-vibe-helper" ];
+      host.subnetId = 12;
     };
 }

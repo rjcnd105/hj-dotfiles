@@ -35,6 +35,11 @@
       flake = false;
     };
 
+    frontVibeHelperApp = {
+      url = "github:rjcnd105/front-vibe-helper";
+      flake = false;
+    };
+
   };
 
   outputs =
@@ -49,6 +54,7 @@
       comin,
       quadlet-nix,
       deopjibApp,
+      frontVibeHelperApp,
     }:
     let
       # 형태는 ${host}_${username}

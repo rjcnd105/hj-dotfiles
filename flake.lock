@@ -75,6 +75,22 @@
         "type": "github"
       }
     },
+    "frontVibeHelperApp": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792031638,
+        "narHash": "sha256-duIQiQUX0u764Yxt70lyq14H6lUXU30gV5v6ZLukXuc=",
+        "owner": "rjcnd105",
+        "repo": "front-vibe-helper",
+        "rev": "35a625ac5298fcb7fec13aea9cf61326af443f65",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rjcnd105",
+        "repo": "front-vibe-helper",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -164,6 +180,7 @@
         "comin": "comin",
         "darwin": "darwin",
         "deopjibApp": "deopjibApp",
+        "frontVibeHelperApp": "frontVibeHelperApp",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs_2",
         "nixpkgsPwgen": "nixpkgsPwgen",

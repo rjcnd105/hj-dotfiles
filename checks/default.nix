@@ -167,6 +167,8 @@ let
         "deopjib-prod-backend.service"
         "deopjib-prod-network.service"
         "deopjib-prod-web.service"
+        "fvh-live-app.service"
+        "fvh-live-network.service"
       ];
       podman = homelab.virtualisation.podman.package;
       pkgs = pkgsFor "x86_64-linux";
