@@ -46,11 +46,11 @@
     "deopjibApp": {
       "flake": false,
       "locked": {
-        "lastModified": 1792121981,
-        "narHash": "sha256-zlO6tC8IiesHiajPicTH+vsQvmRcuU8+lhgdn8nQCY4=",
+        "lastModified": 1792135094,
+        "narHash": "sha256-RSv9IyRQlEcv7Ej+eVcyC/53fRolvsmRV06Q7VgrSA0=",
         "owner": "rjcnd105",
         "repo": "my-app",
-        "rev": "571b6ebdcb9ae4e805b65435c0521fe82af7fb82",
+        "rev": "bd37a1b24ef8dabedc5ca836eb43d88846b7c8bc",
         "type": "github"
       },
       "original": {
