@@ -173,6 +173,13 @@ gh release upload "example-v${VERSION}" release.json
 `target`은 계약의 `targetPattern`과 일치해야 한다. 추가 필드(version, sourceRev
 등)는 자유롭게 넣어도 무시된다.
 
+GHCR 패키지는 Public이어야 한다. 호스트는 레지스트리 인증 없이 pull한다
+(`host.registryAuth` 미설정, `homelab.registryAuths` 없음). private 저장소에서 처음
+push한 패키지는 private로 생기고 공개 여부를 바꾸는 API가 없으므로, 첫 push 뒤
+`https://github.com/users/OWNER/packages/container/<package>/settings` →
+Change visibility → Public으로 바꾼다. 이미지에는 공개 사이트가 이미 서빙하는
+산출물만 넣는다.
+
 ## 4. nix-dots: 승인 (호스트 쪽 1회 작업)
 
 `nix-dots` 쪽 PR 한 번 (앱 레포는 여기까지 관여하지 않는다):
@@ -193,7 +200,20 @@ homelab.apps = import ./admit-app.nix {
 
 3. sops(`secrets/homelab/services.yaml`)에 secretMap의 secret들과 PG 비밀번호를
    추가한다 (모두 문자열로).
-4. `nix flake check --all-systems --no-build` 통과 확인 후 merge → comin이 활성화.
+4. 공개 hostname의 DNS를 만든다. 호스트는 Cloudflared ingress만 렌더링하고 DNS
+   레코드는 만들지 않는다. 기존 레코드에서 tunnel 대상을 읽어 같은 형식으로 추가한다:
+
+   ```sh
+   cf dns records list -z deopjib.cc --content-contains cfargotunnel.com   # 대상 확인
+   cf dns records create -z deopjib.cc --body '{"type":"CNAME","name":"<host>.deopjib.cc","content":"<tunnel-id>.cfargotunnel.com","proxied":true,"ttl":1}'
+   ```
+
+5. 브랜치에서 `Nix` workflow(또는 `nix flake check --all-systems --no-build`) 통과를
+   확인하고 `main`을 그 커밋으로 fast-forward한다 → comin이 활성화. `main`은 앱
+   업데이트 커밋으로 자주 움직이므로 push 직전에 최신 `main` 위로 rebase하고
+   `nix eval .#nixosConfigurations.homelab_hj.config.system.build.toplevel.drvPath`로
+   다시 평가한다. 활성화 중 cloudflared가 재시작해 전체 hostname이 잠깐 530(1033)을
+   반환한다.
 
 호스트가 렌더링하는 것: Quadlet 네트워크(고정 서브넷)/볼륨/컨테이너, sops env
 템플릿, 공유 PG role/db + `DATABASE_URL`, Caddy 라우트, Cloudflared ingress,
@@ -216,6 +236,16 @@ CI (앱 레포 → 호스트 레포 dispatch): `hj-dotfiles`의 `Deploy Homelab 
 workflow를 `workflow_dispatch`로 호출한다. 입력: `app`, `channel`, `target`.
 self-hosted runner가 위의 `sudo -n homelab-appctl deploy`를 실행한다.
 
+앱 레포의 dispatch secret은 새 PAT를 만들지 않고 계정 단위 `gh` CLI 토큰으로
+등록한다(deopjib과 같은 방식):
+
+```sh
+gh auth token | gh secret set HOMELAB_DEPLOY_DISPATCH_TOKEN -R OWNER/example-app
+```
+
+첫 배포는 admission 활성화 뒤 직접 dispatch한다:
+`gh workflow run deploy-homelab-app.yml -R rjcnd105/hj-dotfiles -f app=<key> -f channel=<channel> -f target=<release-id>`.
+
 deploy 트랜잭션 (실패 시 자동 태그 복원):
 
 1. 앱/채널 락 → 같은 target이 최신 성공 기록과 metadata까지 동일하면 no-op
@@ -237,11 +267,14 @@ target을 다시 deploy하는 것이 롤백이다(별도 rollback 부명령 없�
 - [ ] `devops/homelab-admission.nix` (secret 이름 매핑만)
 - [ ] CI: 이미지 push → digest로 release manifest v2 발행
 - [ ] 컨테이너가 env `PORT`에서 리슨하는지 확인
+- [ ] 첫 push 뒤 GHCR 패키지 Public 전환
+- [ ] `gh auth token`으로 `HOMELAB_DEPLOY_DISPATCH_TOKEN` 등록
 
 nix-dots:
 - [ ] flake input + `admit-app.nix` 승인 (subnetId, PG secret)
 - [ ] sops secrets 추가 (문자열만)
-- [ ] `nix flake check` → merge → comin 활성화 확인
+- [ ] `cf`로 hostname CNAME(tunnel, proxied) 추가
+- [ ] CI 통과 → 최신 `main` 위로 rebase·eval → fast-forward → comin 활성화 확인
 - [ ] 첫 배포는 `--dry-run` 먼저, 이후 실배포 + smoke
 - [ ] 데이터가 있으면 백업 대상 편입과 복원 리허설까지 끝내고 prod 승인
 
