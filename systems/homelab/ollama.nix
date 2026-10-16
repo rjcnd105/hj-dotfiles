@@ -53,7 +53,10 @@ in
         OLLAMA_IGPU_ENABLE = "1";
         # 요청이 끝나고 2분 뒤 모델을 내려 평소에는 iGPU/RAM을 비운다.
         OLLAMA_KEEP_ALIVE = "2m";
-        OLLAMA_MAX_LOADED_MODELS = "1";
+        # 한 앱의 처리 단계(예: OCR → 텍스트 모델)가 서로를 내리고 다시 올리지 않게 한다.
+        OLLAMA_MAX_LOADED_MODELS = toString (
+          lib.foldl' lib.max 1 (map (app: lib.length app.contract.needs.ollama.models) ollamaAppList)
+        );
         # 한 번에 하나만 돌리고, 대기는 2건까지만 받아 Cloudflare 100초 제한 안에서 끝나게 한다.
         OLLAMA_NUM_PARALLEL = "1";
         OLLAMA_MAX_QUEUE = "2";
