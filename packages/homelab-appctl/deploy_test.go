@@ -212,6 +212,31 @@ esac
 	}
 }
 
+// prune은 다른 채널이 아직 태그로 가리키는 옛 이미지를 지우지 않고 태그 없는 옛 릴리스만
+// 최근 keepImageIDs개를 넘으면 지운다. 스텁 출력은 podman images 기본 정렬(최신 먼저)이다.
+func TestPruneKeepsOtherChannelImage(t *testing.T) {
+	binDir := t.TempDir()
+	removed := filepath.Join(t.TempDir(), "removed")
+	stub := `#!/bin/sh
+case "$1" in
+  images) printf '%s\n' 'new prod-current' 'u1 <none>' 'u2 <none>' 'u3 <none>' 'dev-old dev-current' 'u4 <none>' ;;
+  rmi) echo "$2" >> "$REMOVED" ;;
+  *) exit 1 ;;
+esac
+`
+	if err := os.WriteFile(filepath.Join(binDir, "podman"), []byte(stub), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", binDir+":"+os.Getenv("PATH"))
+	t.Setenv("REMOVED", removed)
+
+	pruneReleaseImages([]DesiredImage{{Service: "backend", ImageName: "ghcr.io/example/app-backend"}})
+
+	if got := readFile(t, removed); got != "u4\n" {
+		t.Fatalf("expected only u4 removed, got %q", got)
+	}
+}
+
 func TestPruneDeployRecords(t *testing.T) {
 	dir := t.TempDir()
 	for i := 0; i < keepDeployRecords+3; i++ {

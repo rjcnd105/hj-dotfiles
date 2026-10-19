@@ -254,7 +254,8 @@ deploy 트랜잭션 (실패 시 자동 태그 복원):
 4. 선언된 migration oneshot 1회
 5. 릴리스 서비스 전체를 systemd 트랜잭션 1회로 restart (pinned 인프라는 건드리지 않음)
 6. Caddy-loopback smoke → 기록(`/var/lib/homelab-appctl/<app>/<channel>/`)
-7. retention: 배포 기록 최근 10개, 릴리스 이미지 name별 최근 3개 id 유지
+7. retention: 배포 기록 최근 10개, 릴리스 이미지 name별 태그 없는 최근 3개 id 유지.
+   채널끼리 이미지 이름을 공유하므로 태그가 남은 id(다른 채널의 `-current`)는 지우지 않는다
 
 pull/tag/migration 실패는 이전 태그로 복원된다. restart/smoke 실패는 정상이었던
 target을 다시 deploy하는 것이 롤백이다(별도 rollback 부명령 없음 — 릴리스 권한을

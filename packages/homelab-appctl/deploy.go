@@ -240,33 +240,33 @@ func pruneDeployRecords(recordDir string) {
 	}
 }
 
-// pruneReleaseImages keeps the newest keepImageIDs image ids per release image
-// name, never removing ids the current references point at.
-func pruneReleaseImages(meta *Metadata, desired []DesiredImage) {
-	protected := map[string]bool{}
-	for _, service := range meta.Services {
-		if id := imageID(service.ImageRef); id != "" {
-			protected[id] = true
-		}
-	}
-	for _, image := range desired {
-		if id := imageID(image.ImageName + "@" + image.Digest); id != "" {
-			protected[id] = true
-		}
-	}
-
+// pruneReleaseImages keeps the newest keepImageIDs untagged image ids per
+// release image name. A tagged id is some channel's -current (this deploy has
+// already moved its own tags) and is never removed. Channels share image
+// names, so protecting only this channel's refs would remove another
+// channel's current image.
+func pruneReleaseImages(desired []DesiredImage) {
 	names := map[string]bool{}
 	for _, image := range desired {
 		names[image.ImageName] = true
 	}
 	for name := range names {
-		output, err := commandOutput("podman", "images", name, "--format", "{{.ID}}")
+		output, err := commandOutput("podman", "images", name, "--format", "{{.ID}} {{.Tag}}")
 		if err != nil {
 			continue
 		}
 		var ids []string
 		seen := map[string]bool{}
-		for _, id := range strings.Fields(output) {
+		protected := map[string]bool{}
+		for _, line := range strings.Split(output, "\n") {
+			fields := strings.Fields(line)
+			if len(fields) != 2 {
+				continue
+			}
+			id := fields[0]
+			if fields[1] != "<none>" {
+				protected[id] = true
+			}
 			if !seen[id] {
 				seen[id] = true
 				ids = append(ids, id)
@@ -486,6 +486,6 @@ func cmdDeploy(meta *Metadata, app, channel, target string) error {
 	fmt.Printf("deploy record: %s\n", recordPath)
 
 	pruneDeployRecords(recordDir)
-	pruneReleaseImages(meta, desired)
+	pruneReleaseImages(desired)
 	return nil
 }
