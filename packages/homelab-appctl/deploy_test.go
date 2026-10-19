@@ -175,6 +175,43 @@ exit 0
 	}
 }
 
+// 첫 배포 실패 복구가 같은 이미지를 쓰는 다른 채널의 태그를 지우지 않는다.
+// 스텁은 podman처럼 이름 없는 untag를 모든 이름 삭제로 다룬다.
+func TestRestoreFirstDeployKeepsOtherChannelTag(t *testing.T) {
+	binDir := t.TempDir()
+	names := filepath.Join(t.TempDir(), "names")
+	stub := `#!/bin/sh
+case "$1" in
+  untag)
+    if [ $# -eq 2 ]; then : > "$NAMES"; exit 0; fi
+    shift 2
+    for name in "$@"; do grep -vxF "$name" "$NAMES" > "$NAMES.new"; mv "$NAMES.new" "$NAMES"; done
+    ;;
+  image) grep -qxF "$3" "$NAMES" && echo shared-id ;;
+  *) exit 1 ;;
+esac
+`
+	if err := os.WriteFile(filepath.Join(binDir, "podman"), []byte(stub), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	devRef := "ghcr.io/example/app-backend:dev-current"
+	prodRef := "ghcr.io/example/app-backend:prod-current"
+	if err := os.WriteFile(names, []byte(devRef+"\n"+prodRef+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", binDir+":"+os.Getenv("PATH"))
+	t.Setenv("NAMES", names)
+
+	desired := []DesiredImage{{Service: "backend", ImageRef: prodRef}}
+	before := []imageSnapshot{{Name: "backend", ImageRef: prodRef}}
+	if !restoreReleaseImages(desired, before) {
+		t.Fatalf("restore reported failure")
+	}
+	if got := readFile(t, names); got != devRef+"\n" {
+		t.Fatalf("expected only %s to remain, got %q", devRef, got)
+	}
+}
+
 func TestPruneDeployRecords(t *testing.T) {
 	dir := t.TempDir()
 	for i := 0; i < keepDeployRecords+3; i++ {

@@ -206,7 +206,9 @@ func restoreReleaseImages(desired []DesiredImage, before []imageSnapshot) bool {
 			}
 			continue
 		}
-		if err := exec.Command("podman", "untag", image.ImageRef).Run(); err != nil {
+		// 이름 없는 `podman untag <image>`는 이미지의 모든 이름을 지운다. 채널끼리 같은
+		// digest를 공유하면 다른 채널의 -current 태그까지 사라지므로 이 채널 ref만 지운다.
+		if err := exec.Command("podman", "untag", image.ImageRef, image.ImageRef).Run(); err != nil {
 			if imageID(image.ImageRef) != "" {
 				fmt.Fprintf(os.Stderr, "failed to remove newly activated tag %s\n", image.ImageRef)
 				ok = false
