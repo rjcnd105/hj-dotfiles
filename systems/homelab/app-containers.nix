@@ -324,6 +324,11 @@ let
         RestartSec = "5s";
         TimeoutStartSec = app.host.timeoutStartSec;
         TimeoutStopSec = 120;
+      }
+      // lib.optionalAttrs (releaseManaged service) {
+        # -current 태그는 appctl이 첫 배포에서 만드는 활성화 포인터다. 그 전에 시작하면
+        # pull=never라 실패해 switch가 status 4로 끝나므로 태그가 없으면 실패 없이 건너뛴다.
+        ExecCondition = "${pkgs.podman}/bin/podman image exists ${imageRefFor app service}";
       };
     };
 

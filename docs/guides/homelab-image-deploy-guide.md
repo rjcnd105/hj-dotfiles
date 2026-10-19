@@ -245,6 +245,8 @@ gh auth token | gh secret set HOMELAB_DEPLOY_DISPATCH_TOKEN -R OWNER/example-app
 
 첫 배포는 admission 활성화 뒤 직접 dispatch한다:
 `gh workflow run deploy-homelab-app.yml -R rjcnd105/hj-dotfiles -f app=<key> -f channel=<channel> -f target=<release-id>`.
+그 전까지 릴리스 서비스 unit은 `<channel>-current` 태그가 없어 `ExecCondition`으로
+시작을 건너뛴다(실패가 아니므로 switch를 깨지 않는다).
 
 deploy 트랜잭션 (실패 시 자동 태그 복원):
 
