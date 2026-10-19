@@ -20,9 +20,9 @@ type Metadata struct {
 	CaddyURL        string `json:"caddyUrl"`
 	ContractVersion int    `json:"contractVersion"`
 
-	RuntimeContractSourceSha256  string `json:"runtimeContractSourceSha256"`
-	HomelabAdmissionSourceSha256 string `json:"homelabAdmissionSourceSha256"`
-	ManifestSchemaSourceSha256   string `json:"manifestSchemaSourceSha256"`
+	RuntimeContractSourceSha256   string `json:"runtimeContractSourceSha256"`
+	HomelabAdmissionSourceSha256  string `json:"homelabAdmissionSourceSha256"`
+	ManifestSchemaSourceSha256    string `json:"manifestSchemaSourceSha256"`
 	ManifestGeneratorSourceSha256 string `json:"manifestGeneratorSourceSha256"`
 
 	RegistryAuthFile string        `json:"registryAuthFile"`
