@@ -50,6 +50,20 @@ in
       authentication = concatLines (
         map (app: "host ${pgNameFor app} ${pgNameFor app} ${subnetFor app} scram-sha-256") pgAppList
       );
+      # 모듈 기본값은 hba_file을 store 경로로 둔다. hba_file은 재시작해야 바뀌므로 hba만
+      # 바뀌어도 postgres와 의존 앱이 모두 재시작된다. 고정 경로로 두고 내용이 바뀌면 reload만
+      # 한다. 앱을 새로 들이면 postgresql-setup이 바뀌고 postgresql.target을 거쳐 postgres도
+      # 멈추므로 그때는 여전히 재시작된다.
+      settings.hba_file = lib.mkForce "/etc/postgresql/pg_hba.conf";
+    };
+
+    environment.etc."postgresql/pg_hba.conf".text = config.services.postgresql.authentication;
+    systemd.services.postgresql = {
+      reloadTriggers = [ config.environment.etc."postgresql/pg_hba.conf".source ];
+      # 기본값인 stop 후 start는 그 사이 의존 unit의 start job이 옛 unit 정의로 postgres를
+      # 다시 띄우면 start가 no-op이 되어 옛 설정에 머문다(2026-10-15 실측). restart는
+      # daemon-reload 뒤에 무조건 돈다.
+      stopIfChanged = false;
     };
 
     networking.firewall.interfaces = builtins.listToAttrs (
