@@ -56,10 +56,11 @@ in
 
   # Persistent 타이머가 부팅 직후 발화할 수 있으므로 secrets 렌더 이후로 순서 고정.
   systemd.services.restic-backups-homelab = {
-    requires = [
-      "sops-install-secrets.service"
-      "postgresql.service"
-    ];
+    requires = [ "sops-install-secrets.service" ];
+    # requires면 postgres가 멈춰 있을 때 백업이 postgres를 띄운다. switch 중이면 옛 unit 정의로
+    # 떠서 새 설정이 적용되지 않는다(2026-10-15 실측). requisite는 postgres가 떠 있거나 시작
+    # 중일 때만 진행하고 멈춰 있으면 백업만 실패시킨다.
+    requisite = [ "postgresql.service" ];
     after = [
       "sops-install-secrets.service"
       "postgresql.service"
