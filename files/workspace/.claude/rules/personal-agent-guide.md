@@ -154,6 +154,10 @@ mechanisms. Ordinary implementation and diagnosis skip this protocol.
   (`echo '====='`), and use `=` instead of `==` inside `[ ]`. zsh expands a
   leading `=` as a command path, and a failed expansion aborts the rest of the
   command line. Leave operators inside `[[ ]]` unquoted.
+- To read another terminal tab: if `HC_TERMINAL_ID` is set, match the tab to
+  `where` in `hc ls`, then run `hc read <t>` (the `herdr` CLI is a different
+  tool). If unset, ask for pasted output or a log file unless the user names a
+  Herdr tab.
 - Prefer installed or official primary documentation for current technical
   claims; use Context7 when available for library/framework APIs.
 - Honor explicit search restrictions; otherwise use the smallest useful
