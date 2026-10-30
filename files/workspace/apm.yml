@@ -10,11 +10,8 @@ includes: auto
 dependencies:
   apm:
     # Public skills previously managed by the Skills CLI.
-    - git: https://github.com/anthropics/claude-code.git
-      path: plugins/plugin-dev
-      skills:
-        - hook-development
-        - skill-development
+    - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+    - anthropics/claude-plugins-official/plugins/plugin-dev/skills/skill-development
     - mattpocock/skills/skills/productivity/grill-me
     - mattpocock/skills/skills/engineering/grill-with-docs
     - mattpocock/skills/skills/productivity/writing-for-agents

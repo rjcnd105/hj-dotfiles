@@ -1,5 +1,5 @@
 lockfile_version: '1'
-generated_at: '2026-11-02T03:35:03.394147+00:00'
+generated_at: '2026-11-02T04:47:42.719860+00:00'
 apm_version: 0.35.0
 dependencies:
 - repo_url: adhhamdev/modern-react-guidance
@@ -49,14 +49,14 @@ dependencies:
     .claude/skills/modern-react-guidance/references/effects-and-data.md: sha256:129fc99fe39ad128814574e5578ce35dd03cee5bc97aac0e6840d654e1afa2ce
     .claude/skills/modern-react-guidance/references/migration-codemods.md: sha256:f625c3b1dbeebf810d016db2c324983fcbc90a5490004d42b749a6d7207d17a7
   content_hash: sha256:8142573204fb47470915d8621de142354f4424a6ce54d71543c6f1b43b528fae
-- repo_url: anthropics/claude-code
-  name: claude-code
+- repo_url: anthropics/claude-plugins-official
+  name: hook-development
   host: github.com
-  resolved_commit: a6e289a2e772a17b3614a9ef43303003de5cd887
+  resolved_commit: a7ba5b93db0c7c8d17f3f1d25853adca79598a1a
   version: unknown
-  virtual_path: plugins/plugin-dev
+  virtual_path: plugins/plugin-dev/skills/hook-development
   is_virtual: true
-  package_type: skill_bundle
+  package_type: claude_skill
   deployed_files:
   - .agents/skills/hook-development
   - .agents/skills/hook-development/SKILL.md
@@ -70,9 +70,6 @@ dependencies:
   - .agents/skills/hook-development/scripts/hook-linter.sh
   - .agents/skills/hook-development/scripts/test-hook.sh
   - .agents/skills/hook-development/scripts/validate-hook-schema.sh
-  - .agents/skills/skill-development
-  - .agents/skills/skill-development/SKILL.md
-  - .agents/skills/skill-development/references/skill-creator-original.md
   - .claude/skills/hook-development
   - .claude/skills/hook-development/SKILL.md
   - .claude/skills/hook-development/examples/load-context.sh
@@ -85,11 +82,8 @@ dependencies:
   - .claude/skills/hook-development/scripts/hook-linter.sh
   - .claude/skills/hook-development/scripts/test-hook.sh
   - .claude/skills/hook-development/scripts/validate-hook-schema.sh
-  - .claude/skills/skill-development
-  - .claude/skills/skill-development/SKILL.md
-  - .claude/skills/skill-development/references/skill-creator-original.md
   deployed_file_hashes:
-    .agents/skills/hook-development/SKILL.md: sha256:d14528f389cae485ac50583a22be326485c83fc9c8ef7ce700213e1583cf8fbe
+    .agents/skills/hook-development/SKILL.md: sha256:f47e2d42f6360294216a859ae0c30b93caafdd2b2e5ffc007489ba4ca447fa5c
     .agents/skills/hook-development/examples/load-context.sh: sha256:0d614599e711c087b381a4ac7ee3c40758af1022669fc998649d199b9dfe15ed
     .agents/skills/hook-development/examples/validate-bash.sh: sha256:348c58f4cf38a2e7080ea5272935a7658c7122d83dd6c52d0a1f2ef599c176ab
     .agents/skills/hook-development/examples/validate-write.sh: sha256:89a8ef9bb7508e4819080e65834d6783afa5a5a614d458a3821b80a329eb32e5
@@ -100,9 +94,7 @@ dependencies:
     .agents/skills/hook-development/scripts/hook-linter.sh: sha256:85a7d55488f8f38f9b98350b5cb597fb306432d5e61eaa3444e7226ca9309e0b
     .agents/skills/hook-development/scripts/test-hook.sh: sha256:ded642e811b4731f6a2c90c73b02e00c937511d9ee65236bb8cf9964f0069393
     .agents/skills/hook-development/scripts/validate-hook-schema.sh: sha256:e7785d6c61d368f5ea5270c979753aea02f776f5b6aa220137ec4585abd720c2
-    .agents/skills/skill-development/SKILL.md: sha256:d40080c45d652dd3cc481d1e381cd7e6258091a87351fa1de67c6c8ecec3446e
-    .agents/skills/skill-development/references/skill-creator-original.md: sha256:8c0ce23bb87be91f5b0853c2e9815617c3858b63acdddfe5da47d2c2d3a60816
-    .claude/skills/hook-development/SKILL.md: sha256:d14528f389cae485ac50583a22be326485c83fc9c8ef7ce700213e1583cf8fbe
+    .claude/skills/hook-development/SKILL.md: sha256:f47e2d42f6360294216a859ae0c30b93caafdd2b2e5ffc007489ba4ca447fa5c
     .claude/skills/hook-development/examples/load-context.sh: sha256:0d614599e711c087b381a4ac7ee3c40758af1022669fc998649d199b9dfe15ed
     .claude/skills/hook-development/examples/validate-bash.sh: sha256:348c58f4cf38a2e7080ea5272935a7658c7122d83dd6c52d0a1f2ef599c176ab
     .claude/skills/hook-development/examples/validate-write.sh: sha256:89a8ef9bb7508e4819080e65834d6783afa5a5a614d458a3821b80a329eb32e5
@@ -113,17 +105,33 @@ dependencies:
     .claude/skills/hook-development/scripts/hook-linter.sh: sha256:85a7d55488f8f38f9b98350b5cb597fb306432d5e61eaa3444e7226ca9309e0b
     .claude/skills/hook-development/scripts/test-hook.sh: sha256:ded642e811b4731f6a2c90c73b02e00c937511d9ee65236bb8cf9964f0069393
     .claude/skills/hook-development/scripts/validate-hook-schema.sh: sha256:e7785d6c61d368f5ea5270c979753aea02f776f5b6aa220137ec4585abd720c2
-    .claude/skills/skill-development/SKILL.md: sha256:d40080c45d652dd3cc481d1e381cd7e6258091a87351fa1de67c6c8ecec3446e
+  content_hash: sha256:77328f008b76d2d003e530754af1a7d2d2d3dabc1ed87aafcfaf332e8eff5b33
+- repo_url: anthropics/claude-plugins-official
+  name: skill-development
+  host: github.com
+  resolved_commit: a7ba5b93db0c7c8d17f3f1d25853adca79598a1a
+  version: unknown
+  virtual_path: plugins/plugin-dev/skills/skill-development
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .agents/skills/skill-development
+  - .agents/skills/skill-development/SKILL.md
+  - .agents/skills/skill-development/references/skill-creator-original.md
+  - .claude/skills/skill-development
+  - .claude/skills/skill-development/SKILL.md
+  - .claude/skills/skill-development/references/skill-creator-original.md
+  deployed_file_hashes:
+    .agents/skills/skill-development/SKILL.md: sha256:d51b4e20043b13e462aa86c47ea82d43e216eb292871538127f4b12a54e4944f
+    .agents/skills/skill-development/references/skill-creator-original.md: sha256:8c0ce23bb87be91f5b0853c2e9815617c3858b63acdddfe5da47d2c2d3a60816
+    .claude/skills/skill-development/SKILL.md: sha256:d51b4e20043b13e462aa86c47ea82d43e216eb292871538127f4b12a54e4944f
     .claude/skills/skill-development/references/skill-creator-original.md: sha256:8c0ce23bb87be91f5b0853c2e9815617c3858b63acdddfe5da47d2c2d3a60816
-  content_hash: sha256:0ef672fcfb57a505d56d681d0770a6aaa7d2485e116ae61c3d308684a0a4d092
-  skill_subset:
-  - hook-development
-  - skill-development
+  content_hash: sha256:eb62f3a63d09701a233b7b28ade4a085d7a29543eb4475c2c3cc6337edbc637d
 - repo_url: anthropics/skills
   name: skills
   host: github.com
-  resolved_commit: dbd4588f9e1033efb41dad4bef2f7947c8993d44
-  version: dbd4588
+  resolved_commit: ca45fc496a3436251f191354091d557da31c15b5
+  version: ca45fc4
   package_type: marketplace_plugin
   deployed_files:
   - .agents/skills/pdf
@@ -251,7 +259,7 @@ dependencies:
     .claude/skills/skill-creator/scripts/run_eval.py: sha256:43e3b8f80dbf69c343967ba77e268fae991d9fa3ed68b32a0ff02532cd48657f
     .claude/skills/skill-creator/scripts/run_loop.py: sha256:7bd6f674203168520517eec94c55f493c0d154339b061b4d7c0f0dad187d0f21
     .claude/skills/skill-creator/scripts/utils.py: sha256:3af8ae62c40c73ab712207436a0d9a981e845f25c5a7040229eb189cc8e45bb1
-  content_hash: sha256:b0601199fb02d8b5d7b29929429cc382db25438a0d4c1a495419d8aea4846347
+  content_hash: sha256:a5fc8502c51b0f15848b2e9e95c530ec88cb5c0a447f58eb06a982b572462d82
   skill_subset:
   - pdf
   - skill-creator
@@ -3214,8 +3222,8 @@ dependencies:
 - repo_url: cathrynlavery/diagram-design
   name: diagram-design
   host: github.com
-  resolved_commit: f2f4d49ea8d632f17cf196ba26599277a93f767b
-  version: 2.6.115
+  resolved_commit: 0cf73c3fcc56667ad91a9a04c439ac6ccfabc9d1
+  version: 2.6.136
   package_type: marketplace_plugin
   deployed_files:
   - .agents/skills/diagram-design
@@ -3250,6 +3258,9 @@ dependencies:
   - .agents/skills/diagram-design/assets/example-beeswarm-dark.html
   - .agents/skills/diagram-design/assets/example-beeswarm-full.html
   - .agents/skills/diagram-design/assets/example-beeswarm.html
+  - .agents/skills/diagram-design/assets/example-box-plot-dark.html
+  - .agents/skills/diagram-design/assets/example-box-plot-full.html
+  - .agents/skills/diagram-design/assets/example-box-plot.html
   - .agents/skills/diagram-design/assets/example-bubble-dark.html
   - .agents/skills/diagram-design/assets/example-bubble-full.html
   - .agents/skills/diagram-design/assets/example-bubble.html
@@ -3544,6 +3555,9 @@ dependencies:
   - .claude/skills/diagram-design/assets/example-beeswarm-dark.html
   - .claude/skills/diagram-design/assets/example-beeswarm-full.html
   - .claude/skills/diagram-design/assets/example-beeswarm.html
+  - .claude/skills/diagram-design/assets/example-box-plot-dark.html
+  - .claude/skills/diagram-design/assets/example-box-plot-full.html
+  - .claude/skills/diagram-design/assets/example-box-plot.html
   - .claude/skills/diagram-design/assets/example-bubble-dark.html
   - .claude/skills/diagram-design/assets/example-bubble-full.html
   - .claude/skills/diagram-design/assets/example-bubble.html
@@ -3807,7 +3821,7 @@ dependencies:
   - .cursor/commands/import-mermaid.md
   - .cursor/commands/profile.md
   deployed_file_hashes:
-    .agents/skills/diagram-design/SKILL.md: sha256:1cad611bfe734dc967ce9c86f77d4e87470edf1922ff7ef01a89d6f36b037e1a
+    .agents/skills/diagram-design/SKILL.md: sha256:83fd5aa46965ce2b14bd42ade80c065a4e17a9f83d2a9f4f275b47cd45d72666
     .agents/skills/diagram-design/assets/example-architecture-containment-dark.html: sha256:853399a330a541d63d5ca05834bb9f1545364fff61546754190899a49e54d28a
     .agents/skills/diagram-design/assets/example-architecture-containment-full.html: sha256:4b96ed9774d236c3b4968a10be0f7b5c8805095b0206d249bd8e53b4e893debe
     .agents/skills/diagram-design/assets/example-architecture-containment.html: sha256:10013c62e6449880627c2271edacfdc094f006a16e365a55f117e844097fe2de
@@ -3838,6 +3852,9 @@ dependencies:
     .agents/skills/diagram-design/assets/example-beeswarm-dark.html: sha256:597cf05ad582eb0dbe8040949c6f164096ce84631e6d3ba85d5fbf778d2b1dc7
     .agents/skills/diagram-design/assets/example-beeswarm-full.html: sha256:515edbc59376ad9bc99afc8cf9d55c0fa6a7e68f8eca95a02cf282086857e6cc
     .agents/skills/diagram-design/assets/example-beeswarm.html: sha256:e69a9b7ac33fae509c02a1ef06b39e1a548cd3925644e7cefd3ff2119a88a060
+    .agents/skills/diagram-design/assets/example-box-plot-dark.html: sha256:28bc2a9b9df1e715b07c11a57b2ab8d0ee59ed5ebc782dacd74f3401e0cdd39b
+    .agents/skills/diagram-design/assets/example-box-plot-full.html: sha256:a9bf7fc36d4db874b0fda6d27140fb6d3b9e51b06b13ca657e8dfb414a5fe617
+    .agents/skills/diagram-design/assets/example-box-plot.html: sha256:16449419e0cca7dc153bc23c9c416dcb149ddcdfe4ca45c9535708719aa0b909
     .agents/skills/diagram-design/assets/example-bubble-dark.html: sha256:e5297625f2a81cebcd63250dcd7455f5c84160da501354f530dfcf59baf0ab9e
     .agents/skills/diagram-design/assets/example-bubble-full.html: sha256:6aaf526da9c9eccb82c3f88d502e831268003c01f1de6cdc171b2a8970b03b99
     .agents/skills/diagram-design/assets/example-bubble.html: sha256:48f6b009e1a05d780a66a8f9f3c3c9323da5aa3a6f7f6c50003558b4ba163657
@@ -3859,9 +3876,9 @@ dependencies:
     .agents/skills/diagram-design/assets/example-deployment-dark.html: sha256:2c0c99d16f6d85fac54552bd4fe102ce9e0286fdf8eabd97ab4d90e5a97667e6
     .agents/skills/diagram-design/assets/example-deployment-full.html: sha256:9187eaafb9107e979c2e43bcde77edf63e974fc59cf72a50fef33ea8df460650
     .agents/skills/diagram-design/assets/example-deployment.html: sha256:8e4cee0bc1105dcd040b19d0000f84c69f81bde75d4cb16d2261fab617a7aee5
-    .agents/skills/diagram-design/assets/example-dp-integration-dark.html: sha256:b139d91cf88a77b4dbf202da4a1ec21e29ca1862f2e8249925b605ce25fe97f6
-    .agents/skills/diagram-design/assets/example-dp-integration-full.html: sha256:17cd685b6bd522a5eb7ae972f76787b57383779c2f0b9f08de32a7d8d9e49f94
-    .agents/skills/diagram-design/assets/example-dp-integration.html: sha256:d1624ee510d25780522637141e89dd95165d6cefa6b5aded0c0ad1beca2ecf24
+    .agents/skills/diagram-design/assets/example-dp-integration-dark.html: sha256:d28f525d2c7d0666b61d6e80133d006da942f1dfeefa41b0c8d32faf2120ca64
+    .agents/skills/diagram-design/assets/example-dp-integration-full.html: sha256:fa9393528e19170873437c3f661fb7aa3cbaa94fa4001985f9d8faa7479708c6
+    .agents/skills/diagram-design/assets/example-dp-integration.html: sha256:d521d09532183ee10d5ebdcea9cbc509a45d90cd85c35973ba40dbe94f338291
     .agents/skills/diagram-design/assets/example-dp-security-matrix-dark.html: sha256:1d93ac4553013cbb5d5fe962517601a0dadf03a8d1bf9ae522f10d7a83e05968
     .agents/skills/diagram-design/assets/example-dp-security-matrix-full.html: sha256:8f34f504368ba9fd13c2bb20b028d2fc27800fbb46c238e73b0aa65101ca4ad0
     .agents/skills/diagram-design/assets/example-dp-security-matrix.html: sha256:9ae674dcec652483ea75a9368f88fd4c61a447b34354b2f2386049c10491e83f
@@ -3903,7 +3920,7 @@ dependencies:
     .agents/skills/diagram-design/assets/example-high-level-full.html: sha256:359dc10e77c8de97550dbfab993c4ce4d683bd089a44302e20c1dcd4ad27501e
     .agents/skills/diagram-design/assets/example-high-level-vertical-dark.html: sha256:aabf08d05808d96ef6c5b16395830234022ce1f48abf8c56b2719acdde9a8aa2
     .agents/skills/diagram-design/assets/example-high-level-vertical-full.html: sha256:70a7fd733caba9e8c1bd05ea96b10bb22cb15594f24435058acfd4735f6fa3ae
-    .agents/skills/diagram-design/assets/example-high-level-vertical.html: sha256:4a11a730ccfffc6b3e4daf92c6402122c0db7f70e5b11253b021c0227e557769
+    .agents/skills/diagram-design/assets/example-high-level-vertical.html: sha256:371385a4fd00a7d9f3896ac44417352bd7276e86488c3f4eaa72bd6df2902ae7
     .agents/skills/diagram-design/assets/example-high-level.html: sha256:7fc2cd00413de7a5221dde192403f87a8bef883984f8331f64c56f3bc387fa5e
     .agents/skills/diagram-design/assets/example-import-drawio.html: sha256:4404af257bf1216ef9959f3340cd82f2117d29d548b571e94ccf7931d4dd6bcd
     .agents/skills/diagram-design/assets/example-import-excalidraw.html: sha256:8a09e53ae6b0efbb9360784917117e784f90da53a4cc1de2a838e3ccef57d712
@@ -4019,7 +4036,7 @@ dependencies:
     .agents/skills/diagram-design/assets/example-waterfall-full.html: sha256:5a5987e9988cad66b26f769e07eca805796895a951a8cc084f0e0aa8503fca09
     .agents/skills/diagram-design/assets/example-waterfall.html: sha256:501231921ae5065423f75efa6a37fbfc4753ef76d26b9ab116902dc9964ad818
     .agents/skills/diagram-design/assets/icons.html: sha256:8301219558a40abce2d739def01feda6a8b72adce00f8d60154c989dfb581090
-    .agents/skills/diagram-design/assets/index.html: sha256:0d0f4de6c372025f61e87e01e53d98d5940029375e3fd35e6c2c1641c0a1ba14
+    .agents/skills/diagram-design/assets/index.html: sha256:6c5633862bea3f2b0e5e374e345b03f8764ec987252da626f33c6cc93c4f8567
     .agents/skills/diagram-design/assets/template-dark.html: sha256:98428c8de2c4fe8e799d7110606421effb876e2e788f8639140854c1033d82d5
     .agents/skills/diagram-design/assets/template-full.html: sha256:bfe0aa003eb264f4a2b6f10c540d9d7a53950574ed0f5dba2af3cac61fc2f52a
     .agents/skills/diagram-design/assets/template-motion.html: sha256:0dc228e58e5810fe99d80b0895515bb9a7f129ced1de2960d343f1e9539d5359
@@ -4029,20 +4046,20 @@ dependencies:
     .agents/skills/diagram-design/references/doctor.md: sha256:b0b38905019ec2eda92ef41ab5fedfae6adbe02761cab563a16496e0294af926
     .agents/skills/diagram-design/references/export-registry.md: sha256:6d35bdccf32e7a2f28ebafac75d099451881a3ad9e268798c86acea2c2c66410
     .agents/skills/diagram-design/references/export.md: sha256:da3f6ba8a693ec6467ac9ae8b476f8f2d7c0a0a20fd49762d07c2531e573dc65
-    .agents/skills/diagram-design/references/import-drawio.md: sha256:a94b687bedba5795d3c960e58d014856135cea3cba558967b4c5e8b519c9a69e
-    .agents/skills/diagram-design/references/import-excalidraw.md: sha256:1424beba60d0d206685d45553539b31d58f6942e274f3a8f68718f2742e43da6
-    .agents/skills/diagram-design/references/import-mermaid.md: sha256:41c1e5a5d223c37b45897c331b481249ffbcb1a6d63e75d0e06a9d35bbfd07cc
-    .agents/skills/diagram-design/references/layout-budget.md: sha256:792a1f328bf3ae6e0584b87513afbdb0f7c6dc4c2bafc28a3986af2d16a285d8
+    .agents/skills/diagram-design/references/import-drawio.md: sha256:55e340657f7c2f54c9be2349b4b71786779e4ae5d89fb4c1ce4f31de5e49ec08
+    .agents/skills/diagram-design/references/import-excalidraw.md: sha256:323260ca813c3ee5c196362d6424779ee1d3cfcc1afb23329f60d59674a3aeec
+    .agents/skills/diagram-design/references/import-mermaid.md: sha256:e94d8342c9bf4514bcace5422d29eb72cd17a23c49c13bc3ba1dea6e59036db3
+    .agents/skills/diagram-design/references/layout-budget.md: sha256:7ece87d01d3dbe42a2293114b423a44e254482a4931e402e6dc4ba7cf9902bcb
     .agents/skills/diagram-design/references/onboarding.md: sha256:9e1268f502253b856a1dae2d1e8b109769e942c05306996fa5ae011a266edaec
     .agents/skills/diagram-design/references/output-spec.md: sha256:12dc0eed3514e387328651652604ef4fba1a76bce1823a79f4da2993336d1e69
     .agents/skills/diagram-design/references/primitive-annotation.md: sha256:c4cab11c4660375856a8bea668922b07932199dc26a695ebcf95c5a23ba03ec5
     .agents/skills/diagram-design/references/primitive-icons.md: sha256:ea768a2b2f169ff3cd98ed41da9ad3a30ed92374bc2da44a8ba83f1f3d453c43
     .agents/skills/diagram-design/references/primitive-sketchy.md: sha256:8859f0d70c10f46f59817cb348346e7fb9e1609b70a4a513d297b8c850c866a4
     .agents/skills/diagram-design/references/primitive-terminal.md: sha256:7b52c2fb229c822a60b0061caa64ae6a68aacd4f1c22a1a98d1d0eaaa2333b55
-    .agents/skills/diagram-design/references/primitives-core.md: sha256:9f61356d3c7814dd8c5adbfc2ecce736d05c64b9ec4dcaf64a53103e3c33e96c
+    .agents/skills/diagram-design/references/primitives-core.md: sha256:bd011a9ed2e1b4e27d2ecc83872127eb8f5b1d91026a162a211974b3eeebc7e0
     .agents/skills/diagram-design/references/profiles.md: sha256:8afea09015a456b218287f08a2e9ac44bb50f6a9ebd2a7c1487bd774e89f9016
     .agents/skills/diagram-design/references/semantic-patterns.md: sha256:7aa5f7a0840be234d2b10bc3742b17151f94f550a0d72afd820413859a898c8f
-    .agents/skills/diagram-design/references/style-guide.md: sha256:4716fa1a4f4d31cf836e0b4363886aa7242657fb48c624e0b34c433179dc6673
+    .agents/skills/diagram-design/references/style-guide.md: sha256:74345f14edd26a69da6be3b619bfece61229f2873e6fbae17a39bb2503b7a7a4
     .agents/skills/diagram-design/references/type-architecture-delta.md: sha256:e5813f26e1fb924863efe70db36f112e1b9570e47335d7f6fa6e46473136e4e5
     .agents/skills/diagram-design/references/type-architecture.md: sha256:28260c9c0a72fe17ddf6eed7b1fff01c04f58f62bbb7147c45372574c9e38eea
     .agents/skills/diagram-design/references/type-axonometric-plan.md: sha256:be8ead6d582df5c19fdf611f7540c058f166929293155ab40ddc3ef524232ba6
@@ -4051,7 +4068,7 @@ dependencies:
     .agents/skills/diagram-design/references/type-db-schema.md: sha256:91f017b8813cfc63d775809d18659971d0aa5982967af94d47def31690713083
     .agents/skills/diagram-design/references/type-dependency.md: sha256:dd76bc521408b1cf0a3f86ee7c9ea93e4ad0650e4855c8f2be2358db7b721a43
     .agents/skills/diagram-design/references/type-deployment.md: sha256:296adfee79069e8fd8f9a19012cca731c5cc237990a0274ca1a8a807173c9fec
-    .agents/skills/diagram-design/references/type-dp-integration.md: sha256:6bf9b678d37e9f01f61ac8203e4ad5c29024ecd7a9f3ae0b42e71851522774f7
+    .agents/skills/diagram-design/references/type-dp-integration.md: sha256:b84195582b3daa1139dced192253ba97dd6984cfd7ba9a0da76a44588f744119
     .agents/skills/diagram-design/references/type-dp-security-matrix.md: sha256:209f4870ec19d90eff1ab80ecfe0062f3a5075c3b666b1a3a900a27260ba8832
     .agents/skills/diagram-design/references/type-er.md: sha256:d1495abeb6f5004bd89fface17d3767ebab71c8450dca195b055e18bf3132c57
     .agents/skills/diagram-design/references/type-exploded.md: sha256:785b904ce1a1be806824c97a5719578a2c32c931fb424d0a1a69c4480a527152
@@ -4064,7 +4081,7 @@ dependencies:
     .agents/skills/diagram-design/references/type-journey.md: sha256:85be7b12d841aec1638d67ad9a599d313a9d42300e35af675a87a0a3e67d9b6f
     .agents/skills/diagram-design/references/type-kanban.md: sha256:447a8a231d5bb1e822945a02e8bd4adc219b0791bb0182cab48680fbbd88d045
     .agents/skills/diagram-design/references/type-layers.md: sha256:a822afe4e06ffaf9793f5466810e2504c020e6ae3abd0b9e53c6f7b1368f2609
-    .agents/skills/diagram-design/references/type-line.md: sha256:f7fa213f2398da9e6bf30402bc2c430e778e57d95e60174bf082ba67d629b831
+    .agents/skills/diagram-design/references/type-line.md: sha256:f29a97ab0e72b23365304dfda6640503e37244eaad2c3851069585a569814089
     .agents/skills/diagram-design/references/type-loop.md: sha256:9ac996dfa83f41064477f10b61b6bdd2b0ceaefa6053b87432554668adf22af6
     .agents/skills/diagram-design/references/type-medallion.md: sha256:a1af03521adb53431766a559e05c984ee07871fd3cf495cf63146999f56f6f42
     .agents/skills/diagram-design/references/type-nested.md: sha256:c16da375df52f047748c65276f564a1b0d7d2dd420170b92dbf7cdac68981516
@@ -4075,7 +4092,7 @@ dependencies:
     .agents/skills/diagram-design/references/type-quadrant.md: sha256:eb7d542ddac72e2e1a75cb7ca64ddb67901283859413a133a332137e7fb9e5b1
     .agents/skills/diagram-design/references/type-radar.md: sha256:49c66e7921e1fd7575cf879852c41aa86e0db7f98b0c8105e3103202af49f563
     .agents/skills/diagram-design/references/type-sankey.md: sha256:874866a0867e56525f11f38a11b442b9c33f02f416b632ee76aced7f3bfc2bb5
-    .agents/skills/diagram-design/references/type-scatter.md: sha256:2f0770c4aaea747d14788805e45b13aee44350796ab4035bdfc2ab3d8c0c787f
+    .agents/skills/diagram-design/references/type-scatter.md: sha256:1c88ab9bb4b0da77c084802e6bc2aff75deea29f24cbe4de3ae91bfadea57b49
     .agents/skills/diagram-design/references/type-sequence.md: sha256:e3a109d4983a951ff670346c352529e48619c1e81db1774edfa6f05d3e93f778
     .agents/skills/diagram-design/references/type-service-blueprint.md: sha256:ae0475dc5972273d3ff2ab0bf53ae9947e8e35f59decef85f4422459c60c64ca
     .agents/skills/diagram-design/references/type-state.md: sha256:9c8ed85762d5bbb3672907bc1664ebf94bcc72850efbacf33d5ee12731053122
@@ -4088,19 +4105,19 @@ dependencies:
     .agents/skills/diagram-design/references/type-venn.md: sha256:7ead49ed70f1b2506beb83e9c84862d7dbc63f1225f0e50ecc6e2b1b4a632b38
     .agents/skills/diagram-design/references/type-wardley.md: sha256:4060402f648fa2ec858850f532675f52ac5d5df0b209c9c9450cc3df332114fb
     .agents/skills/diagram-design/references/type-waterfall.md: sha256:07db1d30ce52356884b9c7005ad473434c6104257eee0252e3487209e59d0da9
-    .agents/skills/diagram-design/scripts/drawio_extract.py: sha256:72098800fb5893ba620a432275b332901cfdbfa45bcd608c15d055466b25abe6
-    .agents/skills/diagram-design/scripts/excalidraw_extract.py: sha256:10f6a6b999b3b2e8a626774515ba6817df331a6d39d671a4876541262b63697c
+    .agents/skills/diagram-design/scripts/drawio_extract.py: sha256:f0183a6fcad372d8087afaf02f3f59902bdb47c9ac58ad6cd81a041dde949abd
+    .agents/skills/diagram-design/scripts/excalidraw_extract.py: sha256:44fec058c98d8055f634cb868931c46f8d71f45de4006351838cb313403af98b
     .agents/skills/diagram-design/scripts/export_png.py: sha256:430ddcc2d39441808bd4217fbdeb944dbb6de0be281782705a81747986d7d348
     .agents/skills/diagram-design/scripts/export_svg.py: sha256:03e88d277386e2c9f48d9fcfc6a9f8e5e818a8949ac8ec458ac569e8ff4bc8ad
-    .agents/skills/diagram-design/scripts/mermaid_extract.py: sha256:cf0a78bab8f8fdcb54564725c75e764ac602cc4e389efab395dc23c25650b7a3
-    .agents/skills/diagram-design/scripts/self_check.py: sha256:4da309dc768c921153872715666859f4d2c3af384ec804b3d4159b549b7697ea
+    .agents/skills/diagram-design/scripts/mermaid_extract.py: sha256:fd176d5c616e49bc923fc271e0a14b022674e204d39b46673824db44f647b042
+    .agents/skills/diagram-design/scripts/self_check.py: sha256:444851f6e53f83d50920381df17cdd5f1b7a23cfba9c0ddda27786d78e53e2de
     .claude/commands/doctor.md: sha256:2ab4ca2908f4ac00f412055b0a13fa5e37245bed724f42680a51f9f8717f081d
-    .claude/commands/export-diagram.md: sha256:92b5feb962fe7b4d37078a9779e5a15d9be3ded6b15a91a78db13ae5a74c2934
+    .claude/commands/export-diagram.md: sha256:1563bb1f939ff079d435fd2769e16cc40a09cf1f358a0b8f2c4f5a7f6fba004e
     .claude/commands/import-drawio.md: sha256:3138350825465001610ccb704db35b3209cf929764303b87d4563949c73550a3
     .claude/commands/import-excalidraw.md: sha256:4d487dc8fc126c83ce864e3b6550b649976215c8bf2bd52733affa992b145bfa
     .claude/commands/import-mermaid.md: sha256:648d39b4549bb74ab0cb5d0fd0b68e53b2a4bdbbc1699d87a7064b24e79f0e5d
     .claude/commands/profile.md: sha256:5536fc821dffc2cb3aa2aa8270de6e1423a0d116d63208d1a896985bb86a2427
-    .claude/skills/diagram-design/SKILL.md: sha256:1cad611bfe734dc967ce9c86f77d4e87470edf1922ff7ef01a89d6f36b037e1a
+    .claude/skills/diagram-design/SKILL.md: sha256:83fd5aa46965ce2b14bd42ade80c065a4e17a9f83d2a9f4f275b47cd45d72666
     .claude/skills/diagram-design/assets/example-architecture-containment-dark.html: sha256:853399a330a541d63d5ca05834bb9f1545364fff61546754190899a49e54d28a
     .claude/skills/diagram-design/assets/example-architecture-containment-full.html: sha256:4b96ed9774d236c3b4968a10be0f7b5c8805095b0206d249bd8e53b4e893debe
     .claude/skills/diagram-design/assets/example-architecture-containment.html: sha256:10013c62e6449880627c2271edacfdc094f006a16e365a55f117e844097fe2de
@@ -4131,6 +4148,9 @@ dependencies:
     .claude/skills/diagram-design/assets/example-beeswarm-dark.html: sha256:597cf05ad582eb0dbe8040949c6f164096ce84631e6d3ba85d5fbf778d2b1dc7
     .claude/skills/diagram-design/assets/example-beeswarm-full.html: sha256:515edbc59376ad9bc99afc8cf9d55c0fa6a7e68f8eca95a02cf282086857e6cc
     .claude/skills/diagram-design/assets/example-beeswarm.html: sha256:e69a9b7ac33fae509c02a1ef06b39e1a548cd3925644e7cefd3ff2119a88a060
+    .claude/skills/diagram-design/assets/example-box-plot-dark.html: sha256:28bc2a9b9df1e715b07c11a57b2ab8d0ee59ed5ebc782dacd74f3401e0cdd39b
+    .claude/skills/diagram-design/assets/example-box-plot-full.html: sha256:a9bf7fc36d4db874b0fda6d27140fb6d3b9e51b06b13ca657e8dfb414a5fe617
+    .claude/skills/diagram-design/assets/example-box-plot.html: sha256:16449419e0cca7dc153bc23c9c416dcb149ddcdfe4ca45c9535708719aa0b909
     .claude/skills/diagram-design/assets/example-bubble-dark.html: sha256:e5297625f2a81cebcd63250dcd7455f5c84160da501354f530dfcf59baf0ab9e
     .claude/skills/diagram-design/assets/example-bubble-full.html: sha256:6aaf526da9c9eccb82c3f88d502e831268003c01f1de6cdc171b2a8970b03b99
     .claude/skills/diagram-design/assets/example-bubble.html: sha256:48f6b009e1a05d780a66a8f9f3c3c9323da5aa3a6f7f6c50003558b4ba163657
@@ -4152,9 +4172,9 @@ dependencies:
     .claude/skills/diagram-design/assets/example-deployment-dark.html: sha256:2c0c99d16f6d85fac54552bd4fe102ce9e0286fdf8eabd97ab4d90e5a97667e6
     .claude/skills/diagram-design/assets/example-deployment-full.html: sha256:9187eaafb9107e979c2e43bcde77edf63e974fc59cf72a50fef33ea8df460650
     .claude/skills/diagram-design/assets/example-deployment.html: sha256:8e4cee0bc1105dcd040b19d0000f84c69f81bde75d4cb16d2261fab617a7aee5
-    .claude/skills/diagram-design/assets/example-dp-integration-dark.html: sha256:b139d91cf88a77b4dbf202da4a1ec21e29ca1862f2e8249925b605ce25fe97f6
-    .claude/skills/diagram-design/assets/example-dp-integration-full.html: sha256:17cd685b6bd522a5eb7ae972f76787b57383779c2f0b9f08de32a7d8d9e49f94
-    .claude/skills/diagram-design/assets/example-dp-integration.html: sha256:d1624ee510d25780522637141e89dd95165d6cefa6b5aded0c0ad1beca2ecf24
+    .claude/skills/diagram-design/assets/example-dp-integration-dark.html: sha256:d28f525d2c7d0666b61d6e80133d006da942f1dfeefa41b0c8d32faf2120ca64
+    .claude/skills/diagram-design/assets/example-dp-integration-full.html: sha256:fa9393528e19170873437c3f661fb7aa3cbaa94fa4001985f9d8faa7479708c6
+    .claude/skills/diagram-design/assets/example-dp-integration.html: sha256:d521d09532183ee10d5ebdcea9cbc509a45d90cd85c35973ba40dbe94f338291
     .claude/skills/diagram-design/assets/example-dp-security-matrix-dark.html: sha256:1d93ac4553013cbb5d5fe962517601a0dadf03a8d1bf9ae522f10d7a83e05968
     .claude/skills/diagram-design/assets/example-dp-security-matrix-full.html: sha256:8f34f504368ba9fd13c2bb20b028d2fc27800fbb46c238e73b0aa65101ca4ad0
     .claude/skills/diagram-design/assets/example-dp-security-matrix.html: sha256:9ae674dcec652483ea75a9368f88fd4c61a447b34354b2f2386049c10491e83f
@@ -4196,7 +4216,7 @@ dependencies:
     .claude/skills/diagram-design/assets/example-high-level-full.html: sha256:359dc10e77c8de97550dbfab993c4ce4d683bd089a44302e20c1dcd4ad27501e
     .claude/skills/diagram-design/assets/example-high-level-vertical-dark.html: sha256:aabf08d05808d96ef6c5b16395830234022ce1f48abf8c56b2719acdde9a8aa2
     .claude/skills/diagram-design/assets/example-high-level-vertical-full.html: sha256:70a7fd733caba9e8c1bd05ea96b10bb22cb15594f24435058acfd4735f6fa3ae
-    .claude/skills/diagram-design/assets/example-high-level-vertical.html: sha256:4a11a730ccfffc6b3e4daf92c6402122c0db7f70e5b11253b021c0227e557769
+    .claude/skills/diagram-design/assets/example-high-level-vertical.html: sha256:371385a4fd00a7d9f3896ac44417352bd7276e86488c3f4eaa72bd6df2902ae7
     .claude/skills/diagram-design/assets/example-high-level.html: sha256:7fc2cd00413de7a5221dde192403f87a8bef883984f8331f64c56f3bc387fa5e
     .claude/skills/diagram-design/assets/example-import-drawio.html: sha256:4404af257bf1216ef9959f3340cd82f2117d29d548b571e94ccf7931d4dd6bcd
     .claude/skills/diagram-design/assets/example-import-excalidraw.html: sha256:8a09e53ae6b0efbb9360784917117e784f90da53a4cc1de2a838e3ccef57d712
@@ -4312,7 +4332,7 @@ dependencies:
     .claude/skills/diagram-design/assets/example-waterfall-full.html: sha256:5a5987e9988cad66b26f769e07eca805796895a951a8cc084f0e0aa8503fca09
     .claude/skills/diagram-design/assets/example-waterfall.html: sha256:501231921ae5065423f75efa6a37fbfc4753ef76d26b9ab116902dc9964ad818
     .claude/skills/diagram-design/assets/icons.html: sha256:8301219558a40abce2d739def01feda6a8b72adce00f8d60154c989dfb581090
-    .claude/skills/diagram-design/assets/index.html: sha256:0d0f4de6c372025f61e87e01e53d98d5940029375e3fd35e6c2c1641c0a1ba14
+    .claude/skills/diagram-design/assets/index.html: sha256:6c5633862bea3f2b0e5e374e345b03f8764ec987252da626f33c6cc93c4f8567
     .claude/skills/diagram-design/assets/template-dark.html: sha256:98428c8de2c4fe8e799d7110606421effb876e2e788f8639140854c1033d82d5
     .claude/skills/diagram-design/assets/template-full.html: sha256:bfe0aa003eb264f4a2b6f10c540d9d7a53950574ed0f5dba2af3cac61fc2f52a
     .claude/skills/diagram-design/assets/template-motion.html: sha256:0dc228e58e5810fe99d80b0895515bb9a7f129ced1de2960d343f1e9539d5359
@@ -4322,20 +4342,20 @@ dependencies:
     .claude/skills/diagram-design/references/doctor.md: sha256:b0b38905019ec2eda92ef41ab5fedfae6adbe02761cab563a16496e0294af926
     .claude/skills/diagram-design/references/export-registry.md: sha256:6d35bdccf32e7a2f28ebafac75d099451881a3ad9e268798c86acea2c2c66410
     .claude/skills/diagram-design/references/export.md: sha256:da3f6ba8a693ec6467ac9ae8b476f8f2d7c0a0a20fd49762d07c2531e573dc65
-    .claude/skills/diagram-design/references/import-drawio.md: sha256:a94b687bedba5795d3c960e58d014856135cea3cba558967b4c5e8b519c9a69e
-    .claude/skills/diagram-design/references/import-excalidraw.md: sha256:1424beba60d0d206685d45553539b31d58f6942e274f3a8f68718f2742e43da6
-    .claude/skills/diagram-design/references/import-mermaid.md: sha256:41c1e5a5d223c37b45897c331b481249ffbcb1a6d63e75d0e06a9d35bbfd07cc
-    .claude/skills/diagram-design/references/layout-budget.md: sha256:792a1f328bf3ae6e0584b87513afbdb0f7c6dc4c2bafc28a3986af2d16a285d8
+    .claude/skills/diagram-design/references/import-drawio.md: sha256:55e340657f7c2f54c9be2349b4b71786779e4ae5d89fb4c1ce4f31de5e49ec08
+    .claude/skills/diagram-design/references/import-excalidraw.md: sha256:323260ca813c3ee5c196362d6424779ee1d3cfcc1afb23329f60d59674a3aeec
+    .claude/skills/diagram-design/references/import-mermaid.md: sha256:e94d8342c9bf4514bcace5422d29eb72cd17a23c49c13bc3ba1dea6e59036db3
+    .claude/skills/diagram-design/references/layout-budget.md: sha256:7ece87d01d3dbe42a2293114b423a44e254482a4931e402e6dc4ba7cf9902bcb
     .claude/skills/diagram-design/references/onboarding.md: sha256:9e1268f502253b856a1dae2d1e8b109769e942c05306996fa5ae011a266edaec
     .claude/skills/diagram-design/references/output-spec.md: sha256:12dc0eed3514e387328651652604ef4fba1a76bce1823a79f4da2993336d1e69
     .claude/skills/diagram-design/references/primitive-annotation.md: sha256:c4cab11c4660375856a8bea668922b07932199dc26a695ebcf95c5a23ba03ec5
     .claude/skills/diagram-design/references/primitive-icons.md: sha256:ea768a2b2f169ff3cd98ed41da9ad3a30ed92374bc2da44a8ba83f1f3d453c43
     .claude/skills/diagram-design/references/primitive-sketchy.md: sha256:8859f0d70c10f46f59817cb348346e7fb9e1609b70a4a513d297b8c850c866a4
     .claude/skills/diagram-design/references/primitive-terminal.md: sha256:7b52c2fb229c822a60b0061caa64ae6a68aacd4f1c22a1a98d1d0eaaa2333b55
-    .claude/skills/diagram-design/references/primitives-core.md: sha256:9f61356d3c7814dd8c5adbfc2ecce736d05c64b9ec4dcaf64a53103e3c33e96c
+    .claude/skills/diagram-design/references/primitives-core.md: sha256:bd011a9ed2e1b4e27d2ecc83872127eb8f5b1d91026a162a211974b3eeebc7e0
     .claude/skills/diagram-design/references/profiles.md: sha256:8afea09015a456b218287f08a2e9ac44bb50f6a9ebd2a7c1487bd774e89f9016
     .claude/skills/diagram-design/references/semantic-patterns.md: sha256:7aa5f7a0840be234d2b10bc3742b17151f94f550a0d72afd820413859a898c8f
-    .claude/skills/diagram-design/references/style-guide.md: sha256:4716fa1a4f4d31cf836e0b4363886aa7242657fb48c624e0b34c433179dc6673
+    .claude/skills/diagram-design/references/style-guide.md: sha256:74345f14edd26a69da6be3b619bfece61229f2873e6fbae17a39bb2503b7a7a4
     .claude/skills/diagram-design/references/type-architecture-delta.md: sha256:e5813f26e1fb924863efe70db36f112e1b9570e47335d7f6fa6e46473136e4e5
     .claude/skills/diagram-design/references/type-architecture.md: sha256:28260c9c0a72fe17ddf6eed7b1fff01c04f58f62bbb7147c45372574c9e38eea
     .claude/skills/diagram-design/references/type-axonometric-plan.md: sha256:be8ead6d582df5c19fdf611f7540c058f166929293155ab40ddc3ef524232ba6
@@ -4344,7 +4364,7 @@ dependencies:
     .claude/skills/diagram-design/references/type-db-schema.md: sha256:91f017b8813cfc63d775809d18659971d0aa5982967af94d47def31690713083
     .claude/skills/diagram-design/references/type-dependency.md: sha256:dd76bc521408b1cf0a3f86ee7c9ea93e4ad0650e4855c8f2be2358db7b721a43
     .claude/skills/diagram-design/references/type-deployment.md: sha256:296adfee79069e8fd8f9a19012cca731c5cc237990a0274ca1a8a807173c9fec
-    .claude/skills/diagram-design/references/type-dp-integration.md: sha256:6bf9b678d37e9f01f61ac8203e4ad5c29024ecd7a9f3ae0b42e71851522774f7
+    .claude/skills/diagram-design/references/type-dp-integration.md: sha256:b84195582b3daa1139dced192253ba97dd6984cfd7ba9a0da76a44588f744119
     .claude/skills/diagram-design/references/type-dp-security-matrix.md: sha256:209f4870ec19d90eff1ab80ecfe0062f3a5075c3b666b1a3a900a27260ba8832
     .claude/skills/diagram-design/references/type-er.md: sha256:d1495abeb6f5004bd89fface17d3767ebab71c8450dca195b055e18bf3132c57
     .claude/skills/diagram-design/references/type-exploded.md: sha256:785b904ce1a1be806824c97a5719578a2c32c931fb424d0a1a69c4480a527152
@@ -4357,7 +4377,7 @@ dependencies:
     .claude/skills/diagram-design/references/type-journey.md: sha256:85be7b12d841aec1638d67ad9a599d313a9d42300e35af675a87a0a3e67d9b6f
     .claude/skills/diagram-design/references/type-kanban.md: sha256:447a8a231d5bb1e822945a02e8bd4adc219b0791bb0182cab48680fbbd88d045
     .claude/skills/diagram-design/references/type-layers.md: sha256:a822afe4e06ffaf9793f5466810e2504c020e6ae3abd0b9e53c6f7b1368f2609
-    .claude/skills/diagram-design/references/type-line.md: sha256:f7fa213f2398da9e6bf30402bc2c430e778e57d95e60174bf082ba67d629b831
+    .claude/skills/diagram-design/references/type-line.md: sha256:f29a97ab0e72b23365304dfda6640503e37244eaad2c3851069585a569814089
     .claude/skills/diagram-design/references/type-loop.md: sha256:9ac996dfa83f41064477f10b61b6bdd2b0ceaefa6053b87432554668adf22af6
     .claude/skills/diagram-design/references/type-medallion.md: sha256:a1af03521adb53431766a559e05c984ee07871fd3cf495cf63146999f56f6f42
     .claude/skills/diagram-design/references/type-nested.md: sha256:c16da375df52f047748c65276f564a1b0d7d2dd420170b92dbf7cdac68981516
@@ -4368,7 +4388,7 @@ dependencies:
     .claude/skills/diagram-design/references/type-quadrant.md: sha256:eb7d542ddac72e2e1a75cb7ca64ddb67901283859413a133a332137e7fb9e5b1
     .claude/skills/diagram-design/references/type-radar.md: sha256:49c66e7921e1fd7575cf879852c41aa86e0db7f98b0c8105e3103202af49f563
     .claude/skills/diagram-design/references/type-sankey.md: sha256:874866a0867e56525f11f38a11b442b9c33f02f416b632ee76aced7f3bfc2bb5
-    .claude/skills/diagram-design/references/type-scatter.md: sha256:2f0770c4aaea747d14788805e45b13aee44350796ab4035bdfc2ab3d8c0c787f
+    .claude/skills/diagram-design/references/type-scatter.md: sha256:1c88ab9bb4b0da77c084802e6bc2aff75deea29f24cbe4de3ae91bfadea57b49
     .claude/skills/diagram-design/references/type-sequence.md: sha256:e3a109d4983a951ff670346c352529e48619c1e81db1774edfa6f05d3e93f778
     .claude/skills/diagram-design/references/type-service-blueprint.md: sha256:ae0475dc5972273d3ff2ab0bf53ae9947e8e35f59decef85f4422459c60c64ca
     .claude/skills/diagram-design/references/type-state.md: sha256:9c8ed85762d5bbb3672907bc1664ebf94bcc72850efbacf33d5ee12731053122
@@ -4381,19 +4401,19 @@ dependencies:
     .claude/skills/diagram-design/references/type-venn.md: sha256:7ead49ed70f1b2506beb83e9c84862d7dbc63f1225f0e50ecc6e2b1b4a632b38
     .claude/skills/diagram-design/references/type-wardley.md: sha256:4060402f648fa2ec858850f532675f52ac5d5df0b209c9c9450cc3df332114fb
     .claude/skills/diagram-design/references/type-waterfall.md: sha256:07db1d30ce52356884b9c7005ad473434c6104257eee0252e3487209e59d0da9
-    .claude/skills/diagram-design/scripts/drawio_extract.py: sha256:72098800fb5893ba620a432275b332901cfdbfa45bcd608c15d055466b25abe6
-    .claude/skills/diagram-design/scripts/excalidraw_extract.py: sha256:10f6a6b999b3b2e8a626774515ba6817df331a6d39d671a4876541262b63697c
+    .claude/skills/diagram-design/scripts/drawio_extract.py: sha256:f0183a6fcad372d8087afaf02f3f59902bdb47c9ac58ad6cd81a041dde949abd
+    .claude/skills/diagram-design/scripts/excalidraw_extract.py: sha256:44fec058c98d8055f634cb868931c46f8d71f45de4006351838cb313403af98b
     .claude/skills/diagram-design/scripts/export_png.py: sha256:430ddcc2d39441808bd4217fbdeb944dbb6de0be281782705a81747986d7d348
     .claude/skills/diagram-design/scripts/export_svg.py: sha256:03e88d277386e2c9f48d9fcfc6a9f8e5e818a8949ac8ec458ac569e8ff4bc8ad
-    .claude/skills/diagram-design/scripts/mermaid_extract.py: sha256:cf0a78bab8f8fdcb54564725c75e764ac602cc4e389efab395dc23c25650b7a3
-    .claude/skills/diagram-design/scripts/self_check.py: sha256:4da309dc768c921153872715666859f4d2c3af384ec804b3d4159b549b7697ea
+    .claude/skills/diagram-design/scripts/mermaid_extract.py: sha256:fd176d5c616e49bc923fc271e0a14b022674e204d39b46673824db44f647b042
+    .claude/skills/diagram-design/scripts/self_check.py: sha256:444851f6e53f83d50920381df17cdd5f1b7a23cfba9c0ddda27786d78e53e2de
     .cursor/commands/doctor.md: sha256:2ab4ca2908f4ac00f412055b0a13fa5e37245bed724f42680a51f9f8717f081d
-    .cursor/commands/export-diagram.md: sha256:92b5feb962fe7b4d37078a9779e5a15d9be3ded6b15a91a78db13ae5a74c2934
+    .cursor/commands/export-diagram.md: sha256:1563bb1f939ff079d435fd2769e16cc40a09cf1f358a0b8f2c4f5a7f6fba004e
     .cursor/commands/import-drawio.md: sha256:3138350825465001610ccb704db35b3209cf929764303b87d4563949c73550a3
     .cursor/commands/import-excalidraw.md: sha256:4d487dc8fc126c83ce864e3b6550b649976215c8bf2bd52733affa992b145bfa
     .cursor/commands/import-mermaid.md: sha256:648d39b4549bb74ab0cb5d0fd0b68e53b2a4bdbbc1699d87a7064b24e79f0e5d
     .cursor/commands/profile.md: sha256:5536fc821dffc2cb3aa2aa8270de6e1423a0d116d63208d1a896985bb86a2427
-  content_hash: sha256:8e65c0e35fe395e215ade344b1b59421e4c97c19edc92cfddaf20c5854c76b9b
+  content_hash: sha256:ceaab6bceb72277a49902ed721c874cb77cff0ee6828bcdecdb95f948daa0ee9
   skill_subset:
   - diagram-design
   declared_license: MIT
@@ -5211,7 +5231,7 @@ dependencies:
 - repo_url: heygen-com/hyperframes
   name: figma
   host: github.com
-  resolved_commit: 2d207cb3a5d0018de1bd6e68f99c977e2e0209e6
+  resolved_commit: 8519f2836358499f36d3ba79ca3c16bc1318a97f
   version: unknown
   virtual_path: skills/figma
   is_virtual: true
@@ -5232,7 +5252,7 @@ dependencies:
 - repo_url: heygen-com/hyperframes
   name: hyperframes
   host: github.com
-  resolved_commit: 2d207cb3a5d0018de1bd6e68f99c977e2e0209e6
+  resolved_commit: 8519f2836358499f36d3ba79ca3c16bc1318a97f
   version: unknown
   virtual_path: skills/hyperframes
   is_virtual: true
@@ -5395,7 +5415,7 @@ dependencies:
   - .claude/skills/hyperframes/scripts/plugin-cli.mjs
   - .claude/skills/hyperframes/scripts/plugin-cli.test.mjs
   deployed_file_hashes:
-    .agents/skills/hyperframes/SKILL.md: sha256:180ce4eea5f33f1617105c92e2690a5a2320abf624c263186ec0cb1a78a919ef
+    .agents/skills/hyperframes/SKILL.md: sha256:96f3793bd677dde345c5aca4aa6484334100a154e8a5d9e2ad07d69c9b9e2b0e
     .agents/skills/hyperframes/assets/frame-presets/biennale-yellow/FRAME.md: sha256:76d22cced9c152b0edb520543cf34c4ce772a312caa7211c40d4315b53c053cf
     .agents/skills/hyperframes/assets/frame-presets/biennale-yellow/caption-skin.html: sha256:b0e4812d9cb5852969be276f8a98ffa2b293ba8cc902fababae3f3f6340088c3
     .agents/skills/hyperframes/assets/frame-presets/biennale-yellow/frame-showcase.html: sha256:5ba04e47cf9897e023dcfa49e1ec26fe26bac0c5061097dc6e7cb1d9ed46d7d0
@@ -5446,7 +5466,7 @@ dependencies:
     .agents/skills/hyperframes/assets/frame-presets/editorial-forest/frame-showcase.html: sha256:bb87b88b91184f4fee7f02eea63ed35d9d378fa89fad8988326e31e82a43dbb1
     .agents/skills/hyperframes/references/captions.md: sha256:e7e2af7eace992487baa455bfa703fb3d770fb29f36732541554e60a46896d54
     .agents/skills/hyperframes/references/film.md: sha256:b684403f725cf720b9f192bafd420ca55f24060114004234a4e46a715de7a183
-    .agents/skills/hyperframes/references/format.md: sha256:6418c8f1fe24943be2eb913421a6355d5d4bee60fe8eea4ced9b78ccdf88a4bb
+    .agents/skills/hyperframes/references/format.md: sha256:babb5d4bfeffa8422c8e3474833a827a2a3dd95d234e8a37c130c4973d360533
     .agents/skills/hyperframes/references/look.md: sha256:5128a54cdb75bca2f627170e4a3a9667f4f11cf1579301fc16c53862c29c3ad3
     .agents/skills/hyperframes/references/motion.md: sha256:80b9bd70c011b7fc679f351cb41b993b16d610af1cda316eaf9d19bf9c08372f
     .agents/skills/hyperframes/references/overlays.md: sha256:d87fa3d13e8e0dace593f4aafb68c085b7f4393eee468c7695a74d5665150da3
@@ -5472,7 +5492,7 @@ dependencies:
     .agents/skills/hyperframes/scripts/locate.mjs: sha256:9274b1b63a74b305f044dfd907ae5ddae538d566d31c23b81c39975be6317147
     .agents/skills/hyperframes/scripts/plugin-cli.mjs: sha256:1ec46cdb9d819ecc9367aba719fea9253089617ead8c5454e59ab18b206711fb
     .agents/skills/hyperframes/scripts/plugin-cli.test.mjs: sha256:abfdf2498b57509438077803bee3a626c6fc13e1014ae066e5281edbfc4ca23d
-    .claude/skills/hyperframes/SKILL.md: sha256:180ce4eea5f33f1617105c92e2690a5a2320abf624c263186ec0cb1a78a919ef
+    .claude/skills/hyperframes/SKILL.md: sha256:96f3793bd677dde345c5aca4aa6484334100a154e8a5d9e2ad07d69c9b9e2b0e
     .claude/skills/hyperframes/assets/frame-presets/biennale-yellow/FRAME.md: sha256:76d22cced9c152b0edb520543cf34c4ce772a312caa7211c40d4315b53c053cf
     .claude/skills/hyperframes/assets/frame-presets/biennale-yellow/caption-skin.html: sha256:b0e4812d9cb5852969be276f8a98ffa2b293ba8cc902fababae3f3f6340088c3
     .claude/skills/hyperframes/assets/frame-presets/biennale-yellow/frame-showcase.html: sha256:5ba04e47cf9897e023dcfa49e1ec26fe26bac0c5061097dc6e7cb1d9ed46d7d0
@@ -5523,7 +5543,7 @@ dependencies:
     .claude/skills/hyperframes/assets/frame-presets/editorial-forest/frame-showcase.html: sha256:bb87b88b91184f4fee7f02eea63ed35d9d378fa89fad8988326e31e82a43dbb1
     .claude/skills/hyperframes/references/captions.md: sha256:e7e2af7eace992487baa455bfa703fb3d770fb29f36732541554e60a46896d54
     .claude/skills/hyperframes/references/film.md: sha256:b684403f725cf720b9f192bafd420ca55f24060114004234a4e46a715de7a183
-    .claude/skills/hyperframes/references/format.md: sha256:6418c8f1fe24943be2eb913421a6355d5d4bee60fe8eea4ced9b78ccdf88a4bb
+    .claude/skills/hyperframes/references/format.md: sha256:babb5d4bfeffa8422c8e3474833a827a2a3dd95d234e8a37c130c4973d360533
     .claude/skills/hyperframes/references/look.md: sha256:5128a54cdb75bca2f627170e4a3a9667f4f11cf1579301fc16c53862c29c3ad3
     .claude/skills/hyperframes/references/motion.md: sha256:80b9bd70c011b7fc679f351cb41b993b16d610af1cda316eaf9d19bf9c08372f
     .claude/skills/hyperframes/references/overlays.md: sha256:d87fa3d13e8e0dace593f4aafb68c085b7f4393eee468c7695a74d5665150da3
@@ -5549,11 +5569,11 @@ dependencies:
     .claude/skills/hyperframes/scripts/locate.mjs: sha256:9274b1b63a74b305f044dfd907ae5ddae538d566d31c23b81c39975be6317147
     .claude/skills/hyperframes/scripts/plugin-cli.mjs: sha256:1ec46cdb9d819ecc9367aba719fea9253089617ead8c5454e59ab18b206711fb
     .claude/skills/hyperframes/scripts/plugin-cli.test.mjs: sha256:abfdf2498b57509438077803bee3a626c6fc13e1014ae066e5281edbfc4ca23d
-  content_hash: sha256:e15ee86c1af32a29c61ee6f8cf60f2c032d7a366caa58c47c768a185c6d87bc5
+  content_hash: sha256:5cb3c31166b587840907b7544c64cce90b4fdc273e3b257e47ece6381e23b407
 - repo_url: heygen-com/hyperframes
   name: hyperframes-cli
   host: github.com
-  resolved_commit: 2d207cb3a5d0018de1bd6e68f99c977e2e0209e6
+  resolved_commit: 8519f2836358499f36d3ba79ca3c16bc1318a97f
   version: unknown
   virtual_path: skills/hyperframes-cli
   is_virtual: true
@@ -5588,37 +5608,37 @@ dependencies:
   - .claude/skills/hyperframes-cli/references/preview-render.md
   - .claude/skills/hyperframes-cli/references/upgrade-info-misc.md
   deployed_file_hashes:
-    .agents/skills/hyperframes-cli/SKILL.md: sha256:44a48ccfa4cbd4f4234f8306c96268a4be56a0f2376abedbf31d2167b3c21286
-    .agents/skills/hyperframes-cli/references/beats.md: sha256:09689994eba8c977693fdc54702b07dd492e80aa47075de0a027df901dc51b1d
-    .agents/skills/hyperframes-cli/references/cloud.md: sha256:8191550a036130249c26b37912dfd321c771c6670223cc7e0fff7aedd67607bf
+    .agents/skills/hyperframes-cli/SKILL.md: sha256:cfaa2a4dfc696c48929b2a6115ac16e3c04134cef13bd99050758a2936f3d903
+    .agents/skills/hyperframes-cli/references/beats.md: sha256:795f67b5c3fa680968a43e6482685fd55a0adb555d179643bfcb7989d251e69a
+    .agents/skills/hyperframes-cli/references/cloud.md: sha256:745b8b923f8870c87a1b60a15d6b82d6b51322a66d1badbb052249ae1964d45c
     .agents/skills/hyperframes-cli/references/cloudrun.md: sha256:16f46a18ee3d165dba3b7ee50362bb32cb0a927643a90821e7b63494fe0bde83
     .agents/skills/hyperframes-cli/references/compare-and-batch.md: sha256:d17fa5a16707d981fa6473b99a28aa45abf41bca0fd96c5157c632abd0bfc222
     .agents/skills/hyperframes-cli/references/conventions.md: sha256:5012403aa194bc350bdfd89d7c9f00e85c0ecc0356a1417ae4146b7bb8bb7b07
     .agents/skills/hyperframes-cli/references/doctor-browser.md: sha256:9747dd5a545d2528914c58d55d0c54281ace686fc5c782072334c6ba0ff65c55
     .agents/skills/hyperframes-cli/references/feedback.md: sha256:ae188d5c3e90f0e011b1e322bbfbe10575667b2a5073cffdac05026ac59925a7
-    .agents/skills/hyperframes-cli/references/init-and-scaffold.md: sha256:dad4c2212f6df8ed4ff8d7b8154c2f8a6bdeec0fa27562b0b6c4d8da9d2e1078
+    .agents/skills/hyperframes-cli/references/init-and-scaffold.md: sha256:7302d081e6abc5432d1f5ae1f462039c9a641ed1459461e3e8090c44c69a07d2
     .agents/skills/hyperframes-cli/references/lambda.md: sha256:80b8ce187a1dec26bf8bed682cdd1415a79a5d72ba6ef07650c58f5d3795845b
-    .agents/skills/hyperframes-cli/references/lint-validate-inspect.md: sha256:2629c4af5e2255c18e7782622516e225393ffef77844bde53fa923d34aa1be13
-    .agents/skills/hyperframes-cli/references/preview-render.md: sha256:851d85d7f4e6939d90ed6e350180a8edadc67b44dfc5d19163376485324d00b2
-    .agents/skills/hyperframes-cli/references/upgrade-info-misc.md: sha256:a46662ad866669d1cf70bfa6404e9a01f68d2db4eb667fe6dc8a8442f6a069d8
-    .claude/skills/hyperframes-cli/SKILL.md: sha256:44a48ccfa4cbd4f4234f8306c96268a4be56a0f2376abedbf31d2167b3c21286
-    .claude/skills/hyperframes-cli/references/beats.md: sha256:09689994eba8c977693fdc54702b07dd492e80aa47075de0a027df901dc51b1d
-    .claude/skills/hyperframes-cli/references/cloud.md: sha256:8191550a036130249c26b37912dfd321c771c6670223cc7e0fff7aedd67607bf
+    .agents/skills/hyperframes-cli/references/lint-validate-inspect.md: sha256:0a6fc73b4644350908438f7dc58a7242732887d2eb6f1cde71ba84955118c416
+    .agents/skills/hyperframes-cli/references/preview-render.md: sha256:197e9f8c1d4c8f972e2250fc088dfc7696ecf31bb2ec7eec782fc0eb7a6a3753
+    .agents/skills/hyperframes-cli/references/upgrade-info-misc.md: sha256:66b470b78ada7a676b5416859202705fa6450df8b194543fb2762ae949f76336
+    .claude/skills/hyperframes-cli/SKILL.md: sha256:cfaa2a4dfc696c48929b2a6115ac16e3c04134cef13bd99050758a2936f3d903
+    .claude/skills/hyperframes-cli/references/beats.md: sha256:795f67b5c3fa680968a43e6482685fd55a0adb555d179643bfcb7989d251e69a
+    .claude/skills/hyperframes-cli/references/cloud.md: sha256:745b8b923f8870c87a1b60a15d6b82d6b51322a66d1badbb052249ae1964d45c
     .claude/skills/hyperframes-cli/references/cloudrun.md: sha256:16f46a18ee3d165dba3b7ee50362bb32cb0a927643a90821e7b63494fe0bde83
     .claude/skills/hyperframes-cli/references/compare-and-batch.md: sha256:d17fa5a16707d981fa6473b99a28aa45abf41bca0fd96c5157c632abd0bfc222
     .claude/skills/hyperframes-cli/references/conventions.md: sha256:5012403aa194bc350bdfd89d7c9f00e85c0ecc0356a1417ae4146b7bb8bb7b07
     .claude/skills/hyperframes-cli/references/doctor-browser.md: sha256:9747dd5a545d2528914c58d55d0c54281ace686fc5c782072334c6ba0ff65c55
     .claude/skills/hyperframes-cli/references/feedback.md: sha256:ae188d5c3e90f0e011b1e322bbfbe10575667b2a5073cffdac05026ac59925a7
-    .claude/skills/hyperframes-cli/references/init-and-scaffold.md: sha256:dad4c2212f6df8ed4ff8d7b8154c2f8a6bdeec0fa27562b0b6c4d8da9d2e1078
+    .claude/skills/hyperframes-cli/references/init-and-scaffold.md: sha256:7302d081e6abc5432d1f5ae1f462039c9a641ed1459461e3e8090c44c69a07d2
     .claude/skills/hyperframes-cli/references/lambda.md: sha256:80b8ce187a1dec26bf8bed682cdd1415a79a5d72ba6ef07650c58f5d3795845b
-    .claude/skills/hyperframes-cli/references/lint-validate-inspect.md: sha256:2629c4af5e2255c18e7782622516e225393ffef77844bde53fa923d34aa1be13
-    .claude/skills/hyperframes-cli/references/preview-render.md: sha256:851d85d7f4e6939d90ed6e350180a8edadc67b44dfc5d19163376485324d00b2
-    .claude/skills/hyperframes-cli/references/upgrade-info-misc.md: sha256:a46662ad866669d1cf70bfa6404e9a01f68d2db4eb667fe6dc8a8442f6a069d8
-  content_hash: sha256:64b11089db75105b5014e0e2ad89f6338e3008c43c11d36f26a85d8c22b37d02
+    .claude/skills/hyperframes-cli/references/lint-validate-inspect.md: sha256:0a6fc73b4644350908438f7dc58a7242732887d2eb6f1cde71ba84955118c416
+    .claude/skills/hyperframes-cli/references/preview-render.md: sha256:197e9f8c1d4c8f972e2250fc088dfc7696ecf31bb2ec7eec782fc0eb7a6a3753
+    .claude/skills/hyperframes-cli/references/upgrade-info-misc.md: sha256:66b470b78ada7a676b5416859202705fa6450df8b194543fb2762ae949f76336
+  content_hash: sha256:048b8db18069edb027ab2927fb1ad4e0b2233fe47a4ad1be396eae8d400e7429
 - repo_url: heygen-com/hyperframes
   name: hyperframes-registry
   host: github.com
-  resolved_commit: 2d207cb3a5d0018de1bd6e68f99c977e2e0209e6
+  resolved_commit: 8519f2836358499f36d3ba79ca3c16bc1318a97f
   version: unknown
   virtual_path: skills/hyperframes-registry
   is_virtual: true
@@ -5653,11 +5673,11 @@ dependencies:
   - .claude/skills/hyperframes-registry/references/wiring-blocks.md
   - .claude/skills/hyperframes-registry/references/wiring-components.md
   deployed_file_hashes:
-    .agents/skills/hyperframes-registry/SKILL.md: sha256:1c7b27632c9ea9febaafc2d9af073b377029f46be4bee70d75b5e713eb698423
+    .agents/skills/hyperframes-registry/SKILL.md: sha256:0ac5bb49dd7aed66e0d61248eca94e8c9f1a95b482c8004fb0113f724fffe6cd
     .agents/skills/hyperframes-registry/examples/add-block.md: sha256:0e3353755c4ef55e53570d1266a4a43b2c5aef9bbe41276430e38cfa6580b83a
     .agents/skills/hyperframes-registry/examples/add-component.md: sha256:d06992d31eec617a91f5c34630c9274c52dd07898bd24f10a869d0d1cab5af29
     .agents/skills/hyperframes-registry/references/component-quality-bar.md: sha256:f0d4c3c44131bc0791f8a8cc3d2d7478d38045451775af7d20b2dd47cf5f91ac
-    .agents/skills/hyperframes-registry/references/contributing.md: sha256:7e9e6fd894e54251fad9aa30a08730960ceb776da590a175eadfc1d9014106b1
+    .agents/skills/hyperframes-registry/references/contributing.md: sha256:3724d1dd269768da26b731f6592ac749f47f62443e909f881ac12ceba36db0fa
     .agents/skills/hyperframes-registry/references/demo-html-pattern.md: sha256:dfc50cd33eff2c2be75437786fc3e851ab0085f7d453fb35b3380ecf9a6e9f04
     .agents/skills/hyperframes-registry/references/discovery.md: sha256:ca82fcc1e0b2d824b72a8bda99b60d257b23d493fa1d28adbb0548a762cacd04
     .agents/skills/hyperframes-registry/references/install-locations.md: sha256:83793e7d6aeea9a751755e4bd23ea48182ff9af082287b98a1192343d2571dd1
@@ -5666,11 +5686,11 @@ dependencies:
     .agents/skills/hyperframes-registry/references/templates.md: sha256:98e1ef62d3c1264b28139d85a1c9b5a8b7438209914aebef6d9890e3f4275805
     .agents/skills/hyperframes-registry/references/wiring-blocks.md: sha256:397f9ad5a9244d173b97bb5a5dfe76ea3cbccfb8dde16cba8b3dabc6044b011a
     .agents/skills/hyperframes-registry/references/wiring-components.md: sha256:6c8341c29fdae6de4f9fd1560a668d11cf34731b81fe5a06c9aeb4a000047b2a
-    .claude/skills/hyperframes-registry/SKILL.md: sha256:1c7b27632c9ea9febaafc2d9af073b377029f46be4bee70d75b5e713eb698423
+    .claude/skills/hyperframes-registry/SKILL.md: sha256:0ac5bb49dd7aed66e0d61248eca94e8c9f1a95b482c8004fb0113f724fffe6cd
     .claude/skills/hyperframes-registry/examples/add-block.md: sha256:0e3353755c4ef55e53570d1266a4a43b2c5aef9bbe41276430e38cfa6580b83a
     .claude/skills/hyperframes-registry/examples/add-component.md: sha256:d06992d31eec617a91f5c34630c9274c52dd07898bd24f10a869d0d1cab5af29
     .claude/skills/hyperframes-registry/references/component-quality-bar.md: sha256:f0d4c3c44131bc0791f8a8cc3d2d7478d38045451775af7d20b2dd47cf5f91ac
-    .claude/skills/hyperframes-registry/references/contributing.md: sha256:7e9e6fd894e54251fad9aa30a08730960ceb776da590a175eadfc1d9014106b1
+    .claude/skills/hyperframes-registry/references/contributing.md: sha256:3724d1dd269768da26b731f6592ac749f47f62443e909f881ac12ceba36db0fa
     .claude/skills/hyperframes-registry/references/demo-html-pattern.md: sha256:dfc50cd33eff2c2be75437786fc3e851ab0085f7d453fb35b3380ecf9a6e9f04
     .claude/skills/hyperframes-registry/references/discovery.md: sha256:ca82fcc1e0b2d824b72a8bda99b60d257b23d493fa1d28adbb0548a762cacd04
     .claude/skills/hyperframes-registry/references/install-locations.md: sha256:83793e7d6aeea9a751755e4bd23ea48182ff9af082287b98a1192343d2571dd1
@@ -5679,11 +5699,11 @@ dependencies:
     .claude/skills/hyperframes-registry/references/templates.md: sha256:98e1ef62d3c1264b28139d85a1c9b5a8b7438209914aebef6d9890e3f4275805
     .claude/skills/hyperframes-registry/references/wiring-blocks.md: sha256:397f9ad5a9244d173b97bb5a5dfe76ea3cbccfb8dde16cba8b3dabc6044b011a
     .claude/skills/hyperframes-registry/references/wiring-components.md: sha256:6c8341c29fdae6de4f9fd1560a668d11cf34731b81fe5a06c9aeb4a000047b2a
-  content_hash: sha256:76f10d4784002e6d9e0d24aaaff9fb3bf4ceb79eb7a14cec99d1c1b4d7512736
+  content_hash: sha256:679d3ea328b5991aa01de6ee0395cecdc1f13eeff8f849408cf0edb48015991d
 - repo_url: heygen-com/hyperframes
   name: media-use
   host: github.com
-  resolved_commit: 2d207cb3a5d0018de1bd6e68f99c977e2e0209e6
+  resolved_commit: 8519f2836358499f36d3ba79ca3c16bc1318a97f
   version: unknown
   virtual_path: skills/media-use
   is_virtual: true
@@ -5925,7 +5945,7 @@ dependencies:
   - .claude/skills/media-use/scripts/transcript-cut.test.mjs
   deployed_file_hashes:
     .agents/skills/media-use/.gitignore: sha256:a299ec0fcdb6bc6670cf9fb22eefe3fcc37730e2e554b7f54e25de88be1ede02
-    .agents/skills/media-use/SKILL.md: sha256:ef3976a02ff516d8e5ed0b7fff19d4bbf9358264233bace33fdacaa3aa7f37de
+    .agents/skills/media-use/SKILL.md: sha256:27953684efc3615938f824371462b2f6085b0e0982ae3667fe0a12ac89d0ebf9
     .agents/skills/media-use/audio/assets/sfx/CREDITS.md: sha256:79590c7738b0427b10f362f76b02cfd2643158a40e1d5fd787f9ac6b33bcf4ce
     .agents/skills/media-use/audio/assets/sfx/chime.mp3: sha256:74823b1b27703c56e0652db838f503c150ce9c2442d47d27430af3d5121d6d12
     .agents/skills/media-use/audio/assets/sfx/click-soft.mp3: sha256:075e17bdac5c13662a1c9530050e0046f81d4138e00eb3bf30427a7b4404103d
@@ -5947,28 +5967,28 @@ dependencies:
     .agents/skills/media-use/audio/assets/sfx/whoosh-cinematic.mp3: sha256:0a0f3505856fdfa84ac6b86b3c55ccd0ef1eb4ff0907d7b6934002218a73404e
     .agents/skills/media-use/audio/assets/sfx/whoosh-short.mp3: sha256:c2efd9d902a59bf9ec5019035d7deadd17762136896b6e3cb6dd99ea50997a30
     .agents/skills/media-use/audio/assets/sfx/whoosh.mp3: sha256:c2efd9d902a59bf9ec5019035d7deadd17762136896b6e3cb6dd99ea50997a30
-    .agents/skills/media-use/audio/references/bgm.md: sha256:d21a03d47aa8b77ef74bd8a1e91a06de71085ec15312cc71d3b7b52d655c93b4
+    .agents/skills/media-use/audio/references/bgm.md: sha256:49c9d4d8b733e9c0d80e084be35c99432e2accc1c57266b3f01c3155e0acc47e
     .agents/skills/media-use/audio/references/captions/authoring.md: sha256:c1f159e6a99b5ed65812fbc777fabdbf8cb82dec7fcb2e970b9524653d96bb59
     .agents/skills/media-use/audio/references/captions/motion.md: sha256:ee1b89fc53e7433e1c1192c24e09365a3894bae653d8061c2bbc4202c097250f
     .agents/skills/media-use/audio/references/captions/transcript-handling.md: sha256:84c4d5181749022c00b6de62ffe95fe257598fb5f9111d9e8541d25a13836287
     .agents/skills/media-use/audio/references/remove-background.md: sha256:fb6b38a25c6535c57a461bbe2ca681b38f18e5f09b1e904e4a0b5f6eca7a5b98
-    .agents/skills/media-use/audio/references/requirements.md: sha256:3a9092a3ad9e3133dc2d4888c73c9373e988cbcc5dd46997cd800e075127d09c
+    .agents/skills/media-use/audio/references/requirements.md: sha256:fa57aa3855f229d9df6489654455981a5a04d7b05e8e76558be263407fcf5a17
     .agents/skills/media-use/audio/references/sfx.md: sha256:b89b14e4d819594d07cf2899e3ca59ceafe743e77e7df46dafdbebe4effebe75
     .agents/skills/media-use/audio/references/transcribe.md: sha256:5525a555f5356766a5e3333a945b5f90af51f63b2b98210d23e3a605a5de8703
     .agents/skills/media-use/audio/references/tts-to-captions.md: sha256:bc74fa83c096d64997dde33c9873c01b23c3b575b80689793440cd91466c8bd1
-    .agents/skills/media-use/audio/references/tts.md: sha256:37ce53c1744359b68f09b31878ede560c75791ecd73b4e7bbaaff0b147cbc442
+    .agents/skills/media-use/audio/references/tts.md: sha256:0811600e8251313fe242ec0b50a622c7f9261bba8062eb3c0a22d691a03a544a
     .agents/skills/media-use/audio/scripts/audio.mjs: sha256:f41c88d86aa3c87c41a8edfe1017a41c86ea44a6e5bdd5f5442fb4046c63f8ef
     .agents/skills/media-use/audio/scripts/audio.test.mjs: sha256:07df6c38f1d98305fce9f37848334d6c84e26bceb52eca1e0ee3f9fa2fd2ae12
     .agents/skills/media-use/audio/scripts/carve.mjs: sha256:7ddef413955ca81b66eba4630e3296220613150d428795f636577f2d8626c160
     .agents/skills/media-use/audio/scripts/carve.test.mjs: sha256:6f72d9e0a349d9deaee62f1835b9c5639dc71389643f5d37accc0844958b43f6
     .agents/skills/media-use/audio/scripts/extract-audio-data.py: sha256:2b72d7aaa8688a4c524042274364f9696fb26fa9dd7125c58798cbdf021950e8
-    .agents/skills/media-use/audio/scripts/gemini-pipeline.test.mjs: sha256:1caced7d5d088cc1281d7ba4346bf3bb540870482a56515f5a6a35352fbbc0f9
-    .agents/skills/media-use/audio/scripts/heygen-tts.mjs: sha256:7cf5e907807e0df919fdff2c762733c9d6dbdad5b605d05236ea788d8aecf5ff
+    .agents/skills/media-use/audio/scripts/gemini-pipeline.test.mjs: sha256:b052640bc7d112d4009145f0e5fdc74a3411bdae94113963e9f57a2fafbe7f44
+    .agents/skills/media-use/audio/scripts/heygen-tts.mjs: sha256:0105b07581bde333ae84c1128f12a13ca29a4ce6d0f2f5268878e97c37182ed2
     .agents/skills/media-use/audio/scripts/heygen-tts.test.mjs: sha256:55f54468f0ba01f24c7a587f1b58d7d128a9c03919dfadd92dc2929aa1e8ed69
     .agents/skills/media-use/audio/scripts/heygen-voice.mjs: sha256:1ab6d29860c106b49ca0c3dec408d99a8d3297a5bbc953d21f1148c3d8568064
     .agents/skills/media-use/audio/scripts/heygen-voice.test.mjs: sha256:d0920895246ee7679a424ffa36ed13d3f1bb7c03b8641c8bbb4a4efd4ede320b
     .agents/skills/media-use/audio/scripts/lib/audio-meta.mjs: sha256:94e1b4cf242362eeb52bb8a5665b5b50fe4ffdc7854f4366b82e290c33d03890
-    .agents/skills/media-use/audio/scripts/lib/audio-meta.test.mjs: sha256:dcb64fed2a256b0f9305f1434024e588adf312d787e8a8dfdc9349193d37f2ad
+    .agents/skills/media-use/audio/scripts/lib/audio-meta.test.mjs: sha256:e6627824e12aec0c19c7d6f28cd8445ed6a341c846b873f467337e1af96e0e7a
     .agents/skills/media-use/audio/scripts/lib/bgm-volume.mjs: sha256:bb9debebdbd09724f6d07cd10b3982a076639664420ff8caf5f5a36ae7429a8c
     .agents/skills/media-use/audio/scripts/lib/bgm.mjs: sha256:2e7e7590bef554c4aa8fa0250ca4fd0dc96da5e388644c90128cf7767c6a7532
     .agents/skills/media-use/audio/scripts/lib/bgm.test.mjs: sha256:59b6b3d23a7de4b8dcaef846290ec14c6f74530a4e9a8fd5fa354501c35c73ad
@@ -5978,10 +5998,10 @@ dependencies:
     .agents/skills/media-use/audio/scripts/lib/gemini-auth.py: sha256:5ba85af3b5b46bfa04013f5d24b2c5b72dc7677b6cc5ef5ef926de82be4f8542
     .agents/skills/media-use/audio/scripts/lib/gemini-auth.test.mjs: sha256:4a74c9e910914d57c715b0ed487e6e8ce2af265e32edfe04e8432780a6ffe0b0
     .agents/skills/media-use/audio/scripts/lib/gemini-auth_test.py: sha256:5f524492aa5d4fa77c45bfed0002a33045677bd1c28027ff80554c9911f32b66
-    .agents/skills/media-use/audio/scripts/lib/gemini-tts.mjs: sha256:cf34c6781e809d39b7d36a8f0caf32afd23a21860db45ccdc4cd70c6a08e9597
-    .agents/skills/media-use/audio/scripts/lib/gemini-tts.test.mjs: sha256:c36d0a99d85dd377ba4f1314e8dc15a6f8e55284fc0176a6bcd529017767eff8
-    .agents/skills/media-use/audio/scripts/lib/heygen.mjs: sha256:65c996c8f494248aba28030888b43b32e1da659a48842ad2ba259c64b4a2967e
-    .agents/skills/media-use/audio/scripts/lib/heygen.test.mjs: sha256:eedb0c96ebb8a1e04fad51d0f400a450d9f304e4961684f0d98b138aa48f9463
+    .agents/skills/media-use/audio/scripts/lib/gemini-tts.mjs: sha256:bf003704ac37e81a9e1b500103691c37670f9ff556e1dde3062e2e87873ef914
+    .agents/skills/media-use/audio/scripts/lib/gemini-tts.test.mjs: sha256:68b3fae36ec470a7c1dc67fc340239af76495c5d3ae5ae26db14bbd7cfc7f5fc
+    .agents/skills/media-use/audio/scripts/lib/heygen.mjs: sha256:bc99ecac77f150a330f7064108006c9316da0ccdbc16cfbb4038251eaae2d960
+    .agents/skills/media-use/audio/scripts/lib/heygen.test.mjs: sha256:e04aa12300ca45866df0d2a0360ee6f0027ef499b081cf3e431432166085e00d
     .agents/skills/media-use/audio/scripts/lib/main-module.mjs: sha256:61811e09110856e1439c29875e4a4ad7701ae45d4045f9d1dcb6a7929698e4c0
     .agents/skills/media-use/audio/scripts/lib/media-record.mjs: sha256:bf904e88b0038b6fbae8b562ff1fc99ff8794383c5b3470773c7692162c948e9
     .agents/skills/media-use/audio/scripts/lib/media-record.test.mjs: sha256:922738b67e8baa5bbf958ac02e92e3192e51f5b6c66d8bbd3f544151c5a22523
@@ -5991,25 +6011,25 @@ dependencies:
     .agents/skills/media-use/audio/scripts/lib/sfx.mjs: sha256:ddd7da6f359011f2aaa9e3b78e62246766be4dedb4825b5c40f2c287c0c2c62c
     .agents/skills/media-use/audio/scripts/lib/sfx.test.mjs: sha256:87bc81631a1dae1e251e13bb219521815f1cc14f7ec30b8d29b38885138f360d
     .agents/skills/media-use/audio/scripts/lib/tts.cleanup.test.mjs: sha256:bacb2ac60b7d755237aad3535b90c0093d0ff1b3cd71c9c8dc80cfc37f4efdf8
-    .agents/skills/media-use/audio/scripts/lib/tts.mjs: sha256:0a706b9f83ba1b8723d5f8247b5d35c6f85b28b6849bbf47a7bef2f413eb2ffd
+    .agents/skills/media-use/audio/scripts/lib/tts.mjs: sha256:ffe6b897caf5f1401756897b515850bc4b93641d75bf4f1b6bcf35f0073b0eb7
     .agents/skills/media-use/audio/scripts/lib/tts.spawn.test.mjs: sha256:62ec9589648477e8c7242567e9daa67d1cf07a0fbe2cf9968acef8df8e982ef2
-    .agents/skills/media-use/audio/scripts/lib/tts.test.mjs: sha256:47185cb0d6ac4ca9350d65640a93e9f477d022a8a48d614f51e2ca57f3ca4a39
+    .agents/skills/media-use/audio/scripts/lib/tts.test.mjs: sha256:e19a3f5b8bf8bfb3eb4ad0220ff7b4cfb6d740e3d24f5b96eabdcc6ab4720722
     .agents/skills/media-use/audio/scripts/lyria-recipe.py: sha256:07bcba4a128430545a03e7ced49b9a6750a77d72a3659d67e4e9886fe9731436
     .agents/skills/media-use/audio/scripts/wait-bgm.mjs: sha256:bb9cf35cae4342ca1b03c1c129df199d6e389b67a8d5be9d4973a3bc20d585e3
     .agents/skills/media-use/audio/scripts/wait-bgm.test.mjs: sha256:8f3c50a19e14c6d0b6c2d871892be8fa1022d6ee5653f3f5224c955f4afdf862
     .agents/skills/media-use/luts/README.md: sha256:c06cbbf2aab80cbf8aa25c83497202a63107a61e083b6c199a89d513e8096a3b
     .agents/skills/media-use/luts/index.json: sha256:988ac83c14bc3a9ef09aa6ab64459a0aa9e766e96361738136970ec89df1675a
     .agents/skills/media-use/references/audio.md: sha256:4c2602fec675b5234b18a0a03ac05aa6c380398c75176c6a071ce683d5107973
-    .agents/skills/media-use/references/grading.md: sha256:00455ee9d1eecec76d846c9bc5d0eac35017ca08f514f2efc7f3fc5f6ffb6e87
-    .agents/skills/media-use/references/local.md: sha256:c72b10577e731c9904e7cda14a64ed5b7177b4b2ec5053778cbe8cb64d2a6634
+    .agents/skills/media-use/references/grading.md: sha256:430e2b57dfb64c3acfbdd02317ba967ebb580d42b348686ccffbc175d3de8392
+    .agents/skills/media-use/references/local.md: sha256:659271d787fe3bdd39f0bc32b1eeb03860b9c76c2672cb71b6bb8d4a88fe4385
     .agents/skills/media-use/references/media-treatment-recipes.md: sha256:852e7e978af56c9e99ba14f19009da974cd78f99b399ca194dc416c31c49bda5
     .agents/skills/media-use/references/media-treatments.md: sha256:2125e106e7f891e14716efabda40f5d6a46284592c6f37d5a14b2b86bda96c1a
     .agents/skills/media-use/references/memory.md: sha256:55477edafb7f9c8294cafd3f1633b7a1820d538695c0868f9c3ddb6b418dadbc
-    .agents/skills/media-use/references/meta.md: sha256:0397b11301e10de6b126f6f39e5ad8bac68f8b22a5ab32236fb6a8f0e5c279dd
+    .agents/skills/media-use/references/meta.md: sha256:3651b66e86874b21e9636de65be5a4581f4f394f3c8fc02ddc9128f4dcfa107c
     .agents/skills/media-use/references/mixing.md: sha256:0ac67d3230cf1a6e31ca9355371ea133557d7e2fdb541742a02f086eac20a574
-    .agents/skills/media-use/references/operations.md: sha256:a40792b8f01f99ccf3ccab8f15b0b9285fa08d5ac9fa1f189cf60efdf3e17b30
+    .agents/skills/media-use/references/operations.md: sha256:f59189bb31501c9b55c45311ac2bf36c8652c17010c5f8a4d81b9274ae84b810
     .agents/skills/media-use/references/resolve.md: sha256:c90a833f6c3dcc8f33b289f5ad90e9f835f59581873bdc774035f25b6eb72314
-    .agents/skills/media-use/references/setup-providers.md: sha256:76f133bb9c4b1e0323b58544e2e7235f5ac09408adad1502e69e64c92eeeb085
+    .agents/skills/media-use/references/setup-providers.md: sha256:4aa68405654ad2215f5612bd036a9e14c37133e3c433b5f532dfcd5d57674096
     .agents/skills/media-use/references/telemetry-dashboard.md: sha256:bdc30ad1ff84ebe7f5ca835acb9f47b33717e041ea79b41c6f0db489b86094a7
     .agents/skills/media-use/scripts/audio-duck.mjs: sha256:6beac3c1c6c0e0375e67a04c184406ced3740cc832bb3ba9a09c796bbe16d40e
     .agents/skills/media-use/scripts/compatibility.test.mjs: sha256:3263a2e82b06560d2c0ea9f7e41b3fe46bec624b70c539ccb121b880dae2250e
@@ -6028,7 +6048,7 @@ dependencies:
     .agents/skills/media-use/scripts/lib/parakeet-words.mjs: sha256:d5b66efe6cb8975beab2f523503113c3be3117e687ebc20695e7ab08c2ba1b4d
     .agents/skills/media-use/scripts/lib/prefs-store.mjs: sha256:960429595e5c5dda3f88f2899852d2ac2322a7d26b27ed8139612d0161fff749
     .agents/skills/media-use/scripts/lib/recipe-store.mjs: sha256:6d2786c2ba4959178351047c3b6d1d2b29a701685c9b256fcc4793c50717ce83
-    .agents/skills/media-use/scripts/lib/telemetry.mjs: sha256:292ca36e91189e69d36b197311a345664a3a407b4e3fdb91f8044190649961cd
+    .agents/skills/media-use/scripts/lib/telemetry.mjs: sha256:3524441159efd13de22ced004c9e40fe0c241c5ef64cc047f0b567310d6436f0
     .agents/skills/media-use/scripts/lib/telemetry.test.mjs: sha256:b7f6513eede2eb33f6fde626162b2fd4ef74b0034a3e81b9eebdede89f766373
     .agents/skills/media-use/scripts/lib/transcriptCutFade.mjs: sha256:ee9c7ec28650cf0f6a0f1f21f1c6a1faa5e152337163cccc0cc9a109b3c99805
     .agents/skills/media-use/scripts/lib/words.mjs: sha256:bfc1f93523d2fc8ce55580b262efcca537c7feabaf029c1c6f33433591377adb
@@ -6041,7 +6061,7 @@ dependencies:
     .agents/skills/media-use/scripts/transcript-cut.mjs: sha256:17e148571738ad8cf30b0ccb3f28d0837df5072114b9dfb63bc8d9f5d25e5a5d
     .agents/skills/media-use/scripts/transcript-cut.test.mjs: sha256:af546cd7d473eb5f4258148a8dd8ec637a67a242cd50948abe1e0dcd6f64c527
     .claude/skills/media-use/.gitignore: sha256:a299ec0fcdb6bc6670cf9fb22eefe3fcc37730e2e554b7f54e25de88be1ede02
-    .claude/skills/media-use/SKILL.md: sha256:ef3976a02ff516d8e5ed0b7fff19d4bbf9358264233bace33fdacaa3aa7f37de
+    .claude/skills/media-use/SKILL.md: sha256:27953684efc3615938f824371462b2f6085b0e0982ae3667fe0a12ac89d0ebf9
     .claude/skills/media-use/audio/assets/sfx/CREDITS.md: sha256:79590c7738b0427b10f362f76b02cfd2643158a40e1d5fd787f9ac6b33bcf4ce
     .claude/skills/media-use/audio/assets/sfx/chime.mp3: sha256:74823b1b27703c56e0652db838f503c150ce9c2442d47d27430af3d5121d6d12
     .claude/skills/media-use/audio/assets/sfx/click-soft.mp3: sha256:075e17bdac5c13662a1c9530050e0046f81d4138e00eb3bf30427a7b4404103d
@@ -6063,28 +6083,28 @@ dependencies:
     .claude/skills/media-use/audio/assets/sfx/whoosh-cinematic.mp3: sha256:0a0f3505856fdfa84ac6b86b3c55ccd0ef1eb4ff0907d7b6934002218a73404e
     .claude/skills/media-use/audio/assets/sfx/whoosh-short.mp3: sha256:c2efd9d902a59bf9ec5019035d7deadd17762136896b6e3cb6dd99ea50997a30
     .claude/skills/media-use/audio/assets/sfx/whoosh.mp3: sha256:c2efd9d902a59bf9ec5019035d7deadd17762136896b6e3cb6dd99ea50997a30
-    .claude/skills/media-use/audio/references/bgm.md: sha256:d21a03d47aa8b77ef74bd8a1e91a06de71085ec15312cc71d3b7b52d655c93b4
+    .claude/skills/media-use/audio/references/bgm.md: sha256:49c9d4d8b733e9c0d80e084be35c99432e2accc1c57266b3f01c3155e0acc47e
     .claude/skills/media-use/audio/references/captions/authoring.md: sha256:c1f159e6a99b5ed65812fbc777fabdbf8cb82dec7fcb2e970b9524653d96bb59
     .claude/skills/media-use/audio/references/captions/motion.md: sha256:ee1b89fc53e7433e1c1192c24e09365a3894bae653d8061c2bbc4202c097250f
     .claude/skills/media-use/audio/references/captions/transcript-handling.md: sha256:84c4d5181749022c00b6de62ffe95fe257598fb5f9111d9e8541d25a13836287
     .claude/skills/media-use/audio/references/remove-background.md: sha256:fb6b38a25c6535c57a461bbe2ca681b38f18e5f09b1e904e4a0b5f6eca7a5b98
-    .claude/skills/media-use/audio/references/requirements.md: sha256:3a9092a3ad9e3133dc2d4888c73c9373e988cbcc5dd46997cd800e075127d09c
+    .claude/skills/media-use/audio/references/requirements.md: sha256:fa57aa3855f229d9df6489654455981a5a04d7b05e8e76558be263407fcf5a17
     .claude/skills/media-use/audio/references/sfx.md: sha256:b89b14e4d819594d07cf2899e3ca59ceafe743e77e7df46dafdbebe4effebe75
     .claude/skills/media-use/audio/references/transcribe.md: sha256:5525a555f5356766a5e3333a945b5f90af51f63b2b98210d23e3a605a5de8703
     .claude/skills/media-use/audio/references/tts-to-captions.md: sha256:bc74fa83c096d64997dde33c9873c01b23c3b575b80689793440cd91466c8bd1
-    .claude/skills/media-use/audio/references/tts.md: sha256:37ce53c1744359b68f09b31878ede560c75791ecd73b4e7bbaaff0b147cbc442
+    .claude/skills/media-use/audio/references/tts.md: sha256:0811600e8251313fe242ec0b50a622c7f9261bba8062eb3c0a22d691a03a544a
     .claude/skills/media-use/audio/scripts/audio.mjs: sha256:f41c88d86aa3c87c41a8edfe1017a41c86ea44a6e5bdd5f5442fb4046c63f8ef
     .claude/skills/media-use/audio/scripts/audio.test.mjs: sha256:07df6c38f1d98305fce9f37848334d6c84e26bceb52eca1e0ee3f9fa2fd2ae12
     .claude/skills/media-use/audio/scripts/carve.mjs: sha256:7ddef413955ca81b66eba4630e3296220613150d428795f636577f2d8626c160
     .claude/skills/media-use/audio/scripts/carve.test.mjs: sha256:6f72d9e0a349d9deaee62f1835b9c5639dc71389643f5d37accc0844958b43f6
     .claude/skills/media-use/audio/scripts/extract-audio-data.py: sha256:2b72d7aaa8688a4c524042274364f9696fb26fa9dd7125c58798cbdf021950e8
-    .claude/skills/media-use/audio/scripts/gemini-pipeline.test.mjs: sha256:1caced7d5d088cc1281d7ba4346bf3bb540870482a56515f5a6a35352fbbc0f9
-    .claude/skills/media-use/audio/scripts/heygen-tts.mjs: sha256:7cf5e907807e0df919fdff2c762733c9d6dbdad5b605d05236ea788d8aecf5ff
+    .claude/skills/media-use/audio/scripts/gemini-pipeline.test.mjs: sha256:b052640bc7d112d4009145f0e5fdc74a3411bdae94113963e9f57a2fafbe7f44
+    .claude/skills/media-use/audio/scripts/heygen-tts.mjs: sha256:0105b07581bde333ae84c1128f12a13ca29a4ce6d0f2f5268878e97c37182ed2
     .claude/skills/media-use/audio/scripts/heygen-tts.test.mjs: sha256:55f54468f0ba01f24c7a587f1b58d7d128a9c03919dfadd92dc2929aa1e8ed69
     .claude/skills/media-use/audio/scripts/heygen-voice.mjs: sha256:1ab6d29860c106b49ca0c3dec408d99a8d3297a5bbc953d21f1148c3d8568064
     .claude/skills/media-use/audio/scripts/heygen-voice.test.mjs: sha256:d0920895246ee7679a424ffa36ed13d3f1bb7c03b8641c8bbb4a4efd4ede320b
     .claude/skills/media-use/audio/scripts/lib/audio-meta.mjs: sha256:94e1b4cf242362eeb52bb8a5665b5b50fe4ffdc7854f4366b82e290c33d03890
-    .claude/skills/media-use/audio/scripts/lib/audio-meta.test.mjs: sha256:dcb64fed2a256b0f9305f1434024e588adf312d787e8a8dfdc9349193d37f2ad
+    .claude/skills/media-use/audio/scripts/lib/audio-meta.test.mjs: sha256:e6627824e12aec0c19c7d6f28cd8445ed6a341c846b873f467337e1af96e0e7a
     .claude/skills/media-use/audio/scripts/lib/bgm-volume.mjs: sha256:bb9debebdbd09724f6d07cd10b3982a076639664420ff8caf5f5a36ae7429a8c
     .claude/skills/media-use/audio/scripts/lib/bgm.mjs: sha256:2e7e7590bef554c4aa8fa0250ca4fd0dc96da5e388644c90128cf7767c6a7532
     .claude/skills/media-use/audio/scripts/lib/bgm.test.mjs: sha256:59b6b3d23a7de4b8dcaef846290ec14c6f74530a4e9a8fd5fa354501c35c73ad
@@ -6094,10 +6114,10 @@ dependencies:
     .claude/skills/media-use/audio/scripts/lib/gemini-auth.py: sha256:5ba85af3b5b46bfa04013f5d24b2c5b72dc7677b6cc5ef5ef926de82be4f8542
     .claude/skills/media-use/audio/scripts/lib/gemini-auth.test.mjs: sha256:4a74c9e910914d57c715b0ed487e6e8ce2af265e32edfe04e8432780a6ffe0b0
     .claude/skills/media-use/audio/scripts/lib/gemini-auth_test.py: sha256:5f524492aa5d4fa77c45bfed0002a33045677bd1c28027ff80554c9911f32b66
-    .claude/skills/media-use/audio/scripts/lib/gemini-tts.mjs: sha256:cf34c6781e809d39b7d36a8f0caf32afd23a21860db45ccdc4cd70c6a08e9597
-    .claude/skills/media-use/audio/scripts/lib/gemini-tts.test.mjs: sha256:c36d0a99d85dd377ba4f1314e8dc15a6f8e55284fc0176a6bcd529017767eff8
-    .claude/skills/media-use/audio/scripts/lib/heygen.mjs: sha256:65c996c8f494248aba28030888b43b32e1da659a48842ad2ba259c64b4a2967e
-    .claude/skills/media-use/audio/scripts/lib/heygen.test.mjs: sha256:eedb0c96ebb8a1e04fad51d0f400a450d9f304e4961684f0d98b138aa48f9463
+    .claude/skills/media-use/audio/scripts/lib/gemini-tts.mjs: sha256:bf003704ac37e81a9e1b500103691c37670f9ff556e1dde3062e2e87873ef914
+    .claude/skills/media-use/audio/scripts/lib/gemini-tts.test.mjs: sha256:68b3fae36ec470a7c1dc67fc340239af76495c5d3ae5ae26db14bbd7cfc7f5fc
+    .claude/skills/media-use/audio/scripts/lib/heygen.mjs: sha256:bc99ecac77f150a330f7064108006c9316da0ccdbc16cfbb4038251eaae2d960
+    .claude/skills/media-use/audio/scripts/lib/heygen.test.mjs: sha256:e04aa12300ca45866df0d2a0360ee6f0027ef499b081cf3e431432166085e00d
     .claude/skills/media-use/audio/scripts/lib/main-module.mjs: sha256:61811e09110856e1439c29875e4a4ad7701ae45d4045f9d1dcb6a7929698e4c0
     .claude/skills/media-use/audio/scripts/lib/media-record.mjs: sha256:bf904e88b0038b6fbae8b562ff1fc99ff8794383c5b3470773c7692162c948e9
     .claude/skills/media-use/audio/scripts/lib/media-record.test.mjs: sha256:922738b67e8baa5bbf958ac02e92e3192e51f5b6c66d8bbd3f544151c5a22523
@@ -6107,25 +6127,25 @@ dependencies:
     .claude/skills/media-use/audio/scripts/lib/sfx.mjs: sha256:ddd7da6f359011f2aaa9e3b78e62246766be4dedb4825b5c40f2c287c0c2c62c
     .claude/skills/media-use/audio/scripts/lib/sfx.test.mjs: sha256:87bc81631a1dae1e251e13bb219521815f1cc14f7ec30b8d29b38885138f360d
     .claude/skills/media-use/audio/scripts/lib/tts.cleanup.test.mjs: sha256:bacb2ac60b7d755237aad3535b90c0093d0ff1b3cd71c9c8dc80cfc37f4efdf8
-    .claude/skills/media-use/audio/scripts/lib/tts.mjs: sha256:0a706b9f83ba1b8723d5f8247b5d35c6f85b28b6849bbf47a7bef2f413eb2ffd
+    .claude/skills/media-use/audio/scripts/lib/tts.mjs: sha256:ffe6b897caf5f1401756897b515850bc4b93641d75bf4f1b6bcf35f0073b0eb7
     .claude/skills/media-use/audio/scripts/lib/tts.spawn.test.mjs: sha256:62ec9589648477e8c7242567e9daa67d1cf07a0fbe2cf9968acef8df8e982ef2
-    .claude/skills/media-use/audio/scripts/lib/tts.test.mjs: sha256:47185cb0d6ac4ca9350d65640a93e9f477d022a8a48d614f51e2ca57f3ca4a39
+    .claude/skills/media-use/audio/scripts/lib/tts.test.mjs: sha256:e19a3f5b8bf8bfb3eb4ad0220ff7b4cfb6d740e3d24f5b96eabdcc6ab4720722
     .claude/skills/media-use/audio/scripts/lyria-recipe.py: sha256:07bcba4a128430545a03e7ced49b9a6750a77d72a3659d67e4e9886fe9731436
     .claude/skills/media-use/audio/scripts/wait-bgm.mjs: sha256:bb9cf35cae4342ca1b03c1c129df199d6e389b67a8d5be9d4973a3bc20d585e3
     .claude/skills/media-use/audio/scripts/wait-bgm.test.mjs: sha256:8f3c50a19e14c6d0b6c2d871892be8fa1022d6ee5653f3f5224c955f4afdf862
     .claude/skills/media-use/luts/README.md: sha256:c06cbbf2aab80cbf8aa25c83497202a63107a61e083b6c199a89d513e8096a3b
     .claude/skills/media-use/luts/index.json: sha256:988ac83c14bc3a9ef09aa6ab64459a0aa9e766e96361738136970ec89df1675a
     .claude/skills/media-use/references/audio.md: sha256:4c2602fec675b5234b18a0a03ac05aa6c380398c75176c6a071ce683d5107973
-    .claude/skills/media-use/references/grading.md: sha256:00455ee9d1eecec76d846c9bc5d0eac35017ca08f514f2efc7f3fc5f6ffb6e87
-    .claude/skills/media-use/references/local.md: sha256:c72b10577e731c9904e7cda14a64ed5b7177b4b2ec5053778cbe8cb64d2a6634
+    .claude/skills/media-use/references/grading.md: sha256:430e2b57dfb64c3acfbdd02317ba967ebb580d42b348686ccffbc175d3de8392
+    .claude/skills/media-use/references/local.md: sha256:659271d787fe3bdd39f0bc32b1eeb03860b9c76c2672cb71b6bb8d4a88fe4385
     .claude/skills/media-use/references/media-treatment-recipes.md: sha256:852e7e978af56c9e99ba14f19009da974cd78f99b399ca194dc416c31c49bda5
     .claude/skills/media-use/references/media-treatments.md: sha256:2125e106e7f891e14716efabda40f5d6a46284592c6f37d5a14b2b86bda96c1a
     .claude/skills/media-use/references/memory.md: sha256:55477edafb7f9c8294cafd3f1633b7a1820d538695c0868f9c3ddb6b418dadbc
-    .claude/skills/media-use/references/meta.md: sha256:0397b11301e10de6b126f6f39e5ad8bac68f8b22a5ab32236fb6a8f0e5c279dd
+    .claude/skills/media-use/references/meta.md: sha256:3651b66e86874b21e9636de65be5a4581f4f394f3c8fc02ddc9128f4dcfa107c
     .claude/skills/media-use/references/mixing.md: sha256:0ac67d3230cf1a6e31ca9355371ea133557d7e2fdb541742a02f086eac20a574
-    .claude/skills/media-use/references/operations.md: sha256:a40792b8f01f99ccf3ccab8f15b0b9285fa08d5ac9fa1f189cf60efdf3e17b30
+    .claude/skills/media-use/references/operations.md: sha256:f59189bb31501c9b55c45311ac2bf36c8652c17010c5f8a4d81b9274ae84b810
     .claude/skills/media-use/references/resolve.md: sha256:c90a833f6c3dcc8f33b289f5ad90e9f835f59581873bdc774035f25b6eb72314
-    .claude/skills/media-use/references/setup-providers.md: sha256:76f133bb9c4b1e0323b58544e2e7235f5ac09408adad1502e69e64c92eeeb085
+    .claude/skills/media-use/references/setup-providers.md: sha256:4aa68405654ad2215f5612bd036a9e14c37133e3c433b5f532dfcd5d57674096
     .claude/skills/media-use/references/telemetry-dashboard.md: sha256:bdc30ad1ff84ebe7f5ca835acb9f47b33717e041ea79b41c6f0db489b86094a7
     .claude/skills/media-use/scripts/audio-duck.mjs: sha256:6beac3c1c6c0e0375e67a04c184406ced3740cc832bb3ba9a09c796bbe16d40e
     .claude/skills/media-use/scripts/compatibility.test.mjs: sha256:3263a2e82b06560d2c0ea9f7e41b3fe46bec624b70c539ccb121b880dae2250e
@@ -6144,7 +6164,7 @@ dependencies:
     .claude/skills/media-use/scripts/lib/parakeet-words.mjs: sha256:d5b66efe6cb8975beab2f523503113c3be3117e687ebc20695e7ab08c2ba1b4d
     .claude/skills/media-use/scripts/lib/prefs-store.mjs: sha256:960429595e5c5dda3f88f2899852d2ac2322a7d26b27ed8139612d0161fff749
     .claude/skills/media-use/scripts/lib/recipe-store.mjs: sha256:6d2786c2ba4959178351047c3b6d1d2b29a701685c9b256fcc4793c50717ce83
-    .claude/skills/media-use/scripts/lib/telemetry.mjs: sha256:292ca36e91189e69d36b197311a345664a3a407b4e3fdb91f8044190649961cd
+    .claude/skills/media-use/scripts/lib/telemetry.mjs: sha256:3524441159efd13de22ced004c9e40fe0c241c5ef64cc047f0b567310d6436f0
     .claude/skills/media-use/scripts/lib/telemetry.test.mjs: sha256:b7f6513eede2eb33f6fde626162b2fd4ef74b0034a3e81b9eebdede89f766373
     .claude/skills/media-use/scripts/lib/transcriptCutFade.mjs: sha256:ee9c7ec28650cf0f6a0f1f21f1c6a1faa5e152337163cccc0cc9a109b3c99805
     .claude/skills/media-use/scripts/lib/words.mjs: sha256:bfc1f93523d2fc8ce55580b262efcca537c7feabaf029c1c6f33433591377adb
@@ -6156,11 +6176,11 @@ dependencies:
     .claude/skills/media-use/scripts/transcribe.test.mjs: sha256:39a456ac37a0eca282417b09d7e556c0f2ac11ab3726bc361ff077e75a963ae1
     .claude/skills/media-use/scripts/transcript-cut.mjs: sha256:17e148571738ad8cf30b0ccb3f28d0837df5072114b9dfb63bc8d9f5d25e5a5d
     .claude/skills/media-use/scripts/transcript-cut.test.mjs: sha256:af546cd7d473eb5f4258148a8dd8ec637a67a242cd50948abe1e0dcd6f64c527
-  content_hash: sha256:2606b5ccc32166aedf8ec656843fa52a77635ba5af6deed4b051e89671838a5b
+  content_hash: sha256:428a5e0b8000c6e283866a96c082b6848f08e1dce2dcbbc848024fec3b93cbfb
 - repo_url: heygen-com/hyperframes
   name: remotion-to-hyperframes
   host: github.com
-  resolved_commit: 2d207cb3a5d0018de1bd6e68f99c977e2e0209e6
+  resolved_commit: 8519f2836358499f36d3ba79ca3c16bc1318a97f
   version: unknown
   virtual_path: skills/remotion-to-hyperframes
   is_virtual: true
@@ -6238,9 +6258,7 @@ dependencies:
   - .agents/skills/remotion-to-hyperframes/references/timing.md
   - .agents/skills/remotion-to-hyperframes/references/transitions.md
   - .agents/skills/remotion-to-hyperframes/scripts/.gitkeep
-  - .agents/skills/remotion-to-hyperframes/scripts/frame_strip.sh
   - .agents/skills/remotion-to-hyperframes/scripts/lint_source.py
-  - .agents/skills/remotion-to-hyperframes/scripts/render_diff.sh
   - .agents/skills/remotion-to-hyperframes/scripts/tests/boxSizing.test.mjs
   - .agents/skills/remotion-to-hyperframes/scripts/tests/fixtures/blocker.tsx
   - .agents/skills/remotion-to-hyperframes/scripts/tests/fixtures/clean.tsx
@@ -6317,20 +6335,18 @@ dependencies:
   - .claude/skills/remotion-to-hyperframes/references/timing.md
   - .claude/skills/remotion-to-hyperframes/references/transitions.md
   - .claude/skills/remotion-to-hyperframes/scripts/.gitkeep
-  - .claude/skills/remotion-to-hyperframes/scripts/frame_strip.sh
   - .claude/skills/remotion-to-hyperframes/scripts/lint_source.py
-  - .claude/skills/remotion-to-hyperframes/scripts/render_diff.sh
   - .claude/skills/remotion-to-hyperframes/scripts/tests/boxSizing.test.mjs
   - .claude/skills/remotion-to-hyperframes/scripts/tests/fixtures/blocker.tsx
   - .claude/skills/remotion-to-hyperframes/scripts/tests/fixtures/clean.tsx
   - .claude/skills/remotion-to-hyperframes/scripts/tests/smoke.sh
   deployed_file_hashes:
-    .agents/skills/remotion-to-hyperframes/SKILL.md: sha256:f6fb227e1a5d4fc47ed5375a24efc7bbc55b47a1ac2593825e63e34f6155ca63
+    .agents/skills/remotion-to-hyperframes/SKILL.md: sha256:ddd074498f7048c0c1c105e3e08411b19432524e16ca14dcccbc1d9dcca5c4af
     .agents/skills/remotion-to-hyperframes/assets/.gitkeep: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/.gitignore: sha256:975bd96543101813e4923824631bbca68bfba96107a4c872a74def48d8b001e6
-    .agents/skills/remotion-to-hyperframes/assets/test-corpus/run.sh: sha256:b6ceead2abf0f155ca816c2a696e0ea4db9d0b2d55bba5ad1407d65ccbd23399
+    .agents/skills/remotion-to-hyperframes/assets/test-corpus/run.sh: sha256:ca2f56842f286b27348e40bc04bd0c10cee2d1f7b884c09a03cd3520ce9d55fb
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/.gitignore: sha256:dfeca00985d7133f301ce322e69359f20b7df359c9724067fcee6079b605ab8e
-    .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/README.md: sha256:12dfb3609e2be9b112ea92036049296cbfa11696bda471e79c6061eeb2d3009e
+    .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/README.md: sha256:6d11a1012e3e0b48caed58350f86c1a3ee8a3031b1390472e78ca303e4a35f15
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/expected.json: sha256:7bae1fbcd11d3bc18d3b83fc2604da2d84845578dc6fb2f181c9f927550b6cd3
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/hf-src/compositions/title.html: sha256:94012cda014dc1007badb8c9cf02850410e3d080e74a07ab214fb9b9fc0893d7
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/hf-src/index.html: sha256:ea04e4d0c59b5792ce729521c82290c44c058255aa30718de104c2e4882d3268
@@ -6341,7 +6357,7 @@ dependencies:
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/remotion-src/src/index.ts: sha256:957e481dd33a29b4a55ae0e95dbf763b7e48c37c427ca4bd1275faf34bc07a74
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/remotion-src/tsconfig.json: sha256:cc24d56b89415ebbfdff594c246957974a16c8603803fedeff515edbee5f5c58
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/.gitignore: sha256:cbb4f717d6250eaee0f2c345417c80ef82b7db570d37f1128ad2c02f7788727e
-    .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/README.md: sha256:d6c6591c58ce2b6e211bab45baf573ce9e522e2795a86ce0ded5542d043c9997
+    .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/README.md: sha256:53fe6c23d8ab34c5bbbc2ccde1a50f7e65214b235b75a0419ea973e7cb625d24
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/expected.json: sha256:aefb204abb7faa5b33da4d1f686164438b92e50f4b6daa9c0da3f8cb193e632f
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/hf-src/compositions/scene-1.html: sha256:ee628f2c828c8f321be8e0b31c821a19e7971ec77fab5be457bc1b2960114bb3
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/hf-src/compositions/scene-2.html: sha256:a315bd07762052858eabf1570c42398f9417c5c30c1b94fc6c44a10063c48b9d
@@ -6355,7 +6371,7 @@ dependencies:
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/remotion-src/tsconfig.json: sha256:cc24d56b89415ebbfdff594c246957974a16c8603803fedeff515edbee5f5c58
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/setup.sh: sha256:312bf8f2958afd8ebc21dc73479eef4b92c30623584b99293614b984965a553c
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-3-data-driven/.gitignore: sha256:dfeca00985d7133f301ce322e69359f20b7df359c9724067fcee6079b605ab8e
-    .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-3-data-driven/README.md: sha256:2f4f1141bed2fae4e21e2ff3b16f10d3b6f5d2f715998a498c2ae8cfaa55b65f
+    .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-3-data-driven/README.md: sha256:2a03db3d8f40250810e645c90cdb5202ee4751f205c68260de3f2cffbf6539be
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-3-data-driven/expected.json: sha256:4ec6f9818a55252ddb82072c4ff8cdd8b0e6abc593cfc3042072aee39b205cc1
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-3-data-driven/hf-src/compositions/scene-1.html: sha256:dd79cb58bb73be0a10d168cd1a157889180e8627e9487d23d82db0c6298bac25
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-3-data-driven/hf-src/compositions/scene-2.html: sha256:8f79201c4ad2cca45c3a9c4079c91f250d46c1e4765371c503e233d2d48b3dcc
@@ -6388,7 +6404,7 @@ dependencies:
     .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-4-escape-hatch/validate.sh: sha256:75abb2f5a9d39591e75712113fd2a9ebe6bcae911b7bda33a1209aff101446b7
     .agents/skills/remotion-to-hyperframes/references/api-map.md: sha256:9f92de58615a32e45032e6d06edd1027bec3bc098a5f9f7cf67e76b24a4950f5
     .agents/skills/remotion-to-hyperframes/references/escape-hatch.md: sha256:047472599b5f38502f8419839740e3fcb2198ddba96211d70331c4ad3b6774c7
-    .agents/skills/remotion-to-hyperframes/references/eval.md: sha256:70fb49186755905bf43777618bd51af2189413109dde76e4964b5724991baa3c
+    .agents/skills/remotion-to-hyperframes/references/eval.md: sha256:036b11e1b959381e7d21753c89669f53253c03924d58a531f885739c771b3bd7
     .agents/skills/remotion-to-hyperframes/references/fonts.md: sha256:c7f59567c1f6d560c8c6f95577a86fabfafdc7517a5d7eaebb73d564ad955ad6
     .agents/skills/remotion-to-hyperframes/references/limitations.md: sha256:fe5f721523952b454ca5a7bc7bc0579d81f1cd4a1dfb3d010b327f3d1963f4bc
     .agents/skills/remotion-to-hyperframes/references/lottie.md: sha256:1f6b46fb926e07e2a2e629f902da0ec9385a4fdf956660013805f470f5bfafde
@@ -6398,19 +6414,17 @@ dependencies:
     .agents/skills/remotion-to-hyperframes/references/timing.md: sha256:597bad21c9229ef790c2e122879cdbf6e7fc11aa1e3694d5ede0014a1e734192
     .agents/skills/remotion-to-hyperframes/references/transitions.md: sha256:4d32d654ba5872fc8e55f0559415f61feafcdf20f1918ae724e4d14b76486873
     .agents/skills/remotion-to-hyperframes/scripts/.gitkeep: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-    .agents/skills/remotion-to-hyperframes/scripts/frame_strip.sh: sha256:c6cb73b4886991b2092417b5c3fa257d34fefb288e248a7fda854047b8c66bae
     .agents/skills/remotion-to-hyperframes/scripts/lint_source.py: sha256:6043611ad04ce16d2ef5596822eb2887e865ed9759c8e528471b994dff7d88b1
-    .agents/skills/remotion-to-hyperframes/scripts/render_diff.sh: sha256:516be1130a6edbe5927106905349bafba3d8ff1a99b3f0e0394b6d0ecf7a223b
     .agents/skills/remotion-to-hyperframes/scripts/tests/boxSizing.test.mjs: sha256:f860a1b0d1cb67f6ca64e0bf2d980e1dbbb8cf620603e04ec58d20172acf536f
     .agents/skills/remotion-to-hyperframes/scripts/tests/fixtures/blocker.tsx: sha256:e12bc7d06340b71cebbdbc8aae9f948a21f7487dbccafcdea6be9f1936f7e4c0
     .agents/skills/remotion-to-hyperframes/scripts/tests/fixtures/clean.tsx: sha256:912f5a176e8b4eee7acbdf9a9334e1edcb14f6859cab397846ed8a63f13d080d
-    .agents/skills/remotion-to-hyperframes/scripts/tests/smoke.sh: sha256:9a51cadfe9b6fe645096fc2e05d80849c6985abd3a92bd27cb985b3cdd3ce7b0
-    .claude/skills/remotion-to-hyperframes/SKILL.md: sha256:f6fb227e1a5d4fc47ed5375a24efc7bbc55b47a1ac2593825e63e34f6155ca63
+    .agents/skills/remotion-to-hyperframes/scripts/tests/smoke.sh: sha256:2ba20a80cf6082004ee6dc043b90cde7361eff4affd2d66460bdfe9fbdf20fa0
+    .claude/skills/remotion-to-hyperframes/SKILL.md: sha256:ddd074498f7048c0c1c105e3e08411b19432524e16ca14dcccbc1d9dcca5c4af
     .claude/skills/remotion-to-hyperframes/assets/.gitkeep: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/.gitignore: sha256:975bd96543101813e4923824631bbca68bfba96107a4c872a74def48d8b001e6
-    .claude/skills/remotion-to-hyperframes/assets/test-corpus/run.sh: sha256:b6ceead2abf0f155ca816c2a696e0ea4db9d0b2d55bba5ad1407d65ccbd23399
+    .claude/skills/remotion-to-hyperframes/assets/test-corpus/run.sh: sha256:ca2f56842f286b27348e40bc04bd0c10cee2d1f7b884c09a03cd3520ce9d55fb
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/.gitignore: sha256:dfeca00985d7133f301ce322e69359f20b7df359c9724067fcee6079b605ab8e
-    .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/README.md: sha256:12dfb3609e2be9b112ea92036049296cbfa11696bda471e79c6061eeb2d3009e
+    .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/README.md: sha256:6d11a1012e3e0b48caed58350f86c1a3ee8a3031b1390472e78ca303e4a35f15
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/expected.json: sha256:7bae1fbcd11d3bc18d3b83fc2604da2d84845578dc6fb2f181c9f927550b6cd3
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/hf-src/compositions/title.html: sha256:94012cda014dc1007badb8c9cf02850410e3d080e74a07ab214fb9b9fc0893d7
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/hf-src/index.html: sha256:ea04e4d0c59b5792ce729521c82290c44c058255aa30718de104c2e4882d3268
@@ -6421,7 +6435,7 @@ dependencies:
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/remotion-src/src/index.ts: sha256:957e481dd33a29b4a55ae0e95dbf763b7e48c37c427ca4bd1275faf34bc07a74
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/remotion-src/tsconfig.json: sha256:cc24d56b89415ebbfdff594c246957974a16c8603803fedeff515edbee5f5c58
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/.gitignore: sha256:cbb4f717d6250eaee0f2c345417c80ef82b7db570d37f1128ad2c02f7788727e
-    .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/README.md: sha256:d6c6591c58ce2b6e211bab45baf573ce9e522e2795a86ce0ded5542d043c9997
+    .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/README.md: sha256:53fe6c23d8ab34c5bbbc2ccde1a50f7e65214b235b75a0419ea973e7cb625d24
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/expected.json: sha256:aefb204abb7faa5b33da4d1f686164438b92e50f4b6daa9c0da3f8cb193e632f
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/hf-src/compositions/scene-1.html: sha256:ee628f2c828c8f321be8e0b31c821a19e7971ec77fab5be457bc1b2960114bb3
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/hf-src/compositions/scene-2.html: sha256:a315bd07762052858eabf1570c42398f9417c5c30c1b94fc6c44a10063c48b9d
@@ -6435,7 +6449,7 @@ dependencies:
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/remotion-src/tsconfig.json: sha256:cc24d56b89415ebbfdff594c246957974a16c8603803fedeff515edbee5f5c58
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/setup.sh: sha256:312bf8f2958afd8ebc21dc73479eef4b92c30623584b99293614b984965a553c
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-3-data-driven/.gitignore: sha256:dfeca00985d7133f301ce322e69359f20b7df359c9724067fcee6079b605ab8e
-    .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-3-data-driven/README.md: sha256:2f4f1141bed2fae4e21e2ff3b16f10d3b6f5d2f715998a498c2ae8cfaa55b65f
+    .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-3-data-driven/README.md: sha256:2a03db3d8f40250810e645c90cdb5202ee4751f205c68260de3f2cffbf6539be
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-3-data-driven/expected.json: sha256:4ec6f9818a55252ddb82072c4ff8cdd8b0e6abc593cfc3042072aee39b205cc1
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-3-data-driven/hf-src/compositions/scene-1.html: sha256:dd79cb58bb73be0a10d168cd1a157889180e8627e9487d23d82db0c6298bac25
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-3-data-driven/hf-src/compositions/scene-2.html: sha256:8f79201c4ad2cca45c3a9c4079c91f250d46c1e4765371c503e233d2d48b3dcc
@@ -6468,7 +6482,7 @@ dependencies:
     .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-4-escape-hatch/validate.sh: sha256:75abb2f5a9d39591e75712113fd2a9ebe6bcae911b7bda33a1209aff101446b7
     .claude/skills/remotion-to-hyperframes/references/api-map.md: sha256:9f92de58615a32e45032e6d06edd1027bec3bc098a5f9f7cf67e76b24a4950f5
     .claude/skills/remotion-to-hyperframes/references/escape-hatch.md: sha256:047472599b5f38502f8419839740e3fcb2198ddba96211d70331c4ad3b6774c7
-    .claude/skills/remotion-to-hyperframes/references/eval.md: sha256:70fb49186755905bf43777618bd51af2189413109dde76e4964b5724991baa3c
+    .claude/skills/remotion-to-hyperframes/references/eval.md: sha256:036b11e1b959381e7d21753c89669f53253c03924d58a531f885739c771b3bd7
     .claude/skills/remotion-to-hyperframes/references/fonts.md: sha256:c7f59567c1f6d560c8c6f95577a86fabfafdc7517a5d7eaebb73d564ad955ad6
     .claude/skills/remotion-to-hyperframes/references/limitations.md: sha256:fe5f721523952b454ca5a7bc7bc0579d81f1cd4a1dfb3d010b327f3d1963f4bc
     .claude/skills/remotion-to-hyperframes/references/lottie.md: sha256:1f6b46fb926e07e2a2e629f902da0ec9385a4fdf956660013805f470f5bfafde
@@ -6478,18 +6492,16 @@ dependencies:
     .claude/skills/remotion-to-hyperframes/references/timing.md: sha256:597bad21c9229ef790c2e122879cdbf6e7fc11aa1e3694d5ede0014a1e734192
     .claude/skills/remotion-to-hyperframes/references/transitions.md: sha256:4d32d654ba5872fc8e55f0559415f61feafcdf20f1918ae724e4d14b76486873
     .claude/skills/remotion-to-hyperframes/scripts/.gitkeep: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-    .claude/skills/remotion-to-hyperframes/scripts/frame_strip.sh: sha256:c6cb73b4886991b2092417b5c3fa257d34fefb288e248a7fda854047b8c66bae
     .claude/skills/remotion-to-hyperframes/scripts/lint_source.py: sha256:6043611ad04ce16d2ef5596822eb2887e865ed9759c8e528471b994dff7d88b1
-    .claude/skills/remotion-to-hyperframes/scripts/render_diff.sh: sha256:516be1130a6edbe5927106905349bafba3d8ff1a99b3f0e0394b6d0ecf7a223b
     .claude/skills/remotion-to-hyperframes/scripts/tests/boxSizing.test.mjs: sha256:f860a1b0d1cb67f6ca64e0bf2d980e1dbbb8cf620603e04ec58d20172acf536f
     .claude/skills/remotion-to-hyperframes/scripts/tests/fixtures/blocker.tsx: sha256:e12bc7d06340b71cebbdbc8aae9f948a21f7487dbccafcdea6be9f1936f7e4c0
     .claude/skills/remotion-to-hyperframes/scripts/tests/fixtures/clean.tsx: sha256:912f5a176e8b4eee7acbdf9a9334e1edcb14f6859cab397846ed8a63f13d080d
-    .claude/skills/remotion-to-hyperframes/scripts/tests/smoke.sh: sha256:9a51cadfe9b6fe645096fc2e05d80849c6985abd3a92bd27cb985b3cdd3ce7b0
-  content_hash: sha256:4ff9463411f76ebf38bdd23eadf55c8f963667907142a0eb7a0ef3bed3338ae6
+    .claude/skills/remotion-to-hyperframes/scripts/tests/smoke.sh: sha256:2ba20a80cf6082004ee6dc043b90cde7361eff4affd2d66460bdfe9fbdf20fa0
+  content_hash: sha256:038c5071fe9190f1e793a149074c15aef32ebf40d20b3634bd6402f179a57344
 - repo_url: heygen-com/hyperframes
   name: slideshow
   host: github.com
-  resolved_commit: 2d207cb3a5d0018de1bd6e68f99c977e2e0209e6
+  resolved_commit: 8519f2836358499f36d3ba79ca3c16bc1318a97f
   version: unknown
   virtual_path: skills/slideshow
   is_virtual: true
@@ -6510,7 +6522,7 @@ dependencies:
 - repo_url: humanlayer/skills
   name: show-me
   host: github.com
-  resolved_commit: 653b6411c1f70c275a18e37673b042ff99f67ceb
+  resolved_commit: 4d69d20f6e9b57b4fcf0d501ccfb1be961f0f329
   version: unknown
   virtual_path: plugins/show-me/skills/show-me
   is_virtual: true
@@ -6561,7 +6573,7 @@ dependencies:
 - repo_url: mattpocock/skills
   name: domain-modeling
   host: github.com
-  resolved_commit: 5beb35b040e3de97e54fa9e386d7e42d15c295c2
+  resolved_commit: 4ae2317ddb22b046e26455e4f9c9b3aaaf62212d
   version: unknown
   virtual_path: skills/engineering/domain-modeling
   is_virtual: true
@@ -6590,7 +6602,7 @@ dependencies:
 - repo_url: mattpocock/skills
   name: grill-with-docs
   host: github.com
-  resolved_commit: 5beb35b040e3de97e54fa9e386d7e42d15c295c2
+  resolved_commit: 4ae2317ddb22b046e26455e4f9c9b3aaaf62212d
   version: unknown
   virtual_path: skills/engineering/grill-with-docs
   is_virtual: true
@@ -6611,7 +6623,7 @@ dependencies:
 - repo_url: mattpocock/skills
   name: grill-me
   host: github.com
-  resolved_commit: 5beb35b040e3de97e54fa9e386d7e42d15c295c2
+  resolved_commit: 4ae2317ddb22b046e26455e4f9c9b3aaaf62212d
   version: unknown
   virtual_path: skills/productivity/grill-me
   is_virtual: true
@@ -6632,7 +6644,7 @@ dependencies:
 - repo_url: mattpocock/skills
   name: grilling
   host: github.com
-  resolved_commit: 5beb35b040e3de97e54fa9e386d7e42d15c295c2
+  resolved_commit: 4ae2317ddb22b046e26455e4f9c9b3aaaf62212d
   version: unknown
   virtual_path: skills/productivity/grilling
   is_virtual: true
@@ -6645,15 +6657,15 @@ dependencies:
   - .claude/skills/grilling/SKILL.md
   - .claude/skills/grilling/agents/openai.yaml
   deployed_file_hashes:
-    .agents/skills/grilling/SKILL.md: sha256:befdff1e27a1dfe2a294d5871169ac1afe16d983911daa4f32627514a48c1e15
+    .agents/skills/grilling/SKILL.md: sha256:a146842ed93ca43d833550fa9adf02e58cb63c83fea9d4b4522995b82242d4e2
     .agents/skills/grilling/agents/openai.yaml: sha256:1411d7df7d99b7e621a1ff8283c8133cc2464be63d064e52d8ce169c6800ee9b
-    .claude/skills/grilling/SKILL.md: sha256:befdff1e27a1dfe2a294d5871169ac1afe16d983911daa4f32627514a48c1e15
+    .claude/skills/grilling/SKILL.md: sha256:a146842ed93ca43d833550fa9adf02e58cb63c83fea9d4b4522995b82242d4e2
     .claude/skills/grilling/agents/openai.yaml: sha256:1411d7df7d99b7e621a1ff8283c8133cc2464be63d064e52d8ce169c6800ee9b
-  content_hash: sha256:90b54c72a48114f62072de27e1bef0c61d55f0959044725c593ed9fc72197755
+  content_hash: sha256:823f08ad33368a9626991e6782f7ae14b958e39ef8503f6bdb3b98a58d237a58
 - repo_url: mattpocock/skills
   name: writing-for-agents
   host: github.com
-  resolved_commit: 5beb35b040e3de97e54fa9e386d7e42d15c295c2
+  resolved_commit: 4ae2317ddb22b046e26455e4f9c9b3aaaf62212d
   version: unknown
   virtual_path: skills/productivity/writing-for-agents
   is_virtual: true
@@ -6727,7 +6739,7 @@ dependencies:
 - repo_url: morluto/rea
   name: reverse-engineer-anything
   host: github.com
-  resolved_commit: c9df40f8104eb0c7dfb57dc831b4c28c3ab77b8b
+  resolved_commit: 8250bf2320ea57aab4e664db4b4d44b8abd2004e
   version: unknown
   virtual_path: .agents/skills/reverse-engineer-anything
   is_virtual: true
@@ -6752,29 +6764,29 @@ dependencies:
   - .claude/skills/reverse-engineer-anything/references/native-and-artifacts.md
   - .claude/skills/reverse-engineer-anything/references/runtime-observation.md
   deployed_file_hashes:
-    .agents/skills/reverse-engineer-anything/SKILL.md: sha256:547bffd9dcbb88378a488bada8ea32c60bddd561ccee5246be996e993c5a7113
-    .agents/skills/reverse-engineer-anything/references/android-applications.md: sha256:24ecaa1798eb4f28591884a7deb68df31e90313865515a23e3b466403f1abc39
-    .agents/skills/reverse-engineer-anything/references/connection-and-recovery.md: sha256:3c2049047f2e9c01a224d71c1b54fbf429a98cdf8e691e9058d67ec4bc1df616
-    .agents/skills/reverse-engineer-anything/references/environments.md: sha256:17f1eb5d3161f1ec9ca80ee82bc474b02468e0de0fa6243a701c8b0ef91e2a53
-    .agents/skills/reverse-engineer-anything/references/evidence-workflows.md: sha256:f44b68acc6ebaa60c1f5d0670e4f9ff7212d351a0ecc6e6ca77ce38b9177ea57
-    .agents/skills/reverse-engineer-anything/references/javascript-applications.md: sha256:15ae2177ef1c41e25095238c64b38f34d8ea53ea3c4c74f627096f90b8eaa54b
-    .agents/skills/reverse-engineer-anything/references/native-and-artifacts.md: sha256:defbc67dda232bdb940147c8dc5d589bfc7a7f7839c898cc70eb48bade98e469
+    .agents/skills/reverse-engineer-anything/SKILL.md: sha256:0b86284fad27631968c5fb54a2ae8ef55f88f4d20615b0ba45fba5f47f193192
+    .agents/skills/reverse-engineer-anything/references/android-applications.md: sha256:1698a9a21eacc685b327059efee2e9cdb6ac1f55fa3875eed96b4b304ab155f3
+    .agents/skills/reverse-engineer-anything/references/connection-and-recovery.md: sha256:69aae4c8c2741cc745171a007257cf94fa65247bf73e4c4eb031a1361a06831e
+    .agents/skills/reverse-engineer-anything/references/environments.md: sha256:4a84b3be1eb36b1d2e658b4076b151570ba97a60e7d97da0876ab324c917b305
+    .agents/skills/reverse-engineer-anything/references/evidence-workflows.md: sha256:eb763e4662f7cf9cab202c0f84444e539f09c6ae50749c135ba169a7cecf3fa0
+    .agents/skills/reverse-engineer-anything/references/javascript-applications.md: sha256:d43c10966dd76e997ff05dcdafdb4164f801a3f0199cf19bb71360bc78a75925
+    .agents/skills/reverse-engineer-anything/references/native-and-artifacts.md: sha256:57ed920bab10e62fe38be66cd9f95d1316c02e6b00b9bb4f6d98da35d1864a67
     .agents/skills/reverse-engineer-anything/references/runtime-observation.md: sha256:e207a912470a1a56dc02316eb7b040ac50b4d763f2273e97a6811863d9051d74
-    .claude/skills/reverse-engineer-anything/SKILL.md: sha256:547bffd9dcbb88378a488bada8ea32c60bddd561ccee5246be996e993c5a7113
-    .claude/skills/reverse-engineer-anything/references/android-applications.md: sha256:24ecaa1798eb4f28591884a7deb68df31e90313865515a23e3b466403f1abc39
-    .claude/skills/reverse-engineer-anything/references/connection-and-recovery.md: sha256:3c2049047f2e9c01a224d71c1b54fbf429a98cdf8e691e9058d67ec4bc1df616
-    .claude/skills/reverse-engineer-anything/references/environments.md: sha256:17f1eb5d3161f1ec9ca80ee82bc474b02468e0de0fa6243a701c8b0ef91e2a53
-    .claude/skills/reverse-engineer-anything/references/evidence-workflows.md: sha256:f44b68acc6ebaa60c1f5d0670e4f9ff7212d351a0ecc6e6ca77ce38b9177ea57
-    .claude/skills/reverse-engineer-anything/references/javascript-applications.md: sha256:15ae2177ef1c41e25095238c64b38f34d8ea53ea3c4c74f627096f90b8eaa54b
-    .claude/skills/reverse-engineer-anything/references/native-and-artifacts.md: sha256:defbc67dda232bdb940147c8dc5d589bfc7a7f7839c898cc70eb48bade98e469
+    .claude/skills/reverse-engineer-anything/SKILL.md: sha256:0b86284fad27631968c5fb54a2ae8ef55f88f4d20615b0ba45fba5f47f193192
+    .claude/skills/reverse-engineer-anything/references/android-applications.md: sha256:1698a9a21eacc685b327059efee2e9cdb6ac1f55fa3875eed96b4b304ab155f3
+    .claude/skills/reverse-engineer-anything/references/connection-and-recovery.md: sha256:69aae4c8c2741cc745171a007257cf94fa65247bf73e4c4eb031a1361a06831e
+    .claude/skills/reverse-engineer-anything/references/environments.md: sha256:4a84b3be1eb36b1d2e658b4076b151570ba97a60e7d97da0876ab324c917b305
+    .claude/skills/reverse-engineer-anything/references/evidence-workflows.md: sha256:eb763e4662f7cf9cab202c0f84444e539f09c6ae50749c135ba169a7cecf3fa0
+    .claude/skills/reverse-engineer-anything/references/javascript-applications.md: sha256:d43c10966dd76e997ff05dcdafdb4164f801a3f0199cf19bb71360bc78a75925
+    .claude/skills/reverse-engineer-anything/references/native-and-artifacts.md: sha256:57ed920bab10e62fe38be66cd9f95d1316c02e6b00b9bb4f6d98da35d1864a67
     .claude/skills/reverse-engineer-anything/references/runtime-observation.md: sha256:e207a912470a1a56dc02316eb7b040ac50b4d763f2273e97a6811863d9051d74
-  content_hash: sha256:781b982dce7384a50f10fc005377bd15c9e2ba14c655adbff2c9830044ef541d
+  content_hash: sha256:bed7d825fc1df0b0e982c04ec696a1bb1d9f4fb880460f15d32f46af02ca55ad
 - repo_url: typesafe-ai/skills
   name: typesafe
   host: github.com
-  resolved_commit: 65a39f393687675ce170e6094757de20370365b9
-  version: 0.5.7
-  package_type: skill_bundle
+  resolved_commit: 302eea662c54bca6730873fe245bec1d69ebc23d
+  version: 0.6.2
+  package_type: marketplace_plugin
   deployed_files:
   - .agents/skills/typesafe-ai
   - .agents/skills/typesafe-ai/LICENSE
@@ -6784,10 +6796,10 @@ dependencies:
   - .claude/skills/typesafe-ai/SKILL.md
   deployed_file_hashes:
     .agents/skills/typesafe-ai/LICENSE: sha256:835f233f1d6ed84a9b9a351aba0689b47644a4137d6316911fc7957bde523b02
-    .agents/skills/typesafe-ai/SKILL.md: sha256:71ea90d7906c6554c4f4c460ef7361b2d26f59116ccdae986dc6d997b9389f52
+    .agents/skills/typesafe-ai/SKILL.md: sha256:d1513cb2e0f72f58c11ac004ce99fd828fce8668a741b6a274247201e57db724
     .claude/skills/typesafe-ai/LICENSE: sha256:835f233f1d6ed84a9b9a351aba0689b47644a4137d6316911fc7957bde523b02
-    .claude/skills/typesafe-ai/SKILL.md: sha256:71ea90d7906c6554c4f4c460ef7361b2d26f59116ccdae986dc6d997b9389f52
-  content_hash: sha256:5b49a013f98b3f3a181eeb8cf1e26962d3eb63435faa2d9a91798b13b79ef5c8
+    .claude/skills/typesafe-ai/SKILL.md: sha256:d1513cb2e0f72f58c11ac004ce99fd828fce8668a741b6a274247201e57db724
+  content_hash: sha256:53e0ba0f77e628f0e17ba53721ffa827d27e9965b646e2ec42d3d1148c9f1784
   skill_subset:
   - typesafe-ai
   declared_license: MIT
@@ -6849,7 +6861,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:92b5feb962fe7b4d37078a9779e5a15d9be3ded6b15a91a78db13ae5a74c2934
+  content_hash: sha256:1563bb1f939ff079d435fd2769e16cc40a09cf1f358a0b8f2c4f5a7f6fba004e
 - kind: project-relative
   target: claude
   value: .claude/commands/import-drawio.md
@@ -7164,7 +7176,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:1cad611bfe734dc967ce9c86f77d4e87470edf1922ff7ef01a89d6f36b037e1a
+  content_hash: sha256:83fd5aa46965ce2b14bd42ade80c065a4e17a9f83d2a9f4f275b47cd45d72666
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/assets/example-architecture-containment-dark.html
@@ -7437,6 +7449,33 @@ deployments:
   content_hash: sha256:e69a9b7ac33fae509c02a1ef06b39e1a548cd3925644e7cefd3ff2119a88a060
 - kind: project-relative
   target: claude
+  value: .claude/skills/diagram-design/assets/example-box-plot-dark.html
+  runtime: null
+  scope: project
+  owners:
+  - cathrynlavery/diagram-design
+  active_owner: cathrynlavery/diagram-design
+  content_hash: sha256:28bc2a9b9df1e715b07c11a57b2ab8d0ee59ed5ebc782dacd74f3401e0cdd39b
+- kind: project-relative
+  target: claude
+  value: .claude/skills/diagram-design/assets/example-box-plot-full.html
+  runtime: null
+  scope: project
+  owners:
+  - cathrynlavery/diagram-design
+  active_owner: cathrynlavery/diagram-design
+  content_hash: sha256:a9bf7fc36d4db874b0fda6d27140fb6d3b9e51b06b13ca657e8dfb414a5fe617
+- kind: project-relative
+  target: claude
+  value: .claude/skills/diagram-design/assets/example-box-plot.html
+  runtime: null
+  scope: project
+  owners:
+  - cathrynlavery/diagram-design
+  active_owner: cathrynlavery/diagram-design
+  content_hash: sha256:16449419e0cca7dc153bc23c9c416dcb149ddcdfe4ca45c9535708719aa0b909
+- kind: project-relative
+  target: claude
   value: .claude/skills/diagram-design/assets/example-bubble-dark.html
   runtime: null
   scope: project
@@ -7632,7 +7671,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:b139d91cf88a77b4dbf202da4a1ec21e29ca1862f2e8249925b605ce25fe97f6
+  content_hash: sha256:d28f525d2c7d0666b61d6e80133d006da942f1dfeefa41b0c8d32faf2120ca64
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/assets/example-dp-integration-full.html
@@ -7641,7 +7680,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:17cd685b6bd522a5eb7ae972f76787b57383779c2f0b9f08de32a7d8d9e49f94
+  content_hash: sha256:fa9393528e19170873437c3f661fb7aa3cbaa94fa4001985f9d8faa7479708c6
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/assets/example-dp-integration.html
@@ -7650,7 +7689,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:d1624ee510d25780522637141e89dd95165d6cefa6b5aded0c0ad1beca2ecf24
+  content_hash: sha256:d521d09532183ee10d5ebdcea9cbc509a45d90cd85c35973ba40dbe94f338291
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/assets/example-dp-security-matrix-dark.html
@@ -8028,7 +8067,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:4a11a730ccfffc6b3e4daf92c6402122c0db7f70e5b11253b021c0227e557769
+  content_hash: sha256:371385a4fd00a7d9f3896ac44417352bd7276e86488c3f4eaa72bd6df2902ae7
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/assets/example-high-level.html
@@ -9072,7 +9111,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:0d0f4de6c372025f61e87e01e53d98d5940029375e3fd35e6c2c1641c0a1ba14
+  content_hash: sha256:6c5633862bea3f2b0e5e374e345b03f8764ec987252da626f33c6cc93c4f8567
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/assets/template-dark.html
@@ -9162,7 +9201,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:a94b687bedba5795d3c960e58d014856135cea3cba558967b4c5e8b519c9a69e
+  content_hash: sha256:55e340657f7c2f54c9be2349b4b71786779e4ae5d89fb4c1ce4f31de5e49ec08
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/references/import-excalidraw.md
@@ -9171,7 +9210,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:1424beba60d0d206685d45553539b31d58f6942e274f3a8f68718f2742e43da6
+  content_hash: sha256:323260ca813c3ee5c196362d6424779ee1d3cfcc1afb23329f60d59674a3aeec
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/references/import-mermaid.md
@@ -9180,7 +9219,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:41c1e5a5d223c37b45897c331b481249ffbcb1a6d63e75d0e06a9d35bbfd07cc
+  content_hash: sha256:e94d8342c9bf4514bcace5422d29eb72cd17a23c49c13bc3ba1dea6e59036db3
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/references/layout-budget.md
@@ -9189,7 +9228,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:792a1f328bf3ae6e0584b87513afbdb0f7c6dc4c2bafc28a3986af2d16a285d8
+  content_hash: sha256:7ece87d01d3dbe42a2293114b423a44e254482a4931e402e6dc4ba7cf9902bcb
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/references/onboarding.md
@@ -9252,7 +9291,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:9f61356d3c7814dd8c5adbfc2ecce736d05c64b9ec4dcaf64a53103e3c33e96c
+  content_hash: sha256:bd011a9ed2e1b4e27d2ecc83872127eb8f5b1d91026a162a211974b3eeebc7e0
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/references/profiles.md
@@ -9279,7 +9318,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:4716fa1a4f4d31cf836e0b4363886aa7242657fb48c624e0b34c433179dc6673
+  content_hash: sha256:74345f14edd26a69da6be3b619bfece61229f2873e6fbae17a39bb2503b7a7a4
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/references/type-architecture-delta.md
@@ -9360,7 +9399,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:6bf9b678d37e9f01f61ac8203e4ad5c29024ecd7a9f3ae0b42e71851522774f7
+  content_hash: sha256:b84195582b3daa1139dced192253ba97dd6984cfd7ba9a0da76a44588f744119
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/references/type-dp-security-matrix.md
@@ -9477,7 +9516,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:f7fa213f2398da9e6bf30402bc2c430e778e57d95e60174bf082ba67d629b831
+  content_hash: sha256:f29a97ab0e72b23365304dfda6640503e37244eaad2c3851069585a569814089
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/references/type-loop.md
@@ -9576,7 +9615,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:2f0770c4aaea747d14788805e45b13aee44350796ab4035bdfc2ab3d8c0c787f
+  content_hash: sha256:1c88ab9bb4b0da77c084802e6bc2aff75deea29f24cbe4de3ae91bfadea57b49
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/references/type-sequence.md
@@ -9693,7 +9732,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:72098800fb5893ba620a432275b332901cfdbfa45bcd608c15d055466b25abe6
+  content_hash: sha256:f0183a6fcad372d8087afaf02f3f59902bdb47c9ac58ad6cd81a041dde949abd
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/scripts/excalidraw_extract.py
@@ -9702,7 +9741,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:10f6a6b999b3b2e8a626774515ba6817df331a6d39d671a4876541262b63697c
+  content_hash: sha256:44fec058c98d8055f634cb868931c46f8d71f45de4006351838cb313403af98b
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/scripts/export_png.py
@@ -9729,7 +9768,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:cf0a78bab8f8fdcb54564725c75e764ac602cc4e389efab395dc23c25650b7a3
+  content_hash: sha256:fd176d5c616e49bc923fc271e0a14b022674e204d39b46673824db44f647b042
 - kind: project-relative
   target: claude
   value: .claude/skills/diagram-design/scripts/self_check.py
@@ -9738,7 +9777,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:4da309dc768c921153872715666859f4d2c3af384ec804b3d4159b549b7697ea
+  content_hash: sha256:444851f6e53f83d50920381df17cdd5f1b7a23cfba9c0ddda27786d78e53e2de
 - kind: project-relative
   target: claude
   value: .claude/skills/domain-modeling
@@ -10188,7 +10227,7 @@ deployments:
   owners:
   - mattpocock/skills/skills/productivity/grilling
   active_owner: mattpocock/skills/skills/productivity/grilling
-  content_hash: sha256:befdff1e27a1dfe2a294d5871169ac1afe16d983911daa4f32627514a48c1e15
+  content_hash: sha256:a146842ed93ca43d833550fa9adf02e58cb63c83fea9d4b4522995b82242d4e2
 - kind: project-relative
   target: claude
   value: .claude/skills/grilling/agents/openai.yaml
@@ -10222,8 +10261,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: null
 - kind: project-relative
   target: claude
@@ -10231,17 +10270,17 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:d14528f389cae485ac50583a22be326485c83fc9c8ef7ce700213e1583cf8fbe
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  content_hash: sha256:f47e2d42f6360294216a859ae0c30b93caafdd2b2e5ffc007489ba4ca447fa5c
 - kind: project-relative
   target: claude
   value: .claude/skills/hook-development/examples/load-context.sh
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:0d614599e711c087b381a4ac7ee3c40758af1022669fc998649d199b9dfe15ed
 - kind: project-relative
   target: claude
@@ -10249,8 +10288,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:348c58f4cf38a2e7080ea5272935a7658c7122d83dd6c52d0a1f2ef599c176ab
 - kind: project-relative
   target: claude
@@ -10258,8 +10297,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:89a8ef9bb7508e4819080e65834d6783afa5a5a614d458a3821b80a329eb32e5
 - kind: project-relative
   target: claude
@@ -10267,8 +10306,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:5b139ceeb6a3ef16555a6eef421e2642e6ca286b5527ee2b4e02c11ae5b75dd5
 - kind: project-relative
   target: claude
@@ -10276,8 +10315,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:7f8e7a795829837f46a0c058c26c8f5c4aa8be5c9fb5316b828229d1802ded77
 - kind: project-relative
   target: claude
@@ -10285,8 +10324,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:cb607fca192bfa892fd198141b86dac9d0ca2c573a280b054b7beaa56fc9a8bf
 - kind: project-relative
   target: claude
@@ -10294,8 +10333,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:08a28b12ffa9fcb16f257ea685c70a920f4f835978b9ffbbac055137c6f6aca0
 - kind: project-relative
   target: claude
@@ -10303,8 +10342,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:85a7d55488f8f38f9b98350b5cb597fb306432d5e61eaa3444e7226ca9309e0b
 - kind: project-relative
   target: claude
@@ -10312,8 +10351,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:ded642e811b4731f6a2c90c73b02e00c937511d9ee65236bb8cf9964f0069393
 - kind: project-relative
   target: claude
@@ -10321,8 +10360,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:e7785d6c61d368f5ea5270c979753aea02f776f5b6aa220137ec4585abd720c2
 - kind: project-relative
   target: claude
@@ -10386,7 +10425,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-cli
   active_owner: heygen-com/hyperframes/skills/hyperframes-cli
-  content_hash: sha256:44a48ccfa4cbd4f4234f8306c96268a4be56a0f2376abedbf31d2167b3c21286
+  content_hash: sha256:cfaa2a4dfc696c48929b2a6115ac16e3c04134cef13bd99050758a2936f3d903
 - kind: project-relative
   target: claude
   value: .claude/skills/hyperframes-cli/references/beats.md
@@ -10395,7 +10434,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-cli
   active_owner: heygen-com/hyperframes/skills/hyperframes-cli
-  content_hash: sha256:09689994eba8c977693fdc54702b07dd492e80aa47075de0a027df901dc51b1d
+  content_hash: sha256:795f67b5c3fa680968a43e6482685fd55a0adb555d179643bfcb7989d251e69a
 - kind: project-relative
   target: claude
   value: .claude/skills/hyperframes-cli/references/cloud.md
@@ -10404,7 +10443,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-cli
   active_owner: heygen-com/hyperframes/skills/hyperframes-cli
-  content_hash: sha256:8191550a036130249c26b37912dfd321c771c6670223cc7e0fff7aedd67607bf
+  content_hash: sha256:745b8b923f8870c87a1b60a15d6b82d6b51322a66d1badbb052249ae1964d45c
 - kind: project-relative
   target: claude
   value: .claude/skills/hyperframes-cli/references/cloudrun.md
@@ -10458,7 +10497,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-cli
   active_owner: heygen-com/hyperframes/skills/hyperframes-cli
-  content_hash: sha256:dad4c2212f6df8ed4ff8d7b8154c2f8a6bdeec0fa27562b0b6c4d8da9d2e1078
+  content_hash: sha256:7302d081e6abc5432d1f5ae1f462039c9a641ed1459461e3e8090c44c69a07d2
 - kind: project-relative
   target: claude
   value: .claude/skills/hyperframes-cli/references/lambda.md
@@ -10476,7 +10515,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-cli
   active_owner: heygen-com/hyperframes/skills/hyperframes-cli
-  content_hash: sha256:2629c4af5e2255c18e7782622516e225393ffef77844bde53fa923d34aa1be13
+  content_hash: sha256:0a6fc73b4644350908438f7dc58a7242732887d2eb6f1cde71ba84955118c416
 - kind: project-relative
   target: claude
   value: .claude/skills/hyperframes-cli/references/preview-render.md
@@ -10485,7 +10524,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-cli
   active_owner: heygen-com/hyperframes/skills/hyperframes-cli
-  content_hash: sha256:851d85d7f4e6939d90ed6e350180a8edadc67b44dfc5d19163376485324d00b2
+  content_hash: sha256:197e9f8c1d4c8f972e2250fc088dfc7696ecf31bb2ec7eec782fc0eb7a6a3753
 - kind: project-relative
   target: claude
   value: .claude/skills/hyperframes-cli/references/upgrade-info-misc.md
@@ -10494,7 +10533,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-cli
   active_owner: heygen-com/hyperframes/skills/hyperframes-cli
-  content_hash: sha256:a46662ad866669d1cf70bfa6404e9a01f68d2db4eb667fe6dc8a8442f6a069d8
+  content_hash: sha256:66b470b78ada7a676b5416859202705fa6450df8b194543fb2762ae949f76336
 - kind: project-relative
   target: claude
   value: .claude/skills/hyperframes-registry
@@ -10512,7 +10551,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-registry
   active_owner: heygen-com/hyperframes/skills/hyperframes-registry
-  content_hash: sha256:1c7b27632c9ea9febaafc2d9af073b377029f46be4bee70d75b5e713eb698423
+  content_hash: sha256:0ac5bb49dd7aed66e0d61248eca94e8c9f1a95b482c8004fb0113f724fffe6cd
 - kind: project-relative
   target: claude
   value: .claude/skills/hyperframes-registry/examples/add-block.md
@@ -10548,7 +10587,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-registry
   active_owner: heygen-com/hyperframes/skills/hyperframes-registry
-  content_hash: sha256:7e9e6fd894e54251fad9aa30a08730960ceb776da590a175eadfc1d9014106b1
+  content_hash: sha256:3724d1dd269768da26b731f6592ac749f47f62443e909f881ac12ceba36db0fa
 - kind: project-relative
   target: claude
   value: .claude/skills/hyperframes-registry/references/demo-html-pattern.md
@@ -10629,7 +10668,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes
   active_owner: heygen-com/hyperframes/skills/hyperframes
-  content_hash: sha256:180ce4eea5f33f1617105c92e2690a5a2320abf624c263186ec0cb1a78a919ef
+  content_hash: sha256:96f3793bd677dde345c5aca4aa6484334100a154e8a5d9e2ad07d69c9b9e2b0e
 - kind: project-relative
   target: claude
   value: .claude/skills/hyperframes/assets/frame-presets/biennale-yellow/FRAME.md
@@ -11088,7 +11127,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes
   active_owner: heygen-com/hyperframes/skills/hyperframes
-  content_hash: sha256:6418c8f1fe24943be2eb913421a6355d5d4bee60fe8eea4ced9b78ccdf88a4bb
+  content_hash: sha256:babb5d4bfeffa8422c8e3474833a827a2a3dd95d234e8a37c130c4973d360533
 - kind: project-relative
   target: claude
   value: .claude/skills/hyperframes/references/look.md
@@ -11673,7 +11712,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:ef3976a02ff516d8e5ed0b7fff19d4bbf9358264233bace33fdacaa3aa7f37de
+  content_hash: sha256:27953684efc3615938f824371462b2f6085b0e0982ae3667fe0a12ac89d0ebf9
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/audio/assets/sfx/CREDITS.md
@@ -11871,7 +11910,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:d21a03d47aa8b77ef74bd8a1e91a06de71085ec15312cc71d3b7b52d655c93b4
+  content_hash: sha256:49c9d4d8b733e9c0d80e084be35c99432e2accc1c57266b3f01c3155e0acc47e
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/audio/references/captions/authoring.md
@@ -11916,7 +11955,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:3a9092a3ad9e3133dc2d4888c73c9373e988cbcc5dd46997cd800e075127d09c
+  content_hash: sha256:fa57aa3855f229d9df6489654455981a5a04d7b05e8e76558be263407fcf5a17
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/audio/references/sfx.md
@@ -11952,7 +11991,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:37ce53c1744359b68f09b31878ede560c75791ecd73b4e7bbaaff0b147cbc442
+  content_hash: sha256:0811600e8251313fe242ec0b50a622c7f9261bba8062eb3c0a22d691a03a544a
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/audio/scripts/audio.mjs
@@ -12006,7 +12045,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:1caced7d5d088cc1281d7ba4346bf3bb540870482a56515f5a6a35352fbbc0f9
+  content_hash: sha256:b052640bc7d112d4009145f0e5fdc74a3411bdae94113963e9f57a2fafbe7f44
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/audio/scripts/heygen-tts.mjs
@@ -12015,7 +12054,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:7cf5e907807e0df919fdff2c762733c9d6dbdad5b605d05236ea788d8aecf5ff
+  content_hash: sha256:0105b07581bde333ae84c1128f12a13ca29a4ce6d0f2f5268878e97c37182ed2
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/audio/scripts/heygen-tts.test.mjs
@@ -12060,7 +12099,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:dcb64fed2a256b0f9305f1434024e588adf312d787e8a8dfdc9349193d37f2ad
+  content_hash: sha256:e6627824e12aec0c19c7d6f28cd8445ed6a341c846b873f467337e1af96e0e7a
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/audio/scripts/lib/bgm-volume.mjs
@@ -12150,7 +12189,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:cf34c6781e809d39b7d36a8f0caf32afd23a21860db45ccdc4cd70c6a08e9597
+  content_hash: sha256:bf003704ac37e81a9e1b500103691c37670f9ff556e1dde3062e2e87873ef914
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/audio/scripts/lib/gemini-tts.test.mjs
@@ -12159,7 +12198,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:c36d0a99d85dd377ba4f1314e8dc15a6f8e55284fc0176a6bcd529017767eff8
+  content_hash: sha256:68b3fae36ec470a7c1dc67fc340239af76495c5d3ae5ae26db14bbd7cfc7f5fc
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/audio/scripts/lib/heygen.mjs
@@ -12168,7 +12207,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:65c996c8f494248aba28030888b43b32e1da659a48842ad2ba259c64b4a2967e
+  content_hash: sha256:bc99ecac77f150a330f7064108006c9316da0ccdbc16cfbb4038251eaae2d960
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/audio/scripts/lib/heygen.test.mjs
@@ -12177,7 +12216,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:eedb0c96ebb8a1e04fad51d0f400a450d9f304e4961684f0d98b138aa48f9463
+  content_hash: sha256:e04aa12300ca45866df0d2a0360ee6f0027ef499b081cf3e431432166085e00d
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/audio/scripts/lib/main-module.mjs
@@ -12267,7 +12306,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:0a706b9f83ba1b8723d5f8247b5d35c6f85b28b6849bbf47a7bef2f413eb2ffd
+  content_hash: sha256:ffe6b897caf5f1401756897b515850bc4b93641d75bf4f1b6bcf35f0073b0eb7
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/audio/scripts/lib/tts.spawn.test.mjs
@@ -12285,7 +12324,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:47185cb0d6ac4ca9350d65640a93e9f477d022a8a48d614f51e2ca57f3ca4a39
+  content_hash: sha256:e19a3f5b8bf8bfb3eb4ad0220ff7b4cfb6d740e3d24f5b96eabdcc6ab4720722
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/audio/scripts/lyria-recipe.py
@@ -12348,7 +12387,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:00455ee9d1eecec76d846c9bc5d0eac35017ca08f514f2efc7f3fc5f6ffb6e87
+  content_hash: sha256:430e2b57dfb64c3acfbdd02317ba967ebb580d42b348686ccffbc175d3de8392
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/references/local.md
@@ -12357,7 +12396,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:c72b10577e731c9904e7cda14a64ed5b7177b4b2ec5053778cbe8cb64d2a6634
+  content_hash: sha256:659271d787fe3bdd39f0bc32b1eeb03860b9c76c2672cb71b6bb8d4a88fe4385
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/references/media-treatment-recipes.md
@@ -12393,7 +12432,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:0397b11301e10de6b126f6f39e5ad8bac68f8b22a5ab32236fb6a8f0e5c279dd
+  content_hash: sha256:3651b66e86874b21e9636de65be5a4581f4f394f3c8fc02ddc9128f4dcfa107c
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/references/mixing.md
@@ -12411,7 +12450,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:a40792b8f01f99ccf3ccab8f15b0b9285fa08d5ac9fa1f189cf60efdf3e17b30
+  content_hash: sha256:f59189bb31501c9b55c45311ac2bf36c8652c17010c5f8a4d81b9274ae84b810
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/references/resolve.md
@@ -12429,7 +12468,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:76f133bb9c4b1e0323b58544e2e7235f5ac09408adad1502e69e64c92eeeb085
+  content_hash: sha256:4aa68405654ad2215f5612bd036a9e14c37133e3c433b5f532dfcd5d57674096
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/references/telemetry-dashboard.md
@@ -12600,7 +12639,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:292ca36e91189e69d36b197311a345664a3a407b4e3fdb91f8044190649961cd
+  content_hash: sha256:3524441159efd13de22ced004c9e40fe0c241c5ef64cc047f0b567310d6436f0
 - kind: project-relative
   target: claude
   value: .claude/skills/media-use/scripts/lib/telemetry.test.mjs
@@ -16479,7 +16518,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/remotion-to-hyperframes
   active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:f6fb227e1a5d4fc47ed5375a24efc7bbc55b47a1ac2593825e63e34f6155ca63
+  content_hash: sha256:ddd074498f7048c0c1c105e3e08411b19432524e16ca14dcccbc1d9dcca5c4af
 - kind: project-relative
   target: claude
   value: .claude/skills/remotion-to-hyperframes/assets/.gitkeep
@@ -16506,7 +16545,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/remotion-to-hyperframes
   active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:b6ceead2abf0f155ca816c2a696e0ea4db9d0b2d55bba5ad1407d65ccbd23399
+  content_hash: sha256:ca2f56842f286b27348e40bc04bd0c10cee2d1f7b884c09a03cd3520ce9d55fb
 - kind: project-relative
   target: claude
   value: .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/.gitignore
@@ -16524,7 +16563,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/remotion-to-hyperframes
   active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:12dfb3609e2be9b112ea92036049296cbfa11696bda471e79c6061eeb2d3009e
+  content_hash: sha256:6d11a1012e3e0b48caed58350f86c1a3ee8a3031b1390472e78ca303e4a35f15
 - kind: project-relative
   target: claude
   value: .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/expected.json
@@ -16623,7 +16662,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/remotion-to-hyperframes
   active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:d6c6591c58ce2b6e211bab45baf573ce9e522e2795a86ce0ded5542d043c9997
+  content_hash: sha256:53fe6c23d8ab34c5bbbc2ccde1a50f7e65214b235b75a0419ea973e7cb625d24
 - kind: project-relative
   target: claude
   value: .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/expected.json
@@ -16749,7 +16788,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/remotion-to-hyperframes
   active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:2f4f1141bed2fae4e21e2ff3b16f10d3b6f5d2f715998a498c2ae8cfaa55b65f
+  content_hash: sha256:2a03db3d8f40250810e645c90cdb5202ee4751f205c68260de3f2cffbf6539be
 - kind: project-relative
   target: claude
   value: .claude/skills/remotion-to-hyperframes/assets/test-corpus/tier-3-data-driven/expected.json
@@ -17028,7 +17067,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/remotion-to-hyperframes
   active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:70fb49186755905bf43777618bd51af2189413109dde76e4964b5724991baa3c
+  content_hash: sha256:036b11e1b959381e7d21753c89669f53253c03924d58a531f885739c771b3bd7
 - kind: project-relative
   target: claude
   value: .claude/skills/remotion-to-hyperframes/references/fonts.md
@@ -17112,15 +17151,6 @@ deployments:
   content_hash: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 - kind: project-relative
   target: claude
-  value: .claude/skills/remotion-to-hyperframes/scripts/frame_strip.sh
-  runtime: null
-  scope: project
-  owners:
-  - heygen-com/hyperframes/skills/remotion-to-hyperframes
-  active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:c6cb73b4886991b2092417b5c3fa257d34fefb288e248a7fda854047b8c66bae
-- kind: project-relative
-  target: claude
   value: .claude/skills/remotion-to-hyperframes/scripts/lint_source.py
   runtime: null
   scope: project
@@ -17128,15 +17158,6 @@ deployments:
   - heygen-com/hyperframes/skills/remotion-to-hyperframes
   active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
   content_hash: sha256:6043611ad04ce16d2ef5596822eb2887e865ed9759c8e528471b994dff7d88b1
-- kind: project-relative
-  target: claude
-  value: .claude/skills/remotion-to-hyperframes/scripts/render_diff.sh
-  runtime: null
-  scope: project
-  owners:
-  - heygen-com/hyperframes/skills/remotion-to-hyperframes
-  active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:516be1130a6edbe5927106905349bafba3d8ff1a99b3f0e0394b6d0ecf7a223b
 - kind: project-relative
   target: claude
   value: .claude/skills/remotion-to-hyperframes/scripts/tests/boxSizing.test.mjs
@@ -17172,7 +17193,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/remotion-to-hyperframes
   active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:9a51cadfe9b6fe645096fc2e05d80849c6985abd3a92bd27cb985b3cdd3ce7b0
+  content_hash: sha256:2ba20a80cf6082004ee6dc043b90cde7361eff4affd2d66460bdfe9fbdf20fa0
 - kind: project-relative
   target: claude
   value: .claude/skills/reverse-engineer-anything
@@ -17190,7 +17211,7 @@ deployments:
   owners:
   - morluto/rea/.agents/skills/reverse-engineer-anything
   active_owner: morluto/rea/.agents/skills/reverse-engineer-anything
-  content_hash: sha256:547bffd9dcbb88378a488bada8ea32c60bddd561ccee5246be996e993c5a7113
+  content_hash: sha256:0b86284fad27631968c5fb54a2ae8ef55f88f4d20615b0ba45fba5f47f193192
 - kind: project-relative
   target: claude
   value: .claude/skills/reverse-engineer-anything/references/android-applications.md
@@ -17199,7 +17220,7 @@ deployments:
   owners:
   - morluto/rea/.agents/skills/reverse-engineer-anything
   active_owner: morluto/rea/.agents/skills/reverse-engineer-anything
-  content_hash: sha256:24ecaa1798eb4f28591884a7deb68df31e90313865515a23e3b466403f1abc39
+  content_hash: sha256:1698a9a21eacc685b327059efee2e9cdb6ac1f55fa3875eed96b4b304ab155f3
 - kind: project-relative
   target: claude
   value: .claude/skills/reverse-engineer-anything/references/connection-and-recovery.md
@@ -17208,7 +17229,7 @@ deployments:
   owners:
   - morluto/rea/.agents/skills/reverse-engineer-anything
   active_owner: morluto/rea/.agents/skills/reverse-engineer-anything
-  content_hash: sha256:3c2049047f2e9c01a224d71c1b54fbf429a98cdf8e691e9058d67ec4bc1df616
+  content_hash: sha256:69aae4c8c2741cc745171a007257cf94fa65247bf73e4c4eb031a1361a06831e
 - kind: project-relative
   target: claude
   value: .claude/skills/reverse-engineer-anything/references/environments.md
@@ -17217,7 +17238,7 @@ deployments:
   owners:
   - morluto/rea/.agents/skills/reverse-engineer-anything
   active_owner: morluto/rea/.agents/skills/reverse-engineer-anything
-  content_hash: sha256:17f1eb5d3161f1ec9ca80ee82bc474b02468e0de0fa6243a701c8b0ef91e2a53
+  content_hash: sha256:4a84b3be1eb36b1d2e658b4076b151570ba97a60e7d97da0876ab324c917b305
 - kind: project-relative
   target: claude
   value: .claude/skills/reverse-engineer-anything/references/evidence-workflows.md
@@ -17226,7 +17247,7 @@ deployments:
   owners:
   - morluto/rea/.agents/skills/reverse-engineer-anything
   active_owner: morluto/rea/.agents/skills/reverse-engineer-anything
-  content_hash: sha256:f44b68acc6ebaa60c1f5d0670e4f9ff7212d351a0ecc6e6ca77ce38b9177ea57
+  content_hash: sha256:eb763e4662f7cf9cab202c0f84444e539f09c6ae50749c135ba169a7cecf3fa0
 - kind: project-relative
   target: claude
   value: .claude/skills/reverse-engineer-anything/references/javascript-applications.md
@@ -17235,7 +17256,7 @@ deployments:
   owners:
   - morluto/rea/.agents/skills/reverse-engineer-anything
   active_owner: morluto/rea/.agents/skills/reverse-engineer-anything
-  content_hash: sha256:15ae2177ef1c41e25095238c64b38f34d8ea53ea3c4c74f627096f90b8eaa54b
+  content_hash: sha256:d43c10966dd76e997ff05dcdafdb4164f801a3f0199cf19bb71360bc78a75925
 - kind: project-relative
   target: claude
   value: .claude/skills/reverse-engineer-anything/references/native-and-artifacts.md
@@ -17244,7 +17265,7 @@ deployments:
   owners:
   - morluto/rea/.agents/skills/reverse-engineer-anything
   active_owner: morluto/rea/.agents/skills/reverse-engineer-anything
-  content_hash: sha256:defbc67dda232bdb940147c8dc5d589bfc7a7f7839c898cc70eb48bade98e469
+  content_hash: sha256:57ed920bab10e62fe38be66cd9f95d1316c02e6b00b9bb4f6d98da35d1864a67
 - kind: project-relative
   target: claude
   value: .claude/skills/reverse-engineer-anything/references/runtime-observation.md
@@ -17530,8 +17551,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/skill-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/skill-development
   content_hash: null
 - kind: project-relative
   target: claude
@@ -17539,17 +17560,17 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:d40080c45d652dd3cc481d1e381cd7e6258091a87351fa1de67c6c8ecec3446e
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/skill-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/skill-development
+  content_hash: sha256:d51b4e20043b13e462aa86c47ea82d43e216eb292871538127f4b12a54e4944f
 - kind: project-relative
   target: claude
   value: .claude/skills/skill-development/references/skill-creator-original.md
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/skill-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/skill-development
   content_hash: sha256:8c0ce23bb87be91f5b0853c2e9815617c3858b63acdddfe5da47d2c2d3a60816
 - kind: project-relative
   target: claude
@@ -21348,7 +21369,7 @@ deployments:
   owners:
   - typesafe-ai/skills
   active_owner: typesafe-ai/skills
-  content_hash: sha256:71ea90d7906c6554c4f4c460ef7361b2d26f59116ccdae986dc6d997b9389f52
+  content_hash: sha256:d1513cb2e0f72f58c11ac004ce99fd828fce8668a741b6a274247201e57db724
 - kind: project-relative
   target: claude
   value: .claude/skills/typescript-best-practices
@@ -21825,7 +21846,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:1cad611bfe734dc967ce9c86f77d4e87470edf1922ff7ef01a89d6f36b037e1a
+  content_hash: sha256:83fd5aa46965ce2b14bd42ade80c065a4e17a9f83d2a9f4f275b47cd45d72666
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/assets/example-architecture-containment-dark.html
@@ -22098,6 +22119,33 @@ deployments:
   content_hash: sha256:e69a9b7ac33fae509c02a1ef06b39e1a548cd3925644e7cefd3ff2119a88a060
 - kind: project-relative
   target: codex
+  value: .agents/skills/diagram-design/assets/example-box-plot-dark.html
+  runtime: null
+  scope: project
+  owners:
+  - cathrynlavery/diagram-design
+  active_owner: cathrynlavery/diagram-design
+  content_hash: sha256:28bc2a9b9df1e715b07c11a57b2ab8d0ee59ed5ebc782dacd74f3401e0cdd39b
+- kind: project-relative
+  target: codex
+  value: .agents/skills/diagram-design/assets/example-box-plot-full.html
+  runtime: null
+  scope: project
+  owners:
+  - cathrynlavery/diagram-design
+  active_owner: cathrynlavery/diagram-design
+  content_hash: sha256:a9bf7fc36d4db874b0fda6d27140fb6d3b9e51b06b13ca657e8dfb414a5fe617
+- kind: project-relative
+  target: codex
+  value: .agents/skills/diagram-design/assets/example-box-plot.html
+  runtime: null
+  scope: project
+  owners:
+  - cathrynlavery/diagram-design
+  active_owner: cathrynlavery/diagram-design
+  content_hash: sha256:16449419e0cca7dc153bc23c9c416dcb149ddcdfe4ca45c9535708719aa0b909
+- kind: project-relative
+  target: codex
   value: .agents/skills/diagram-design/assets/example-bubble-dark.html
   runtime: null
   scope: project
@@ -22293,7 +22341,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:b139d91cf88a77b4dbf202da4a1ec21e29ca1862f2e8249925b605ce25fe97f6
+  content_hash: sha256:d28f525d2c7d0666b61d6e80133d006da942f1dfeefa41b0c8d32faf2120ca64
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/assets/example-dp-integration-full.html
@@ -22302,7 +22350,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:17cd685b6bd522a5eb7ae972f76787b57383779c2f0b9f08de32a7d8d9e49f94
+  content_hash: sha256:fa9393528e19170873437c3f661fb7aa3cbaa94fa4001985f9d8faa7479708c6
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/assets/example-dp-integration.html
@@ -22311,7 +22359,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:d1624ee510d25780522637141e89dd95165d6cefa6b5aded0c0ad1beca2ecf24
+  content_hash: sha256:d521d09532183ee10d5ebdcea9cbc509a45d90cd85c35973ba40dbe94f338291
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/assets/example-dp-security-matrix-dark.html
@@ -22689,7 +22737,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:4a11a730ccfffc6b3e4daf92c6402122c0db7f70e5b11253b021c0227e557769
+  content_hash: sha256:371385a4fd00a7d9f3896ac44417352bd7276e86488c3f4eaa72bd6df2902ae7
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/assets/example-high-level.html
@@ -23733,7 +23781,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:0d0f4de6c372025f61e87e01e53d98d5940029375e3fd35e6c2c1641c0a1ba14
+  content_hash: sha256:6c5633862bea3f2b0e5e374e345b03f8764ec987252da626f33c6cc93c4f8567
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/assets/template-dark.html
@@ -23823,7 +23871,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:a94b687bedba5795d3c960e58d014856135cea3cba558967b4c5e8b519c9a69e
+  content_hash: sha256:55e340657f7c2f54c9be2349b4b71786779e4ae5d89fb4c1ce4f31de5e49ec08
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/references/import-excalidraw.md
@@ -23832,7 +23880,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:1424beba60d0d206685d45553539b31d58f6942e274f3a8f68718f2742e43da6
+  content_hash: sha256:323260ca813c3ee5c196362d6424779ee1d3cfcc1afb23329f60d59674a3aeec
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/references/import-mermaid.md
@@ -23841,7 +23889,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:41c1e5a5d223c37b45897c331b481249ffbcb1a6d63e75d0e06a9d35bbfd07cc
+  content_hash: sha256:e94d8342c9bf4514bcace5422d29eb72cd17a23c49c13bc3ba1dea6e59036db3
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/references/layout-budget.md
@@ -23850,7 +23898,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:792a1f328bf3ae6e0584b87513afbdb0f7c6dc4c2bafc28a3986af2d16a285d8
+  content_hash: sha256:7ece87d01d3dbe42a2293114b423a44e254482a4931e402e6dc4ba7cf9902bcb
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/references/onboarding.md
@@ -23913,7 +23961,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:9f61356d3c7814dd8c5adbfc2ecce736d05c64b9ec4dcaf64a53103e3c33e96c
+  content_hash: sha256:bd011a9ed2e1b4e27d2ecc83872127eb8f5b1d91026a162a211974b3eeebc7e0
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/references/profiles.md
@@ -23940,7 +23988,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:4716fa1a4f4d31cf836e0b4363886aa7242657fb48c624e0b34c433179dc6673
+  content_hash: sha256:74345f14edd26a69da6be3b619bfece61229f2873e6fbae17a39bb2503b7a7a4
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/references/type-architecture-delta.md
@@ -24021,7 +24069,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:6bf9b678d37e9f01f61ac8203e4ad5c29024ecd7a9f3ae0b42e71851522774f7
+  content_hash: sha256:b84195582b3daa1139dced192253ba97dd6984cfd7ba9a0da76a44588f744119
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/references/type-dp-security-matrix.md
@@ -24138,7 +24186,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:f7fa213f2398da9e6bf30402bc2c430e778e57d95e60174bf082ba67d629b831
+  content_hash: sha256:f29a97ab0e72b23365304dfda6640503e37244eaad2c3851069585a569814089
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/references/type-loop.md
@@ -24237,7 +24285,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:2f0770c4aaea747d14788805e45b13aee44350796ab4035bdfc2ab3d8c0c787f
+  content_hash: sha256:1c88ab9bb4b0da77c084802e6bc2aff75deea29f24cbe4de3ae91bfadea57b49
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/references/type-sequence.md
@@ -24354,7 +24402,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:72098800fb5893ba620a432275b332901cfdbfa45bcd608c15d055466b25abe6
+  content_hash: sha256:f0183a6fcad372d8087afaf02f3f59902bdb47c9ac58ad6cd81a041dde949abd
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/scripts/excalidraw_extract.py
@@ -24363,7 +24411,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:10f6a6b999b3b2e8a626774515ba6817df331a6d39d671a4876541262b63697c
+  content_hash: sha256:44fec058c98d8055f634cb868931c46f8d71f45de4006351838cb313403af98b
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/scripts/export_png.py
@@ -24390,7 +24438,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:cf0a78bab8f8fdcb54564725c75e764ac602cc4e389efab395dc23c25650b7a3
+  content_hash: sha256:fd176d5c616e49bc923fc271e0a14b022674e204d39b46673824db44f647b042
 - kind: project-relative
   target: codex
   value: .agents/skills/diagram-design/scripts/self_check.py
@@ -24399,7 +24447,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:4da309dc768c921153872715666859f4d2c3af384ec804b3d4159b549b7697ea
+  content_hash: sha256:444851f6e53f83d50920381df17cdd5f1b7a23cfba9c0ddda27786d78e53e2de
 - kind: project-relative
   target: codex
   value: .agents/skills/domain-modeling
@@ -24849,7 +24897,7 @@ deployments:
   owners:
   - mattpocock/skills/skills/productivity/grilling
   active_owner: mattpocock/skills/skills/productivity/grilling
-  content_hash: sha256:befdff1e27a1dfe2a294d5871169ac1afe16d983911daa4f32627514a48c1e15
+  content_hash: sha256:a146842ed93ca43d833550fa9adf02e58cb63c83fea9d4b4522995b82242d4e2
 - kind: project-relative
   target: codex
   value: .agents/skills/grilling/agents/openai.yaml
@@ -24883,8 +24931,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: null
 - kind: project-relative
   target: codex
@@ -24892,17 +24940,17 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:d14528f389cae485ac50583a22be326485c83fc9c8ef7ce700213e1583cf8fbe
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  content_hash: sha256:f47e2d42f6360294216a859ae0c30b93caafdd2b2e5ffc007489ba4ca447fa5c
 - kind: project-relative
   target: codex
   value: .agents/skills/hook-development/examples/load-context.sh
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:0d614599e711c087b381a4ac7ee3c40758af1022669fc998649d199b9dfe15ed
 - kind: project-relative
   target: codex
@@ -24910,8 +24958,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:348c58f4cf38a2e7080ea5272935a7658c7122d83dd6c52d0a1f2ef599c176ab
 - kind: project-relative
   target: codex
@@ -24919,8 +24967,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:89a8ef9bb7508e4819080e65834d6783afa5a5a614d458a3821b80a329eb32e5
 - kind: project-relative
   target: codex
@@ -24928,8 +24976,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:5b139ceeb6a3ef16555a6eef421e2642e6ca286b5527ee2b4e02c11ae5b75dd5
 - kind: project-relative
   target: codex
@@ -24937,8 +24985,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:7f8e7a795829837f46a0c058c26c8f5c4aa8be5c9fb5316b828229d1802ded77
 - kind: project-relative
   target: codex
@@ -24946,8 +24994,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:cb607fca192bfa892fd198141b86dac9d0ca2c573a280b054b7beaa56fc9a8bf
 - kind: project-relative
   target: codex
@@ -24955,8 +25003,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:08a28b12ffa9fcb16f257ea685c70a920f4f835978b9ffbbac055137c6f6aca0
 - kind: project-relative
   target: codex
@@ -24964,8 +25012,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:85a7d55488f8f38f9b98350b5cb597fb306432d5e61eaa3444e7226ca9309e0b
 - kind: project-relative
   target: codex
@@ -24973,8 +25021,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:ded642e811b4731f6a2c90c73b02e00c937511d9ee65236bb8cf9964f0069393
 - kind: project-relative
   target: codex
@@ -24982,8 +25030,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/hook-development
   content_hash: sha256:e7785d6c61d368f5ea5270c979753aea02f776f5b6aa220137ec4585abd720c2
 - kind: project-relative
   target: codex
@@ -25047,7 +25095,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-cli
   active_owner: heygen-com/hyperframes/skills/hyperframes-cli
-  content_hash: sha256:44a48ccfa4cbd4f4234f8306c96268a4be56a0f2376abedbf31d2167b3c21286
+  content_hash: sha256:cfaa2a4dfc696c48929b2a6115ac16e3c04134cef13bd99050758a2936f3d903
 - kind: project-relative
   target: codex
   value: .agents/skills/hyperframes-cli/references/beats.md
@@ -25056,7 +25104,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-cli
   active_owner: heygen-com/hyperframes/skills/hyperframes-cli
-  content_hash: sha256:09689994eba8c977693fdc54702b07dd492e80aa47075de0a027df901dc51b1d
+  content_hash: sha256:795f67b5c3fa680968a43e6482685fd55a0adb555d179643bfcb7989d251e69a
 - kind: project-relative
   target: codex
   value: .agents/skills/hyperframes-cli/references/cloud.md
@@ -25065,7 +25113,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-cli
   active_owner: heygen-com/hyperframes/skills/hyperframes-cli
-  content_hash: sha256:8191550a036130249c26b37912dfd321c771c6670223cc7e0fff7aedd67607bf
+  content_hash: sha256:745b8b923f8870c87a1b60a15d6b82d6b51322a66d1badbb052249ae1964d45c
 - kind: project-relative
   target: codex
   value: .agents/skills/hyperframes-cli/references/cloudrun.md
@@ -25119,7 +25167,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-cli
   active_owner: heygen-com/hyperframes/skills/hyperframes-cli
-  content_hash: sha256:dad4c2212f6df8ed4ff8d7b8154c2f8a6bdeec0fa27562b0b6c4d8da9d2e1078
+  content_hash: sha256:7302d081e6abc5432d1f5ae1f462039c9a641ed1459461e3e8090c44c69a07d2
 - kind: project-relative
   target: codex
   value: .agents/skills/hyperframes-cli/references/lambda.md
@@ -25137,7 +25185,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-cli
   active_owner: heygen-com/hyperframes/skills/hyperframes-cli
-  content_hash: sha256:2629c4af5e2255c18e7782622516e225393ffef77844bde53fa923d34aa1be13
+  content_hash: sha256:0a6fc73b4644350908438f7dc58a7242732887d2eb6f1cde71ba84955118c416
 - kind: project-relative
   target: codex
   value: .agents/skills/hyperframes-cli/references/preview-render.md
@@ -25146,7 +25194,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-cli
   active_owner: heygen-com/hyperframes/skills/hyperframes-cli
-  content_hash: sha256:851d85d7f4e6939d90ed6e350180a8edadc67b44dfc5d19163376485324d00b2
+  content_hash: sha256:197e9f8c1d4c8f972e2250fc088dfc7696ecf31bb2ec7eec782fc0eb7a6a3753
 - kind: project-relative
   target: codex
   value: .agents/skills/hyperframes-cli/references/upgrade-info-misc.md
@@ -25155,7 +25203,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-cli
   active_owner: heygen-com/hyperframes/skills/hyperframes-cli
-  content_hash: sha256:a46662ad866669d1cf70bfa6404e9a01f68d2db4eb667fe6dc8a8442f6a069d8
+  content_hash: sha256:66b470b78ada7a676b5416859202705fa6450df8b194543fb2762ae949f76336
 - kind: project-relative
   target: codex
   value: .agents/skills/hyperframes-registry
@@ -25173,7 +25221,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-registry
   active_owner: heygen-com/hyperframes/skills/hyperframes-registry
-  content_hash: sha256:1c7b27632c9ea9febaafc2d9af073b377029f46be4bee70d75b5e713eb698423
+  content_hash: sha256:0ac5bb49dd7aed66e0d61248eca94e8c9f1a95b482c8004fb0113f724fffe6cd
 - kind: project-relative
   target: codex
   value: .agents/skills/hyperframes-registry/examples/add-block.md
@@ -25209,7 +25257,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes-registry
   active_owner: heygen-com/hyperframes/skills/hyperframes-registry
-  content_hash: sha256:7e9e6fd894e54251fad9aa30a08730960ceb776da590a175eadfc1d9014106b1
+  content_hash: sha256:3724d1dd269768da26b731f6592ac749f47f62443e909f881ac12ceba36db0fa
 - kind: project-relative
   target: codex
   value: .agents/skills/hyperframes-registry/references/demo-html-pattern.md
@@ -25290,7 +25338,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes
   active_owner: heygen-com/hyperframes/skills/hyperframes
-  content_hash: sha256:180ce4eea5f33f1617105c92e2690a5a2320abf624c263186ec0cb1a78a919ef
+  content_hash: sha256:96f3793bd677dde345c5aca4aa6484334100a154e8a5d9e2ad07d69c9b9e2b0e
 - kind: project-relative
   target: codex
   value: .agents/skills/hyperframes/assets/frame-presets/biennale-yellow/FRAME.md
@@ -25749,7 +25797,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/hyperframes
   active_owner: heygen-com/hyperframes/skills/hyperframes
-  content_hash: sha256:6418c8f1fe24943be2eb913421a6355d5d4bee60fe8eea4ced9b78ccdf88a4bb
+  content_hash: sha256:babb5d4bfeffa8422c8e3474833a827a2a3dd95d234e8a37c130c4973d360533
 - kind: project-relative
   target: codex
   value: .agents/skills/hyperframes/references/look.md
@@ -26334,7 +26382,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:ef3976a02ff516d8e5ed0b7fff19d4bbf9358264233bace33fdacaa3aa7f37de
+  content_hash: sha256:27953684efc3615938f824371462b2f6085b0e0982ae3667fe0a12ac89d0ebf9
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/audio/assets/sfx/CREDITS.md
@@ -26532,7 +26580,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:d21a03d47aa8b77ef74bd8a1e91a06de71085ec15312cc71d3b7b52d655c93b4
+  content_hash: sha256:49c9d4d8b733e9c0d80e084be35c99432e2accc1c57266b3f01c3155e0acc47e
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/audio/references/captions/authoring.md
@@ -26577,7 +26625,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:3a9092a3ad9e3133dc2d4888c73c9373e988cbcc5dd46997cd800e075127d09c
+  content_hash: sha256:fa57aa3855f229d9df6489654455981a5a04d7b05e8e76558be263407fcf5a17
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/audio/references/sfx.md
@@ -26613,7 +26661,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:37ce53c1744359b68f09b31878ede560c75791ecd73b4e7bbaaff0b147cbc442
+  content_hash: sha256:0811600e8251313fe242ec0b50a622c7f9261bba8062eb3c0a22d691a03a544a
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/audio/scripts/audio.mjs
@@ -26667,7 +26715,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:1caced7d5d088cc1281d7ba4346bf3bb540870482a56515f5a6a35352fbbc0f9
+  content_hash: sha256:b052640bc7d112d4009145f0e5fdc74a3411bdae94113963e9f57a2fafbe7f44
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/audio/scripts/heygen-tts.mjs
@@ -26676,7 +26724,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:7cf5e907807e0df919fdff2c762733c9d6dbdad5b605d05236ea788d8aecf5ff
+  content_hash: sha256:0105b07581bde333ae84c1128f12a13ca29a4ce6d0f2f5268878e97c37182ed2
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/audio/scripts/heygen-tts.test.mjs
@@ -26721,7 +26769,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:dcb64fed2a256b0f9305f1434024e588adf312d787e8a8dfdc9349193d37f2ad
+  content_hash: sha256:e6627824e12aec0c19c7d6f28cd8445ed6a341c846b873f467337e1af96e0e7a
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/audio/scripts/lib/bgm-volume.mjs
@@ -26811,7 +26859,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:cf34c6781e809d39b7d36a8f0caf32afd23a21860db45ccdc4cd70c6a08e9597
+  content_hash: sha256:bf003704ac37e81a9e1b500103691c37670f9ff556e1dde3062e2e87873ef914
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/audio/scripts/lib/gemini-tts.test.mjs
@@ -26820,7 +26868,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:c36d0a99d85dd377ba4f1314e8dc15a6f8e55284fc0176a6bcd529017767eff8
+  content_hash: sha256:68b3fae36ec470a7c1dc67fc340239af76495c5d3ae5ae26db14bbd7cfc7f5fc
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/audio/scripts/lib/heygen.mjs
@@ -26829,7 +26877,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:65c996c8f494248aba28030888b43b32e1da659a48842ad2ba259c64b4a2967e
+  content_hash: sha256:bc99ecac77f150a330f7064108006c9316da0ccdbc16cfbb4038251eaae2d960
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/audio/scripts/lib/heygen.test.mjs
@@ -26838,7 +26886,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:eedb0c96ebb8a1e04fad51d0f400a450d9f304e4961684f0d98b138aa48f9463
+  content_hash: sha256:e04aa12300ca45866df0d2a0360ee6f0027ef499b081cf3e431432166085e00d
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/audio/scripts/lib/main-module.mjs
@@ -26928,7 +26976,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:0a706b9f83ba1b8723d5f8247b5d35c6f85b28b6849bbf47a7bef2f413eb2ffd
+  content_hash: sha256:ffe6b897caf5f1401756897b515850bc4b93641d75bf4f1b6bcf35f0073b0eb7
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/audio/scripts/lib/tts.spawn.test.mjs
@@ -26946,7 +26994,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:47185cb0d6ac4ca9350d65640a93e9f477d022a8a48d614f51e2ca57f3ca4a39
+  content_hash: sha256:e19a3f5b8bf8bfb3eb4ad0220ff7b4cfb6d740e3d24f5b96eabdcc6ab4720722
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/audio/scripts/lyria-recipe.py
@@ -27009,7 +27057,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:00455ee9d1eecec76d846c9bc5d0eac35017ca08f514f2efc7f3fc5f6ffb6e87
+  content_hash: sha256:430e2b57dfb64c3acfbdd02317ba967ebb580d42b348686ccffbc175d3de8392
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/references/local.md
@@ -27018,7 +27066,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:c72b10577e731c9904e7cda14a64ed5b7177b4b2ec5053778cbe8cb64d2a6634
+  content_hash: sha256:659271d787fe3bdd39f0bc32b1eeb03860b9c76c2672cb71b6bb8d4a88fe4385
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/references/media-treatment-recipes.md
@@ -27054,7 +27102,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:0397b11301e10de6b126f6f39e5ad8bac68f8b22a5ab32236fb6a8f0e5c279dd
+  content_hash: sha256:3651b66e86874b21e9636de65be5a4581f4f394f3c8fc02ddc9128f4dcfa107c
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/references/mixing.md
@@ -27072,7 +27120,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:a40792b8f01f99ccf3ccab8f15b0b9285fa08d5ac9fa1f189cf60efdf3e17b30
+  content_hash: sha256:f59189bb31501c9b55c45311ac2bf36c8652c17010c5f8a4d81b9274ae84b810
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/references/resolve.md
@@ -27090,7 +27138,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:76f133bb9c4b1e0323b58544e2e7235f5ac09408adad1502e69e64c92eeeb085
+  content_hash: sha256:4aa68405654ad2215f5612bd036a9e14c37133e3c433b5f532dfcd5d57674096
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/references/telemetry-dashboard.md
@@ -27261,7 +27309,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/media-use
   active_owner: heygen-com/hyperframes/skills/media-use
-  content_hash: sha256:292ca36e91189e69d36b197311a345664a3a407b4e3fdb91f8044190649961cd
+  content_hash: sha256:3524441159efd13de22ced004c9e40fe0c241c5ef64cc047f0b567310d6436f0
 - kind: project-relative
   target: codex
   value: .agents/skills/media-use/scripts/lib/telemetry.test.mjs
@@ -31140,7 +31188,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/remotion-to-hyperframes
   active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:f6fb227e1a5d4fc47ed5375a24efc7bbc55b47a1ac2593825e63e34f6155ca63
+  content_hash: sha256:ddd074498f7048c0c1c105e3e08411b19432524e16ca14dcccbc1d9dcca5c4af
 - kind: project-relative
   target: codex
   value: .agents/skills/remotion-to-hyperframes/assets/.gitkeep
@@ -31167,7 +31215,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/remotion-to-hyperframes
   active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:b6ceead2abf0f155ca816c2a696e0ea4db9d0b2d55bba5ad1407d65ccbd23399
+  content_hash: sha256:ca2f56842f286b27348e40bc04bd0c10cee2d1f7b884c09a03cd3520ce9d55fb
 - kind: project-relative
   target: codex
   value: .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/.gitignore
@@ -31185,7 +31233,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/remotion-to-hyperframes
   active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:12dfb3609e2be9b112ea92036049296cbfa11696bda471e79c6061eeb2d3009e
+  content_hash: sha256:6d11a1012e3e0b48caed58350f86c1a3ee8a3031b1390472e78ca303e4a35f15
 - kind: project-relative
   target: codex
   value: .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-1-title-card/expected.json
@@ -31284,7 +31332,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/remotion-to-hyperframes
   active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:d6c6591c58ce2b6e211bab45baf573ce9e522e2795a86ce0ded5542d043c9997
+  content_hash: sha256:53fe6c23d8ab34c5bbbc2ccde1a50f7e65214b235b75a0419ea973e7cb625d24
 - kind: project-relative
   target: codex
   value: .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-2-multi-scene/expected.json
@@ -31410,7 +31458,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/remotion-to-hyperframes
   active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:2f4f1141bed2fae4e21e2ff3b16f10d3b6f5d2f715998a498c2ae8cfaa55b65f
+  content_hash: sha256:2a03db3d8f40250810e645c90cdb5202ee4751f205c68260de3f2cffbf6539be
 - kind: project-relative
   target: codex
   value: .agents/skills/remotion-to-hyperframes/assets/test-corpus/tier-3-data-driven/expected.json
@@ -31689,7 +31737,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/remotion-to-hyperframes
   active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:70fb49186755905bf43777618bd51af2189413109dde76e4964b5724991baa3c
+  content_hash: sha256:036b11e1b959381e7d21753c89669f53253c03924d58a531f885739c771b3bd7
 - kind: project-relative
   target: codex
   value: .agents/skills/remotion-to-hyperframes/references/fonts.md
@@ -31773,15 +31821,6 @@ deployments:
   content_hash: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 - kind: project-relative
   target: codex
-  value: .agents/skills/remotion-to-hyperframes/scripts/frame_strip.sh
-  runtime: null
-  scope: project
-  owners:
-  - heygen-com/hyperframes/skills/remotion-to-hyperframes
-  active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:c6cb73b4886991b2092417b5c3fa257d34fefb288e248a7fda854047b8c66bae
-- kind: project-relative
-  target: codex
   value: .agents/skills/remotion-to-hyperframes/scripts/lint_source.py
   runtime: null
   scope: project
@@ -31789,15 +31828,6 @@ deployments:
   - heygen-com/hyperframes/skills/remotion-to-hyperframes
   active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
   content_hash: sha256:6043611ad04ce16d2ef5596822eb2887e865ed9759c8e528471b994dff7d88b1
-- kind: project-relative
-  target: codex
-  value: .agents/skills/remotion-to-hyperframes/scripts/render_diff.sh
-  runtime: null
-  scope: project
-  owners:
-  - heygen-com/hyperframes/skills/remotion-to-hyperframes
-  active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:516be1130a6edbe5927106905349bafba3d8ff1a99b3f0e0394b6d0ecf7a223b
 - kind: project-relative
   target: codex
   value: .agents/skills/remotion-to-hyperframes/scripts/tests/boxSizing.test.mjs
@@ -31833,7 +31863,7 @@ deployments:
   owners:
   - heygen-com/hyperframes/skills/remotion-to-hyperframes
   active_owner: heygen-com/hyperframes/skills/remotion-to-hyperframes
-  content_hash: sha256:9a51cadfe9b6fe645096fc2e05d80849c6985abd3a92bd27cb985b3cdd3ce7b0
+  content_hash: sha256:2ba20a80cf6082004ee6dc043b90cde7361eff4affd2d66460bdfe9fbdf20fa0
 - kind: project-relative
   target: codex
   value: .agents/skills/reverse-engineer-anything
@@ -31851,7 +31881,7 @@ deployments:
   owners:
   - morluto/rea/.agents/skills/reverse-engineer-anything
   active_owner: morluto/rea/.agents/skills/reverse-engineer-anything
-  content_hash: sha256:547bffd9dcbb88378a488bada8ea32c60bddd561ccee5246be996e993c5a7113
+  content_hash: sha256:0b86284fad27631968c5fb54a2ae8ef55f88f4d20615b0ba45fba5f47f193192
 - kind: project-relative
   target: codex
   value: .agents/skills/reverse-engineer-anything/references/android-applications.md
@@ -31860,7 +31890,7 @@ deployments:
   owners:
   - morluto/rea/.agents/skills/reverse-engineer-anything
   active_owner: morluto/rea/.agents/skills/reverse-engineer-anything
-  content_hash: sha256:24ecaa1798eb4f28591884a7deb68df31e90313865515a23e3b466403f1abc39
+  content_hash: sha256:1698a9a21eacc685b327059efee2e9cdb6ac1f55fa3875eed96b4b304ab155f3
 - kind: project-relative
   target: codex
   value: .agents/skills/reverse-engineer-anything/references/connection-and-recovery.md
@@ -31869,7 +31899,7 @@ deployments:
   owners:
   - morluto/rea/.agents/skills/reverse-engineer-anything
   active_owner: morluto/rea/.agents/skills/reverse-engineer-anything
-  content_hash: sha256:3c2049047f2e9c01a224d71c1b54fbf429a98cdf8e691e9058d67ec4bc1df616
+  content_hash: sha256:69aae4c8c2741cc745171a007257cf94fa65247bf73e4c4eb031a1361a06831e
 - kind: project-relative
   target: codex
   value: .agents/skills/reverse-engineer-anything/references/environments.md
@@ -31878,7 +31908,7 @@ deployments:
   owners:
   - morluto/rea/.agents/skills/reverse-engineer-anything
   active_owner: morluto/rea/.agents/skills/reverse-engineer-anything
-  content_hash: sha256:17f1eb5d3161f1ec9ca80ee82bc474b02468e0de0fa6243a701c8b0ef91e2a53
+  content_hash: sha256:4a84b3be1eb36b1d2e658b4076b151570ba97a60e7d97da0876ab324c917b305
 - kind: project-relative
   target: codex
   value: .agents/skills/reverse-engineer-anything/references/evidence-workflows.md
@@ -31887,7 +31917,7 @@ deployments:
   owners:
   - morluto/rea/.agents/skills/reverse-engineer-anything
   active_owner: morluto/rea/.agents/skills/reverse-engineer-anything
-  content_hash: sha256:f44b68acc6ebaa60c1f5d0670e4f9ff7212d351a0ecc6e6ca77ce38b9177ea57
+  content_hash: sha256:eb763e4662f7cf9cab202c0f84444e539f09c6ae50749c135ba169a7cecf3fa0
 - kind: project-relative
   target: codex
   value: .agents/skills/reverse-engineer-anything/references/javascript-applications.md
@@ -31896,7 +31926,7 @@ deployments:
   owners:
   - morluto/rea/.agents/skills/reverse-engineer-anything
   active_owner: morluto/rea/.agents/skills/reverse-engineer-anything
-  content_hash: sha256:15ae2177ef1c41e25095238c64b38f34d8ea53ea3c4c74f627096f90b8eaa54b
+  content_hash: sha256:d43c10966dd76e997ff05dcdafdb4164f801a3f0199cf19bb71360bc78a75925
 - kind: project-relative
   target: codex
   value: .agents/skills/reverse-engineer-anything/references/native-and-artifacts.md
@@ -31905,7 +31935,7 @@ deployments:
   owners:
   - morluto/rea/.agents/skills/reverse-engineer-anything
   active_owner: morluto/rea/.agents/skills/reverse-engineer-anything
-  content_hash: sha256:defbc67dda232bdb940147c8dc5d589bfc7a7f7839c898cc70eb48bade98e469
+  content_hash: sha256:57ed920bab10e62fe38be66cd9f95d1316c02e6b00b9bb4f6d98da35d1864a67
 - kind: project-relative
   target: codex
   value: .agents/skills/reverse-engineer-anything/references/runtime-observation.md
@@ -32191,8 +32221,8 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/skill-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/skill-development
   content_hash: null
 - kind: project-relative
   target: codex
@@ -32200,17 +32230,17 @@ deployments:
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
-  content_hash: sha256:d40080c45d652dd3cc481d1e381cd7e6258091a87351fa1de67c6c8ecec3446e
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/skill-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/skill-development
+  content_hash: sha256:d51b4e20043b13e462aa86c47ea82d43e216eb292871538127f4b12a54e4944f
 - kind: project-relative
   target: codex
   value: .agents/skills/skill-development/references/skill-creator-original.md
   runtime: null
   scope: project
   owners:
-  - anthropics/claude-code/plugins/plugin-dev
-  active_owner: anthropics/claude-code/plugins/plugin-dev
+  - anthropics/claude-plugins-official/plugins/plugin-dev/skills/skill-development
+  active_owner: anthropics/claude-plugins-official/plugins/plugin-dev/skills/skill-development
   content_hash: sha256:8c0ce23bb87be91f5b0853c2e9815617c3858b63acdddfe5da47d2c2d3a60816
 - kind: project-relative
   target: codex
@@ -36009,7 +36039,7 @@ deployments:
   owners:
   - typesafe-ai/skills
   active_owner: typesafe-ai/skills
-  content_hash: sha256:71ea90d7906c6554c4f4c460ef7361b2d26f59116ccdae986dc6d997b9389f52
+  content_hash: sha256:d1513cb2e0f72f58c11ac004ce99fd828fce8668a741b6a274247201e57db724
 - kind: project-relative
   target: codex
   value: .agents/skills/typescript-best-practices
@@ -36234,7 +36264,7 @@ deployments:
   owners:
   - cathrynlavery/diagram-design
   active_owner: cathrynlavery/diagram-design
-  content_hash: sha256:92b5feb962fe7b4d37078a9779e5a15d9be3ded6b15a91a78db13ae5a74c2934
+  content_hash: sha256:1563bb1f939ff079d435fd2769e16cc40a09cf1f358a0b8f2c4f5a7f6fba004e
 - kind: project-relative
   target: cursor
   value: .cursor/commands/import-drawio.md
