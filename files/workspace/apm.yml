@@ -51,6 +51,69 @@ dependencies:
     - adhhamdev/modern-react-guidance
     - GoogleChrome/modern-web-guidance/skills/modern-web-guidance
 
+    # pstack by poteto (Lauren Tan): poteto-mode routes to the principle-* and
+    # workflow skills, so the set installs together. Individual paths exclude the
+    # root package's harness-specific agents. To move the pin, replace the SHA with
+    # sed: apm update fails because skills/ketchup prefixes skills/ketchup-video.
+    - backnotprop/pstack/skills/architect#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/arena#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/automate-me#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/benchmark-checklist#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/blast-radius#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/bro#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/correct#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/create-formal-verification-skill#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/create-verification-skill#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/figure-it-out#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/how#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/in-your-own-words#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/interrogate#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/ketchup#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/ketchup-video#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/maintain-formal-verification-skill#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/maintain-verification-skill#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/make-bot-ui#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/no-comments#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/poteto-help#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/poteto-mode#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-attack-the-premise#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-boundary-discipline#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-build-the-lever#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-encode-lessons-in-structure#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-exhaust-the-design-space#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-experience-first#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-explain-the-number#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-fix-root-causes#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-foundational-thinking#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-guard-the-context-window#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-laziness-protocol#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-make-operations-idempotent#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-migrate-callers-then-delete-legacy-apis#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-minimize-reader-load#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-model-the-domain#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-never-block-on-the-human#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-outcome-oriented-execution#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-prove-it-works#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-redesign-from-first-principles#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-separate-before-serializing-shared-state#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-sequence-verifiable-units#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-subtract-before-you-add#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-test-behavior-not-implementation#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/principle-type-system-discipline#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/recall#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/reflect#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/setup-pstack#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/sharpen#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/show-me-your-work#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/statechart#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/swarm#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/tdd#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/teach#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/technical-writing#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/typescript-best-practices#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/unslop#25abb38559ddbabec563646224d09eff9a250eca
+    - backnotprop/pstack/skills/why#25abb38559ddbabec563646224d09eff9a250eca
+
     - humanlayer/skills/plugins/show-me/skills/show-me
     - morluto/rea/.agents/skills/reverse-engineer-anything
   mcp:
