@@ -166,6 +166,20 @@ APM이 전부 소유하는 생성 디렉토리에는 `.manual-link` marker를 �
 out-of-store directory symlink 하나로 연결한다. 따라서 새 skill이나
 agent가 생성되어도 별도 Home Manager 파일 목록을 추가하지 않는다.
 
+`.agents/`도 폴더 전체를 연결하지만 APM이 전부 소유하지는 않는다. `skills/`만
+APM 소유이고, `pstack-models.md`와 `skills` CLI의 `.skill-lock.json`은 APM 밖에
+있다. `~/.agents`에 쓰는 내용은 모두 저장소로 들어가므로 새 파일이 생기면 커밋
+전에 추적 여부를 확인한다.
+
+`force`는 충돌 검사만 건너뛴다. `ln -Tsf`는 실제 디렉토리를 덮지 못하므로,
+`backupFileExtension`이 디렉토리를 `<이름>.backup`으로 옮긴 뒤에 링크한다. 안의
+파일은 저장소로 옮겨지지 않으므로 필요한 파일은 직접 옮긴다.
+
+상위 디렉토리를 marker 방식으로 바꾼 뒤 marker가 없는 세대를 활성화하면 Home
+Manager가 링크를 따라 저장소 안에 쓴다. 저장소의 `skills/`가 `skills.backup`으로
+밀리고, 새 `skills` 링크는 자기 자신을 가리킨다. 전환 전 세대로 돌아가려면 먼저
+`rm ~/.agents`로 링크를 지운다.
+
 `.codex/agents/`는 예외로 파일별 링크를 사용한다. Codex native plugin이
 관리하는 `~/.codex/agents/compound-engineering/`과 APM 생성 agent가 같은
 부모 디렉토리를 공유하므로, 디렉토리 전체를 대체하면 native plugin

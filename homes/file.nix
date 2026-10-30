@@ -49,7 +49,7 @@ let
         // {
           "${childPath}" = {
             source = config.lib.file.mkOutOfStoreSymlink linkFile;
-            force = true; # 기존 디렉토리가 있어도 강제로 덮어쓰고 링크로 대체
+            force = true; # 충돌 검사만 건너뜀. 실제 디렉토리는 backupFileExtension이 옮긴 뒤 링크로 대체
           };
         }
       else if value == "directory" then

@@ -1,0 +1,65 @@
+{
+  "version": 3,
+  "skills": {
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/skills.git",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "skillFolderHash": "c2f31172b6f256272305a5e6e7228b258446899f",
+      "installedAt": "2026-01-27T04:00:00.102Z",
+      "updatedAt": "2026-01-27T04:00:00.102Z"
+    },
+    "agent-browser": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
+      "skillPath": "skills/agent-browser/SKILL.md",
+      "skillFolderHash": "9c516d82c4378c6ed30466b27b80f7d3f340efd0",
+      "installedAt": "2026-03-06T02:55:58.351Z",
+      "updatedAt": "2026-03-13T04:25:45.918Z"
+    },
+    "dogfood": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
+      "skillPath": "skills/dogfood/SKILL.md",
+      "skillFolderHash": "c818a5daf6e6ef6ec6375705df201499de4e6437",
+      "installedAt": "2026-03-06T02:55:58.741Z",
+      "updatedAt": "2026-03-13T04:25:48.964Z"
+    },
+    "electron": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
+      "skillPath": "skills/electron/SKILL.md",
+      "skillFolderHash": "36a2fb9f35e92feb05cabe8d79638a73f06cc34c",
+      "installedAt": "2026-03-06T02:55:59.195Z",
+      "updatedAt": "2026-03-13T04:25:51.462Z"
+    },
+    "slack": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-browser.git",
+      "skillPath": "skills/slack/SKILL.md",
+      "skillFolderHash": "45b116adcbbb159d2103afc5d6ae704ba47427f8",
+      "installedAt": "2026-03-06T02:55:59.559Z",
+      "updatedAt": "2026-03-06T02:55:59.559Z"
+    }
+  },
+  "dismissed": {
+    "findSkillsPrompt": true
+  },
+  "lastSelectedAgents": [
+    "amp",
+    "cline",
+    "codex",
+    "cursor",
+    "gemini-cli",
+    "github-copilot",
+    "kimi-cli",
+    "opencode",
+    "claude-code",
+    "antigravity"
+  ]
+}
