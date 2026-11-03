@@ -25,6 +25,9 @@
 
   networking.hostName = "homelab";
 
+  # 고정 nameserver를 쓰는 앱·컨테이너 DNS를 MagicDNS가 바꾸지 않게 한다.
+  services.tailscale.extraSetFlags = [ "--accept-dns=false" ];
+
   # 정적 IP — ipTIME DHCP 예약 대신 NixOS에서 직접 고정
   networking.interfaces.eno1.ipv4.addresses = [
     {

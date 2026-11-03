@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   myOptions,
   ...
@@ -13,6 +14,13 @@
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [ 22 ];
+    # Mosh UDP는 tailnet에서만 받는다.
+    interfaces.${config.services.tailscale.interfaceName}.allowedUDPPortRanges = [
+      {
+        from = 60000;
+        to = 61000;
+      }
+    ];
   };
 
   services.openssh = {
