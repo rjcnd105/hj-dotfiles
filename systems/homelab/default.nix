@@ -16,7 +16,10 @@
     ./comin-notify.nix
     ./backup.nix
     ./beszel.nix
+    ./hindsight.nix
   ];
+
+  homelab.hindsight.enable = true;
 
   homelab.beszel = {
     enable = true;
