@@ -19,7 +19,10 @@
     ./hindsight.nix
   ];
 
-  homelab.hindsight.enable = true;
+  homelab.hindsight = {
+    enable = true;
+    server.enable = true;
+  };
 
   homelab.beszel = {
     enable = true;

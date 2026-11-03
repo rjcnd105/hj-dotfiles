@@ -37,7 +37,7 @@ in
     # root 유닛에서 postgres 사용자로 강등해 peer 인증으로 덤프한다.
     backupPrepareCommand = ''
       set -euo pipefail
-      for db in deopjib_dev deopjib_prod; do
+      for db in deopjib_dev deopjib_prod hindsight; do
         ${pkgs.util-linux}/bin/runuser -u postgres -- \
           ${config.services.postgresql.package}/bin/pg_dump --clean --if-exists "$db" \
           | ${pkgs.zstd}/bin/zstd -q -f -o ${dumpDir}/"$db".sql.zst
