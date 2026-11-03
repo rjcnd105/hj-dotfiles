@@ -10095,24 +10095,6 @@ deployments:
   content_hash: sha256:8374c5e9c5fb0d7355c8db80e235d76891309aa3ca8b7c61007f25d27c59ae81
 - kind: project-relative
   target: claude
-  value: .claude/skills/find-skills
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: null
-- kind: project-relative
-  target: claude
-  value: .claude/skills/find-skills/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:b0fe819fb1b9b69bcb89f854a4a17101140d1e00734e259e216e4c485faa07fe
-- kind: project-relative
-  target: claude
   value: .claude/skills/gitbutler
   runtime: null
   scope: project
@@ -24765,24 +24747,6 @@ deployments:
   content_hash: sha256:8374c5e9c5fb0d7355c8db80e235d76891309aa3ca8b7c61007f25d27c59ae81
 - kind: project-relative
   target: codex
-  value: .agents/skills/find-skills
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: null
-- kind: project-relative
-  target: codex
-  value: .agents/skills/find-skills/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:b0fe819fb1b9b69bcb89f854a4a17101140d1e00734e259e216e4c485faa07fe
-- kind: project-relative
-  target: codex
   value: .agents/skills/gitbutler
   runtime: null
   scope: project
@@ -36442,8 +36406,6 @@ local_deployed_files:
 - .agents/skills/elixir/type-system.md
 - .agents/skills/find-docs
 - .agents/skills/find-docs/SKILL.md
-- .agents/skills/find-skills
-- .agents/skills/find-skills/SKILL.md
 - .agents/skills/gitbutler
 - .agents/skills/gitbutler/SKILL.md
 - .agents/skills/gitbutler/references/concepts.md
@@ -36571,8 +36533,6 @@ local_deployed_files:
 - .claude/skills/elixir/type-system.md
 - .claude/skills/find-docs
 - .claude/skills/find-docs/SKILL.md
-- .claude/skills/find-skills
-- .claude/skills/find-skills/SKILL.md
 - .claude/skills/gitbutler
 - .claude/skills/gitbutler/SKILL.md
 - .claude/skills/gitbutler/references/concepts.md
@@ -36698,7 +36658,6 @@ local_deployed_file_hashes:
   .agents/skills/elixir/testing-reference.md: sha256:76db526102e211615d47c42e59b49b692a1cb00a87a3ce82fdd099ae9169c4cb
   .agents/skills/elixir/type-system.md: sha256:2f3e4075e3a1b75fd52772dc3292729873f36db5085f98ed1878be68c64ec740
   .agents/skills/find-docs/SKILL.md: sha256:8374c5e9c5fb0d7355c8db80e235d76891309aa3ca8b7c61007f25d27c59ae81
-  .agents/skills/find-skills/SKILL.md: sha256:b0fe819fb1b9b69bcb89f854a4a17101140d1e00734e259e216e4c485faa07fe
   .agents/skills/gitbutler/SKILL.md: sha256:f3f0bdee4b244d18a49f4ca873c08d407aef1b89c4e29560f21d45239b104f00
   .agents/skills/gitbutler/references/concepts.md: sha256:c09cd5782311ebcbf64015c5f8d31a22a58da724a7ab27409aeda7a870e50a95
   .agents/skills/gitbutler/references/examples.md: sha256:b9bf3934022c8e7d6ecb754ac94139b5e40a4629ca9fc5d8934760091a7755f3
@@ -36819,7 +36778,6 @@ local_deployed_file_hashes:
   .claude/skills/elixir/testing-reference.md: sha256:76db526102e211615d47c42e59b49b692a1cb00a87a3ce82fdd099ae9169c4cb
   .claude/skills/elixir/type-system.md: sha256:2f3e4075e3a1b75fd52772dc3292729873f36db5085f98ed1878be68c64ec740
   .claude/skills/find-docs/SKILL.md: sha256:8374c5e9c5fb0d7355c8db80e235d76891309aa3ca8b7c61007f25d27c59ae81
-  .claude/skills/find-skills/SKILL.md: sha256:b0fe819fb1b9b69bcb89f854a4a17101140d1e00734e259e216e4c485faa07fe
   .claude/skills/gitbutler/SKILL.md: sha256:f3f0bdee4b244d18a49f4ca873c08d407aef1b89c4e29560f21d45239b104f00
   .claude/skills/gitbutler/references/concepts.md: sha256:c09cd5782311ebcbf64015c5f8d31a22a58da724a7ab27409aeda7a870e50a95
   .claude/skills/gitbutler/references/examples.md: sha256:b9bf3934022c8e7d6ecb754ac94139b5e40a4629ca9fc5d8934760091a7755f3
