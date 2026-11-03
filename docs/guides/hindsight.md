@@ -67,12 +67,19 @@ codex mcp get hindsight
 | 항목 | 값 | 조건 |
 |---|---|---|
 | 서버 기동 | push 후 135초 뒤 `/health` 정상 | 이미지 약 1GB 첫 pull 포함 |
-| recall API | 1.1–1.4초 | 공개 경로 왕복, 빈 뱅크 |
-| 자동 주입 hook | 1.1–1.4초 | `inject_recall`, 빈 뱅크 |
+| retain 2건 | 10.3초 | 공개 경로 왕복, LLM 사실 추출 포함 |
+| recall API | 1.5–4.0초 | 공개 경로 왕복, 사실 2건 뱅크. 서버 내부 단계 합계는 0.1초 미만 |
+| recall API (빈 뱅크) | 1.1–1.4초 | 공개 경로 왕복 |
+| 자동 주입 hook | 1.1–1.4초 | `inject_recall` |
 | 세션 시작 hook | 1.4–2.3초 | `session_start` |
-| 임베딩 32건 배치 | 0.71초 | Mac에서 같은 GGUF와 프록시로 측정 |
+| 홈랩 임베딩 1건 | 0.22초 | loopback, CPU |
+| 홈랩 임베딩 32건 배치 | 4.7초 | loopback, CPU. Mac에서는 같은 GGUF로 0.71초 |
+| `hindsight` 컨테이너 메모리 | 1.3GB, 최대 1.7GB | 리랭커 포함 |
+| `hindsight-embedding` 메모리 | 1.6GB, 배치 후 2.7GB | 컨텍스트 16,384 토큰 |
+| `postgresql` 메모리 | 139MB, 최대 148MB | 앱 DB와 공유 |
 
-홈랩의 임베딩·리랭커 메모리 사용량과, 사실이 쌓인 뱅크에서의 recall 시간은 아직 재지 못했다.
+홈랩은 RAM 30GB 중 24GB가 남고 swap은 쓰지 않는다. 뱅크가 작아 리랭커가 후보 수십 건을 채점하는 부하와,
+사실이 수백 건 쌓인 뱅크에서의 recall 시간은 아직 재지 못했다.
 
 ## 실험 목록 (TODO)
 
