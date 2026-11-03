@@ -1,21 +1,25 @@
 {
   "defaultProvider": "openai",
-  "defaultModel": "gpt-6.1-sol",
-  "defaultThinkingLevel": "xhigh",
+  "defaultModel": "gpt-6.1-terra",
+  "defaultThinkingLevel": "max",
   "defaultTools": [
     "+codemode"
   ],
   "modelThinkingLevels": {
     "openai/gpt-6.1-sol": "xhigh",
+    "openai/gpt-6.1-terra": "max",
     "openai-codex/gpt-6-astra": "xhigh",
     "openai-codex/gpt-6-sol": "max",
     "openai-codex/gpt-6.1-sol": "xhigh",
+    "openai-codex/gpt-6.1-terra": "max",
     "openrouter/deepseek/deepseek-v4.1-flash": "off"
   },
   "enabledModels": [
+    "openai/gpt-6.1-terra",
     "openai/gpt-6.1-sol",
     "openai-codex/gpt-6-astra",
     "openai-codex/gpt-6-sol",
+    "openai-codex/gpt-6.1-terra",
     "openai-codex/gpt-6.1-sol",
     "openrouter/aion-labs/aion-3.5",
     "openrouter/deepseek/deepseek-v4.1-flash",
@@ -27,14 +31,15 @@
     "npm:pi-ask-user",
     "npm:pi-intercom",
     "npm:pi-claude-bridge",
-    "npm:@narumitw/pi-goal"
+    "npm:@narumitw/pi-goal",
+    "npm:pi-openai-fast-mode"
   ],
   "extensions": [
     "/Users/hj/dot/nix-dots/files/workspace/.config/pi/extensions/chatgpt-credit-fallback.ts"
   ],
   "subagents": {
-    "defaultModel": "openai/gpt-6.1-sol",
-    "defaultThinking": "xhigh",
+    "defaultModel": "openai/gpt-6.1-terra",
+    "defaultThinking": "max",
     "defaultExtensions": [],
     "defaultSubagentOnlyExtensions": [
       "/Users/hj/dot/nix-dots/files/workspace/.config/pi/extensions/chatgpt-credit-fallback.ts"
@@ -51,11 +56,11 @@
     },
     "agentOverrides": {
       "scout": {
-        "thinking": "xhigh",
+        "thinking": "max",
         "inheritGlobalContext": true
       },
       "researcher": {
-        "thinking": "xhigh",
+        "thinking": "max",
         "inheritGlobalContext": true,
         "inheritSkills": true,
         "tools": [
@@ -66,7 +71,7 @@
         "systemPrompt": "Research the assigned question with the ego-browser skill. Read ~/.agents/skills/ego-browser/SKILL.md before browsing, then use ego-browser through bash. Verify material claims on original sources; distinguish evidence from inference, cite source URLs, and report contradictions and gaps. Write the concise brief to the runtime-specified output path and return a summary."
       },
       "evidence-auditor": {
-        "thinking": "xhigh",
+        "thinking": "max",
         "inheritGlobalContext": true,
         "inheritSkills": true,
         "tools": [
@@ -76,25 +81,25 @@
         "systemPrompt": "Independently audit decision-critical claims with the ego-browser skill. Read ~/.agents/skills/ego-browser/SKILL.md before browsing, then use ego-browser through bash to inspect cited original sources. Mark each claim supported, contradicted, unclear, or missing evidence; report source-quality concerns, contradictions, and effect on the conclusion."
       },
       "worker": {
-        "thinking": "xhigh",
+        "thinking": "max",
         "inheritGlobalContext": true,
         "inheritSkills": true
       },
       "reviewer": {
-        "thinking": "xhigh",
+        "thinking": "max",
         "inheritGlobalContext": true
       },
       "oracle": {
-        "thinking": "xhigh",
+        "thinking": "max",
         "inheritGlobalContext": true
       },
       "delegate": {
-        "thinking": "xhigh",
+        "thinking": "max",
         "inheritGlobalContext": true
       }
     }
   },
-  "lastChangelogVersion": "1.4.0",
+  "lastChangelogVersion": "1.5.0",
   "theme": "dark",
   "skills": [
     "-/Users/hj/.agents/skills/claude-api/SKILL.md",
@@ -117,5 +122,9 @@
   "prompts": [
     "~/.config/pi/prompts"
   ],
-  "deviceId": "df451236-3396-4dfc-8308-482aa2450a0b"
+  "deviceId": "df451236-3396-4dfc-8308-482aa2450a0b",
+  "extensionChangelogVersions": {
+    "{\"source\":\"git:github.com/nicobailon/pi-subagents\",\"scope\":\"user\"}": "0.84.0",
+    "{\"source\":\"npm:@sting8k/pi-vcc\",\"scope\":\"user\"}": "0.11.2"
+  }
 }
