@@ -131,7 +131,6 @@
             pkg:
             builtins.elem (lib.getName pkg) [
               "vault"
-              "claude-code"
             ];
         };
       };
