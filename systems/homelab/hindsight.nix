@@ -61,6 +61,8 @@ in
           HINDSIGHT_API_LLM_API_KEY=${config.sops.placeholder.OPENROUTER_API_KEY}
         '';
         mode = "0400";
+        # secret 값만 바뀌면 unit 정의는 그대로라 컨테이너가 옛 값을 계속 쓴다.
+        restartUnits = [ "hindsight.service" ];
       };
 
       homelab.postgres.enable = true;
