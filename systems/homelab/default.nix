@@ -99,6 +99,10 @@
     ];
   };
 
+  # Claude Code 공식 설치본(~/.local/bin/claude)과 자동 업데이트본은 Nix store 밖의
+  # 일반 Linux 바이너리이므로 NixOS에서 실행하려면 nix-ld가 필요하다.
+  programs.nix-ld.enable = true;
+
   environment.systemPackages = with pkgs; [
     devenv
     ghostty.terminfo
