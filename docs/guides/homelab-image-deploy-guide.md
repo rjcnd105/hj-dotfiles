@@ -236,23 +236,27 @@ CI (앱 레포 → 호스트 레포 dispatch): `hj-dotfiles`의 `Deploy Homelab 
 workflow를 `workflow_dispatch`로 호출한다. 입력: `app`, `channel`, `target`.
 self-hosted runner가 위의 `sudo -n homelab-appctl deploy`를 실행한다.
 
-이 workflow를 직접 부르는 경우는 앱의 prod promotion workflow와 첫 배포뿐이다. dev release는 공통 action 한 스텝으로 배포를 요청한다:
+이 workflow를 직접 부르는 경우는 앱의 prod promotion workflow와 첫 배포뿐이다. dev release는 공통 reusable workflow를 부르는 job 하나로 배포를 요청한다:
 
 ```yaml
-- uses: rjcnd105/hj-dotfiles/.github/actions/homelab-deploy@main
+deploy:
+  needs: publish
+  permissions: {}
+  uses: rjcnd105/hj-dotfiles/.github/workflows/request-homelab-deploy.yml@main
   with:
-    token: ${{ secrets.HOMELAB_DEPLOY_DISPATCH_TOKEN }}
     app: example
     channel: dev
-    target: ${{ env.TARGET }}
+    target: ${{ needs.publish.outputs.target }}
     contract-paths: >-
       devops/runtime-contract.nix
       devops/homelab-admission.nix
+  secrets:
+    token: ${{ secrets.HOMELAB_DEPLOY_DISPATCH_TOKEN }}
 ```
 
-action은 `flake.lock`에 잠긴 앱 revision과 현재 커밋의 `contract-paths` blob을
+이 workflow는 `flake.lock`에 잠긴 앱 revision과 현재 커밋의 `contract-paths` blob을
 비교한다. 그대로면 `Deploy Homelab App`을 바로 호출한다. 바뀌었으면
-`Admit Homelab App`을 호출한다. 이 workflow는 `homelab-prod` 승인을 기다린 뒤 해당
+`Admit Homelab App`을 호출한다. `Admit`은 `homelab-prod` 승인을 기다린 뒤 해당
 앱 input만 올리고, `Nix` 검사를 통과하면 `main`을 fast-forward하고, 요청한 채널의
 배포를 호출한다. 배포 job은 호스트가 dispatch 시점의 `main`을 활성화하고 모델
 다운로드를 끝낼 때까지 기다린다. 다운로드가 실패해 재시도를 기다리는 순간에는 대기를
@@ -300,7 +304,7 @@ gh api repos/rjcnd105/hj-dotfiles/contents/docs/guides/homelab-image-deploy-guid
 ```
 
 1. **요청한다.** 앱 CI를 실행하는 것이 곧 배포 요청이다. 트리거, paths 필터, 채널은 그
-   앱의 CI 파일이 정한다. `flake.lock`은 workflow가 올린다. `homelab-deploy` action을 쓰는
+   앱의 CI 파일이 정한다. `flake.lock`은 workflow가 올린다. `request-homelab-deploy` workflow를 쓰는
    스텝이 끝나면 완료다.
 2. **찾는다.** 그 스텝의 요약에 경로와 추적 명령이 있다. 실행 제목은
    `Deploy <app>/<channel> <target>` 또는 `Admit <app> <target>`이다. 제목이 일치하는
@@ -356,7 +360,7 @@ gh api repos/rjcnd105/hj-dotfiles/contents/docs/guides/homelab-image-deploy-guid
 - [ ] 컨테이너가 env `PORT`에서 리슨하는지 확인
 - [ ] 첫 push 뒤 GHCR 패키지 Public 전환
 - [ ] `gh auth token`으로 `HOMELAB_DEPLOY_DISPATCH_TOKEN` 등록
-- [ ] CI 마지막 스텝을 `rjcnd105/hj-dotfiles/.github/actions/homelab-deploy@main`으로 (섹션 5)
+- [ ] CI 마지막 job을 `rjcnd105/hj-dotfiles/.github/workflows/request-homelab-deploy.yml@main`으로 (섹션 5)
 - [ ] `AGENTS.md`에 포인터 추가: 배포, 런타임 계약, 실패 복구는 이 가이드의 `에이전트 운영 절차`를 따른다
 
 nix-dots:

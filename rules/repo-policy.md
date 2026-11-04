@@ -72,7 +72,7 @@ is byte-identical; newer failed records or changed metadata allow retry.
 Different targets validate the release manifest, pull exact
 digests, migrate, restart release-managed services once, smoke, and record.
 
-External app repos request dev deploys through `.github/actions/homelab-deploy`, which
+External app repos request dev deploys through `.github/workflows/request-homelab-deploy.yml`, which
 dispatches `.github/workflows/deploy-homelab-app.yml` or
 `.github/workflows/admit-homelab-app.yml`. Prod promotions dispatch
 `deploy-homelab-app.yml` directly. Those workflows must stay host-owned and

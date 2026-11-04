@@ -1,0 +1,111 @@
+name: Request Homelab Deploy
+
+# Route a published release to the homelab. Contract files changed since the
+# revision the host admitted go through Admit Homelab App and its approval,
+# everything else goes straight to Deploy Homelab App.
+#
+# A reusable workflow, because runners download a composite action's whole repo
+# and fail on this repo's machine-local symlinks.
+on:
+  workflow_call:
+    inputs:
+      app:
+        description: Admitted homelab app key.
+        required: true
+        type: string
+      channel:
+        description: Deploy channel.
+        required: true
+        type: string
+      target:
+        description: Published release identifier.
+        required: true
+        type: string
+      contract-paths:
+        description: Whitespace-separated repo paths the host admission reads.
+        required: true
+        type: string
+    secrets:
+      # Optional here so a missing secret reaches the error message below.
+      token:
+        description: HOMELAB_DEPLOY_DISPATCH_TOKEN. Reads the app repo and dispatches workflows on the host repo.
+        required: false
+
+permissions: {}
+
+jobs:
+  route:
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Dispatch to the homelab host
+        env:
+          GH_TOKEN: ${{ secrets.token }}
+          APP: ${{ inputs.app }}
+          CHANNEL: ${{ inputs.channel }}
+          TARGET: ${{ inputs.target }}
+          CONTRACT_PATHS: ${{ inputs.contract-paths }}
+          HOST_REPO: rjcnd105/hj-dotfiles
+        run: |
+          set -euo pipefail
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::missing HOMELAB_DEPLOY_DISPATCH_TOKEN secret; $TARGET was published but not deployed" >&2
+            exit 1
+          fi
+
+          admitted="$(
+            gh api "repos/$HOST_REPO/contents/flake.lock" -H 'Accept: application/vnd.github.raw+json' |
+              jq -r --arg repo "$GITHUB_REPOSITORY" '
+                .nodes as $n
+                | $n.root.inputs[] | strings | $n[.]
+                | select(.flake == false and "\(.original.owner)/\(.original.repo)" == $repo)
+                | .locked.rev'
+          )"
+          if [ -z "$admitted" ]; then
+            echo "::error::$GITHUB_REPOSITORY is not a flake input of $HOST_REPO; admit it by hand first" >&2
+            exit 1
+          fi
+
+          # Blob ids, because compare truncates its file list at 300 files.
+          blob() {
+            local sha
+            if sha="$(gh api "repos/$GITHUB_REPOSITORY/contents/$1?ref=$2" --jq .sha 2>/dev/null)"; then
+              echo "$sha"
+            else
+              echo missing
+            fi
+          }
+          contract_changed=false
+          for path in $CONTRACT_PATHS; do
+            before="$(blob "$path" "$admitted")"
+            after="$(blob "$path" "$GITHUB_SHA")"
+            if [ "$before" = missing ] && [ "$after" = missing ]; then
+              echo "::error::contract path $path is not a file at $admitted or $GITHUB_SHA; fix contract-paths" >&2
+              exit 1
+            fi
+            if [ "$before" != "$after" ]; then
+              contract_changed=true
+            fi
+          done
+
+          args=(-f "app=$APP" -f "channel=$CHANNEL" -f "target=$TARGET")
+          if [ "$contract_changed" = true ]; then
+            workflow=admit-homelab-app.yml
+            title="Admit $APP $TARGET"
+            gh workflow run "$workflow" -R "$HOST_REPO" --ref main "${args[@]}" \
+              -f "source_repo=$GITHUB_REPOSITORY" -f "source_rev=$GITHUB_SHA"
+            echo "::notice::contract changed since $admitted; requested host admission of $TARGET, which waits for approval"
+          else
+            workflow=deploy-homelab-app.yml
+            title="Deploy $APP/$CHANNEL $TARGET"
+            gh workflow run "$workflow" -R "$HOST_REPO" --ref main "${args[@]}"
+            echo "::notice::requested homelab deploy of $TARGET"
+          fi
+
+          {
+            echo "## Homelab: $title"
+            echo
+            echo '```sh'
+            echo "gh run list -R $HOST_REPO --workflow $workflow --json displayTitle,status,conclusion,url --jq '.[] | select(.displayTitle == \"$title\")'"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

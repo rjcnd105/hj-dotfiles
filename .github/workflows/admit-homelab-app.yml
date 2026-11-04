@@ -1,7 +1,7 @@
 name: Admit Homelab App
 run-name: Admit ${{ inputs.app }} ${{ inputs.target }}
 
-# Dispatched by .github/actions/homelab-deploy when an app's deployment contract
+# Dispatched by request-homelab-deploy.yml when an app's deployment contract
 # differs from the revision in flake.lock. A person approves, then this bumps only
 # that input, runs the Nix checks, fast-forwards main and dispatches the deploy,
 # which waits for comin to activate the revision.
