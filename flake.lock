@@ -78,11 +78,11 @@
     "frontVibeHelperApp": {
       "flake": false,
       "locked": {
-        "lastModified": 1792031638,
-        "narHash": "sha256-duIQiQUX0u764Yxt70lyq14H6lUXU30gV5v6ZLukXuc=",
+        "lastModified": 1793787741,
+        "narHash": "sha256-tiPX+jyX9XSFJj/p81Kp7Hn2GaoRzNpR+Cv2Bz8G484=",
         "owner": "rjcnd105",
         "repo": "front-vibe-helper",
-        "rev": "35a625ac5298fcb7fec13aea9cf61326af443f65",
+        "rev": "c9b9d471f9371c6f3e89a3a2d08476361314c414",
         "type": "github"
       },
       "original": {
