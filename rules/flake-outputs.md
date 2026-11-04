@@ -57,8 +57,12 @@ nix flake update
 Good targeted lock update:
 
 ```sh
-nix flake lock --update-input deopjibApp
+nix flake lock --update-input home-manager
 ```
+
+App inputs such as `deopjibApp` normally move through `Admit Homelab App`. Dependabot
+and `just flake_update` can also move them without its compare summary, so check their
+diffs for app inputs.
 
 Bad local reference:
 

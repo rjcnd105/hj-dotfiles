@@ -1,4 +1,5 @@
 name: Deploy Homelab App
+run-name: Deploy ${{ inputs.app }}/${{ inputs.channel }} ${{ inputs.target }}
 
 on:
   workflow_dispatch:
@@ -28,7 +29,54 @@ jobs:
       - self-hosted
       - homelab
     environment: ${{ inputs.channel == 'prod' && 'homelab-prod' || 'homelab-dev' }}
+    permissions:
+      contents: read
     steps:
+      # GITHUB_SHA is main when this run was dispatched, so it covers any contract
+      # already landed there. nixos-version moves before units start, so also wait for
+      # the switch lock to clear. Read /proc/locks: switch-to-configuration fails if it
+      # cannot take that lock at once, so this job must never hold it.
+      - name: Wait for the host to finish activating main
+        run: |
+          set -euo pipefail
+          deadline=$((SECONDS + 1800))
+          current=unknown
+          lock=/run/nixos/switch-to-configuration.lock
+          test -r /proc/locks || {
+            echo "::error::cannot read /proc/locks" >&2
+            exit 1
+          }
+          while [ "$SECONDS" -lt "$deadline" ]; do
+            current="$(/run/current-system/sw/bin/nixos-version --json | jq -r .configurationRevision)" || current=unknown
+            status="$(
+              curl -fsS --max-time 20 \
+                -H "Accept: application/vnd.github+json" \
+                -H "Authorization: Bearer $GH_TOKEN" \
+                "https://api.github.com/repos/$GITHUB_REPOSITORY/compare/$GITHUB_SHA...$current" |
+                jq -r .status
+            )" || status=unknown
+            lock_id=none
+            if read -r major minor inode < <(stat -c '%Hd %Ld %i' "$lock" 2>/dev/null); then
+              lock_id="$(printf '%02x:%02x:%s' "$major" "$minor" "$inode")"
+            fi
+            if { [ "$status" = identical ] || [ "$status" = ahead ]; } &&
+              ! grep -q " $lock_id " /proc/locks &&
+              ! systemctl is-active --quiet ollama-model-loader.service; then
+              echo "::notice::host is at $current"
+              exit 0
+            fi
+            sleep 15
+          done
+          switch_lock=free
+          if grep -q " $lock_id " /proc/locks; then
+            switch_lock=held
+          fi
+          loader="$(systemctl is-active ollama-model-loader.service || true)"
+          echo "::error::host did not finish activating $GITHUB_SHA within 30 minutes; it is at $current (compare $status, switch lock $switch_lock, model loader $loader)" >&2
+          exit 1
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Deploy
         run: |
           set -euo pipefail

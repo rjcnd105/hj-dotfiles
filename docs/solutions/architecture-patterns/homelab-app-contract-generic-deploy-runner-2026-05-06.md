@@ -133,7 +133,7 @@ Local macOS validation evaluates all outputs without pretending to build Linux:
 
 ```sh
 nix flake check --all-systems --no-build --show-trace --no-write-lock-file \
-  --override-input deopjibRuntime path:/absolute/path/to/app
+  --override-input deopjibApp path:/absolute/path/to/app
 ```
 
 Linux CI additionally runs:

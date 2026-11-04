@@ -45,8 +45,10 @@
     };
   };
 
+  # wants: requires would stop this runner, and the deploy job on it, whenever a
+  # switch restarts sops-install-secrets.
   systemd.services.github-runner-homelab-deploy = {
-    requires = [ "sops-install-secrets.service" ];
+    wants = [ "sops-install-secrets.service" ];
     after = [ "sops-install-secrets.service" ];
   };
 }

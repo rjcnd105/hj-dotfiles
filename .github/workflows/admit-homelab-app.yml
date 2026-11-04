@@ -1,0 +1,259 @@
+name: Admit Homelab App
+run-name: Admit ${{ inputs.app }} ${{ inputs.target }}
+
+# Dispatched by .github/actions/homelab-deploy when an app's deployment contract
+# differs from the revision in flake.lock. A person approves, then this bumps only
+# that input, runs the Nix checks, fast-forwards main and dispatches the deploy,
+# which waits for comin to activate the revision.
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: "Admitted homelab app key"
+        required: true
+        type: string
+      channel:
+        description: "Channel to deploy after activation"
+        required: true
+        type: string
+      target:
+        description: "Release identifier to deploy after activation"
+        required: true
+        type: string
+      source_repo:
+        description: "App repo, owner/name. Must be a flake = false root input"
+        required: true
+        type: string
+      source_rev:
+        description: "App commit to admit, 40-hex"
+        required: true
+        type: string
+
+permissions: {}
+
+# Per app: a shared group would cancel another app's pending request. Two apps
+# racing for main is handled in the land job.
+concurrency:
+  group: admit-homelab-app-${{ inputs.app }}
+  cancel-in-progress: false
+
+jobs:
+  describe:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      input: ${{ steps.request.outputs.input }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Validate the request and describe it for the approver
+        id: request
+        run: |
+          set -euo pipefail
+          if ! [[ "$SOURCE_REV" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::source_rev must be a 40-hex commit id" >&2
+            exit 1
+          fi
+
+          input="$(
+            jq -r --arg repo "$SOURCE_REPO" '
+              .nodes as $n
+              | $n.root.inputs | to_entries[]
+              | select(.value | type == "string")
+              | select($n[.value].flake == false and "\($n[.value].original.owner)/\($n[.value].original.repo)" == $repo)
+              | .key' flake.lock
+          )"
+          if [ -z "$input" ]; then
+            echo "::error::$SOURCE_REPO is not a flake = false root input; add it by hand (guide section 4)" >&2
+            exit 1
+          fi
+          echo "input=$input" >> "$GITHUB_OUTPUT"
+
+          admitted="$(jq -r --arg input "$input" '.nodes[.nodes.root.inputs[$input]].locked.rev' flake.lock)"
+          # This repo is public: name revisions only. The diff stays behind the app repo's access control.
+          {
+            echo "## Approval needed: $APP $TARGET"
+            echo
+            echo "Review the contract and admission files in https://github.com/$SOURCE_REPO/compare/$admitted...$SOURCE_REV"
+            echo
+            echo "Approving lands the lock on main, so the host applies it to every channel of this input."
+            echo "That includes prod env, models and container restarts, before any prod promote."
+            echo "If an env template changes, restarting sops also restarts other apps and cloudflared."
+          } >> "$GITHUB_STEP_SUMMARY"
+        env:
+          APP: ${{ inputs.app }}
+          TARGET: ${{ inputs.target }}
+          SOURCE_REPO: ${{ inputs.source_repo }}
+          SOURCE_REV: ${{ inputs.source_rev }}
+
+  prepare:
+    needs: describe
+    runs-on: ubuntu-latest
+    # App contracts choose secrets, images and routes that root applies, so a person
+    # approves here. Waiting before the bump keeps the checks on a current main.
+    environment: homelab-prod
+    permissions:
+      contents: write
+    outputs:
+      base: ${{ steps.bump.outputs.base }}
+      branch: ${{ steps.bump.outputs.branch }}
+      revision: ${{ steps.bump.outputs.revision }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          persist-credentials: false
+
+      - uses: DeterminateSystems/determinate-nix-action@v3
+        with:
+          github-token: ${{ secrets.NIX_GITHUB_TOKEN }}
+
+      - name: Commit the flake.lock bump to a branch
+        id: bump
+        run: |
+          set -euo pipefail
+          admitted="$(jq -r --arg input "$INPUT" '.nodes[.nodes.root.inputs[$input]].locked.rev' flake.lock)"
+          base="$(git rev-parse HEAD)"
+          echo "base=$base" >> "$GITHUB_OUTPUT"
+
+          default_branch="$(GH_TOKEN="$NIX_GITHUB_TOKEN" gh api "repos/$SOURCE_REPO" --jq .default_branch)"
+          merged="$(GH_TOKEN="$NIX_GITHUB_TOKEN" gh api "repos/$SOURCE_REPO/compare/$default_branch...$SOURCE_REV" --jq .status)"
+          case "$merged" in
+            identical | behind) ;;
+            *)
+              echo "::error::$SOURCE_REV is not on $default_branch of $SOURCE_REPO ($merged); merge it and release again" >&2
+              exit 1
+              ;;
+          esac
+
+          status="$(GH_TOKEN="$NIX_GITHUB_TOKEN" gh api "repos/$SOURCE_REPO/compare/$admitted...$SOURCE_REV" --jq .status)"
+          case "$status" in
+            identical)
+              echo "::notice::$INPUT is already at $SOURCE_REV"
+              exit 0
+              ;;
+            ahead) ;;
+            *)
+              echo "::error::refusing to move $INPUT from $admitted to $SOURCE_REV ($status)" >&2
+              exit 1
+              ;;
+          esac
+
+          nix flake lock --override-input "$INPUT" "github:$SOURCE_REPO/$SOURCE_REV"
+
+          # The Contents API signs the commit, which main's required_signatures needs.
+          branch="admit/$APP-${SOURCE_REV::12}"
+          gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$branch" >/dev/null 2>&1 || true
+          gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" -f "ref=refs/heads/$branch" -f "sha=$base" >/dev/null
+          commit="$(
+            base64 -w0 flake.lock |
+              jq -Rs \
+                --arg message "chore(homelab): update $APP to $TARGET" \
+                --arg sha "$(git rev-parse HEAD:flake.lock)" \
+                --arg branch "$branch" \
+                '{message: $message, content: ., sha: $sha, branch: $branch}' |
+              gh api -X PUT "repos/$GITHUB_REPOSITORY/contents/flake.lock" --input - --jq .commit.sha
+          )"
+          {
+            echo "branch=$branch"
+            echo "revision=$commit"
+          } >> "$GITHUB_OUTPUT"
+        env:
+          APP: ${{ inputs.app }}
+          TARGET: ${{ inputs.target }}
+          INPUT: ${{ needs.describe.outputs.input }}
+          SOURCE_REPO: ${{ inputs.source_repo }}
+          SOURCE_REV: ${{ inputs.source_rev }}
+          GH_TOKEN: ${{ github.token }}
+          NIX_GITHUB_TOKEN: ${{ secrets.NIX_GITHUB_TOKEN }}
+
+  check:
+    needs: prepare
+    if: needs.prepare.outputs.branch != ''
+    permissions:
+      contents: read
+    uses: ./.github/workflows/nix.yml
+    with:
+      ref: ${{ needs.prepare.outputs.revision }}
+    secrets: inherit
+
+  land:
+    needs: [prepare, check]
+    if: needs.prepare.outputs.branch != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - name: Fast-forward main
+        run: |
+          set -euo pipefail
+          if gh api -X PATCH "repos/$GITHUB_REPOSITORY/git/refs/heads/main" -f "sha=$REVISION" -F force=false >/dev/null; then
+            exit 0
+          fi
+          if [ "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)" = "$BASE" ]; then
+            echo "::error::main rejected $REVISION although it has not moved" >&2
+            exit 1
+          fi
+          # A queued request for this app is newer and contains this contract. Dispatching
+          # again would replace it, because a concurrency group keeps one pending run.
+          queued="$(
+            gh run list -R "$GITHUB_REPOSITORY" --workflow admit-homelab-app.yml --limit 50 \
+              --json databaseId,displayTitle,status |
+              jq -r --arg self "$GITHUB_RUN_ID" --arg prefix "Admit $APP " '
+                map(select(.status != "completed" and (.databaseId | tostring) != $self and (.displayTitle | startswith($prefix))))
+                | first.displayTitle // ""'
+          )"
+          if [ -n "$queued" ]; then
+            echo "::error::main moved during the checks; the queued '$queued' supersedes $TARGET" >&2
+            exit 1
+          fi
+          gh workflow run admit-homelab-app.yml -R "$GITHUB_REPOSITORY" --ref main \
+            -f "app=$APP" -f "channel=$CHANNEL" -f "target=$TARGET" \
+            -f "source_repo=$SOURCE_REPO" -f "source_rev=$SOURCE_REV"
+          echo "::error::main moved during the checks; dispatched a fresh admission that needs approval" >&2
+          exit 1
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE: ${{ needs.prepare.outputs.base }}
+          REVISION: ${{ needs.prepare.outputs.revision }}
+          APP: ${{ inputs.app }}
+          CHANNEL: ${{ inputs.channel }}
+          TARGET: ${{ inputs.target }}
+          SOURCE_REPO: ${{ inputs.source_repo }}
+          SOURCE_REV: ${{ inputs.source_rev }}
+
+  cleanup:
+    needs: [prepare, check, land]
+    if: ${{ always() && needs.prepare.outputs.branch != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Delete the admission branch
+        run: gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$BRANCH" || echo "::notice::$BRANCH is already gone"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ needs.prepare.outputs.branch }}
+
+  deploy:
+    needs: [prepare, land]
+    # land is skipped when the input is already admitted, and that path still deploys.
+    if: ${{ !cancelled() && needs.prepare.result == 'success' && (needs.prepare.outputs.branch == '' || needs.land.result == 'success') }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch the deploy
+        run: |
+          gh workflow run deploy-homelab-app.yml -R "$GITHUB_REPOSITORY" --ref main \
+            -f "app=$APP" -f "channel=$CHANNEL" -f "target=$TARGET"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APP: ${{ inputs.app }}
+          CHANNEL: ${{ inputs.channel }}
+          TARGET: ${{ inputs.target }}

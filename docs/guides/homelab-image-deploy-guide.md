@@ -2,7 +2,7 @@
 
 대상: 자기 앱을 이 homelab에 배포하려는 앱 저장소의 에이전트/운영자.
 이 문서만 보고 계약 작성 → 릴리스 발행 → 배포까지 그대로 따라갈 수 있어야 한다.
-(deopjib이 아직 사용 중인 구 계약 v1은 [부록 A](#부록-a--계약-v1-레거시) 참고.)
+(구 계약 v1은 [부록 A](#부록-a--계약-v1-레거시) 참고. 지금 v1을 쓰는 앱은 없다.)
 
 ## 큰 그림
 
@@ -236,6 +236,33 @@ CI (앱 레포 → 호스트 레포 dispatch): `hj-dotfiles`의 `Deploy Homelab 
 workflow를 `workflow_dispatch`로 호출한다. 입력: `app`, `channel`, `target`.
 self-hosted runner가 위의 `sudo -n homelab-appctl deploy`를 실행한다.
 
+이 workflow를 직접 부르는 경우는 앱의 prod promotion workflow와 첫 배포뿐이다. dev release는 공통 action 한 스텝으로 배포를 요청한다:
+
+```yaml
+- uses: rjcnd105/hj-dotfiles/.github/actions/homelab-deploy@main
+  with:
+    token: ${{ secrets.HOMELAB_DEPLOY_DISPATCH_TOKEN }}
+    app: example
+    channel: dev
+    target: ${{ env.TARGET }}
+    contract-paths: >-
+      devops/runtime-contract.nix
+      devops/homelab-admission.nix
+```
+
+action은 `flake.lock`에 잠긴 앱 revision과 현재 커밋의 `contract-paths` blob을
+비교한다. 그대로면 `Deploy Homelab App`을 바로 호출한다. 바뀌었으면
+`Admit Homelab App`을 호출한다. 이 workflow는 `homelab-prod` 승인을 기다린 뒤 해당
+앱 input만 올리고, `Nix` 검사를 통과하면 `main`을 fast-forward하고, 요청한 채널의
+배포를 호출한다. 배포 job은 호스트가 dispatch 시점의 `main`을 활성화하고 모델
+다운로드를 끝낼 때까지 기다린다. 다운로드가 실패해 재시도를 기다리는 순간에는 대기를
+통과할 수 있다.
+
+승인이 필요한 이유는 계약이 secret 이름, 이미지, route를 정하고 root가 이를 적용하기
+때문이다. dev와 prod가 같은 input을 쓰므로 승인하면 prod의 env, 모델, 컨테이너
+재시작도 prod 승격 전에 함께 적용된다. env template이 바뀌면 sops 재시작으로 다른 앱과
+cloudflared도 함께 재시작된다. 실행 요약의 compare 링크에서 계약 파일을 보고 승인한다.
+
 앱 레포의 dispatch secret은 새 PAT를 만들지 않고 계정 단위 `gh` CLI 토큰으로
 등록한다(deopjib과 같은 방식):
 
@@ -263,6 +290,63 @@ pull/tag/migration 실패는 이전 태그로 복원된다. restart/smoke 실패
 target을 다시 deploy하는 것이 롤백이다(별도 rollback 부명령 없음 — 릴리스 권한을
 둘로 만들지 않기 위해). 이미지 롤백은 DB 마이그레이션을 자동으로 되돌리지 않는다.
 
+## 에이전트 운영 절차
+
+배포, 릴리스 추적, 실패 복구는 이 절차를 따른다. 호스트 레포가 없는 앱 레포에서는
+이렇게 읽는다:
+
+```sh
+gh api repos/rjcnd105/hj-dotfiles/contents/docs/guides/homelab-image-deploy-guide.md -H 'Accept: application/vnd.github.raw+json'
+```
+
+1. **요청한다.** 앱 CI를 실행하는 것이 곧 배포 요청이다. 트리거, paths 필터, 채널은 그
+   앱의 CI 파일이 정한다. `flake.lock`은 workflow가 올린다. `homelab-deploy` action을 쓰는
+   스텝이 끝나면 완료다.
+2. **찾는다.** 그 스텝의 요약에 경로와 추적 명령이 있다. 실행 제목은
+   `Deploy <app>/<channel> <target>` 또는 `Admit <app> <target>`이다. 제목이 일치하는
+   실행을 찾으면 완료다.
+
+   ```sh
+   gh run list -R rjcnd105/hj-dotfiles --workflow deploy-homelab-app.yml --json displayTitle,status,conclusion,url
+   gh run list -R rjcnd105/hj-dotfiles --workflow admit-homelab-app.yml --json displayTitle,status,conclusion,url
+   ```
+
+3. **승인을 넘긴다.** `homelab-prod` 승인은 사람의 몫이다. 상태가 `waiting`이면 실행 URL과
+   target을 사람에게 전하고, 승인되거나 실행이 끝날 때까지 기다린다. 상태가 `pending`이면 같은 앱의
+   앞선 실행이 막고 있다. 목록에서 `waiting`인 실행의 URL을 전한다. 앞선 실행이 끝나면 내 실행도
+   다시 승인이 필요하다.
+4. **확인한다.** `Admit`은 성공할 때 `Deploy` 실행을 새로 만든다. `Deploy <app>/<channel> <target>`이
+   `success`이면 완료다. appctl이 smoke까지 통과했거나, 같은 target의 성공 기록이 있어 no-op으로 끝난 결과다. `Admit`이 실패로 끝나면 `Deploy`는
+   생기지 않으니 아래 표를 본다.
+5. **prod로 올린다.** prod는 앱 레포의 승격 workflow로 요청하고 3번과 같이 승인을 넘긴다.
+
+호스트 명령(`comin status`, `homelab-appctl logs`)은 ssh가 필요하다. ssh가 없으면 오류 문구와
+실행 URL을 사람에게 보고한다.
+
+오류 문구는 `gh run view <id> -R rjcnd105/hj-dotfiles`의 `ANNOTATIONS`와 `--log-failed` 출력에서 읽는다.
+다음 표에서 문구를 찾아 조치한다:
+
+| 오류 문구 | 의미 | 다음 조치 |
+|---|---|---|
+| `missing HOMELAB_DEPLOY_DISPATCH_TOKEN` | 배포가 요청되지 않았다. `was published`면 릴리스는 발행됐고, `refusing to publish`면 발행 전에 멈췄다 | 섹션 5로 secret을 등록하고 앱 CI 재실행 |
+| `is not a flake input` 또는 `is not a flake = false root input` | 호스트에 앱이 없다 | 섹션 4의 첫 승인을 사람에게 요청 |
+| `contract path ... is not a file` | `contract-paths`가 틀렸거나 토큰에 앱 레포 읽기 권한이 없다 | 앱 CI의 경로와 토큰 권한 확인 |
+| `HTTP 401` 또는 `HTTP 403` | dispatch 토큰이 만료됐거나 권한이 부족하다 | 사람에게 보고 |
+| `The deployment was rejected` | `Admit` 또는 `Deploy`의 승인이 거부됐다 | `gh api repos/rjcnd105/hj-dotfiles/actions/runs/<id>/approvals`로 확인하고 사람에게 확인 |
+| `Admit` 또는 `Deploy`가 `cancelled` | 같은 앱의 더 새 요청에 밀렸다 | 더 새 실행에 대해 3번부터 |
+| `The runner has received a shutdown signal` 또는 `lost communication` | 호스트 활성화나 재부팅이 runner를 멈췄다 | runner가 돌아온 뒤 실패한 job 재실행 |
+| `is not on` | 기본 브랜치에 없는 커밋이다 | 병합 뒤 다시 릴리스 |
+| `refusing to move ... (behind)` | 더 새 커밋이 이미 채택됐다 | 조치 없음. 더 새 target을 배포 |
+| `refusing to move ... (diverged)` | 앱 기본 브랜치가 잠긴 커밋을 잃었다 | 사람에게 보고 |
+| `Nix` check 실패 | 계약이 호스트 검사에 어긋난다. 서비스, 이미지, secret 추가는 호스트 수정도 필요하다 | 로그를 보고 수정. 앱 수정은 새 릴리스, 호스트 수정은 전체 재실행 또는 새 릴리스. 실패한 job 재실행은 같은 revision을 다시 검사하므로 일시적 실패에만 쓴다 |
+| `main moved during the checks; dispatched` | 새 Admit이 만들어졌다 | 새 실행에 대해 3번부터 |
+| `main moved during the checks; the queued` | 대기 중인 더 새 Admit이 대신한다 | 그 실행에 대해 3번부터 |
+| `main rejected` | 브랜치 보호가 거부했다. 서명 누락 가능성이 크다 | 사람에게 보고 |
+| `host did not finish activating` | 괄호 안 값이 원인이다. `compare`가 `behind` 또는 `diverged`면 comin 미완료나 실패, `unknown`이면 GitHub API 또는 revision 조회 실패, `switch lock held`면 활성화 중, `model loader active`면 모델 다운로드 중이다. `Admit` 경로로 왔으면 `main`에는 lock이 남아 있다 | `comin status` 확인. 성공했고 다운로드가 끝났으면 실패한 job 재실행, 그 외에는 사람에게 보고. 이 상태에서는 모든 배포가 같은 대기에 막히므로 긴급 복구는 ssh 가능한 사람이 `sudo -n homelab-appctl deploy <app> <channel> --target <정상 target>`을 실행한다 |
+| `timed out waiting for deploy lock` | 같은 앱/채널의 다른 배포가 진행 중이다 | 그 배포가 끝난 뒤 실패한 job 재실행 |
+| `appctl` 또는 smoke 실패 | 배포가 실패했다 | `homelab-appctl logs <app> <channel>` 확인. 복구는 정상 target 재배포 |
+| 표에 없는 `Process completed with exit code 1` | 위 원인에 해당하지 않는 실패다 | `--log-failed`를 읽고 오류 문구와 실행 URL을 사람에게 보고 |
+
 ## 새 앱 체크리스트
 
 앱 레포:
@@ -272,6 +356,8 @@ target을 다시 deploy하는 것이 롤백이다(별도 rollback 부명령 없�
 - [ ] 컨테이너가 env `PORT`에서 리슨하는지 확인
 - [ ] 첫 push 뒤 GHCR 패키지 Public 전환
 - [ ] `gh auth token`으로 `HOMELAB_DEPLOY_DISPATCH_TOKEN` 등록
+- [ ] CI 마지막 스텝을 `rjcnd105/hj-dotfiles/.github/actions/homelab-deploy@main`으로 (섹션 5)
+- [ ] `AGENTS.md`에 포인터 추가: 배포, 런타임 계약, 실패 복구는 이 가이드의 `에이전트 운영 절차`를 따른다
 
 nix-dots:
 - [ ] flake input + `admit-app.nix` 승인 (subnetId, PG secret)
@@ -283,13 +369,12 @@ nix-dots:
 
 ## 부록 A — 계약 v1 (레거시)
 
-deopjib이 이관(Phase 3) 전까지 사용하는 구 형식. 차이점:
+지금 이 형식을 쓰는 앱은 없다. `manifest.go`와 `app-containers.nix`에 남은 v1 분기를 읽을 때만 필요하다. 차이점:
 
 - `schemaVersion` 없음(=1). release manifest는 `schemaVersion: 1`이며
   `sourceRev`와 `deploymentContract`의 소스 해시 4종
   (runtime/admission/schema/generator)이 admission 메타데이터와 일치해야 한다.
-- 승인 시 `builtins.hashFile`로 4종 해시를 계산해 붙인다
-  (`systems/homelab/app-admissions.nix`의 deopjib 항목 참고).
+- 승인 시 `builtins.hashFile`로 4종 해시를 계산해 붙인다.
 - db를 계약 안의 `pinned-digest` 서비스로 직접 운영한다.
 - 런타임 의도가 바뀌면: 앱 계약 merge → nix-dots input 범프 merge → comin 활성화
   → 그 다음에야 새 해시의 release가 배포된다.

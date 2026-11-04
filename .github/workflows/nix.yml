@@ -6,17 +6,25 @@ on:
     branches:
       - main
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      ref:
+        description: "Commit to check"
+        required: true
+        type: string
 
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
 
       - uses: DeterminateSystems/determinate-nix-action@v3
         with:
           # Default is ${{ github.token }}, which is scoped to this repo only and
-          # cannot read the private deopjibRuntime input. The action turns this into
+          # cannot read the private deopjibApp input. The action turns this into
           # nix.conf `access-tokens`.
           github-token: ${{ secrets.NIX_GITHUB_TOKEN }}
 

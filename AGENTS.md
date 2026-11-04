@@ -103,7 +103,9 @@ it where configured. The binary is not an agent-callable code intelligence tool.
 ## Homelab App Deployments
 
 Read `docs/guides/homelab-image-deploy-guide.md` before changing homelab app
-runtime, admission, release, or deploy behavior.
+runtime, admission, release, or deploy behavior. Deploying an app, tracking a
+release, or recovering a failed admission or deploy follows its `에이전트 운영 절차`
+section.
 
 Responsibility boundary:
 
@@ -114,8 +116,7 @@ Responsibility boundary:
   `homelab-appctl`.
 - Do not add app-specific homelab deploy runners to app repos.
 - For `manual` services, treat the app release manifest as the immutable image
-  identity. The admitted runtime, admission, manifest schema, and generator
-  source hashes remain the host policy boundary.
+  identity. The revision locked in `flake.lock` is the host policy boundary.
 
 Current host-side deploy ABI:
 

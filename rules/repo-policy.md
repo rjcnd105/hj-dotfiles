@@ -23,7 +23,8 @@ Nix guidance.
 
 ## Homelab App Runtime
 
-- App repos own app runtime intent through `devops/runtime-contract.nix`.
+- App repos own app runtime intent through `devops/runtime-contract.nix`
+  (`deopjib/devops/` in the `my-app` monorepo).
 - App repos may provide `devops/homelab-admission.nix` as structured admission
   requests.
 - `nix-dots` owns admission, host binding, registry auth, secrets, volumes,
@@ -33,8 +34,9 @@ Nix guidance.
   repo can own a contract.
 - Do not add app-specific homelab deploy scripts to app repos.
 - `manual` services deploy the exact image digests in an app release manifest.
-  `nix-dots` admits its image names, target channel, and runtime, admission,
-  manifest-schema, and generator source hashes before any host mutation.
+  `nix-dots` checks its schema version, app, target, target pattern, and image
+  names before any host mutation. App contract changes normally reach the host
+  through the approved `Admit Homelab App` workflow.
 
 ## Homelab Deploy ABI
 
@@ -56,21 +58,25 @@ sudo -n homelab-appctl deploy <app> <channel> --target <identifier>
 
 Do not make the app repo depend on this path. This path is a host adapter detail.
 `deploy` requires root because it writes deploy records and controls system
-services; this repo grants only that subcommand through a narrow passwordless
-sudo rule for the homelab operator user. A rollback within the admitted source
-hashes is another deploy of a known-good target; older contracts first require a
-pinned app-input revert through PR/comin.
+services. The runner's passwordless sudo rule grants only that subcommand. The
+operator user also holds `homelab-appctl *` through `systems/homelab/operator.nix`. A rollback is another deploy of a known-good
+target; restoring an older contract first requires a signed commit on `main` that
+reverts the pinned app input, then comin activation, because `Admit Homelab App`
+refuses backward moves.
 
 When `deploy` receives `--target <identifier>`, it compares that identifier
 with the most recent deploy record. Prefer app release identifiers such as
 `deopjib-v0.0.1`; full source SHAs are a transition format. Matching targets are
 no-ops only when the most recent record is successful and its admitted metadata
 is byte-identical; newer failed records or changed metadata allow retry.
-Different targets validate the release manifest and deployment source hashes, pull exact
+Different targets validate the release manifest, pull exact
 digests, migrate, restart release-managed services once, smoke, and record.
 
-External app repos may dispatch `.github/workflows/deploy-homelab-app.yml`, but
-the workflow must stay host-owned, input-validated, and homelab-runner-only. Do
+External app repos request dev deploys through `.github/actions/homelab-deploy`, which
+dispatches `.github/workflows/deploy-homelab-app.yml` or
+`.github/workflows/admit-homelab-app.yml`. Prod promotions dispatch
+`deploy-homelab-app.yml` directly. Those workflows must stay host-owned and
+input-validated, and host mutation runs only on the homelab runner. Do
 not put SSH, systemd, Caddy, secret, migration, or direct `homelab-appctl`
 implementation details in app repos.
 
