@@ -8,6 +8,10 @@
 # 2단계 활성화 (새 sops secret과 소비 서비스를 한 switch에 넣으면 243/CREDENTIALS로 실패):
 #   1. enable — secret·DB·임베딩·라우팅만 배포
 #   2. server.enable — secret을 읽는 DB 설정 oneshot과 API 컨테이너
+#
+# 대시보드(Control Plane)는 beszel과 같은 경로로 노출한다:
+# Caddy(loopback) → cloudflared → Cloudflare Access. API 키는 대시보드 컨테이너만 갖고
+# 브라우저에는 내려가지 않으므로, 이 호스트명은 Access 앱이 있어야만 열어도 된다.
 {
   config,
   lib,
@@ -22,10 +26,15 @@ let
   apiPort = 18093;
   embeddingPort = 18094;
   llamaPort = 18095;
+  dashboardDomain = "hindsight-ui.deopjib.cc";
+  dashboardCaddyPort = 18096;
+  dashboardPort = 18097;
 
   # 태그는 움직일 수 있으므로 digest로 고정한다 (hindsight-api:1.2.1, 멀티 아키텍처 인덱스).
   # slim 이미지는 torch가 없어 hs-rerank-1을 프로세스 안에서 돌리지 못한다.
   image = "ghcr.io/vectorize-io/hindsight-api@sha256:662109ece429871a81e036427fb93fbb09ba9dc4b01d320d356f114c0e1aedd8";
+  # hindsight-control-plane:1.2.1. API와 같은 버전으로 맞춘다.
+  dashboardImage = "ghcr.io/vectorize-io/hindsight-control-plane@sha256:74a113e1f02ace9e8feed954e6b42282e9e3d33b7e0b6d528158d05902552a9a";
 
   # KURE-v3는 2,048차원 Matryoshka 모델이다. 1,024차원으로 잘라 쓴다(docs/adr/0001).
   # 차원을 바꾸면 저장된 벡터를 전부 다시 임베딩해야 한다.
@@ -41,6 +50,7 @@ in
   options.homelab.hindsight = {
     enable = lib.mkEnableOption "Hindsight memory server prerequisites (secrets, database, embeddings, routing)";
     server.enable = lib.mkEnableOption "Hindsight API container (requires the sops secrets to be deployed first)";
+    dashboard.enable = lib.mkEnableOption "Hindsight Control Plane behind Caddy + cloudflared + CF Access (requires the env template to be deployed first)";
   };
 
   config = lib.mkMerge [
@@ -63,6 +73,15 @@ in
         mode = "0400";
         # secret 값만 바뀌면 unit 정의는 그대로라 컨테이너가 옛 값을 계속 쓴다.
         restartUnits = [ "hindsight.service" ];
+      };
+
+      # 대시보드 컨테이너에는 API 키만 준다 (DB·LLM secret은 주지 않는다).
+      sops.templates."hindsight-control-plane.env" = {
+        content = ''
+          HINDSIGHT_CP_DATAPLANE_API_KEY=${config.sops.placeholder.HINDSIGHT_API_KEY}
+        '';
+        mode = "0400";
+        restartUnits = [ "hindsight-control-plane.service" ];
       };
 
       homelab.postgres.enable = true;
@@ -226,6 +245,51 @@ in
           TimeoutStopSec = 60;
         };
       };
+    })
+
+    (lib.mkIf (cfg.enable && cfg.server.enable && cfg.dashboard.enable) {
+      virtualisation.quadlet.containers.hindsight-control-plane = {
+        autoStart = true;
+        unitConfig = {
+          Requires = [ "sops-install-secrets.service" ];
+          After = [
+            "sops-install-secrets.service"
+            "hindsight.service"
+            "network-online.target"
+          ];
+          Wants = [ "network-online.target" ];
+        };
+        containerConfig = {
+          name = "hindsight-control-plane";
+          image = dashboardImage;
+          pull = "missing";
+          logDriver = "journald";
+          # API가 호스트 loopback에만 있어 host 네트워크를 쓴다. 대시보드도 loopback에만 바인딩한다.
+          networks = [ "host" ];
+          environmentFiles = [ config.sops.templates."hindsight-control-plane.env".path ];
+          environments = {
+            HINDSIGHT_CP_HOSTNAME = "127.0.0.1";
+            HINDSIGHT_CP_PORT = toString dashboardPort;
+            HINDSIGHT_CP_DATAPLANE_API_URL = "http://127.0.0.1:${toString apiPort}";
+          };
+        };
+        serviceConfig = {
+          Restart = "on-failure";
+          RestartSec = "10s";
+          TimeoutStartSec = 600;
+        };
+      };
+
+      services.caddy.virtualHosts."http://${dashboardDomain}:${toString dashboardCaddyPort}" = {
+        extraConfig = ''
+          bind 127.0.0.1
+
+          reverse_proxy 127.0.0.1:${toString dashboardPort}
+        '';
+      };
+
+      services.cloudflared.tunnels."a19003a7-293f-4872-b8a5-1db544878f45".ingress.${dashboardDomain} =
+        "http://localhost:${toString dashboardCaddyPort}";
     })
   ];
 }
