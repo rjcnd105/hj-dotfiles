@@ -26,7 +26,7 @@ bank는 저장소마다 하나씩 생기고(`coding-agent::<저장소>`), 모든
 - 추출은 `custom` 모드다. `HINDSIGHT_API_RETAIN_CUSTOM_INSTRUCTIONS`가 실패(원인과 해결), 검증된 성공, 사용자 피드백, 확정된 결정만 남기게 하고, 에이전트가 한 일·사용자 요청·진행 보고·조사 배경·저장소에 이미 있는 내용은 버리게 한다.
 - 규칙은 chunk마다 따로 적용된다. 그래서 "조각 하나에서 3건을 넘는 일은 드물다"처럼 조각 기준으로 썼다. Hindsight 문서는 `HINDSIGHT_API_RETAIN_MISSION`을 출발점으로 권하지만, 실제 세션 조각 4개로 비교하면 mission 방식(`concise` + mission)이 25건, 이전 `custom` 규칙이 22건, 지금 규칙이 13건이었다(2026-11-12, `dry-run-extract`). mission과 `custom`을 함께 두지 않는다.
 - chunk 크기는 12,000자다. 긴 세션은 여러 chunk로 나뉜다(157,000자 세션이 14개). 크게 잡는 이유는 한 조각 안에서 대화가 스스로 고친 내용의 최종 상태를 보게 하려는 것이다.
-- reflect에는 `HINDSIGHT_API_REFLECT_MISSION`으로 기억에 있는 것만 짧게, 값은 그대로 인용해 답하게 했다. reflect는 에이전트가 `hindsight_reflect`를 부를 때만 돈다(측정 29초, 입력 약 30,000토큰).
+- reflect에는 `HINDSIGHT_API_REFLECT_MISSION`으로 물은 것만 기억에서 120단어 안으로, 값은 그대로 인용해 답하게 했다. "짧게"라고만 쓰면 줄지 않는다. 같은 질문에서 출력 1,201토큰·25.7초가 257토큰·10.3초가 됐다(2026-11-12, 입력은 약 40,000토큰으로 같다). reflect는 에이전트가 `hindsight_reflect`를 부를 때만 돈다. 문구는 배포 전에 bank override(`PATCH .../config`의 `reflect_mission`)로 시험하고 `DELETE .../config`로 지운다.
 - 클라이언트 recall은 `world`, `experience` 타입을 찾는다. 기본값은 `observation`인데 통합을 꺼 두면 observation이 생기지 않아 자동 주입이 0건이 된다.
 - 페이지는 observation에서 만들어지므로 통합이 꺼진 동안에는 내용이 생기지 않는다. 그래서 클라이언트의 턴마다 하는 페이지 조회와 도구 안내 재주입을 `pageRefreshEveryTurns`로 사실상 껐고(0은 기본값 1로 되돌아가 큰 값을 쓴다), 끌 수 없는 세션 시작 안내문에는 `toolGuideExtra`로 "페이지 대신 `hindsight_reflect`"를 덧붙였다.
 
