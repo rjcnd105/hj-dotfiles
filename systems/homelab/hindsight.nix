@@ -81,7 +81,11 @@ in
           HINDSIGHT_CP_DATAPLANE_API_KEY=${config.sops.placeholder.HINDSIGHT_API_KEY}
         '';
         mode = "0400";
-        restartUnits = [ "hindsight-control-plane.service" ];
+        # restartUnits는 유닛이 있을 때만 건다. 없는 유닛을 넣으면 sops-install-secrets가
+        # try-restart 실패로 죽어 switch가 깨진다.
+        restartUnits = lib.optional (
+          cfg.server.enable && cfg.dashboard.enable
+        ) "hindsight-control-plane.service";
       };
 
       homelab.postgres.enable = true;
