@@ -25,7 +25,7 @@ in
       apiUrl = "https://hindsight.deopjib.cc";
       apiToken = config.sops.placeholder.HINDSIGHT_API_KEY;
       autoUpdate = false;
-      # 최소 구성: 프롬프트마다 recall만 주입하고, LLM을 쓰는 부가 기능은 끈다.
+      # 최소 구성: 세션 첫 프롬프트에 recall 결과를 한 번 주입하고, LLM을 쓰는 부가 기능은 끈다.
       autoInject = "recall";
       # 기본 recall은 observation만 찾는데, 서버에서 통합을 꺼 두어 observation이 생기지 않는다.
       recallOptions.types = [
@@ -35,6 +35,13 @@ in
       autoSeed = false;
       codebaseSurvey = false;
       pageTriggerType = "manual";
+      # 기억 정책은 서버 기본값 한 곳에 둔다. 클라이언트가 bank에 자기 mission과 strategy를 쓰지 못하게 한다.
+      manageBankConfig = false;
+      # 페이지를 쓰지 않으므로 턴마다 하던 페이지 조회와 도구 안내 재주입을 사실상 끈다.
+      # 0은 클라이언트가 기본값 1로 되돌리므로 큰 값을 준다(조회는 세션당 한 번만 남는다).
+      pageRefreshEveryTurns = 100000;
+      # 세션 시작 안내문은 끌 수 없고 페이지 검색부터 하라고 시킨다. 한 줄을 덧붙여 바로잡는다.
+      toolGuideExtra = "- This bank keeps no pages: skip hindsight_search_pages, hindsight_list_pages and hindsight_capture_initiative. When a past failure, fix, decision or user feedback would help, call hindsight_reflect(query).";
     };
   };
 }

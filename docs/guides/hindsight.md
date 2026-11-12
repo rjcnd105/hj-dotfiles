@@ -17,17 +17,22 @@ API 호스트명에는 Cloudflare Access를 걸지 않는다. 코딩 에이전�
 
 대시보드(Control Plane 1.2.1)는 별도 호스트명 `hindsight-ui.deopjib.cc`로 열고 Beszel과 같은 방식으로 Cloudflare Access(이메일 OTP) 뒤에 둔다. 대시보드 컨테이너가 API 키를 들고 API를 대신 호출하므로, 이 호스트명은 Access 앱 없이 열면 안 된다.
 
-통합(auto consolidation), 코드베이스 조사, git 이력 시딩, 페이지 자동 갱신은 꺼 두었다. 에이전트는 프롬프트마다 recall 결과만 자동 주입받고, 세션이 끝날 때 대화를 retain한다.
+통합(auto consolidation), 코드베이스 조사, git 이력 시딩, 페이지, mental model은 쓰지 않는다. 에이전트는 세션의 첫 프롬프트에 recall 결과를 한 번 주입받고(결과가 없으면 다섯 번째 프롬프트까지 다시 시도), 응답이 끝날 때마다 그 세션 대화를 retain한다. 같은 세션은 문서 하나로 덮어쓴다.
 
 ## 기억 정책
 
-bank는 저장소마다 하나씩 생기고(`coding-agent::<저장소>`), 모든 bank가 서버 기본값을 그대로 쓴다. 정책은 `systems/homelab/hindsight.nix` 한 곳에서 바꾼다.
+bank는 저장소마다 하나씩 생기고(`coding-agent::<저장소>`), 모든 bank가 서버 기본값을 그대로 쓴다. 정책은 `systems/homelab/hindsight.nix` 한 곳에서 바꾼다. 클라이언트는 `manageBankConfig: false`라서 bank에 자기 mission이나 retain strategy를 쓰지 않는다.
 
-- 추출은 `custom` 모드다. `HINDSIGHT_API_RETAIN_CUSTOM_INSTRUCTIONS`가 실패(원인과 해결), 검증된 성공, 사용자 피드백, 확정된 결정만 남기게 하고, 작업 서술·진행 보고·코드나 git에 이미 있는 내용은 버리게 한다. 같은 대화로 비교했을 때 기본 `concise` 5건이 2건으로 줄었다(2026-11-12).
-- chunk 크기는 12,000자다. 세션을 한 chunk로 읽어야 대화가 스스로 고친 내용의 최종 상태만 남는다.
+- 추출은 `custom` 모드다. `HINDSIGHT_API_RETAIN_CUSTOM_INSTRUCTIONS`가 실패(원인과 해결), 검증된 성공, 사용자 피드백, 확정된 결정만 남기게 하고, 에이전트가 한 일·사용자 요청·진행 보고·조사 배경·저장소에 이미 있는 내용은 버리게 한다.
+- 규칙은 chunk마다 따로 적용된다. 그래서 "조각 하나에서 3건을 넘는 일은 드물다"처럼 조각 기준으로 썼다. Hindsight 문서는 `HINDSIGHT_API_RETAIN_MISSION`을 출발점으로 권하지만, 실제 세션 조각 4개로 비교하면 mission 방식(`concise` + mission)이 25건, 이전 `custom` 규칙이 22건, 지금 규칙이 13건이었다(2026-11-12, `dry-run-extract`). mission과 `custom`을 함께 두지 않는다.
+- chunk 크기는 12,000자다. 긴 세션은 여러 chunk로 나뉜다(157,000자 세션이 14개). 크게 잡는 이유는 한 조각 안에서 대화가 스스로 고친 내용의 최종 상태를 보게 하려는 것이다.
+- reflect에는 `HINDSIGHT_API_REFLECT_MISSION`으로 기억에 있는 것만 짧게, 값은 그대로 인용해 답하게 했다. reflect는 에이전트가 `hindsight_reflect`를 부를 때만 돈다(측정 29초, 입력 약 30,000토큰).
 - 클라이언트 recall은 `world`, `experience` 타입을 찾는다. 기본값은 `observation`인데 통합을 꺼 두면 observation이 생기지 않아 자동 주입이 0건이 된다.
+- 페이지는 observation에서 만들어지므로 통합이 꺼진 동안에는 내용이 생기지 않는다. 그래서 클라이언트의 턴마다 하는 페이지 조회와 도구 안내 재주입을 `pageRefreshEveryTurns`로 사실상 껐고(0은 기본값 1로 되돌아가 큰 값을 쓴다), 끌 수 없는 세션 시작 안내문에는 `toolGuideExtra`로 "페이지 대신 `hindsight_reflect`"를 덧붙였다.
 
-클라이언트의 `autoSeed`를 켜면 플러그인이 bank에 자기 mission과 retain strategy를 써서 위 서버 기본값을 덮는다. 켤 때는 bank 설정을 다시 확인한다. 특정 bank만 다르게 하려면 대시보드나 `PATCH /v1/default/banks/<bank>/config`로 그 bank에 override를 건다.
+규칙을 바꿀 때는 배포 전에 `POST /v1/default/banks/<bank>/memories/dry-run-extract`에 실제 chunk 본문과 `retain_custom_instructions`를 넣어 건수와 내용을 비교한다. 이 호출은 저장하지 않는다. 서버가 실제로 쓰는 프롬프트는 `POST .../prompts/preview`로 본다.
+
+특정 bank만 다르게 하려면 대시보드나 `PATCH /v1/default/banks/<bank>/config`로 그 bank에 override를 건다.
 
 ## 서버 배포 순서
 
@@ -103,8 +108,8 @@ codex mcp get hindsight
 
 - [ ] LLM A/B: `deepseek/deepseek-v4.1-flash`와 Spark-X2.6의 사실 추출 품질·비용·지연 비교.
 - [ ] 통합 켜기(`HINDSIGHT_API_ENABLE_AUTO_CONSOLIDATION`): observation이 recall 품질에 주는 이득과 CPU·LLM 비용. 과거 CPU 적체 사례는 `docs/solutions/performance-issues/hindsight-auto-consolidation-cpu-backlog.md`.
-- [ ] 클라이언트 `codebaseSurvey`, `autoSeed`: 새 저장소에서 초기 뱅크를 채우는 효과와 비용.
-- [ ] 페이지 자동 갱신(`pageTriggerType`을 `cron`으로): 페이지가 실제로 쓰이는지 먼저 확인.
+- [ ] 클라이언트 `codebaseSurvey`, `autoSeed`: 새 저장소에서 초기 뱅크를 채우는 효과와 비용. bank에 플러그인 mission을 쓰게 하려면 `manageBankConfig`도 켜야 한다.
+- [ ] 페이지 켜기: 통합이 먼저 필요하다. 켤 때는 `pageRefreshEveryTurns`, `toolGuideExtra`, `pageTriggerType`을 함께 되돌린다.
 - [ ] `autoInject: "reflect"`: recall 주입 대비 품질과 프롬프트당 지연.
 - [ ] 임베딩 Vulkan 가속: CPU 대비 처리량. 리랭커 사례는 `docs/solutions/performance-issues/hindsight-reranker-vulkan-acceleration-2026-04-19.md`.
 - [ ] 임베딩을 Ollama로 서빙: 기존 Ollama와 합쳐 프로세스를 줄일 수 있는지.

@@ -248,15 +248,19 @@ in
             HINDSIGHT_API_DB_POOL_MIN_SIZE = "2";
             HINDSIGHT_API_DB_POOL_MAX_SIZE = "10";
 
-            # 모든 bank의 기본 추출 규칙: 실패·성공·사용자 피드백·결정만 남긴다.
-            # 클라이언트는 autoSeed가 꺼져 있어 bank에 자기 strategy를 쓰지 않으므로 이 값이 그대로 적용된다.
-            # 한 줄로 유지한다(systemd Environment 값).
+            # 모든 bank의 기본 기억 정책. 정책은 여기 한 곳에만 둔다(클라이언트는 manageBankConfig를 꺼서 bank에 쓰지 않는다).
+            # 값은 한 줄로 유지한다(systemd Environment 값).
+            # 추출: 실패·검증된 성공·사용자 피드백·결정만 남긴다. 규칙은 chunk마다 따로 적용되므로 "조각" 기준으로 썼다.
             HINDSIGHT_API_RETAIN_EXTRACTION_MODE = "custom";
-            HINDSIGHT_API_RETAIN_CUSTOM_INSTRUCTIONS = "This bank is a lean lessons log for coding agents, not a session diary. The input is a transcript of a user working with a coding agent. Extract ONLY: (1) FAILURES - something that broke or an approach that did not work, with the root cause and the fix or workaround, including exact error strings, commands and values; (2) SUCCESSES - an approach, command or configuration that was verified to work for a non-obvious problem, with what made it work; (3) USER FEEDBACK - corrections, preferences, standing instructions and rejected approaches stated by the user, with the reason when given; (4) DECISIONS - a settled choice between alternatives and why, final state only. Each fact must be self-contained, name the concrete tool, file, option or system it applies to, and still be useful to a future session months from now. DO NOT extract: narration of what the agent did step by step (read, edited, ran, committed, pushed); progress or status reports; anything already recorded in the code, git history or documentation; restated file contents or command output; questions, plans and proposals that were not settled; unverified claims by the agent that something works; greetings and chatter. When the conversation revises itself keep only the final state. Merge related points into one fact instead of one fact per message. Most sessions yield zero to five facts; extracting nothing is correct when nothing was learned. Write each fact in the language the user used.";
-            # 세션 하나를 되도록 한 chunk로 읽혀 대화의 수정 과정을 보고 최종 상태만 뽑게 한다(기본 3000).
+            HINDSIGHT_API_RETAIN_CUSTOM_INSTRUCTIONS = "This bank is a lean lessons log shared by coding agents, not a session diary or a research notebook. The input is ONE FRAGMENT of a longer JSONL transcript (user, assistant and compact action turns). Most fragments contain nothing worth keeping: an empty list is the normal, correct result. Extract a fact ONLY for: (1) FAILURE - something broke or an approach did not work: the symptom with the exact error string, the root cause, and the fix or workaround; (2) VERIFIED SUCCESS - a non-obvious command, option or configuration that was actually run and confirmed to work, with what made it work; (3) USER FEEDBACK - a correction, standing preference or rejected approach stated by the user, with the reason when given; (4) DECISION - a choice the user settled between alternatives and why, final state only. Test every candidate: would an agent in a different session months from now act differently because of it? If not, drop it. NEVER extract: what the agent did, said, checked, created, committed, pushed, recommended or plans to do; what the user asked for; progress, status, counts or the state of the working copy; background gathered during research (product comparisons, prices, benchmarks, version numbers, documentation contents) unless it is the stated reason for a decision; anything the repository's code, docs or git history already records; proposals that were not settled; claims not verified in the transcript. Write each fact as a standalone lesson or rule naming the exact tool, file, option or system, not as a story about the session. Merge related points into one fact; more than three facts from one fragment is rare. Write each fact in the language the user used.";
+            # 긴 세션은 여러 chunk로 나뉜다. 크게 잡아 한 조각 안에서 대화가 스스로 고친 내용의 최종 상태를 보게 한다(기본 3000).
             HINDSIGHT_API_RETAIN_CHUNK_SIZE = "12000";
+            # reflect: 기억에 있는 것만 짧게 답하게 한다. 기본값은 일반론까지 덧붙인 긴 답을 낸다.
+            HINDSIGHT_API_REFLECT_MISSION = "You answer coding agents from a shared lessons log: failures and their fixes, approaches verified to work, the user's feedback, and settled decisions. Answer only from memory and keep it short. Quote exact commands, options, paths, values and error strings. When memories conflict the latest one wins; name what it superseded. Do not add general advice that memory does not contain. If nothing in memory answers the question, say so in one sentence. Answer in the language of the question.";
 
-            # 최소 구성: 백그라운드 통합(observation 생성)은 끈다. docs/guides/hindsight.md 실험 목록 참고.
+            # 최소 구성: 백그라운드 통합(observation 생성)은 끈다. 페이지는 observation에서 만들어지므로
+            # 함께 쓰지 않는다. mental model도 갱신마다 LLM을 쓰는 부가 기능이라 두지 않는다.
+            # docs/guides/hindsight.md 실험 목록 참고.
             HINDSIGHT_API_ENABLE_AUTO_CONSOLIDATION = "false";
           };
         };
