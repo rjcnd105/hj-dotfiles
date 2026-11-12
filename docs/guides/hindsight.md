@@ -8,7 +8,7 @@ Claude Code, Codex, pi가 공유하는 장기 기억 서버다. 용어는 [GLOSS
 |---|---|---|
 | 서버 | `systems/homelab/hindsight.nix` | Hindsight API 1.2.1 컨테이너(리랭커 `hs-rerank-1` 내장), 공유 PostgreSQL의 `hindsight` DB(pgvector) |
 | 임베딩 | 같은 파일 | llama.cpp로 KURE-v3 서빙, 앞단 프록시가 1,024차원으로 절단 |
-| LLM | 같은 파일 | OpenRouter `deepseek/deepseek-v4.1-flash` (retain의 사실 추출, reflect) |
+| LLM | 같은 파일 | OpenRouter `deepseek/deepseek-v4.1-flash` (retain의 사실 추출, reflect). `HINDSIGHT_API_LLM_EXTRA_BODY`로 fp8 이상 upstream 중 최저가로 라우팅 |
 | 공개 경로 | 같은 파일 | Caddy(loopback) → cloudflared. 인증은 Hindsight API 키 |
 | 백업 | `systems/homelab/backup.nix` | 야간 논리 덤프에 `hindsight` DB 포함 |
 | 클라이언트 | `homes/workspace/hindsight.nix` | `@vectorize-io/hindsight-coding-agents` 0.8.7을 store에 고정, 설정은 sops로 렌더 |

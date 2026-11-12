@@ -220,6 +220,17 @@ in
 
             HINDSIGHT_API_LLM_PROVIDER = "openrouter";
             HINDSIGHT_API_LLM_MODEL = "deepseek/deepseek-v4.1-flash";
+            # OpenRouter 라우팅: fp8 이상인 upstream 중 최저가. fp4 계열은 사실 추출 품질 때문에 뺀다.
+            HINDSIGHT_API_LLM_EXTRA_BODY = builtins.toJSON {
+              provider = {
+                sort = "price";
+                quantizations = [
+                  "fp8"
+                  "fp16"
+                  "bf16"
+                ];
+              };
+            };
             # 기동이 OpenRouter 가용성에 묶이지 않게 한다.
             HINDSIGHT_API_SKIP_LLM_VERIFICATION = "true";
 
