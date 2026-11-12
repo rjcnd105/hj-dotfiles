@@ -1,0 +1,37 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.hindsight/coding-agents/dist/codex-sessionstart-hook.js\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.hindsight/coding-agents/dist/codex-hook.js\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.hindsight/coding-agents/dist/codex-stop-hook.js\"",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}

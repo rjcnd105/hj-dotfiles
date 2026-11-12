@@ -35,7 +35,8 @@
     "npm:pi-openai-fast-mode"
   ],
   "extensions": [
-    "/Users/hj/dot/nix-dots/files/workspace/.config/pi/extensions/chatgpt-credit-fallback.ts"
+    "/Users/hj/dot/nix-dots/files/workspace/.config/pi/extensions/chatgpt-credit-fallback.ts",
+    "/Users/hj/.hindsight/coding-agents/dist/pi.js"
   ],
   "subagents": {
     "defaultModel": "openai/gpt-6.1-terra",

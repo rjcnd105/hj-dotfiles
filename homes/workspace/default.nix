@@ -6,6 +6,7 @@
     ./ssh-config.nix
     ./sops.nix
     ./pi.nix
+    ./hindsight.nix
     ../../sharedHome/cli
     ../../sharedHome/development
     # ../../sharedHome/app

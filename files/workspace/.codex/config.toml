@@ -291,6 +291,13 @@ args = ["chrome-devtools-mcp@latest", "--auto-connect", "--channel=stable"]
 
 [mcp_servers.chrome-devtools.env]
 
+[mcp_servers.hindsight]
+command = "node"
+# --preserve-symlinks-main: ~/.hindsight/coding-agents가 Nix store symlink라서 필요하다.
+# 없으면 main 모듈 판정이 어긋나 서버가 출력 없이 종료한다.
+args = ["--preserve-symlinks-main", "/Users/hj/.hindsight/coding-agents/dist/mcp-server.js"]
+env = { HINDSIGHT_MCP_HARNESS = "codex" }
+
 [mcp_servers.openaiDeveloperDocs]
 url = "https://developers.openai.com/mcp"
 
