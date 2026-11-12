@@ -19,6 +19,16 @@ API 호스트명에는 Cloudflare Access를 걸지 않는다. 코딩 에이전�
 
 통합(auto consolidation), 코드베이스 조사, git 이력 시딩, 페이지 자동 갱신은 꺼 두었다. 에이전트는 프롬프트마다 recall 결과만 자동 주입받고, 세션이 끝날 때 대화를 retain한다.
 
+## 기억 정책
+
+bank는 저장소마다 하나씩 생기고(`coding-agent::<저장소>`), 모든 bank가 서버 기본값을 그대로 쓴다. 정책은 `systems/homelab/hindsight.nix` 한 곳에서 바꾼다.
+
+- 추출은 `custom` 모드다. `HINDSIGHT_API_RETAIN_CUSTOM_INSTRUCTIONS`가 실패(원인과 해결), 검증된 성공, 사용자 피드백, 확정된 결정만 남기게 하고, 작업 서술·진행 보고·코드나 git에 이미 있는 내용은 버리게 한다. 같은 대화로 비교했을 때 기본 `concise` 5건이 2건으로 줄었다(2026-11-12).
+- chunk 크기는 12,000자다. 세션을 한 chunk로 읽어야 대화가 스스로 고친 내용의 최종 상태만 남는다.
+- 클라이언트 recall은 `world`, `experience` 타입을 찾는다. 기본값은 `observation`인데 통합을 꺼 두면 observation이 생기지 않아 자동 주입이 0건이 된다.
+
+클라이언트의 `autoSeed`를 켜면 플러그인이 bank에 자기 mission과 retain strategy를 써서 위 서버 기본값을 덮는다. 켤 때는 bank 설정을 다시 확인한다. 특정 bank만 다르게 하려면 대시보드나 `PATCH /v1/default/banks/<bank>/config`로 그 bank에 override를 건다.
+
 ## 서버 배포 순서
 
 새 sops secret과 그것을 `LoadCredential`로 읽는 서비스를 한 switch에 넣으면 `243/CREDENTIALS`로 실패한다. 그래서 옵션이 둘이다.

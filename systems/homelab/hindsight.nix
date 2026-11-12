@@ -248,6 +248,14 @@ in
             HINDSIGHT_API_DB_POOL_MIN_SIZE = "2";
             HINDSIGHT_API_DB_POOL_MAX_SIZE = "10";
 
+            # 모든 bank의 기본 추출 규칙: 실패·성공·사용자 피드백·결정만 남긴다.
+            # 클라이언트는 autoSeed가 꺼져 있어 bank에 자기 strategy를 쓰지 않으므로 이 값이 그대로 적용된다.
+            # 한 줄로 유지한다(systemd Environment 값).
+            HINDSIGHT_API_RETAIN_EXTRACTION_MODE = "custom";
+            HINDSIGHT_API_RETAIN_CUSTOM_INSTRUCTIONS = "This bank is a lean lessons log for coding agents, not a session diary. The input is a transcript of a user working with a coding agent. Extract ONLY: (1) FAILURES - something that broke or an approach that did not work, with the root cause and the fix or workaround, including exact error strings, commands and values; (2) SUCCESSES - an approach, command or configuration that was verified to work for a non-obvious problem, with what made it work; (3) USER FEEDBACK - corrections, preferences, standing instructions and rejected approaches stated by the user, with the reason when given; (4) DECISIONS - a settled choice between alternatives and why, final state only. Each fact must be self-contained, name the concrete tool, file, option or system it applies to, and still be useful to a future session months from now. DO NOT extract: narration of what the agent did step by step (read, edited, ran, committed, pushed); progress or status reports; anything already recorded in the code, git history or documentation; restated file contents or command output; questions, plans and proposals that were not settled; unverified claims by the agent that something works; greetings and chatter. When the conversation revises itself keep only the final state. Merge related points into one fact instead of one fact per message. Most sessions yield zero to five facts; extracting nothing is correct when nothing was learned. Write each fact in the language the user used.";
+            # 세션 하나를 되도록 한 chunk로 읽혀 대화의 수정 과정을 보고 최종 상태만 뽑게 한다(기본 3000).
+            HINDSIGHT_API_RETAIN_CHUNK_SIZE = "12000";
+
             # 최소 구성: 백그라운드 통합(observation 생성)은 끈다. docs/guides/hindsight.md 실험 목록 참고.
             HINDSIGHT_API_ENABLE_AUTO_CONSOLIDATION = "false";
           };

@@ -27,6 +27,11 @@ in
       autoUpdate = false;
       # 최소 구성: 프롬프트마다 recall만 주입하고, LLM을 쓰는 부가 기능은 끈다.
       autoInject = "recall";
+      # 기본 recall은 observation만 찾는데, 서버에서 통합을 꺼 두어 observation이 생기지 않는다.
+      recallOptions.types = [
+        "world"
+        "experience"
+      ];
       autoSeed = false;
       codebaseSurvey = false;
       pageTriggerType = "manual";
