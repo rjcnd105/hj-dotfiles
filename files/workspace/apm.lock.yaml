@@ -10221,24 +10221,6 @@ deployments:
   content_hash: sha256:1411d7df7d99b7e621a1ff8283c8133cc2464be63d064e52d8ce169c6800ee9b
 - kind: project-relative
   target: claude
-  value: .claude/skills/hindsight
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: null
-- kind: project-relative
-  target: claude
-  value: .claude/skills/hindsight/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:dbb0a0c50e02248102dd7dff0cc59b9196df370f27a0176548ceb1b64b36c64c
-- kind: project-relative
-  target: claude
   value: .claude/skills/hook-development
   runtime: null
   scope: project
@@ -24873,24 +24855,6 @@ deployments:
   content_hash: sha256:1411d7df7d99b7e621a1ff8283c8133cc2464be63d064e52d8ce169c6800ee9b
 - kind: project-relative
   target: codex
-  value: .agents/skills/hindsight
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: null
-- kind: project-relative
-  target: codex
-  value: .agents/skills/hindsight/SKILL.md
-  runtime: null
-  scope: project
-  owners:
-  - .
-  active_owner: .
-  content_hash: sha256:dbb0a0c50e02248102dd7dff0cc59b9196df370f27a0176548ceb1b64b36c64c
-- kind: project-relative
-  target: codex
   value: .agents/skills/hook-development
   runtime: null
   scope: project
@@ -36411,8 +36375,6 @@ local_deployed_files:
 - .agents/skills/gitbutler/references/concepts.md
 - .agents/skills/gitbutler/references/examples.md
 - .agents/skills/gitbutler/references/reference.md
-- .agents/skills/hindsight
-- .agents/skills/hindsight/SKILL.md
 - .agents/skills/kb
 - .agents/skills/kb/SKILL.md
 - .agents/skills/kb/references/maintenance.md
@@ -36538,8 +36500,6 @@ local_deployed_files:
 - .claude/skills/gitbutler/references/concepts.md
 - .claude/skills/gitbutler/references/examples.md
 - .claude/skills/gitbutler/references/reference.md
-- .claude/skills/hindsight
-- .claude/skills/hindsight/SKILL.md
 - .claude/skills/kb
 - .claude/skills/kb/SKILL.md
 - .claude/skills/kb/references/maintenance.md
@@ -36662,7 +36622,6 @@ local_deployed_file_hashes:
   .agents/skills/gitbutler/references/concepts.md: sha256:c09cd5782311ebcbf64015c5f8d31a22a58da724a7ab27409aeda7a870e50a95
   .agents/skills/gitbutler/references/examples.md: sha256:b9bf3934022c8e7d6ecb754ac94139b5e40a4629ca9fc5d8934760091a7755f3
   .agents/skills/gitbutler/references/reference.md: sha256:f8f14bc9eff36b0c015952c4459994456a9e720f78311ff079158072564cbef4
-  .agents/skills/hindsight/SKILL.md: sha256:dbb0a0c50e02248102dd7dff0cc59b9196df370f27a0176548ceb1b64b36c64c
   .agents/skills/kb/SKILL.md: sha256:41ba60a798271ae5fb7a0c459cf3319f10e400bac88b776db493d720c3e429fe
   .agents/skills/kb/references/maintenance.md: sha256:2a52c41f4441e629386766774fcadc3a96f88d6ca8001bd7545d2121d115af17
   .agents/skills/kb/scripts/kbtool/context.go: sha256:0bb75de7bcde1849b8c3bd27a4da9e59227bcb49d2075e066397e5c0dbca6d68
@@ -36782,7 +36741,6 @@ local_deployed_file_hashes:
   .claude/skills/gitbutler/references/concepts.md: sha256:c09cd5782311ebcbf64015c5f8d31a22a58da724a7ab27409aeda7a870e50a95
   .claude/skills/gitbutler/references/examples.md: sha256:b9bf3934022c8e7d6ecb754ac94139b5e40a4629ca9fc5d8934760091a7755f3
   .claude/skills/gitbutler/references/reference.md: sha256:f8f14bc9eff36b0c015952c4459994456a9e720f78311ff079158072564cbef4
-  .claude/skills/hindsight/SKILL.md: sha256:dbb0a0c50e02248102dd7dff0cc59b9196df370f27a0176548ceb1b64b36c64c
   .claude/skills/kb/SKILL.md: sha256:41ba60a798271ae5fb7a0c459cf3319f10e400bac88b776db493d720c3e429fe
   .claude/skills/kb/references/maintenance.md: sha256:2a52c41f4441e629386766774fcadc3a96f88d6ca8001bd7545d2121d115af17
   .claude/skills/kb/scripts/kbtool/context.go: sha256:0bb75de7bcde1849b8c3bd27a4da9e59227bcb49d2075e066397e5c0dbca6d68
