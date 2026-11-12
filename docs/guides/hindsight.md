@@ -13,7 +13,9 @@ Claude Code, Codex, pi가 공유하는 장기 기억 서버다. 용어는 [GLOSS
 | 백업 | `systems/homelab/backup.nix` | 야간 논리 덤프에 `hindsight` DB 포함 |
 | 클라이언트 | `homes/workspace/hindsight.nix` | `@vectorize-io/hindsight-coding-agents` 0.8.7을 store에 고정, 설정은 sops로 렌더 |
 
-Cloudflare Access는 걸지 않는다. 코딩 에이전트 클라이언트가 `Authorization: Bearer` 헤더만 보낼 수 있어서다. `/metrics`는 Caddy에서 막는다.
+API 호스트명에는 Cloudflare Access를 걸지 않는다. 코딩 에이전트 클라이언트가 `Authorization: Bearer` 헤더만 보낼 수 있어서다. `/metrics`는 Caddy에서 막는다.
+
+대시보드(Control Plane 1.2.1)는 별도 호스트명 `hindsight-ui.deopjib.cc`로 열고 Beszel과 같은 방식으로 Cloudflare Access(이메일 OTP) 뒤에 둔다. 대시보드 컨테이너가 API 키를 들고 API를 대신 호출하므로, 이 호스트명은 Access 앱 없이 열면 안 된다.
 
 통합(auto consolidation), 코드베이스 조사, git 이력 시딩, 페이지 자동 갱신은 꺼 두었다. 에이전트는 프롬프트마다 recall 결과만 자동 주입받고, 세션이 끝날 때 대화를 retain한다.
 
@@ -24,7 +26,11 @@ Cloudflare Access는 걸지 않는다. 코딩 에이전트 클라이언트가 `A
 1. `homelab.hindsight.enable` — secret, DB, 임베딩, 라우팅.
 2. `homelab.hindsight.server.enable` — DB 설정 oneshot과 API 컨테이너.
 
-새 호스트에 올릴 때는 1을 먼저 배포하고 2를 따로 배포한다. 공개 호스트명은 Cloudflare DNS에 터널 레코드로 직접 추가한다.
+3. `homelab.hindsight.dashboard.enable` — 대시보드 컨테이너와 그 라우팅. 대시보드용 env 템플릿은 1에 들어 있다.
+
+sops 템플릿의 `restartUnits`에는 이미 있는 유닛만 넣는다. 없는 유닛이 들어가면 `sops-install-secrets`가 try-restart 실패로 죽어 switch가 깨지고, 이 유닛에 의존하는 `cloudflared`와 `hindsight`가 멈춘다(2026-11-12 실측, 약 4분 중단).
+
+새 호스트에 올릴 때는 1을 먼저 배포하고 2와 3을 따로 배포한다. 대시보드 호스트명은 DNS 레코드보다 Access 앱을 먼저 만든다. 공개 호스트명은 Cloudflare DNS에 터널 레코드로 직접 추가한다.
 
 ## 에이전트 연결
 
