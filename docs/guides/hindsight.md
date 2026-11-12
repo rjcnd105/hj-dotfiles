@@ -23,8 +23,10 @@ API 호스트명에는 Cloudflare Access를 걸지 않는다. 코딩 에이전�
 
 bank는 저장소마다 하나씩 생기고(`coding-agent::<저장소>`), 모든 bank가 서버 기본값을 그대로 쓴다. 정책은 `systems/homelab/hindsight.nix` 한 곳에서 바꾼다. 클라이언트는 `manageBankConfig: false`라서 bank에 자기 mission이나 retain strategy를 쓰지 않는다.
 
-- 추출은 `custom` 모드다. `HINDSIGHT_API_RETAIN_CUSTOM_INSTRUCTIONS`가 실패(원인과 해결), 검증된 성공, 사용자 피드백, 확정된 결정만 남기게 하고, 에이전트가 한 일·사용자 요청·진행 보고·조사 배경·저장소에 이미 있는 내용은 버리게 한다.
+- 추출은 `custom` 모드다. `HINDSIGHT_API_RETAIN_CUSTOM_INSTRUCTIONS`가 실패(원인과 해결), 검증된 성공, 사용자 피드백, 확정된 결정만 남기게 하고, 에이전트가 한 일·사용자 요청·그 작업에 한정된 승인과 위임·진행 보고·조사 배경·저장소에 이미 있는 내용·기억에서 인용된 내용(자동 주입, recall, reflect 답)은 버리게 한다.
 - 규칙은 chunk마다 따로 적용된다. 그래서 "조각 하나에서 3건을 넘는 일은 드물다"처럼 조각 기준으로 썼다. Hindsight 문서는 `HINDSIGHT_API_RETAIN_MISSION`을 출발점으로 권하지만, 실제 세션 조각 4개로 비교하면 mission 방식(`concise` + mission)이 25건, 이전 `custom` 규칙이 22건, 지금 규칙이 13건이었다(2026-11-12, `dry-run-extract`). mission과 `custom`을 함께 두지 않는다.
+- 제외 조항은 건수를 줄이기보다 다른 사실로 자리를 채운다. chunk당 3–4건은 거의 그대로이고, 뺀 자리에 덜 중요한 사실이 들어온다. 그래서 효과가 측정된 조항만 둔다. 승인·위임과 기억 인용 조항은 chunk 9개를 5회씩 번갈아 돌려 198건이 176건이 됐고(2026-11-12), 일회성 승인 사실이 5회 중 2회에서 0회로, 주입된 기억을 다시 뽑는 경우가 5회 중 5회에서 1회로 줄었으며 꼭 남아야 하는 사실은 그대로였다. "요약·보고에서 다시 뽑지 말라"는 조항은 효과가 없었고, "건수를 채우지 말라"는 문장은 넣으면 204건으로 늘고 기각된 요청까지 선호로 뽑혔다. 둘 다 채택하지 않았다.
+- 사실은 입력 언어로 쓰게 되어 있지만 프롬프트 수준 지시라 가끔 영어로 나온다(영어 사실이 섞인 실행이 이전 규칙 45회 중 3회, 지금 규칙 8회). 영어 사실을 겨냥한 한국어 질문 5개에서는 16–19건 중 1–3위로 검색됐다. 강제하려면 `HINDSIGHT_API_LLM_OUTPUT_LANGUAGE`가 있는데 서버 전체에 걸리고 reflect 답 언어도 바꾼다. 지금은 설정하지 않았다.
 - chunk 크기는 12,000자다. 긴 세션은 여러 chunk로 나뉜다(157,000자 세션이 14개). 크게 잡는 이유는 한 조각 안에서 대화가 스스로 고친 내용의 최종 상태를 보게 하려는 것이다.
 - reflect에는 `HINDSIGHT_API_REFLECT_MISSION`으로 물은 것만 기억에서 120단어 안으로, 값은 그대로 인용해 답하게 했다. "짧게"라고만 쓰면 줄지 않는다. 같은 질문에서 출력 1,201토큰·25.7초가 배포 후 362토큰·16.5초가 됐다(2026-11-12, 입력은 약 40,000토큰으로 같다). reflect는 에이전트가 `hindsight_reflect`를 부를 때만 돈다. 문구는 배포 전에 bank override(`PATCH .../config`의 `reflect_mission`)로 시험하고 `DELETE .../config`로 지운다.
 - 클라이언트 recall은 `world`, `experience` 타입을 찾는다. 기본값은 `observation`인데 통합을 꺼 두면 observation이 생기지 않아 자동 주입이 0건이 된다.
@@ -33,6 +35,21 @@ bank는 저장소마다 하나씩 생기고(`coding-agent::<저장소>`), 모든
 규칙을 바꿀 때는 배포 전에 `POST /v1/default/banks/<bank>/memories/dry-run-extract`에 실제 chunk 본문과 `retain_custom_instructions`를 넣어 건수와 내용을 비교한다. 이 호출은 저장하지 않는다. 서버가 실제로 쓰는 프롬프트는 `POST .../prompts/preview`로 본다.
 
 특정 bank만 다르게 하려면 대시보드나 `PATCH /v1/default/banks/<bank>/config`로 그 bank에 override를 건다.
+
+### 규칙으로 막지 못하는 것과 정리
+
+규칙은 chunk 하나만 보고, retain에는 중복 제거가 없으며 통합은 꺼져 있다. 그래서 같은 사실이 다른 chunk나 다른 세션에서 다시 저장되는 것, 나중에 채택하지 않은 선택지의 조사 내용, 이후에 바뀌어 낡은 사실은 규칙으로 막지 못한다. 2026-11-12에 125건을 읽어 보니 42건이 도움이 되지 않았고, 그중 35건이 이 세 가지였다(다른 기억이나 현재 상태와 어긋남 13, 중복 13, 채택하지 않은 선택지 조사 9). 나머지 7건은 일회성 승인과 원인 없는 증상으로, 승인 쪽은 위 조항이 줄인다.
+
+이런 기억은 지우지 않고 무효화한다. recall과 `memories/list`에서 빠지고 기록은 남으며 되돌릴 수 있다.
+
+```sh
+# 무효화. 되돌릴 때는 {"state":"valid"}
+curl -X PATCH "$HINDSIGHT_URL/v1/default/banks/<bank>/memories/<memory_id>" \
+  -H "Authorization: Bearer $HINDSIGHT_API_KEY" -H 'Content-Type: application/json' \
+  -d '{"state":"invalidated","reason":"중복"}'
+```
+
+진행 중인 세션은 길어질 때마다 마지막 chunk를 다시 추출해 그 chunk의 사실 id가 바뀐다. 정리는 끝난 세션의 기억을 대상으로 한다. `reprocess`는 무효화한 사실을 되살리므로 함께 쓰지 않는다.
 
 ## 서버 배포 순서
 
