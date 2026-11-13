@@ -36,8 +36,6 @@
       "*.swp"
     ];
 
-    lfs.enable = true;
-
   };
 
   home.shellAliases = {
