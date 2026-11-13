@@ -10,6 +10,43 @@ env_shell_expand = true
 # "no data key retrieved from metadata"로 sops 복호화가 실패한다.
 sops.age_key_file = "{{env.HOME}}/.config/sops/age/keys.txt"
 
+# Homebrew 패키지는 여기서만 선언한다. 설치·갱신은 `mise bootstrap packages apply|upgrade`,
+# 선언에서 뺀 패키지 제거는 `mise bootstrap packages prune`으로 한다.
+# 런타임·LSP처럼 mise [tools]로 받을 수 있는 것은 여기에 넣지 않는다.
+[bootstrap.packages]
+"brew:jj" = "latest"
+# PATH에서 /opt/homebrew/bin이 /usr/bin과 Nix 프로필보다 앞이라 실제로 쓰이는 git이다.
+"brew:git" = "latest"
+"brew:git-filter-repo" = "latest"
+"brew:autoconf" = "latest"
+"brew:duti" = "latest"
+"brew:gmp" = "latest"
+"brew:ios-webkit-debug-proxy" = "latest"
+"brew:libyaml" = "latest"
+"brew:lua-language-server" = "latest"
+"brew:mole" = "latest"
+"brew:openssl@3" = "latest"
+"brew:poppler" = "latest"
+"brew:readline" = "latest"
+"brew:watchman" = "latest"
+"brew:whisper.cpp" = "latest"
+"brew:getsentry/tools/sentry" = "latest"
+"brew:peterldowns/tap/localias" = "latest"
+"brew-cask:android-platform-tools" = "latest"
+"brew-cask:ghostty" = "latest"
+"brew-cask:openlogi" = "latest"
+"brew-cask:orbstack" = "latest"
+"brew-cask:hewigovens/tap/jayjay" = "latest"
+"brew-cask:ShayanAbbas1/dbdelve/dbdelve" = "latest"
+# Nix가 설치하는 CLI의 목록. mise는 설치하지 않고 systems/mise-packages.nix로 내보내기만 하며,
+# workspace와 homelab이 그 모듈을 import해 flake.lock의 nixpkgs에서 같은 store 경로로 받는다.
+# `env`로 묶어 평소의 apply·status 대상에서 뺀다(apply하면 user profile에 한 벌 더 깔린다).
+# 목록을 바꾸면 nix-dots에서 다시 내보낸다:
+#   mise -E nix-export bootstrap packages export --format nix > systems/mise-packages.nix
+"nix:sops" = { env = "nix-export" }
+"nix:age" = { env = "nix-export" }
+"nix:just" = { env = "nix-export" }
+
 [tools]
 # POC
 hk = "latest"
@@ -43,6 +80,11 @@ version_prefix = "release/"
 version = "latest"
 
 [tools.gemini-cli]
+version = "latest"
+
+# [bootstrap.packages]의 third-party tap 패키지(sentry, localias)는 API 메타데이터가 없어
+# mise가 tap의 Ruby 정의를 직접 평가한다. Ruby 3 이상이 없으면 upgrade·prune이 실패한다.
+[tools.ruby]
 version = "latest"
 
 [tools.uv]

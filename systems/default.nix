@@ -6,6 +6,9 @@
 }:
 {
 
+  # mise 전역 설정의 `nix:` 선언에서 생성한 CLI 목록(sops, age, just). 직접 고치지 않는다.
+  imports = [ ./mise-packages.nix ];
+
   config = {
 
     # 원격 접속 공통 경로: Tailscale이 기기 간 경로를 맡는다.

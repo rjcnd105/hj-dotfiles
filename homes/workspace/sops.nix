@@ -149,11 +149,7 @@ in
   ## ssh to age
   # nix-shell -p ssh-to-age --run 'cat ~/.ssh/id_ed25519.pub | ssh-to-age'
 
-  home.packages = [
-    # 암호관리
-    pkgs.sops
-    pkgs.age
-  ];
+  # sops·age CLI는 systems/mise-packages.nix(mise 전역 설정의 `nix:` 선언)가 설치한다.
 
   # sops-nix는 darwin에서 launchd agent로 돈다. HM activation의
   # `launchctl bootout` + `bootstrap`은 이미 로드된 job에서 RunAtLoad를 다시
