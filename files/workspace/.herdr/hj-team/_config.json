@@ -1,0 +1,7 @@
+{
+  "hcTeamBin": null,
+  "presetTimeoutMs": 8000,
+  "stopTimeoutMs": 60000,
+  "launchTimeoutMs": 240000,
+  "visiblePresetRows": 3
+}

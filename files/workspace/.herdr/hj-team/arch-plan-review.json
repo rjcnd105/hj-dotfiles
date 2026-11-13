@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "id": "arch-plan-review",
+  "name": "설계 계획 · 구현 · 적대적 코드 리뷰",
+  "description": "구조 변경, 신규 모듈 설계, 복잡한 리팩터링을 계획 → 구현 → 적대적 리뷰 순으로 안전하게 끝낼 때. 기본: 아키텍트(plan), 구현(implement), 적대적 리뷰어(deep-review).",
+  "roles": [
+    {
+      "id": "architect",
+      "title": "아키텍트 · 상세 계획",
+      "route": "plan",
+      "default": true,
+      "readOnly": true,
+      "talksTo": ["builder", "critic"],
+      "checkpoints": [
+        "핵심 데이터 형태, 경계, 트레이드오프, 검증 단위가 계획 문서에 명시됐다",
+        "불필요한 추상화와 비범위 항목을 명확히 제외했다"
+      ],
+      "instructions": "요구사항과 기존 코드를 읽고 데이터 구조·소유권·단계별 검증 계획과 계약을 artifacts/plan.md에 작성한다. 코드는 수정하지 않는다. 작성 완료 후 critic에 계획 검토를, 승인된 계획은 builder에 hc-team send --kind handoff로 넘긴다."
+    },
+    {
+      "id": "builder",
+      "title": "구현 엔지니어",
+      "route": "implement",
+      "default": true,
+      "talksTo": ["architect", "critic"],
+      "checkpoints": [
+        "계약된 단위 테스트와 타입·린트 검사를 모두 통과했다",
+        "계획 범위 밖 파일이나 불필요한 의존성을 추가하지 않았다"
+      ],
+      "instructions": "architect의 계획과 계약을 구현하고 핵심 동작과 엣지케이스 테스트를 작성한다. 검증 통과 후 diff 범위와 테스트 출력을 critic에 hc-team send --kind handoff로 보내고, 지적된 P0/P1 결함을 수정해 재검증한다."
+    },
+    {
+      "id": "critic",
+      "title": "적대적 설계·코드 리뷰어 (읽기 전용)",
+      "route": "deep-review",
+      "default": true,
+      "readOnly": true,
+      "talksTo": ["architect", "builder"],
+      "checkpoints": [
+        "모든 지적에 file:line, 재현 시나리오, 최소 수정안을 포함한다",
+        "경합 조건, 상태 불일치, 보안·데이터 유실 가능성을 우선 점검한다"
+      ],
+      "instructions": "계획 단계에서는 맹점·경합·과설계를 짚어 architect에 알리고, 구현 후에는 전체 diff를 적대적으로 리뷰해 심각도순(P0/P1/P2)으로 builder에 hc-team send --kind review로 보낸다. 파일은 수정하지 않는다."
+    }
+  ]
+}

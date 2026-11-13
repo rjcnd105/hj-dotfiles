@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "reviewed": "2026-11-21",
+  "routes": {
+    "plan": {
+      "command": ["claude", "--model", "claude-fable-5-2", "--effort", "xhigh"],
+      "why": "아키텍처 설계, 기획·티켓 분석, 다단계 계획 수립과 최종 판단에 가장 안정적"
+    },
+    "implement": {
+      "command": ["pi", "--provider", "openai", "--model", "gpt-6.2-sol", "--thinking", "high"],
+      "why": "일상 구현·리팩터링·반복 테스트 루프에서 높은 속도와 토큰 효율(Astra 대비 ~25% 비용)"
+    },
+    "deep-review": {
+      "command": ["codex", "-m", "gpt-6.2-astra", "-c", "model_reasoning_effort=\"xhigh\"", "-s", "read-only"],
+      "why": "고복잡도 심층 분석·적대적 코드 리뷰·정밀 디버깅에 강함(계획 수립에는 사용하지 않음)"
+    },
+    "investigate": {
+      "command": ["claude", "--model", "claude-opus-5-5", "--effort", "high"],
+      "why": "터미널 중심 장기 문맥 추적, 다중 파일 원인 분석 및 깊은 코드베이스 탐색에 강함"
+    },
+    "browser-qa": {
+      "command": ["agy", "--model", "gemini-4-neon-high"],
+      "why": "멀티모달 브라우저·화면 QA, 1M 컨텍스트와 빠른 반복 검증, 낮은 세션 비용"
+    },
+    "design-review": {
+      "command": ["claude", "--model", "claude-fable-5-2", "--effort", "high"],
+      "why": "브랜드 톤·모션 감각·UI 완성도 판정에 강하고 빠른 피드백을 위해 high effort 사용"
+    },
+    "pixel-art": {
+      "command": ["claude", "--model", "claude-opus-5-5", "--effort", "high"],
+      "why": "Aseprite 픽셀 아트 제작 및 프로젝트 아트 디렉션 준수(ADR-0059)"
+    }
+  }
+}

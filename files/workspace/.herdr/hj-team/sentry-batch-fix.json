@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "id": "sentry-batch-fix",
+  "name": "Sentry · 소규모 티켓 병렬 일괄 처리",
+  "description": "Sentry 에러나 독립적인 소규모 버그 티켓 여러 건을 워크트리별로 병렬 수정하고 일괄 검증할 때. 기본: 트리아지(investigate), 병렬 수정 A/B(implement). 선택: 일괄 적대적 리뷰(deep-review).",
+  "roles": [
+    {
+      "id": "triage",
+      "title": "이슈 트리아지 · 원인 분리",
+      "route": "investigate",
+      "default": true,
+      "readOnly": true,
+      "talksTo": ["fixer-a", "fixer-b", "reviewer"],
+      "checkpoints": [
+        "티켓마다 실제 코드 위치(file:line), 원인, 겹치지 않는 소유 파일 범위를 정리했다",
+        "재현 조건과 최소 검증 명령을 티켓별로 명시했다"
+      ],
+      "instructions": "전달된 Sentry/Jira 이슈들의 실제 원인을 코드에서 직접 확인한다(자동 분석만 믿지 않는다). 파일이 겹치지 않게 fixer-a와 fixer-b에 배분할 티켓·원인·검증 기준을 artifacts/triage.md에 쓰고 hc-team send --kind handoff로 넘긴다. 파일은 수정하지 않는다."
+    },
+    {
+      "id": "fixer-a",
+      "title": "병렬 수정 워커 A",
+      "route": "implement",
+      "default": true,
+      "talksTo": ["triage", "reviewer"],
+      "checkpoints": [
+        "할당된 티켓의 최소 수정만 적용하고 무관한 파일·locales를 건드리지 않았다",
+        "수정 파일 lint와 대상 단위 테스트가 통과했다"
+      ],
+      "instructions": "triage가 배분한 티켓을 할당된 워크트리/범위에서 최소 수정으로 해결하고 회귀 테스트와 lint를 실행한다. 완료 후 변경 요약·검증 출력·커밋 해시를 parent와 reviewer에 hc-team send --kind result로 보고한다."
+    },
+    {
+      "id": "fixer-b",
+      "title": "병렬 수정 워커 B",
+      "route": "implement",
+      "default": true,
+      "talksTo": ["triage", "reviewer"],
+      "checkpoints": [
+        "할당된 티켓의 최소 수정만 적용하고 무관한 파일·locales를 건드리지 않았다",
+        "수정 파일 lint와 대상 단위 테스트가 통과했다"
+      ],
+      "instructions": "triage가 배분한 두 번째 티켓을 할당된 워크트리/범위에서 최소 수정으로 해결하고 회귀 테스트와 lint를 실행한다. 완료 후 변경 요약·검증 출력·커밋 해시를 parent와 reviewer에 hc-team send --kind result로 보고한다."
+    },
+    {
+      "id": "reviewer",
+      "title": "일괄 적대적 리뷰어 (읽기 전용)",
+      "route": "deep-review",
+      "default": false,
+      "readOnly": true,
+      "talksTo": ["fixer-a", "fixer-b"],
+      "checkpoints": [
+        "각 티켓 수정이 원래 에러를 잡되 다른 정상 오류를 삼키지 않음을 확인했다"
+      ],
+      "instructions": "fixer-a와 fixer-b의 diff를 읽기 전용으로 검토한다. 과도한 예외 삼킴, 상태 불일치, 불필요한 리팩터링을 file:line으로 짚어 해당 fixer에 hc-team send --kind review로 보낸다."
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "id": "jira-ticket-delivery",
+  "name": "Jira 티켓 개발 · 브라우저 QA · 적대적 리뷰",
+  "description": "Jira 티켓(GMN-/PSR-)과 Figma·기획 링크를 받아 Next.js API 연동과 화면을 한 번에 PR까지 끝낼 때. 기본: 개발(implement), Web QA(browser-qa), 적대적 리뷰(deep-review). 선택: 기획 분석(plan). 서버: npm run local.",
+  "servers": [
+    {
+      "id": "web",
+      "command": [
+        "npm",
+        "run",
+        "local"
+      ],
+      "cwd": "."
+    }
+  ],
+  "roles": [
+    {
+      "id": "dev",
+      "title": "티켓 개발 (API 연동 + 화면 한 번에)",
+      "route": "implement",
+      "default": true,
+      "owns": [
+        "src/**",
+        "app/**",
+        "components/**",
+        "shared/**",
+        "hooks/**"
+      ],
+      "talksTo": [
+        "web-qa",
+        "reviewer",
+        "spec-planner"
+      ],
+      "checkpoints": [
+        "수정한 JS/TS 파일만 대상으로 ESLint exit 0",
+        "타입·라우트·스키마·API 변경 시 전체 typecheck exit 0",
+        "관련 단위 테스트(jest/vitest related) exit 0"
+      ],
+      "instructions": "티켓 범위의 API 연동과 화면을 한 작업으로 함께 구현한다. 둘로 나누지 않는다. 기획에 없는 예외 처리, 에러 게이트, 추상화를 더하지 않는다. locales/ 파일과 생성된 API 타입은 직접 고치지 않는다. 검사를 통과하면 확인할 라우트, 국가/언어, 뷰포트 조건을 web-qa에, diff 범위와 검사 출력을 reviewer에 hc-team send --kind handoff로 보낸다. 받은 리뷰는 단순하게 고칠 수 있는 것만 반영하고 미반영 항목은 이유를 parent에 보고한다."
+    },
+    {
+      "id": "web-qa",
+      "title": "Web QA (ego-browser · 국가·로케일·PC/MO)",
+      "route": "browser-qa",
+      "default": true,
+      "readOnly": true,
+      "skills": [
+        "ego-browser",
+        "ego-recorder",
+        "input-replay"
+      ],
+      "talksTo": [
+        "dev",
+        "reviewer"
+      ],
+      "checkpoints": [
+        "dev가 지정한 국가/언어 조합마다 대상 화면이 열리고 콘솔 에러가 없다",
+        "PC와 MO 뷰포트에서 레이아웃·문구를 확인한 결과를 남긴다",
+        "실패마다 URL, 재현 단계, 스크린샷 경로를 남긴다"
+      ],
+      "instructions": "hc-team servers --run으로 이번 run의 로컬 URL을 찾는다. 프로젝트 오버레이에 적힌 로컬 https 도메인을 쓴다. ego-browser로 dev가 보낸 여정을 사용자처럼 직접 조작하고, 제스처가 중요하면 input-replay를 쓴다. 파일은 수정하지 않는다. 증거는 run artifacts/에 두고 통과·실패 요약을 dev에 hc-team send --kind result로 보낸다. 계정 정보나 쿠키는 기록하지 않는다."
+    },
+    {
+      "id": "reviewer",
+      "title": "적대적 코드 리뷰어 (읽기 전용)",
+      "route": "deep-review",
+      "default": true,
+      "readOnly": true,
+      "talksTo": [
+        "dev"
+      ],
+      "checkpoints": [
+        "모든 지적에 file:line과 재현 조건 또는 실패 시나리오가 있다",
+        "과설계, 불필요한 예외, 프로젝트 규칙(AGENTS.md) 위반도 지적 대상에 포함한다"
+      ],
+      "instructions": "dev가 보낸 diff 범위를 읽기 전용으로 검토한다. 실제 사용자 버그, 국가별 분기 누락, RSC/클라이언트 경계, 인증 흐름, 회귀를 우선 찾고 같은 무게로 과한 예외 처리와 불필요한 추상화도 지적한다. 심각도순 5개 이내로 정리해 hc-team send dev --kind review로 보낸다."
+    },
+    {
+      "id": "spec-planner",
+      "title": "기획·티켓 분석가 (Jira·Figma·스펙)",
+      "route": "plan",
+      "default": false,
+      "readOnly": true,
+      "skills": [
+        "atlassian-api-guidelines",
+        "figma",
+        "ego-browser"
+      ],
+      "talksTo": [
+        "dev",
+        "web-qa"
+      ],
+      "checkpoints": [
+        "티켓 본문·댓글·Figma 노드·스펙 문서 각각의 근거 링크가 계획에 있다",
+        "범위 밖 항목과 미결 질문을 따로 적는다"
+      ],
+      "instructions": "Jira 티켓·댓글, Figma 노드, 기획 스펙을 읽고 구현 범위, API 필드, 화면 상태, 국가별 차이를 한 장짜리 계획으로 artifacts/plan.md에 정리한다. 기획자에게만 물을 질문은 parent에 hc-team send --kind ask로 보내고, 계획 경로를 dev와 web-qa에 전달한다. 코드는 고치지 않는다."
+    }
+  ]
+}

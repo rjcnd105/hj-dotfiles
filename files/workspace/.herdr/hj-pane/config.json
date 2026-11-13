@@ -1,0 +1,14 @@
+{
+  "colors": {
+    "dark": {
+      "rest": "#33435a",
+      "focus": "#5878a6",
+      "main": "#6e6e6e"
+    },
+    "light": {
+      "rest": "#b9c7db",
+      "focus": "#5b7cae",
+      "main": "#a3a3a3"
+    }
+  }
+}

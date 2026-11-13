@@ -1,0 +1,7 @@
+{
+  "serverPollMs": 12000,
+  "serverRefreshMs": 2000,
+  "narrowSidebarPx": 160,
+  "serversEnabled": true,
+  "hcTeamBin": null
+}

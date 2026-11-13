@@ -1,0 +1,6 @@
+{
+  "pollMs": 10000,
+  "perFolderLimit": 500,
+  "totalLimit": 5000,
+  "menuMod": "hj-menu"
+}

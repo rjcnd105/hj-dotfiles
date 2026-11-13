@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "id": "fullstack-delivery",
+  "name": "Fullstack Delivery",
+  "description": "백엔드 API와 프론트엔드 SPA(예: deopjib Elixir/Ash + React)를 계약 기반으로 병렬 구현·통합 검증할 때. 기본: 백엔드(investigate), 프론트엔드(implement), Web QA(browser-qa). 선택: 통합 리뷰(deep-review).",
+  "roles": [
+    {
+      "id": "backend",
+      "title": "Backend Developer",
+      "route": "investigate",
+      "talksTo": [
+        "frontend",
+        "web-qa",
+        "reviewer"
+      ],
+      "checkpoints": [
+        "Verify the API contract and run the focused backend tests."
+      ],
+      "instructions": "Implement the backend part of the task. Share the API contract, fixtures, and any migration constraints with frontend and web-qa."
+    },
+    {
+      "id": "frontend",
+      "title": "Frontend Developer",
+      "route": "implement",
+      "talksTo": [
+        "backend",
+        "web-qa",
+        "reviewer"
+      ],
+      "checkpoints": [
+        "Run the frontend typecheck and test loading, error, and success behavior."
+      ],
+      "instructions": "Implement the UI against the agreed contract. Send web-qa the routes, prerequisites, and expected responses."
+    },
+    {
+      "id": "web-qa",
+      "title": "Web QA",
+      "route": "browser-qa",
+      "readOnly": true,
+      "skills": [
+        "ego-browser",
+        "ego-recorder",
+        "input-replay"
+      ],
+      "talksTo": [
+        "backend",
+        "frontend",
+        "reviewer"
+      ],
+      "checkpoints": [
+        "Verify a complete browser-to-API journey and its principal failure case."
+      ],
+      "instructions": "Use hc-team servers --run to find the app. Test the integrated flow, then report reproducible behavior and evidence."
+    },
+    {
+      "id": "reviewer",
+      "title": "Integration Reviewer",
+      "route": "deep-review",
+      "default": false,
+      "readOnly": true,
+      "talksTo": [
+        "backend",
+        "frontend",
+        "web-qa"
+      ],
+      "checkpoints": [
+        "Check compatibility and data integrity across the API boundary."
+      ],
+      "instructions": "Review the integrated change without editing files. Report material findings with source references and reproduction steps."
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "pollMs": 10000,
+  "maxWorktrees": 8,
+  "statusJobs": 4,
+  "claudeDir": null,
+  "menuMod": "hj-menu"
+}

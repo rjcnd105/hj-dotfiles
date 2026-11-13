@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "id": "bugfix-triage",
+  "name": "Bugfix Triage",
+  "description": "원인 불명 버그나 Sentry 이슈를 추적하고 최소 수정과 독립 회귀 검증으로 끝낼 때. 기본: 원인 조사(investigate), 수정 개발(implement), 회귀 검증(browser-qa).",
+  "roles": [
+    {
+      "id": "investigator",
+      "title": "Bug Investigator",
+      "route": "investigate",
+      "readOnly": true,
+      "talksTo": [
+        "fixer",
+        "verifier"
+      ],
+      "checkpoints": [
+        "Supply a minimal reproduction and evidence for the root cause."
+      ],
+      "instructions": "Trace the failing behavior without changing files. Tell fixer and verifier what fails, why, and how to observe the fix."
+    },
+    {
+      "id": "fixer",
+      "title": "Bugfix Developer",
+      "route": "implement",
+      "talksTo": [
+        "investigator",
+        "verifier"
+      ],
+      "checkpoints": [
+        "Run the smallest regression check that fails before and passes after the fix."
+      ],
+      "instructions": "Apply the narrowest root-cause fix and share the diff and verification command with verifier."
+    },
+    {
+      "id": "verifier",
+      "title": "Regression Verifier",
+      "route": "browser-qa",
+      "readOnly": true,
+      "talksTo": [
+        "investigator",
+        "fixer"
+      ],
+      "checkpoints": [
+        "Re-run the reproduction and cover the nearest edge case."
+      ],
+      "instructions": "Verify independently without changing files. Report whether the original failure is gone and which checks still fail."
+    }
+  ]
+}

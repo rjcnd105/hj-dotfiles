@@ -1,0 +1,6 @@
+{
+  "subRowId": "hj-subtabs",
+  "wheelFirstStepPx": 20,
+  "wheelRepeatStepPx": 60,
+  "wheelDebounceMs": 100
+}

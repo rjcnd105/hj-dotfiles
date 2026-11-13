@@ -1,0 +1,6 @@
+{
+  "editors": [
+    { "label": "Zed", "bundle": "dev.zed.Zed-Preview" },
+    { "label": "Cursor", "bundle": "com.todesktop.230313mzl4w4u92" }
+  ]
+}

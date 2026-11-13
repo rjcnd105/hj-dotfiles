@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "id": "motion-interaction-lab",
+  "name": "모션·인터랙션 랩 (변형 구현 · 제스처 재현 · 감각 리뷰)",
+  "description": "시트·검색·캐러셀·스크롤 모션 변형안을 만들고 녹화와 실제 휠·트랙패드·터치 재현으로 비교해 고급스럽고 자연스러운 안을 고를 때. 기본: 모션 개발(implement), 제스처 QA(browser-qa), 모션 크리틱(design-review). 선택: 성능·번들 리뷰(deep-review). 서버: npm run dev.",
+  "servers": [
+    {
+      "id": "web",
+      "command": [
+        "npm",
+        "run",
+        "dev"
+      ],
+      "cwd": "."
+    }
+  ],
+  "roles": [
+    {
+      "id": "motion-dev",
+      "title": "모션 개발 (변형안 구현)",
+      "route": "implement",
+      "default": true,
+      "skills": [
+        "motion",
+        "gsap-react",
+        "modern-web-guidance"
+      ],
+      "owns": [
+        "components/**",
+        "src/**",
+        "shared/motion/**"
+      ],
+      "talksTo": [
+        "gesture-qa",
+        "motion-critic",
+        "perf-reviewer"
+      ],
+      "checkpoints": [
+        "현재안을 유지하고 변형만 분기했다",
+        "프로젝트 모션 검사(예: motion-lab check)와 수정 파일 lint exit 0",
+        "모션 값은 프로젝트 토큰에서 가져오고 prefers-reduced-motion을 유지했다"
+      ],
+      "instructions": "요청받은 인터랙션 변형안을 프로젝트 모션 규칙대로 구현하고 변형별 시간·곡선·진입/퇴장 속도 차이를 1~2문장으로 요약한다. 완료 후 확인할 URL·변형 id·제스처를 gesture-qa에, 요약을 motion-critic에 보낸다. 피드백 반영 시 기존 변형을 덮지 않고 파생안(a-2 등)을 만든다."
+    },
+    {
+      "id": "gesture-qa",
+      "title": "제스처·녹화 QA (ego-browser · input-replay)",
+      "route": "browser-qa",
+      "default": true,
+      "readOnly": true,
+      "skills": [
+        "ego-browser",
+        "input-replay",
+        "ego-recorder"
+      ],
+      "talksTo": [
+        "motion-dev",
+        "motion-critic"
+      ],
+      "checkpoints": [
+        "변형마다 데스크톱 휠/트랙패드와 모바일 터치를 같은 시나리오로 재현했다",
+        "최종 위치·끊긴 입력 수(missed)·프레임 관찰과 캡처 경로를 artifacts/에 남겼다"
+      ],
+      "instructions": "hc-team servers --run으로 URL을 찾는다. 변형마다 ego-browser로 화면을 열고 input-replay로 실제 장치 타이밍의 휠·트랙패드 관성·스와이프·탭을 재현해 잘림·겹침·튐·스냅 실패를 기록한다. 비교표와 캡처 경로를 motion-critic과 motion-dev에 hc-team send --kind result로 보낸다."
+    },
+    {
+      "id": "motion-critic",
+      "title": "모션 크리틱 (브랜드 톤 · 감각 판정)",
+      "route": "design-review",
+      "default": true,
+      "readOnly": true,
+      "skills": [
+        "review-animations",
+        "interface-design",
+        "animation-vocabulary"
+      ],
+      "talksTo": [
+        "motion-dev",
+        "gesture-qa"
+      ],
+      "checkpoints": [
+        "변형마다 유지·수정·폐기 판정과 바로 구현 가능한 수치(ms·곡선·거리)를 적는다",
+        "폐기 방향은 이유를 남겨 반복을 막는다"
+      ],
+      "instructions": "gesture-qa의 캡처와 motion-dev의 요약을 보고 브랜드 톤(절제된 고급스러움, 네이티브 반응성)을 판정한다. 과한 크기·튐·진입보다 느린 퇴장·초기 프레임 잘림을 구체적 수치 수정안으로 짚고, 최종 후보와 확인 URL을 parent에 hc-team send --kind result로 보낸다."
+    },
+    {
+      "id": "perf-reviewer",
+      "title": "모션 성능·번들 리뷰어",
+      "route": "deep-review",
+      "default": false,
+      "readOnly": true,
+      "talksTo": [
+        "motion-dev"
+      ],
+      "checkpoints": [
+        "라우트별 First Load JS 또는 번들 증감 수치를 근거로 제시한다",
+        "레이아웃 유발 애니메이션, 미해제 타임라인/리스너, INP 위험을 file:line으로 지적한다"
+      ],
+      "instructions": "모션 diff를 읽기 전용으로 검토한다. transform/opacity 외 속성 애니메이션, 강제 레이아웃, 언마운트 미정리 GSAP 타임라인·옵저버, 불필요한 번들 누수를 찾아 motion-dev에 hc-team send --kind review로 보낸다."
+    }
+  ]
+}
