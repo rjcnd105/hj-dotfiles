@@ -1,4 +1,4 @@
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "xhigh"
 model_reasoning_summary = "concise"
 personality = 'pragmatic'
@@ -22,9 +22,6 @@ trust_level = "trusted"
 trust_level = "trusted"
 
 [projects."/Users/hj/study/simple-pr"]
-trust_level = "trusted"
-
-[projects."/Users/hj/.codex/caveman"]
 trust_level = "trusted"
 
 [projects."/Users/hj/.codex"]
@@ -75,6 +72,9 @@ trust_level = "trusted"
 [projects."/Users/hj/study-g/little-bird-village"]
 trust_level = "trusted"
 
+[projects."/Users/hj/work/gm/gentlemonster-pdp-content"]
+trust_level = "trusted"
+
 [notice]
 hide_full_access_warning = true
 fast_default_opt_out = true
@@ -120,36 +120,12 @@ path = "/Users/hj/work/gm/ps-frontend-admin/.agents/skills/material-ui-nextjs/SK
 enabled = false
 
 [[skills.config]]
-path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/hook-development/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/mcp-integration/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/skill-development/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/context7-mcp/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/markdown-converter/SKILL.md"
-enabled = false
-
-[[skills.config]]
 path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/pdf/SKILL.md"
 enabled = false
 
 [[skills.config]]
 path = "/Users/hj/dot/nix-dots/files/workspace/.codex/skills/.system/imagegen/SKILL.md"
 enabled = true
-
-[[skills.config]]
-path = "/Users/hj/.codex/plugins/cache/openai-bundled/visualize/1.0.11/skills/visualize/SKILL.md"
-enabled = false
 
 [plugins."github@openai-curated"]
 enabled = true
@@ -199,61 +175,56 @@ starfield = true
 [hooks.state]
 
 [hooks.state."/Users/hj/.codex/hooks.json:session_start:0:0"]
-trusted_hash = "sha256:44c7861834fd1ae5590a6447f8709cda4ae1992af80c4cfdc8450611c3e5232d"
+trusted_hash = "sha256:5a1528dd2bb0573ceb74a097aa0101f52e7e253c1f2183be6364310644f37dab"
 
 [hooks.state."/Users/hj/.codex/hooks.json:stop:0:0"]
-trusted_hash = "sha256:5fe1131af977983dd4e3e6f16b69352c4da889e47add55674b79c140de0ae547"
+trusted_hash = "sha256:d7e8f52f676562e809727e67d56dc542ec962d90ebe092648c2134e266532109"
 
 [hooks.state."/Users/hj/.codex/hooks.json:user_prompt_submit:0:0"]
-trusted_hash = "sha256:73eca65d5362d3ff7c8bc55a2d664787dfd7b6945dccc07abe1fec813d86b6b8"
+trusted_hash = "sha256:ff82ab6225ff4222b1cfcfd4254d36df3cea2226f2cc22580325bed496530f91"
 
 [hooks.state."/Users/hj/study_ex/my-backend/deopjib/client/.codex/hooks.json:pre_tool_use:0:0"]
 trusted_hash = "sha256:3aaabbb23f1450f30fc69a4ed303f1330540d84308173c73d78e151519304e96"
 
 [hooks.state."/Users/hj/work/gm/gentle-renewal/.codex/hooks.json:pre_tool_use:0:0"]
-trusted_hash = "sha256:f8e26717444448b6d6c9584f1509381ba10aa3b6969f6cdbfac7eb1a3beddabd"
+trusted_hash = "sha256:a9fbcee47822e79ac8c6ed762a11d191a4bc9c8234efb2235b8b47562bb5fda4"
 
 [hooks.state."/Users/hj/study_ex/my-backend/deopjib/backend/.codex/hooks.json:pre_tool_use:0:0"]
 trusted_hash = "sha256:3aaabbb23f1450f30fc69a4ed303f1330540d84308173c73d78e151519304e96"
 
-[hooks.state."ponytail@ponytail:hooks/hooks.json:session_start:0:0"]
-trusted_hash = "sha256:195e73e498a4cdb40bbe765719d39371ac72c0ebb084fee1beee9d28d21fb7a0"
-
-[hooks.state."ponytail@ponytail:hooks/hooks.json:user_prompt_submit:0:0"]
-trusted_hash = "sha256:f79c8de133c1109b841f9835a9d032231900a0d96ecf5f6d1866132df5ca4aa4"
-
-[hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:session_start:0:0"]
-trusted_hash = "sha256:5f81d38f47448a1581c08ec877e044d9e04dd6f814dce3f2671f7a8edadd719b"
-
-[hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:user_prompt_submit:0:0"]
-trusted_hash = "sha256:6a6f42bc3b58d6262db38bfd74d7f340fcca2b09cdb134aad365063f0bfefca4"
-
-[hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:subagent_start:0:0"]
-trusted_hash = "sha256:1423b56c1322f96c8f74c51c1e7ae9a047b904c1fa43ee9165d462fd7a6e70ef"
-
 [hooks.state."/Users/hj/dot/nix-dots/.codex/hooks.json:pre_tool_use:0:0"]
 trusted_hash = "sha256:ed81e189cb1ee4d568853c8e7221bcb9ba841023b54c570ad996b327983ad901"
-
-[hooks.state."honey@greenpt:hooks/hooks.json:session_start:0:0"]
-trusted_hash = "sha256:7d69a30c70e504860428b2be1c09421d614f427c183b7de717fd53411ba4b34b"
-
-[hooks.state."honey@greenpt:hooks/hooks.json:subagent_start:0:0"]
-trusted_hash = "sha256:6f261fe32755fe8d32a9bb7061d13c628d539d0191b51f5df11764ee3bcd910a"
-
-[hooks.state."honey@greenpt:hooks/hooks.json:post_tool_use:0:0"]
-trusted_hash = "sha256:94ebd4f1bcd6f7537f701e6a787b14b21862f561783e17beb82348ed7b402892"
 
 [hooks.state."/Users/hj/dot/nix-dots/files/workspace/.codex/hooks.json:session_start:0:0"]
 trusted_hash = "sha256:44c7861834fd1ae5590a6447f8709cda4ae1992af80c4cfdc8450611c3e5232d"
 
+[hooks.state."worktrunk@worktrunk:plugin.json#hooks[0]:permission_request:0:0"]
+trusted_hash = "sha256:b5f6112154fd814298da679652ea096e11434b7f2876d471eb00c790a68045d0"
+trusted_content_hash = "sha256:fb60c0898e376b324501309651d35065a51c37ac06f564104058b133b37396dd"
+
+[hooks.state."worktrunk@worktrunk:plugin.json#hooks[0]:session_end:0:0"]
+trusted_hash = "sha256:09b9fff83447c926af5f61010bc3dd3c8f2e6194c7c06b08f8acbf808a51710d"
+trusted_content_hash = "sha256:fb60c0898e376b324501309651d35065a51c37ac06f564104058b133b37396dd"
+
+[hooks.state."worktrunk@worktrunk:plugin.json#hooks[0]:user_prompt_submit:0:0"]
+trusted_hash = "sha256:e2ffec558188fd0988ad51768594f675801fd2a1ba2895b5df2aca2650d70c2a"
+trusted_content_hash = "sha256:fb60c0898e376b324501309651d35065a51c37ac06f564104058b133b37396dd"
+
+[hooks.state."worktrunk@worktrunk:plugin.json#hooks[0]:stop:0:0"]
+trusted_hash = "sha256:350c210fba4996f546f4d0483fc29286d73880ca5ef01fda3583ea2ce676945d"
+trusted_content_hash = "sha256:fb60c0898e376b324501309651d35065a51c37ac06f564104058b133b37396dd"
+
+[hooks.state."/Users/hj/work/gm/gentle-renewal-2/.codex/hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:a9fbcee47822e79ac8c6ed762a11d191a4bc9c8234efb2235b8b47562bb5fda4"
+
 [desktop]
 usePointerCursors = true
-followUpQueueMode = "queue"
 localeOverride = "ko-KR"
 default-service-tier = "fast"
 worktree-keep-count = 10
 dock-icon-preference = "codex-system"
 conversationDetailMode = "STEPS_PROSE"
+migratedFollowUpQueueToSteer = true
 
 [desktop.open-in-target-preferences]
 global = "cursor"
@@ -269,6 +240,18 @@ source = "/Users/hj/.codex/.tmp/bundled-marketplaces/openai-bundled"
 source_type = "local"
 source = "/Users/hj/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
+[marketplaces.hj-agent-tools]
+source_type = "git"
+source = "https://github.com/rjcnd105/hj-agent-tools.git"
+
+[marketplaces.worktrunk]
+source_type = "local"
+source = "/Users/hj/.local/share/worktrunk/marketplace"
+
+[marketplaces.egm]
+source_type = "git"
+source = "https://github.com/google/elephant-goldfish-model.git"
+
 [plugins."visualize@openai-bundled"]
 enabled = true
 
@@ -276,6 +259,15 @@ enabled = true
 enabled = true
 
 [plugins."unified-computer-use@openai-bundled"]
+enabled = true
+
+[plugins."hj-agent-tools@hj-agent-tools"]
+enabled = true
+
+[plugins."worktrunk@worktrunk"]
+enabled = true
+
+[plugins."egm@egm"]
 enabled = true
 
 [mcp_servers.chrome-devtools]
@@ -312,8 +304,8 @@ NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = ""
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.1023.51421"
-NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/hj/.codex/plugins/cache/openai-bundled/browser/26.1023.51421/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
+BROWSER_USE_CODEX_APP_VERSION = "26.1111.71025"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/hj/.codex/plugins/cache/openai-bundled/browser/26.1111.71025/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
 SKY_CUA_SERVICE_PATH = "/Users/hj/.codex/computer-use/Codex Computer Use.app"
 CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex"
 
