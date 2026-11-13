@@ -50,8 +50,20 @@
     trusted-users = [ myOptions.userName ];
   };
 
+  # 로그인 셸은 bash로 두고 대화형 세션만 fish로 넘긴다. 로그인 셸이 fish면
+  # `ssh homelab '<cmd>'`를 fish가 해석해 에이전트가 쓴 bash 문법이 깨진다.
   programs.fish.enable = true;
-  users.defaultUserShell = pkgs.fish;
+  # set-environment가 PATH를 새로 쓰므로 그 뒤에 렌더링되는 loginShellInit에 둔다.
+  programs.bash.loginShellInit = ''
+    hm_vars=/etc/profiles/per-user/''${USER:-}/etc/profile.d/hm-session-vars.sh
+    [ -r "$hm_vars" ] && . "$hm_vars"
+    unset hm_vars
+  '';
+  programs.bash.interactiveShellInit = ''
+    if grep -qv fish /proc/$PPID/comm && [[ $SHLVL == [12] ]] && [[ -z ''${BASH_EXECUTION_STRING} ]]; then
+      SHELL=${pkgs.fish}/bin/fish exec fish
+    fi
+  '';
 
   system.stateVersion = "26.05";
 }
