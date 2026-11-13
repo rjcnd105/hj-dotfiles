@@ -10,16 +10,13 @@ Pi는 agent 디렉터리에서 컨텍스트 파일을 하나 읽고, 작업 디�
 
 | 구성 | 버전 | 용도 |
 |---|---|---|
-| Pi CLI | mise `latest` (2026-10-07 기준 1.0.4) | OpenAI 구독과 OpenRouter 모델 실행, 내장 MCP로 CodeGraph·godot-ai 연결 |
+| Pi CLI | mise `latest` (2026-10-07 기준 1.0.4) | OpenAI 구독과 OpenRouter 모델 실행, 내장 MCP로 CodeGraph 연결 |
 | [pi-subagents](https://github.com/nicobailon/pi-subagents) | git main (2026-10-02, Pi 1.0 수정 #2634 포함, npm 릴리스 전) | Sol 6.1/high의 독립된 작업 문맥과 결과 회수 |
 | [pi-vcc](https://github.com/sting8k/pi-vcc) | 0.8.0 | 모델 호출 없는 세션 압축과 현재 세션 원문 재검색 |
 | [pi-ask-user](https://github.com/edlsh/pi-ask-user) | 0.15.1 | 결정이 필요할 때 선택지·다중 선택·자유 입력으로 사용자에게 묻는 `ask_user` 도구 |
 | pi-intercom | 고정하지 않음 (2026-10-07 기준 0.16.1) | Pi 세션 간 1:1 메시지, pi-subagents 하위 에이전트의 `contact_supervisor` |
 | [pi-goal](https://github.com/narumiruna/pi-extensions/tree/main/packages/pi-goal) | 고정하지 않음 (2026-10-29 기준 0.54.13) | `/goal <목표>`로 완료·차단·대기 판정까지 자동으로 이어 가는 목표 모드 |
 | 로컬 `analyze-sessions` 스킬 | 저장소 관리 | Pi 세션의 비용·반복 요청·과거 대화를 읽기 전용 분석 |
-| 로컬 `chatgpt-credit-fallback` 확장 | 저장소 관리 | ChatGPT 플랜 한도에 걸린 `openai/*` 실행을 같은 모델의 `openai-codex`로 옮겨 ChatGPT 크레딧으로 이어감 |
-
-`chatgpt-credit-fallback`은 Home Manager 링크 없이 `settings.json`의 `extensions`(메인 세션)와 `subagents.defaultSubagentOnlyExtensions`(하위 에이전트)가 원본 경로를 직접 가리킨다. `openai-codex`에 로그인돼 있어야 동작한다.
 
 `analyze-sessions`는 [amosblomqvist/pi-config의 `f82da56`](https://github.com/amosblomqvist/pi-config/tree/f82da563ab05d66729492d64c7ed4e96db3663f3)를 바탕으로 이 설정에 맞췄다. 원본은 `files/workspace/.config/pi/skills/analyze-sessions/`이며 Home Manager가 Pi의 스킬 디렉터리에 연결한다. npm 패키지나 전역 공유 스킬을 추가하지 않는다. 사용법은 [작업 가이드](pi-agent-workflows.md#pi-세션-분석)에서 확인한다.
 

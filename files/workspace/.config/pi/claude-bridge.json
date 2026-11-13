@@ -1,10 +1,4 @@
 {
-  "askClaude": {
-    "enabled": true,
-    "defaultMode": "read",
-    "defaultIsolated": true,
-    "allowFullMode": false
-  },
   "provider": {
     "plan": "max"
   },

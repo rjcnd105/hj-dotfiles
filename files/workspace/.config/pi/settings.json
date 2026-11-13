@@ -1,6 +1,6 @@
 {
   "defaultProvider": "openai",
-  "defaultModel": "gpt-6.1-terra",
+  "defaultModel": "gpt-6.2-sol",
   "defaultThinkingLevel": "max",
   "defaultTools": [
     "+codemode"
@@ -16,14 +16,14 @@
   },
   "enabledModels": [
     "openai/gpt-6.1-terra",
-    "openai/gpt-6.1-sol",
-    "openai-codex/gpt-6-astra",
-    "openai-codex/gpt-6-sol",
     "openai-codex/gpt-6.1-terra",
-    "openai-codex/gpt-6.1-sol",
     "openrouter/aion-labs/aion-3.5",
     "openrouter/deepseek/deepseek-v4.1-flash",
-    "openrouter/xiaomi/mimo-v2.6-pro"
+    "openrouter/xiaomi/mimo-v2.6-pro",
+    "openai/gpt-6.2-sol",
+    "openai-codex/gpt-6.2-sol",
+    "openai/gpt-6.2-astra",
+    "openai-codex/gpt-6.2-astra"
   ],
   "packages": [
     "git:github.com/nicobailon/pi-subagents",
@@ -32,19 +32,17 @@
     "npm:pi-intercom",
     "npm:pi-claude-bridge",
     "npm:@narumitw/pi-goal",
-    "npm:pi-openai-fast-mode"
+    "npm:pi-openai-fast-mode",
+    "git:github.com/rjcnd105/hj-agent-tools"
   ],
   "extensions": [
-    "/Users/hj/dot/nix-dots/files/workspace/.config/pi/extensions/chatgpt-credit-fallback.ts",
     "/Users/hj/.hindsight/coding-agents/dist/pi.js"
   ],
   "subagents": {
     "defaultModel": "openai/gpt-6.1-terra",
     "defaultThinking": "max",
     "defaultExtensions": [],
-    "defaultSubagentOnlyExtensions": [
-      "/Users/hj/dot/nix-dots/files/workspace/.config/pi/extensions/chatgpt-credit-fallback.ts"
-    ],
+    "defaultSubagentOnlyExtensions": [],
     "watchdog": {
       "enabled": true,
       "main": {
@@ -100,31 +98,24 @@
       }
     }
   },
-  "lastChangelogVersion": "1.5.0",
+  "lastChangelogVersion": "1.6.0",
   "theme": "dark",
   "skills": [
     "-/Users/hj/.agents/skills/claude-api/SKILL.md",
-    "-skills/academy-guide",
-    "-skills/hook-development",
-    "-skills/mcp-integration",
-    "-skills/retro",
-    "-skills/skill-development",
-    "-skills/web-artifacts-builder",
     "-skills/typesafe-ai",
     "-skills/obsidian-bases",
     "-skills/obsidian-cli",
-    "-skills/obsidian-markdown",
-    "-skills/kb",
     "-skills/gitbutler",
-    "-skills/hindsight",
-    "-skills/diagram-design"
+    "-skills/diagram-design",
+    "-/Users/hj/.pi/agent/skills/hindsight-coding-agent/SKILL.md"
   ],
   "prompts": [
     "~/.config/pi/prompts"
   ],
   "deviceId": "df451236-3396-4dfc-8308-482aa2450a0b",
   "extensionChangelogVersions": {
-    "{\"source\":\"git:github.com/nicobailon/pi-subagents\",\"scope\":\"user\"}": "0.84.0",
-    "{\"source\":\"npm:@sting8k/pi-vcc\",\"scope\":\"user\"}": "0.11.2"
+    "{\"source\":\"git:github.com/nicobailon/pi-subagents\",\"scope\":\"user\"}": "0.90.0",
+    "{\"source\":\"npm:@sting8k/pi-vcc\",\"scope\":\"user\"}": "0.12.0",
+    "{\"source\":\"npm:@narumitw/pi-goal\",\"scope\":\"user\"}": "0.55.4"
   }
 }
