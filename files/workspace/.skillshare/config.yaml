@@ -1,0 +1,323 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/runkids/skillshare/main/schemas/project-config.schema.json
+
+# Copy mode keeps real skill files in .claude/skills and .agents/skills, so git
+# (and comin on the homelab) delivers them without running skillshare there.
+targets:
+  - name: claude
+    skills:
+      mode: copy
+      exclude:
+        - elixir
+        - find-docs
+        - obsidian-bases
+        - gitbutler
+  - name: codex
+    skills:
+      mode: copy
+  - name: cursor
+    skills:
+      enabled: false
+
+skills:
+  - name: architect
+    source: github.com/backnotprop/pstack/skills/architect
+    branch: main
+  - name: arena
+    source: github.com/backnotprop/pstack/skills/arena
+    branch: main
+  - name: automate-me
+    source: github.com/backnotprop/pstack/skills/automate-me
+    branch: main
+  - name: benchmark-checklist
+    source: github.com/backnotprop/pstack/skills/benchmark-checklist
+    branch: main
+  - name: blast-radius
+    source: github.com/backnotprop/pstack/skills/blast-radius
+    branch: main
+  - name: bro
+    source: github.com/backnotprop/pstack/skills/bro
+    branch: main
+  - name: correct
+    source: github.com/backnotprop/pstack/skills/correct
+    branch: main
+  - name: create-formal-verification-skill
+    source: github.com/backnotprop/pstack/skills/create-formal-verification-skill
+    branch: main
+  - name: create-verification-skill
+    source: github.com/backnotprop/pstack/skills/create-verification-skill
+    branch: main
+  - name: figure-it-out
+    source: github.com/backnotprop/pstack/skills/figure-it-out
+    branch: main
+  - name: how
+    source: github.com/backnotprop/pstack/skills/how
+    branch: main
+  - name: in-your-own-words
+    source: github.com/backnotprop/pstack/skills/in-your-own-words
+    branch: main
+  - name: interrogate
+    source: github.com/backnotprop/pstack/skills/interrogate
+    branch: main
+  - name: ketchup
+    source: github.com/backnotprop/pstack/skills/ketchup
+    branch: main
+  - name: ketchup-video
+    source: github.com/backnotprop/pstack/skills/ketchup-video
+    branch: main
+  - name: maintain-formal-verification-skill
+    source: github.com/backnotprop/pstack/skills/maintain-formal-verification-skill
+    branch: main
+  - name: maintain-verification-skill
+    source: github.com/backnotprop/pstack/skills/maintain-verification-skill
+    branch: main
+  - name: make-bot-ui
+    source: github.com/backnotprop/pstack/skills/make-bot-ui
+    branch: main
+  - name: no-comments
+    source: github.com/backnotprop/pstack/skills/no-comments
+    branch: main
+  - name: poteto-help
+    source: github.com/backnotprop/pstack/skills/poteto-help
+    branch: main
+  - name: poteto-mode
+    source: github.com/backnotprop/pstack/skills/poteto-mode
+    branch: main
+  - name: principle-attack-the-premise
+    source: github.com/backnotprop/pstack/skills/principle-attack-the-premise
+    branch: main
+  - name: principle-boundary-discipline
+    source: github.com/backnotprop/pstack/skills/principle-boundary-discipline
+    branch: main
+  - name: principle-build-the-lever
+    source: github.com/backnotprop/pstack/skills/principle-build-the-lever
+    branch: main
+  - name: principle-encode-lessons-in-structure
+    source: github.com/backnotprop/pstack/skills/principle-encode-lessons-in-structure
+    branch: main
+  - name: principle-exhaust-the-design-space
+    source: github.com/backnotprop/pstack/skills/principle-exhaust-the-design-space
+    branch: main
+  - name: principle-experience-first
+    source: github.com/backnotprop/pstack/skills/principle-experience-first
+    branch: main
+  - name: principle-explain-the-number
+    source: github.com/backnotprop/pstack/skills/principle-explain-the-number
+    branch: main
+  - name: principle-fix-root-causes
+    source: github.com/backnotprop/pstack/skills/principle-fix-root-causes
+    branch: main
+  - name: principle-foundational-thinking
+    source: github.com/backnotprop/pstack/skills/principle-foundational-thinking
+    branch: main
+  - name: principle-guard-the-context-window
+    source: github.com/backnotprop/pstack/skills/principle-guard-the-context-window
+    branch: main
+  - name: principle-laziness-protocol
+    source: github.com/backnotprop/pstack/skills/principle-laziness-protocol
+    branch: main
+  - name: principle-make-operations-idempotent
+    source: github.com/backnotprop/pstack/skills/principle-make-operations-idempotent
+    branch: main
+  - name: principle-migrate-callers-then-delete-legacy-apis
+    source: github.com/backnotprop/pstack/skills/principle-migrate-callers-then-delete-legacy-apis
+    branch: main
+  - name: principle-minimize-reader-load
+    source: github.com/backnotprop/pstack/skills/principle-minimize-reader-load
+    branch: main
+  - name: principle-model-the-domain
+    source: github.com/backnotprop/pstack/skills/principle-model-the-domain
+    branch: main
+  - name: principle-never-block-on-the-human
+    source: github.com/backnotprop/pstack/skills/principle-never-block-on-the-human
+    branch: main
+  - name: principle-outcome-oriented-execution
+    source: github.com/backnotprop/pstack/skills/principle-outcome-oriented-execution
+    branch: main
+  - name: principle-prove-it-works
+    source: github.com/backnotprop/pstack/skills/principle-prove-it-works
+    branch: main
+  - name: principle-redesign-from-first-principles
+    source: github.com/backnotprop/pstack/skills/principle-redesign-from-first-principles
+    branch: main
+  - name: principle-separate-before-serializing-shared-state
+    source: github.com/backnotprop/pstack/skills/principle-separate-before-serializing-shared-state
+    branch: main
+  - name: principle-sequence-verifiable-units
+    source: github.com/backnotprop/pstack/skills/principle-sequence-verifiable-units
+    branch: main
+  - name: principle-subtract-before-you-add
+    source: github.com/backnotprop/pstack/skills/principle-subtract-before-you-add
+    branch: main
+  - name: principle-test-behavior-not-implementation
+    source: github.com/backnotprop/pstack/skills/principle-test-behavior-not-implementation
+    branch: main
+  - name: principle-type-system-discipline
+    source: github.com/backnotprop/pstack/skills/principle-type-system-discipline
+    branch: main
+  - name: recall
+    source: github.com/backnotprop/pstack/skills/recall
+    branch: main
+  - name: reflect
+    source: github.com/backnotprop/pstack/skills/reflect
+    branch: main
+  - name: setup-pstack
+    source: github.com/backnotprop/pstack/skills/setup-pstack
+    branch: main
+  - name: sharpen
+    source: github.com/backnotprop/pstack/skills/sharpen
+    branch: main
+  - name: show-me-your-work
+    source: github.com/backnotprop/pstack/skills/show-me-your-work
+    branch: main
+  - name: statechart
+    source: github.com/backnotprop/pstack/skills/statechart
+    branch: main
+  - name: swarm
+    source: github.com/backnotprop/pstack/skills/swarm
+    branch: main
+  - name: tdd
+    source: github.com/backnotprop/pstack/skills/tdd
+    branch: main
+  - name: teach
+    source: github.com/backnotprop/pstack/skills/teach
+    branch: main
+  - name: technical-writing
+    source: github.com/backnotprop/pstack/skills/technical-writing
+    branch: main
+  - name: typescript-best-practices
+    source: github.com/backnotprop/pstack/skills/typescript-best-practices
+    branch: main
+  - name: unslop
+    source: github.com/backnotprop/pstack/skills/unslop
+    branch: main
+  - name: why
+    source: github.com/backnotprop/pstack/skills/why
+    branch: main
+  - name: figma
+    source: github.com/heygen-com/hyperframes/skills/figma
+    branch: main
+  - name: hyperframes
+    source: github.com/heygen-com/hyperframes/skills/hyperframes
+    branch: main
+  - name: hyperframes-cli
+    source: github.com/heygen-com/hyperframes/skills/hyperframes-cli
+    branch: main
+  - name: hyperframes-registry
+    source: github.com/heygen-com/hyperframes/skills/hyperframes-registry
+    branch: main
+  - name: media-use
+    source: github.com/heygen-com/hyperframes/skills/media-use
+    branch: main
+  - name: remotion-to-hyperframes
+    source: github.com/heygen-com/hyperframes/skills/remotion-to-hyperframes
+    branch: main
+  - name: slideshow
+    source: github.com/heygen-com/hyperframes/skills/slideshow
+    branch: main
+  - name: grill-me
+    source: github.com/mattpocock/skills/skills/productivity/grill-me
+    branch: main
+  - name: grill-with-docs
+    source: github.com/mattpocock/skills/skills/engineering/grill-with-docs
+    branch: main
+  - name: writing-for-agents
+    source: github.com/mattpocock/skills/skills/productivity/writing-for-agents
+    branch: main
+  - name: domain-modeling
+    source: github.com/mattpocock/skills/skills/engineering/domain-modeling
+    branch: main
+  - name: grilling
+    source: github.com/mattpocock/skills/skills/productivity/grilling
+    branch: main
+  - name: interface-design
+    source: github.com/dammyjay93/interface-design/.claude/skills/interface-design
+    branch: main
+  - name: nixos-managing
+    source: github.com/michalzubkowicz/nixos-management-skill/nixos-managing
+    branch: main
+  - name: diagram-design
+    source: github.com/cathrynlavery/diagram-design/skills/diagram-design
+    branch: main
+  - name: show-me
+    source: github.com/humanlayer/skills/plugins/show-me/skills/show-me
+    branch: main
+  - name: reverse-engineer-anything
+    source: github.com/morluto/rea/.agents/skills/reverse-engineer-anything
+    branch: main
+  - name: agent-desktop
+    source: github.com/vercel-labs/agent-desktop/skills/agent-desktop
+    branch: main
+  - name: pdf
+    source: github.com/anthropics/skills/skills/pdf
+    branch: main
+  - name: claude-api
+    source: github.com/anthropics/skills/skills/claude-api
+    branch: main
+  - name: jujutsu-suki
+    source: github.com/Xerxes-2/jujutsu-suki
+    branch: main
+  - name: modern-react-guidance
+    source: github.com/adhhamdev/modern-react-guidance
+    branch: main
+  - name: obsidian-cli
+    source: github.com/kepano/obsidian-skills/plugins/obsidian/skills/obsidian-cli
+    branch: main
+  - name: obsidian-bases
+    source: github.com/kepano/obsidian-skills/plugins/obsidian/skills/obsidian-bases
+    branch: main
+  - name: modern-web-guidance
+    source: github.com/GoogleChrome/modern-web-guidance/skills/modern-web-guidance
+    branch: main
+  - name: korean-writing-style
+    source: github.com/ggplab/claude-playbook/02-skills/korean-writing-style
+    branch: main
+
+# .codex/AGENTS.md is the source of the personal agent guide. Claude and Pi read
+# it through relative symlinks; Cursor needs its own frontmatter, so it gets an
+# append; Antigravity reads ~/.gemini/AGENTS.md directly (copy so homes/file.nix
+# projects it into ~).
+extras:
+  - name: agent-guide
+    source: .codex
+    file: AGENTS.md
+    targets:
+      - path: .claude/rules
+        mode: symlink
+        as: personal-agent-guide.md
+      - path: .cursor/rules
+        mode: append
+        as: personal-agent-guide.mdc
+      - path: .config/pi
+        mode: symlink
+        as: AGENTS.md
+      - path: .gemini
+        mode: copy
+        as: AGENTS.md
+
+mcp:
+  servers:
+    chrome-devtools:
+      command: npx
+      args:
+        - chrome-devtools-mcp@latest
+        - --auto-connect
+        - --channel=stable
+      targets: [claude, codex, cursor]
+    openaiDeveloperDocs:
+      url: https://developers.openai.com/mcp
+      targets: [claude, codex, cursor]
+    rea:
+      command: npx
+      args:
+        - -y
+        - rea-agents@latest
+        - mcp
+      targets: [claude, codex, cursor]
+
+ignore:
+  - .DS_Store
+  - .git/
+  - __pycache__/
+
+audit:
+  block_threshold: CRITICAL

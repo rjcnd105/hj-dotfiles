@@ -23,6 +23,8 @@ Atlassian (Jira & Bitbucket) Cloud API를 사용할 때 효율적이고 표준�
 - Bitbucket 레포지토리 정보를 조회할 때
 - API 연동 코드를 작성하거나 리뷰할 때
 
+**PR 생성은 `simple-pr` 스킬 우선.** 이 문서의 Bitbucket API는 `simple-pr`이 다루지 않는 작업에 쓴다.
+
 ## 핵심 원칙
 
 ### 1. 서버 사이드 필터링 필수 (⚠️ 가장 중요)

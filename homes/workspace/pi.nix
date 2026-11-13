@@ -13,12 +13,10 @@ in
   home.file = {
     ".pi/agent/settings.json" = link "settings.json";
     ".pi/agent/claude-bridge.json" = link "claude-bridge.json";
-    # Pi reads one context file from its agent directory, so the APM-generated
-    # shared guide takes AGENTS.md and Pi-specific rules use APPEND_SYSTEM.md.
-    ".pi/agent/AGENTS.md" = {
-      source = config.lib.file.mkOutOfStoreSymlink "${workspace}/.codex/AGENTS.md";
-      force = true;
-    };
+    # Pi reads one context file from its agent directory, so the shared guide
+    # (synced to .config/pi/AGENTS.md by skillshare extras) takes AGENTS.md and
+    # Pi-specific rules use APPEND_SYSTEM.md.
+    ".pi/agent/AGENTS.md" = link "AGENTS.md";
     ".pi/agent/APPEND_SYSTEM.md" = link "APPEND_SYSTEM.md";
     ".pi/agent/mcp.json" = link "mcp.json";
     ".pi/agent/pi-vcc-config.json" = link "pi-vcc-config.json";

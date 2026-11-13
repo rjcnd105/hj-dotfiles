@@ -10,7 +10,7 @@
 | **MCP tools** (`mcp_toolset`) | Anthropic's orchestration layer | Capabilities exposed by connected MCP servers. Grant access per-server via the toolset. |
 | **Custom tools** | **You** - your application handles the call and returns results | Agent emits a `agent.custom_tool_use` event, session goes `idle`, you send back a `user.custom_tool_result` event. |
 
-**Recommendation:** Enable all prebuilt tools via `agent_toolset_20260401`, then disable individually as needed.
+**Recommendation:** Enable the prebuilt tools via `agent_toolset_20260401` with `web_fetch` and `web_search` disabled and `auto` as the toolset's permission policy, and turn a web tool on only when the job needs it.
 
 **Versioning:** The toolset is a versioned, static resource. When underlying tools change, a new toolset version is created (hence `_20260401`) so you always know exactly what you're getting.
 
@@ -29,28 +29,21 @@ The `agent_toolset_20260401` provides these built-in tools:
 | `web_fetch` | Fetch content from a URL |
 | `web_search` | Search the web for information |
 
-Enable the full toolset:
-
-```json
-{
-  "tools": [
-    { "type": "agent_toolset_20260401" }
-  ]
-}
-```
+**Start with the web tools off.** A bare `{ "type": "agent_toolset_20260401" }` enables all eight, and of the environment's `networking` choices only `limited` restricts the two web tools (§ Web search & web fetch settings). List both in `configs` explicitly, as in the example below, and set `enabled: true` only on the ones the job needs (`web_search` to find pages, `web_fetch` to read a URL), with the sites in `allowed_domains` when they are known in advance, and under `limited` networking in the environment's `allowed_hosts` too.
 
 ### Per-Tool Configuration
 
-Override defaults for individual tools. This example enables everything except bash:
+Override defaults for individual tools. This example enables everything except the web tools and sets the `auto` permission policy (§ Permission Policies):
 
 ```json
 {
   "tools": [
     {
       "type": "agent_toolset_20260401",
-      "default_config": { "enabled": true },
+      "default_config": { "enabled": true, "permission_policy": { "type": "auto" } },
       "configs": [
-        { "name": "bash", "enabled": false }
+        { "name": "web_fetch", "enabled": false },
+        { "name": "web_search", "enabled": false }
       ]
     }
   ]
@@ -63,16 +56,17 @@ Override defaults for individual tools. This example enables everything except b
 | `default_config` | No | Applied to all tools. `{ "enabled": bool, "permission_policy": {...} }` |
 | `configs` | No | Per-tool overrides: `[{ "name": "...", "type": "...", "enabled": bool, "permission_policy": {...} }]`. `name` identifies the tool (values from the table above); `type` is optional in requests (same value as `name`; the server infers it) and always present in responses. `web_search` / `web_fetch` entries also accept web settings - see § Web search & web fetch settings below. |
 
-> **Typed SDKs:** each `configs` entry is a member of a union with one member per built-in tool (eight: `BetaManagedAgentsWebFetchToolConfigParams`, `...WebSearchToolConfigParams`, `...BashToolConfigParams`, ...), discriminated by `type`. Python/TypeScript/Ruby dicts and hashes with just `name` + `enabled` + `permission_policy` are unchanged. In Go, Java, C#, and PHP, `configs` is the union itself - build each entry from its per-tool type (Go: `BetaManagedAgentsAgentToolConfigUnionParamsUnion{OfWebFetch: &anthropic.BetaManagedAgentsWebFetchToolConfigParams{...}}` - the arms are `OfBash` / `OfRead` / `OfWrite` / `OfEdit` / `OfGlob` / `OfGrep` / `OfWebFetch` / `OfWebSearch`; Java: `.addConfig(BetaManagedAgentsWebFetchToolConfigParams.builder()...build())`; C#: `new BetaManagedAgentsWebFetchToolConfigParams { Enabled = false }`; PHP: `BetaManagedAgentsWebFetchToolConfigParams::with(enabled: false)`). Code written against an SDK where all tools shared one config type must update how it constructs entries.
+> **Typed SDKs:** each `configs` entry is a member of a union with one member per built-in tool (eight: `BetaManagedAgentsWebFetchToolConfigParams`, `...WebSearchToolConfigParams`, `...BashToolConfigParams`, ...), discriminated by `type`. Python/TypeScript/Ruby dicts and hashes with just `name` + `enabled` + `permission_policy` are unchanged. In Go, Java, C#, and PHP, `configs` is the union itself - build each entry from its per-tool type (Go: `BetaManagedAgentsAgentToolConfigParamsUnion{OfWebFetch: &anthropic.BetaManagedAgentsWebFetchToolConfigParams{...}}` - the arms are `OfBash` / `OfRead` / `OfWrite` / `OfEdit` / `OfGlob` / `OfGrep` / `OfWebFetch` / `OfWebSearch`; Java: `.addConfig(BetaManagedAgentsWebFetchToolConfigParams.builder()...build())`; C#: `new BetaManagedAgentsWebFetchToolConfigParams { Enabled = false }`; PHP: `BetaManagedAgentsWebFetchToolConfigParams::with(enabled: false)`). Code written against an SDK where all tools shared one config type must update how it constructs entries.
 
 ### Permission Policies
 
-Control when server-executed tools (agent toolset + MCP) run automatically vs wait for approval. Does not apply to custom tools.
+Control whether server-executed tools (agent toolset + MCP) run automatically, wait for your approval, or have each call evaluated by the server. Does not apply to custom tools (your application executes those).
 
 | Policy | Behavior |
 |---|---|
-| `always_allow` | Tool executes automatically (default) |
-| `always_ask` | Session emits `session.status_idle` and pauses until you send a `user.tool_confirmation` event |
+| `always_allow` | Tool executes automatically. Default for the agent toolset. |
+| `always_ask` | Session emits `session.status_idle` (`stop_reason.type: requires_action`) and pauses until you send a `user.tool_confirmation` event. Default for MCP toolsets. |
+| `auto` | The server evaluates each call (tool + input + session content so far) and **runs it, denies it, or pauses for your approval**. Neither toolset kind defaults to `auto` - set it explicitly; recommended for the agent toolset. Leave an `mcp_toolset` at its `always_ask` default unless the user asks for fewer approvals: there `auto` lets calls to a third-party service run with no one reviewing them. See § `auto` below. |
 
 ```json
 {
@@ -82,19 +76,94 @@ Control when server-executed tools (agent toolset + MCP) run automatically vs wa
     "permission_policy": { "type": "always_allow" }
   },
   "configs": [
-    { "name": "bash", "permission_policy": { "type": "always_ask" } }
+    { "name": "bash", "permission_policy": { "type": "always_ask" } },
+    { "name": "web_fetch", "enabled": false },
+    { "name": "web_search", "enabled": false }
   ]
 }
 ```
 
-**Responding to `always_ask`:** Send a `user.tool_confirmation` event with `tool_use_id` from the triggering `agent_tool_use`/`mcp_tool_use` event:
+**Responding to `always_ask`** (and to `auto` calls that pause): send a `user.tool_confirmation` event with `tool_use_id` set to the **event ID** (`sevt_...`, not a `toolu_` ID) of the triggering `agent.tool_use` / `agent.mcp_tool_use` event. Several confirmations can go in one `events` request:
 
 ```json
 { "type": "user.tool_confirmation", "tool_use_id": "sevt_abc123", "result": "allow" }
-{ "type": "user.tool_confirmation", "tool_use_id": "sevt_def456", "result": "deny", "message": "Read .env.example instead" }
+{ "type": "user.tool_confirmation", "tool_use_id": "sevt_def456", "result": "deny", "deny_message": "Read .env.example instead" }
 ```
 
-The optional `message` on a deny is delivered to the agent so it can adjust its approach.
+The optional `deny_message` on a deny is delivered to the agent as the rejected tool result so it can adjust its approach. A `user.tool_confirmation` for an event whose `evaluated_permission` is not `"ask"` is rejected with a 400 - that includes calls the server denied under `auto`; your client cannot override them.
+
+#### `auto` - let the server evaluate each call
+
+Set `{"type": "auto"}` anywhere a `permission_policy` is accepted: a toolset's `default_config` or an individual `configs` entry, on the agent toolset or an `mcp_toolset`. Because the evaluation considers the call's input and the session's content up to that point, two calls to the same tool can be treated differently. Each call has exactly one of three outcomes:
+
+| Outcome | What happens |
+|---|---|
+| **Runs** | Server determined the call is safe - executes as under `always_allow`, without reaching your client. |
+| **Denied** | Server evaluated the call as high-risk - the tool does not run. The agent receives an error tool result (`Permission to use {tool_name} has been denied.`, `is_error: true`), the session **keeps running**, and your client cannot override the denial. |
+| **Pauses** | Server reached no determination - the session pauses exactly as under `always_ask`; respond with `user.tool_confirmation`. |
+
+```json
+{
+  "name": "Ops Agent",
+  "model": "claude-opus-5-5",
+  "mcp_servers": [{ "type": "url", "name": "github", "url": "https://mcp.example.com/github" }],
+  "tools": [
+    {
+      "type": "agent_toolset_20260401",
+      "default_config": { "permission_policy": { "type": "auto" } },
+      "configs": [
+        { "name": "bash", "permission_policy": { "type": "always_ask" } },
+        { "name": "web_fetch", "enabled": false },
+        { "name": "web_search", "enabled": false }
+      ]
+    },
+    {
+      "type": "mcp_toolset",
+      "mcp_server_name": "github",
+      "default_config": { "permission_policy": { "type": "auto" } }
+    }
+  ]
+}
+```
+
+Pass the same shape as an untyped dict / object literal / hash in Python, TypeScript, and Ruby. The typed SDKs have a type for the policy (Go 1.72.0+: `OfAuto: &anthropic.BetaManagedAgentsAutoPolicyParam{}` in the `PermissionPolicy` union; Java 2.63.0+: `.permissionPolicy(BetaManagedAgentsAutoPolicy.builder().build())`; PHP 0.48.0+: `permissionPolicy: BetaManagedAgentsAutoPolicy::with()`; C# 12.48.0+: `PermissionPolicy = new BetaManagedAgentsAutoPolicy()`) - on an older release, upgrade or build the request via cURL / `ant`. Python and TypeScript also only type-check `{"type": "auto"}` from the release that adds it (the wire API accepts it regardless).
+
+**What the evaluation trusts.** The server treats session content as material to assess, not instructions to follow. Text you post in `user.message` events (including end-user text you relay there) counts as *your intent* and can lead the server to allow a call it would otherwise deny - though some calls are evaluated as high-risk regardless. The same words in a tool result, a fetched webpage, an MCP server response, or a message between session threads carry no such weight. If you relay untrusted end-user input in `user.message`, the server reads it as your intent too and it can get a call allowed - put `always_ask` on the tools you would not let that end user run without review.
+
+> **`auto` is not a human checkpoint.** A call the server determines to be safe runs before any person sees it, and its effects may not be reversible. If a person must review a tool's calls before they run, use `always_ask` on that tool.
+
+#### `evaluated_permission` and `evaluation` - see how each call was evaluated
+
+Under **any** policy, each `agent.tool_use` and `agent.mcp_tool_use` event carries `evaluated_permission` (`"allow" | "ask" | "deny"`) - the outcome of the permission check. Most events also carry an `evaluation` object whose `type` names the policy that produced the outcome; under `auto` it adds the server's determination and, for `ask` / `deny`, a `reason_code`:
+
+```json
+{
+  "type": "agent.tool_use",
+  "id": "sevt_01pqr...",
+  "name": "bash",
+  "input": { "command": "rm -rf /workspace/reports" },
+  "evaluated_permission": "deny",
+  "evaluation": {
+    "type": "auto",
+    "evaluated_permission": { "type": "deny", "reason_code": "high_risk" }
+  },
+  "processed_at": "2026-03-25T14:05:12Z"
+}
+```
+
+| `evaluation` | Top-level `evaluated_permission` | Meaning |
+|---|---|---|
+| `{"type": "always_allow"}` | `"allow"` | Resolved policy is `always_allow`; the call ran. |
+| `{"type": "always_ask"}` | `"ask"` | Resolved policy is `always_ask`; paused for your approval. |
+| `{"type": "auto", "evaluated_permission": {"type": "allow"}}` | `"allow"` | Server determined the call safe; it ran. |
+| `{"type": "auto", "evaluated_permission": {"type": "ask", "reason_code": "indeterminate"}}` | `"ask"` | Server reached no determination; paused for your approval. |
+| `{"type": "auto", "evaluated_permission": {"type": "deny", "reason_code": "high_risk"}}` | `"deny"` | Server evaluated the call as high-risk and denied it. |
+
+- On the `auto` form the nested `evaluated_permission.type` always equals the event's top-level `evaluated_permission`.
+- `reason_code` is for your client to branch on and keep in audit records - not text to show end users.
+- `evaluation` is **absent** when the agent names a tool that isn't enabled in the session (server denies without evaluating any policy: `evaluated_permission: "deny"`, no `evaluation`) and on events recorded before the field existed (read those as `always_allow` for `"allow"`, `always_ask` for `"ask"`).
+- Write your client to tolerate an `evaluation.type` or `reason_code` it doesn't recognize.
+- `agent.custom_tool_use` events carry neither field (custom tools aren't governed by permission policies).
 
 To enable only specific tools, flip the default off and opt-in per tool:
 
@@ -103,7 +172,7 @@ To enable only specific tools, flip the default off and opt-in per tool:
   "tools": [
     {
       "type": "agent_toolset_20260401",
-      "default_config": { "enabled": false },
+      "default_config": { "enabled": false, "permission_policy": { "type": "auto" } },
       "configs": [
         { "name": "bash", "enabled": true },
         { "name": "read", "enabled": true }
@@ -115,21 +184,24 @@ To enable only specific tools, flip the default off and opt-in per tool:
 
 ### Web search & web fetch settings (domain filters)
 
-`web_search` and `web_fetch` run on Anthropic's servers regardless of environment type, so an environment's `networking` policy **does not** govern them (see `shared/managed-agents-environments.md` -> Networking). To control what they can reach, set `allowed_domains` (only these hosts) **or** `blocked_domains` (never these hosts) - never both on one entry - on the tool's `configs` entry. Each tool carries its own list. Organization-level web search/fetch settings in the Console apply to the Messages API only, not to Managed Agents sessions.
+`web_search` and `web_fetch` run on Anthropic's servers regardless of environment type. With `limited` networking, `allowed_hosts` also applies to them: `web_fetch` returns an error result for a URL on a host that `allowed_hosts` does not match, `web_search` omits results from such hosts, and when `allowed_hosts` lists no hosts neither returns a page or a search result. A host added to `allowed_hosts` for these tools is also open to the sandbox. `unrestricted` networking and self-hosted environments do not limit them (see `shared/managed-agents-environments.md` -> Networking). To control what they can reach whatever the environment, set `allowed_domains` (only these hosts) **or** `blocked_domains` (never these hosts) - never both on one entry - on the tool's `configs` entry. Each tool carries its own list. Organization-level web search/fetch settings in the Console apply to the Messages API only, not to Managed Agents sessions.
 
 ```json
 {
   "type": "agent_toolset_20260401",
+  "default_config": { "permission_policy": { "type": "auto" } },
   "configs": [
     {
       "type": "web_search",
       "name": "web_search",
+      "enabled": true,
       "allowed_domains": ["docs.example.com", "arxiv.org"],
       "user_location": { "type": "approximate", "country": "US", "timezone": "America/Los_Angeles" }
     },
     {
       "type": "web_fetch",
       "name": "web_fetch",
+      "enabled": true,
       "blocked_domains": ["ads.example.com"],
       "max_content_tokens": 50000
     }
@@ -171,7 +243,7 @@ Custom tools are executed by **your application**, not Anthropic. The flow:
 4. You send back a `user.custom_tool_result` event with the output
 5. Session resumes `running`
 
-No permission policy needed - you're the one executing.
+No permission policy needed - you're the one executing. A custom tool's name can't start with `mcp__` or `ant__` or match a built-in agent tool's name (400); an agent that already stores an `ant__` tool accepts only an update that sends `tools` without it, and a new session that would run with such a tool is refused (400).
 
 ```json
 {
@@ -362,7 +434,7 @@ Skills reach the agent two ways: **attached** through the agent's `skills` array
 | **Pre-built Anthropic skills** | Common document tasks (PowerPoint, Excel, Word, PDF). Reference by name (e.g. `xlsx`). |
 | **Custom skills** | Skills you've created in your organization via the Skills API. Reference by `skill_id` + optional `version`. |
 
-**Max 20 skills per agent.** Agent creation uses `managed-agents-2026-04-01`; the separate Skills API (for managing custom skill definitions) uses `skills-2025-10-02`.
+**Max 20 skills per agent.** Agent creation uses `managed-agents-2026-04-01`; the separate Skills API (for managing custom skill definitions) is out of beta and needs no beta header.
 
 ### Enabling skills on a session
 
@@ -372,7 +444,7 @@ Skills are attached to the **agent** definition via `agents.create()`:
 const agent = await client.beta.agents.create(
   {
     name: "Financial Agent",
-    model: "claude-opus-5",
+    model: "claude-opus-5-5",
     system: "You are a financial analysis agent.",
     skills: [
       { type: "anthropic", skill_id: "xlsx" },
@@ -387,7 +459,7 @@ Python:
 ```python
 agent = client.beta.agents.create(
     name="Financial Agent",
-    model="claude-opus-5",
+    model="claude-opus-5-5",
     system="You are a financial analysis agent.",
     skills=[
         {"type": "anthropic", "skill_id": "xlsx"},
