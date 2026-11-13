@@ -22,5 +22,8 @@ in
     ".pi/agent/pi-vcc-config.json" = link "pi-vcc-config.json";
     ".pi/agent/extensions/subagent/config.json" = link "extensions/subagent/config.json";
     ".pi/agent/skills/analyze-sessions" = link "skills/analyze-sessions";
+    # `wt config plugins pi install`이 쓰는 파일과 같은 원본을 wt 버전에 맞춰 링크한다.
+    ".pi/agent/extensions/worktrunk.ts".source =
+      "${config.programs.worktrunk.package.src}/dev/pi-extension.ts";
   };
 }

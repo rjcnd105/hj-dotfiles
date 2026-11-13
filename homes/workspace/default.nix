@@ -7,6 +7,7 @@
     ./sops.nix
     ./pi.nix
     ./hindsight.nix
+    ./worktrunk.nix
     ../../sharedHome/cli
     ../../sharedHome/development
     # ../../sharedHome/app

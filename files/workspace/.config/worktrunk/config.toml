@@ -1,0 +1,44 @@
+# worktrunk 사용자 설정: https://worktrunk.dev/config/
+# Home Manager의 programs.worktrunk.settings 대신 file.nix 링크로 관리한다.
+# wt가 skip-* 같은 값을 이 파일에 직접 쓰기 때문이다. 승인 기록(approvals.toml)은 링크하지 않는다.
+skip-shell-integration-prompt = true
+
+# 새 worktree는 primary worktree의 gitignored 파일을 APFS reflink(copy-on-write)로 받는다.
+# 대상: .env*, .claude/settings.local.json, .agents/, .mise.local.toml, node_modules, 빌드 캐시.
+# reflink는 쓰기 전까지 디스크 블록을 공유하므로 추가 용량이 거의 없다.
+# symlink와 달리 worktree에서 npm install을 해도 primary가 바뀌지 않고,
+# 경로가 프로젝트 루트 밖으로 나가 Turbopack 같은 번들러가 깨지는 문제도 없다.
+#
+# post-start(백그라운드)가 아니라 pre-start(동기)에 둔다.
+# - copy-ignored는 백그라운드 hook 안에서 스스로 taskpolicy -b를 걸어 디스크 I/O가 크게 느려진다.
+# - 에이전트가 반쯤 복사된 node_modules를 보고 npm install을 돌리면 복사와 경합한다.
+# 2026-11-06 gentle-renewal 실측(wt 0.80.0): 동기 16초, 82,383개 파일 2.5GiB, 추가 용량 0.
+# 같은 복사가 백그라운드에서는 초당 20개 남짓이라 node_modules에 한 시간 가까이 걸린다.
+[[pre-start]]
+copy = "wt step copy-ignored"
+
+# git hook은 복사하지 않고 primary 것을 쓴다. husky처럼 core.hooksPath가 상대 경로(.husky/_)면
+# worktree마다 그 디렉터리가 필요하므로, 이 worktree에서만 primary의 절대 경로를 보게 한다.
+# husky의 h 스크립트는 자기 위치 기준으로 훅 본문을 찾으므로 primary의 .husky/<hook>이 worktree에서 돈다.
+# worktree 전용 설정(config.worktree)이라 primary와 다른 worktree에는 영향이 없고 wt remove 때 같이 지워진다.
+[[pre-start]]
+hooks = '''
+p=$(git config --get core.hooksPath) || exit 0
+case "$p" in /*|~*) exit 0 ;; esac
+primary=$(git worktree list --porcelain | sed -n '1s/^worktree //p')
+[ -d "$primary/$p" ] || exit 0
+git config extensions.worktreeConfig true
+git config --worktree core.hooksPath "$primary/$p"
+'''
+
+# mise는 경로마다 신뢰를 따로 기록한다. 복사해 온 .mise.local.toml 같은 설정을 새 경로에서 신뢰한다.
+[[pre-start]]
+mise = "if command -v mise >/dev/null 2>&1; then mise trust --all --quiet >/dev/null 2>&1 || true; fi"
+
+[step.copy-ignored]
+# .venv는 절대 경로가 박혀 있어 복사하면 primary의 인터프리터를 가리킨다. uv sync로 새로 만든다.
+# exclude는 git이 나열한 항목 자체에만 맞춰 보고 상위 디렉터리로 거슬러 올라가지 않는다.
+# 그래서 통째로 무시된 디렉터리의 안쪽 경로(.next/dev 같은)는 못 빼고,
+# 디렉터리 안 .gitignore(*)로 디렉터리와 파일이 따로 나열되는 .husky/_는 둘 다 적는다.
+# .husky/_는 위 hooks 단계가 primary 것을 가리키게 하므로 복사하지 않는다.
+exclude = [".DS_Store", ".venv/", ".husky/_", ".husky/_/*"]
