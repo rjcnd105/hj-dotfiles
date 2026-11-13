@@ -2,7 +2,8 @@
   "env": {
     "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "50",
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
-    "CLAUDE_CODE_SHELL": "/run/current-system/sw/bin/bash"
+    "CLAUDE_CODE_SHELL": "/run/current-system/sw/bin/bash",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "claude-opus-5-5"
   },
   "permissions": {
     "allow": [
@@ -44,7 +45,7 @@
   },
   "model": "opus",
   "fallbackModel": [
-    "claude-sonnet-5"
+    "claude-sonnet-5-5"
   ],
   "enabledMcpjsonServers": [
     "chrome-devtools",
@@ -53,6 +54,12 @@
   "disabledMcpjsonServers": [
     "openaiDeveloperDocs"
   ],
+  "skillOverrides": {
+    "but": "off",
+    "elixir": "off",
+    "find-docs": "off",
+    "obsidian-bases": "off"
+  },
   "hooks": {
     "SessionStart": [
       {
@@ -88,20 +95,15 @@
       }
     ]
   },
-  "skillOverrides": {
-    "but": "off",
-    "elixir": "off",
-    "find-docs": "off",
-    "kb": "off",
-    "obsidian-bases": "off",
-    "obsidian-markdown": "off"
-  },
   "enabledPlugins": {
     "claude-md-management@claude-plugins-official": true,
-    "gopls-lsp@claude-plugins-official": false,
     "typescript-lsp@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
-    "code-modernization@claude-plugins-official": true
+    "code-modernization@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "hj-agent-tools@hj-agent-tools": true,
+    "worktrunk@worktrunk": true,
+    "egm@egm": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
@@ -110,28 +112,41 @@
         "repo": "anthropics/claude-plugins-official"
       }
     },
-    "nixos-management-skill": {
-      "source": {
-        "source": "github",
-        "repo": "michalzubkowicz/nixos-management-skill"
-      }
-    },
     "aseprite-ai-artist": {
       "source": {
         "source": "github",
         "repo": "with-pebbly/aseprite-ai-artist"
       }
+    },
+    "hj-agent-tools": {
+      "source": {
+        "source": "github",
+        "repo": "rjcnd105/hj-agent-tools"
+      }
+    },
+    "worktrunk": {
+      "source": {
+        "source": "directory",
+        "path": "/Users/hj/.local/share/worktrunk/marketplace"
+      }
+    },
+    "egm": {
+      "source": {
+        "source": "github",
+        "repo": "google/elephant-goldfish-model"
+      }
     }
   },
   "outputStyle": "Concise",
   "language": "Korean",
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
   "modelSettings": {
-    "claude-fable-5-1": {
+    "claude-opus-5-5": {
       "effortLevel": "xhigh"
     },
-    "claude-opus-5-5": {
-      "effortLevel": "high"
+    "claude-fable-5-2": {
+      "effortLevel": "high",
+      "autoCompactWindow": 500000
     }
   },
   "askUserQuestionTimeout": "never",
@@ -145,9 +160,10 @@
       }
     }
   },
+  "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
   "editorMode": "normal",
-  "verbose": true,
+  "verbose": false,
   "preferredNotifChannel": "auto",
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
