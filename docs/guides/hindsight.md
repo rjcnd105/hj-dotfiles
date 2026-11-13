@@ -89,6 +89,10 @@ claude mcp add --scope user hindsight \
 
 클라이언트 버전을 올릴 때는 `homes/workspace/hindsight.nix`의 `version`과 `hash`를 함께 바꾼다. `autoUpdate`는 꺼 두었으므로 클라이언트가 스스로 갱신하지 않는다.
 
+클라이언트에는 patch가 하나 있다(`homes/workspace/hindsight-pi-custom-turn.patch`). 0.8.7의 pi extension은 `before_agent_start`에서 사용자 prompt만 읽는다. pi-intercom 메시지처럼 custom message로 시작한 턴은 prompt가 없어서 도구 안내와 recall 주입이 모두 빠지고 `diag.jsonl`에 `inject_empty`만 남았다. patch는 그런 턴에서 메시지 본문(`details.bodyText`, 없으면 `content`)을 질의로 쓴다. recall 질의는 앞에서 500토큰(한글 약 166자)만 쓰이므로 발신자 머리말이 붙은 `content`보다 본문을 먼저 본다. 버전을 올려 patch가 적용되지 않으면 빌드가 실패한다. upstream이 고쳤으면 patch를 지운다. pi는 extension을 시작할 때 읽으므로 switch 뒤에 pi 세션을 다시 시작해야 반영된다.
+
+`toolGuideExtra`에는 reflect 비용도 적었다. `hindsight_reflect`는 한 번에 입력 약 40,000토큰짜리 유료 LLM 호출이고, budget을 `low`로 낮춰도 줄지 않는다(little-bird-village bank, 같은 질문에서 `low` 39,237 / `high` 33,082 토큰, 2026-11-13). 그래서 `reflectBudget`은 건드리지 않고 호출 횟수를 줄이는 쪽으로 안내한다.
+
 ## 확인
 
 ```sh

@@ -1,0 +1,27 @@
+--- a/dist/pi.js
++++ b/dist/pi.js
+@@ -19104,6 +19104,15 @@
+     }
+   };
+ }
++function piTurnText(event) {
++  if (typeof event.prompt === "string") return event.prompt;
++  const message = event.message;
++  if (typeof message?.details?.bodyText === "string") return message.details.bodyText;
++  const content = message?.content;
++  if (typeof content === "string") return content;
++  if (!Array.isArray(content)) return "";
++  return content.map((part) => part?.type === "text" && typeof part.text === "string" ? part.text : "").join("\n");
++}
+ function createPiHooks(core, harness, sessionStart) {
+   let sessionStartAwaited = false;
+   return {
+@@ -19112,7 +19121,7 @@
+         sessionStartAwaited = true;
+         await sessionStart;
+       }
+-      await core.onPrompt(sessionId, typeof event.prompt === "string" ? event.prompt.trim() : "");
++      await core.onPrompt(sessionId, piTurnText(event).trim());
+       const injection = core.getInjection(sessionId);
+       if (!injection) {
+         diag(harness, "inject_empty", { session: sessionId });

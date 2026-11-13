@@ -6,9 +6,16 @@
 let
   version = "0.8.7";
   # npm tarball에 번들된 dist만 쓴다(의존성 없음). 버전을 올릴 때 hash도 같이 바꾼다.
-  client = pkgs.fetchzip {
-    url = "https://registry.npmjs.org/@vectorize-io/hindsight-coding-agents/-/hindsight-coding-agents-${version}.tgz";
-    hash = "sha256-SEenIfAcyubDbsXLG8MzqCx84B1e1WZ/Nb9DrP10s8o=";
+  # pi extension은 사용자 prompt만 읽어서 intercom 등 custom message로 시작한 턴에는
+  # 주입이 비어 있었다. patch는 그 턴의 본문을 대신 읽게 한다. 버전을 올려 patch가
+  # 적용되지 않으면 upstream이 고쳤는지 확인하고 patch를 지우거나 다시 만든다.
+  client = pkgs.applyPatches {
+    name = "hindsight-coding-agents-${version}";
+    src = pkgs.fetchzip {
+      url = "https://registry.npmjs.org/@vectorize-io/hindsight-coding-agents/-/hindsight-coding-agents-${version}.tgz";
+      hash = "sha256-SEenIfAcyubDbsXLG8MzqCx84B1e1WZ/Nb9DrP10s8o=";
+    };
+    patches = [ ./hindsight-pi-custom-turn.patch ];
   };
 in
 {
@@ -41,7 +48,7 @@ in
       # 0은 클라이언트가 기본값 1로 되돌리므로 큰 값을 준다(조회는 세션당 한 번만 남는다).
       pageRefreshEveryTurns = 100000;
       # 세션 시작 안내문은 끌 수 없고 페이지 검색부터 하라고 시킨다. 한 줄을 덧붙여 바로잡는다.
-      toolGuideExtra = "- This bank keeps no pages: skip hindsight_search_pages, hindsight_list_pages and hindsight_capture_initiative. When a past failure, fix, decision or user feedback would help, call hindsight_reflect(query).";
+      toolGuideExtra = "- This bank keeps no pages: skip hindsight_search_pages, hindsight_list_pages and hindsight_capture_initiative. When a past failure, fix, decision or user feedback would help, call hindsight_reflect(query). Each call is a paid LLM request of about 40,000 input tokens, so read the memories injected at session start first and ask one focused question per topic instead of re-confirming what you already have.";
     };
   };
 }
