@@ -46,6 +46,7 @@ let
   }
   // lib.optionalAttrs (myOptions.hostName == "workspace") {
     TYPESAFE_API_KEY = "TYPESAFE_API_KEY";
+    AZURE_SPEECH_KEY = "AZURE_SPEECH_KEY";
   };
 
   workspace_env_vars = [
