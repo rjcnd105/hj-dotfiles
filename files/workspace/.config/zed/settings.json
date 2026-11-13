@@ -556,11 +556,20 @@
       "settings": {}
     },
     "mcp-server-exa-search": {
+      "enabled": false,
+      "remote": false,
+      "settings": {}
+    },
+    // 키는 sops-nix가 렌더한 env 파일에서 읽는다. 이 파일에 값을 적지 않는다.
+    "exa": {
       "enabled": true,
       "remote": false,
-      "settings": {
-        "exa_api_key": "3c524b3a-c4d4-4c8a-8348-b7018f3ce1fd"
-      }
+      "command": "/bin/sh",
+      "args": [
+        "-c",
+        "set -a; . \"$HOME/.config/sops-nix/secrets/rendered/env/EXA_API_KEY.env\"; exec \"$HOME/.local/share/mise/shims/npx\" -y exa-mcp-server"
+      ],
+      "env": {}
     },
     "postgres-context-server": {
       "enabled": true,
