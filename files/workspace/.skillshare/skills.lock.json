@@ -91,6 +91,11 @@
       "commit": "5863806dd4e15c63174bee4e7515a4256792ecfa",
       "tree_hash": "f551b6e0d219fdda0b6abf277f8f915b3127d1e9"
     },
+    "herdr-core": {
+      "source": "https://github.com/herdrdev/herdr-core/skills/herdr-core",
+      "commit": "300a455b8cfa91f8f068b49bb9d78b94d3bd4f0e",
+      "tree_hash": "9691960a86a372aaa06eae674f93192b8e54cfad"
+    },
     "how": {
       "source": "github.com/backnotprop/pstack/skills/how",
       "commit": "74bcc61bd216687b1d6d480c28f109adfc9824ec",
