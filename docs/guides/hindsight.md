@@ -1,6 +1,6 @@
 # Hindsight 메모리 서버
 
-Claude Code, Codex, pi가 공유하는 장기 기억 서버다. 용어는 [GLOSSARY.md](../../GLOSSARY.md), 임베딩 모델 결정은 [ADR 0001](../adr/0001-hindsight-embedding-kure-v3-1024.md)을 본다.
+Claude Code, Codex, pi, Antigravity가 공유하는 장기 기억 서버다. 용어는 [GLOSSARY.md](../../GLOSSARY.md), 임베딩 모델 결정은 [ADR 0001](../adr/0001-hindsight-embedding-kure-v3-1024.md)을 본다.
 
 ## 구성
 
@@ -67,15 +67,16 @@ sops 템플릿의 `restartUnits`에는 이미 있는 유닛만 넣는다. 없는
 
 ## 에이전트 연결
 
-세 에이전트가 `~/.hindsight/coding-agents`(Nix store 링크)의 같은 런타임과 `~/.hindsight/coding-agent.json`을 읽는다. 등록 위치는 다음과 같다.
+네 에이전트가 `~/.hindsight/coding-agents`(Nix store 링크)의 같은 런타임과 `~/.hindsight/coding-agent.json`을 읽는다. 등록 위치는 다음과 같다.
 
 | 에이전트 | hook / extension | MCP |
 |---|---|---|
 | Claude Code | `files/workspace/.claude/settings.json`의 `hooks` | `~/.claude.json` (아래 명령) |
 | Codex | `files/workspace/.codex/hooks.json` | `files/workspace/.codex/config.toml`의 `mcp_servers.hindsight` |
 | pi | `files/workspace/.config/pi/settings.json`의 `extensions` | extension이 도구를 직접 등록 |
+| Antigravity | `files/workspace/.gemini/config/hooks.json` | `files/workspace/.gemini/config/mcp_config.json`의 `mcpServers.hindsight` |
 
-스킬 `hindsight-coding-agent`는 `files/workspace/.agents/skills`와 `.claude/skills`에서 런타임의 `skill/`로 링크한다.
+스킬 `hindsight-coding-agent`는 `files/workspace/.agents/skills`와 `.claude/skills`에서 런타임의 `skill/`로 링크하고, Antigravity용 `~/.gemini/config/skills/hindsight-coding-agent`는 `homes/workspace/hindsight.nix`가 링크한다.
 
 Claude Code의 사용자 범위 MCP는 저장소 밖 `~/.claude.json`에 있어 새 머신에서는 한 번 등록한다.
 

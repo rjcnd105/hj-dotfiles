@@ -1,5 +1,5 @@
-# Hindsight 코딩 에이전트 클라이언트 (Claude Code, Codex, pi 공용).
-# 서버는 systems/homelab/hindsight.nix. 세 에이전트가 같은 런타임과 설정 파일을 읽는다.
+# Hindsight 코딩 에이전트 클라이언트 (Claude Code, Codex, pi, Antigravity 공용).
+# 서버는 systems/homelab/hindsight.nix. 네 에이전트가 같은 런타임과 설정 파일을 읽는다.
 # 에이전트별 hook·MCP·extension 등록은 files/workspace 아래 각 설정 파일에 있고,
 # 모두 ~/.hindsight/coding-agents/dist/* 를 가리킨다. 절차는 docs/guides/hindsight.md.
 { config, pkgs, ... }:
@@ -20,7 +20,12 @@ let
 in
 {
   # 런타임은 store에 고정한다. autoUpdate가 꺼져 있으면 클라이언트는 이 디렉터리에 쓰지 않는다.
-  home.file.".hindsight/coding-agents".source = client;
+  home.file = {
+    ".hindsight/coding-agents".source = client;
+    # Antigravity 전역 스킬 디렉터리(~/.gemini/config/skills)에는 외부 링크(ego-browser 등)가
+    # 공존하므로 디렉터리 전체가 아니라 hindsight-coding-agent만 링크한다.
+    ".gemini/config/skills/hindsight-coding-agent".source = "${client}/skill";
+  };
 
   sops.secrets.HINDSIGHT_API_KEY.mode = "600";
 

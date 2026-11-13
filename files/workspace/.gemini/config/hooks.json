@@ -1,0 +1,18 @@
+{
+  "coding-agents": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "node \"$HOME/.hindsight/coding-agents/dist/antigravity-hook.js\"",
+        "timeout": 30
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "node \"$HOME/.hindsight/coding-agents/dist/antigravity-stop-hook.js\"",
+        "timeout": 30
+      }
+    ]
+  }
+}
