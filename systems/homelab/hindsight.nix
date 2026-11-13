@@ -243,6 +243,11 @@ in
             HINDSIGHT_API_EMBEDDINGS_PASSAGE_PREFIX = "passage: ";
 
             # 리랭커는 기본값(local, hindsight-ai/hs-rerank-1)이며 이미지에 들어 있다.
+            # CPU에서 후보 1개에 약 44ms가 든다. 사실이 많은 bank는 budget=low recall도 후보가 200개를
+            # 넘어 10초 안팎이 걸리고, 클라이언트 자동 주입(제한 7초)이 빈손으로 끝난다. 자동 주입이 쓰는
+            # budget=low만 상한을 둔다(기본 300). 길이순 배치는 점수를 바꾸지 않고 패딩만 줄인다.
+            HINDSIGHT_API_RERANKER_MAX_CANDIDATES_LOW = "80";
+            HINDSIGHT_API_RERANKER_LOCAL_BUCKET_BATCHING = "true";
 
             # 공유 PostgreSQL(max_connections 100)을 앱과 나눠 쓴다. 기본 풀 상한은 100이다.
             HINDSIGHT_API_DB_POOL_MIN_SIZE = "2";
