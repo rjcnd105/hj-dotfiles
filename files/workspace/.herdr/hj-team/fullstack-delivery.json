@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "fullstack-delivery",
   "name": "Fullstack Delivery",
-  "description": "백엔드 API와 프론트엔드 SPA를 계약 기반으로 병렬 구현·통합 검증할 때. 기본: 백엔드(implement-complex), 프론트엔드(implement), Web QA(browser-qa). 선택: 통합 리뷰(deep-review).",
+  "description": "백엔드 API와 프론트엔드 SPA를 계약 기반으로 병렬 구현·통합 검증할 때. 기본: 백엔드(implement-complex), 프론트엔드(implement), Web QA(browser-qa). 선택: 통합 리뷰(deep-review), 상위 조언자(plan).",
   "roles": [
     {
       "id": "backend",
@@ -11,7 +11,8 @@
       "talksTo": [
         "frontend",
         "web-qa",
-        "reviewer"
+        "reviewer",
+        "advisor"
       ],
       "checkpoints": [
         "Verify the API contract and run the focused backend tests."
@@ -25,7 +26,8 @@
       "talksTo": [
         "backend",
         "web-qa",
-        "reviewer"
+        "reviewer",
+        "advisor"
       ],
       "checkpoints": [
         "Run the frontend typecheck and test loading, error, and success behavior."
@@ -71,6 +73,23 @@
         "Check compatibility and data integrity across the API boundary."
       ],
       "instructions": "Review the integrated change without editing files. Report material findings with source references and reproduction steps."
+    },
+    {
+      "id": "advisor",
+      "title": "상위 계획·아키텍처 조언자",
+      "route": "plan",
+      "default": false,
+      "readOnly": true,
+      "talksTo": [
+        "backend",
+        "frontend",
+        "reviewer"
+      ],
+      "checkpoints": [
+        "API 계약, 데이터 흐름, 경계와 트레이드오프를 명확히 정리했다",
+        "불필요한 복잡도와 범위 밖 항목을 선제적으로 걸러냈다"
+      ],
+      "instructions": "복잡한 풀스택 작업의 전체 계획, API 계약, 상태 경계, 마이그레이션 위험을 읽기 전용으로 검토하고 방향을 조언한다. 구현 전 핵심 결정과 단계별 계획을 backend, frontend, parent에 hc-team send --kind handoff 또는 result로 공유한다. 파일은 수정하지 않는다."
     }
   ]
 }

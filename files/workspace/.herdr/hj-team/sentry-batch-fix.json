@@ -13,7 +13,8 @@
       "talksTo": [
         "fixer-a",
         "fixer-b",
-        "reviewer"
+        "reviewer",
+        "advisor"
       ],
       "checkpoints": [
         "티켓마다 실제 코드 위치(file:line), 원인, 겹치지 않는 소유 파일 범위를 정리했다",
@@ -28,7 +29,8 @@
       "default": true,
       "talksTo": [
         "triage",
-        "reviewer"
+        "reviewer",
+        "advisor"
       ],
       "checkpoints": [
         "할당된 티켓의 최소 수정만 적용하고 무관한 파일이나 자동 생성 파일을 건드리지 않았다",
@@ -43,7 +45,8 @@
       "default": true,
       "talksTo": [
         "triage",
-        "reviewer"
+        "reviewer",
+        "advisor"
       ],
       "checkpoints": [
         "할당된 티켓의 최소 수정만 적용하고 무관한 파일이나 자동 생성 파일을 건드리지 않았다",
@@ -65,6 +68,24 @@
         "각 티켓 수정이 원래 에러를 잡되 다른 정상 오류를 삼키지 않음을 확인했다"
       ],
       "instructions": "fixer-a와 fixer-b의 diff를 읽기 전용으로 검토한다. 과도한 예외 삼킴, 상태 불일치, 불필요한 리팩터링을 file:line으로 짚어 해당 fixer에 hc-team send --kind review로 보낸다."
+    },
+    {
+      "id": "advisor",
+      "title": "상위 수정 전략 조언자",
+      "route": "plan",
+      "default": false,
+      "readOnly": true,
+      "talksTo": [
+        "triage",
+        "fixer-a",
+        "fixer-b",
+        "reviewer"
+      ],
+      "checkpoints": [
+        "개별 임시 패치보다 공통 근본 원인 수정이 나은지 판단했다",
+        "병렬 수정 간 충돌 위험과 우선순위를 명확히 정리했다"
+      ],
+      "instructions": "여러 이슈가 얽혀 있거나 구조적 원인이 의심될 때 triage 결과를 읽기 전용으로 검토해 공통 근본 수정 전략, 병렬 작업 분할, 회귀 위험을 fixer들과 parent에 hc-team send로 조언한다. 파일은 수정하지 않는다."
     }
   ]
 }

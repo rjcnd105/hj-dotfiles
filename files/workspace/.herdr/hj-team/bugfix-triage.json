@@ -11,7 +11,8 @@
       "readOnly": true,
       "talksTo": [
         "fixer",
-        "verifier"
+        "verifier",
+        "advisor"
       ],
       "checkpoints": [
         "Supply a minimal reproduction and evidence for the root cause."
@@ -24,7 +25,8 @@
       "route": "implement",
       "talksTo": [
         "investigator",
-        "verifier"
+        "verifier",
+        "advisor"
       ],
       "checkpoints": [
         "Run the smallest regression check that fails before and passes after the fix."
@@ -44,6 +46,23 @@
         "Re-run the reproduction and cover the nearest edge case."
       ],
       "instructions": "Verify independently without changing files. Report whether the original failure is gone and which checks still fail."
+    },
+    {
+      "id": "advisor",
+      "title": "Fix Strategy Advisor",
+      "route": "plan",
+      "default": false,
+      "readOnly": true,
+      "talksTo": [
+        "investigator",
+        "fixer",
+        "verifier"
+      ],
+      "checkpoints": [
+        "Root-cause fix direction avoids regressions and band-aid patches.",
+        "Tradeoffs across affected components and verification scope are explicit."
+      ],
+      "instructions": "Review complex bug findings from investigator without editing files. Advise fixer and parent on the safest architectural root-cause fix, blast radius, and regression checks via hc-team send."
     }
   ]
 }
