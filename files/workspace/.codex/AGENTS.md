@@ -139,8 +139,8 @@ mechanisms. Ordinary implementation and diagnosis skip this protocol.
   or skill. For execution subagents, use the runtime's configured subagent
   model and reasoning (pi: `subagents` in settings; Claude Code:
   `CLAUDE_CODE_SUBAGENT_MODEL` in settings, so omit `model` on `Agent`); if
-  none is configured, use `gpt-6.1-sol` with `high` reasoning when the runtime
-  offers it. A model named in the request takes precedence. Start a subagent at
+  none is configured, use the newest `gpt-*-sol` model the runtime lists, with
+  `high` reasoning. A model named in the request takes precedence. Start a subagent at
   the lowest reasoning level that fits its job.
 - Give a subagent the objective, scope and exclusions, owned paths, relevant
   evidence, and acceptance checks. Wait for its result and review it against
