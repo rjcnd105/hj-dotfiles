@@ -13,8 +13,8 @@
     },
     "arena": {
       "source": "github.com/backnotprop/pstack/skills/arena",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "e4e95ae25a1b192db53c68141df2cbce9b3d289d"
+      "commit": "c3464c11c60b1352d5e8f5f0428a3a6943837568",
+      "tree_hash": "95b350288808b6eb5576a9326dda0abd924afb4c"
     },
     "automate-me": {
       "source": "github.com/backnotprop/pstack/skills/automate-me",
@@ -58,8 +58,8 @@
     },
     "diagram-design": {
       "source": "github.com/cathrynlavery/diagram-design/skills/diagram-design",
-      "commit": "f6db0decea96de66b901331a0f79a8d4b147ebae",
-      "tree_hash": "cde001a0341ed67e818207c4e3f06d4727a42cde"
+      "commit": "ff6fffa70a5cc520aa73b2ff77e1dcc0f5cc3733",
+      "tree_hash": "455a09aec349931d55f9438756b1ccfcdfa6b04f"
     },
     "domain-modeling": {
       "source": "github.com/mattpocock/skills/skills/engineering/domain-modeling",
@@ -68,8 +68,8 @@
     },
     "figma": {
       "source": "github.com/heygen-com/hyperframes/skills/figma",
-      "commit": "a4139e9ead02bea455feb3409c0076d2de050896",
-      "tree_hash": "5ee55b66cddc54984681d172da9c33028d6c6dfc"
+      "commit": "4f5bfc24c83be1e0cbaa4e7d5a88e864a1684379",
+      "tree_hash": "1133096792ac6d7756eac760ce4e7a5e66a90689"
     },
     "figure-it-out": {
       "source": "github.com/backnotprop/pstack/skills/figure-it-out",
@@ -103,18 +103,18 @@
     },
     "hyperframes": {
       "source": "github.com/heygen-com/hyperframes/skills/hyperframes",
-      "commit": "63c8f8ef66e3c5e2dbcfee77923def09cf360112",
-      "tree_hash": "b6f7fb7dfee277bcdcc5a6864f0c208f0caccf89"
+      "commit": "4f5bfc24c83be1e0cbaa4e7d5a88e864a1684379",
+      "tree_hash": "dc7fc09d8e7be1170bc12003f9b8fc6ea928cf2b"
     },
     "hyperframes-cli": {
       "source": "github.com/heygen-com/hyperframes/skills/hyperframes-cli",
-      "commit": "63c8f8ef66e3c5e2dbcfee77923def09cf360112",
-      "tree_hash": "769751493e69d3209c17b85102ece222d1088731"
+      "commit": "4f5bfc24c83be1e0cbaa4e7d5a88e864a1684379",
+      "tree_hash": "489449625dbdeb222a7db88c084f7139b933b124"
     },
     "hyperframes-registry": {
       "source": "github.com/heygen-com/hyperframes/skills/hyperframes-registry",
-      "commit": "efc91fc877d89d8057611dd87c81220be46df9a2",
-      "tree_hash": "ac28ecfab2e627bb247d438f50c301f7ef56f273"
+      "commit": "4f5bfc24c83be1e0cbaa4e7d5a88e864a1684379",
+      "tree_hash": "6ee3da8e65ed9af9503a12f5714d03818ae6f781"
     },
     "in-your-own-words": {
       "source": "github.com/backnotprop/pstack/skills/in-your-own-words",
@@ -167,8 +167,8 @@
     },
     "media-use": {
       "source": "github.com/heygen-com/hyperframes/skills/media-use",
-      "commit": "63c8f8ef66e3c5e2dbcfee77923def09cf360112",
-      "tree_hash": "f0e5a5b6106b337a1ab350eb2bed331b5d16da70"
+      "commit": "4f5bfc24c83be1e0cbaa4e7d5a88e864a1684379",
+      "tree_hash": "0c73f41a0e9e0ef465334611134e543382f42b43"
     },
     "modern-react-guidance": {
       "source": "github.com/adhhamdev/modern-react-guidance",
@@ -211,8 +211,8 @@
     },
     "poteto-mode": {
       "source": "github.com/backnotprop/pstack/skills/poteto-mode",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "b0364090215e6c47fb988529c9446b66ee62e8f2"
+      "commit": "c3464c11c60b1352d5e8f5f0428a3a6943837568",
+      "tree_hash": "e4847c4a3713e55c62a65d63c1534a1ea0ba8cd8"
     },
     "principle-attack-the-premise": {
       "source": "github.com/backnotprop/pstack/skills/principle-attack-the-premise",
@@ -346,18 +346,18 @@
     },
     "remotion-to-hyperframes": {
       "source": "github.com/heygen-com/hyperframes/skills/remotion-to-hyperframes",
-      "commit": "efc91fc877d89d8057611dd87c81220be46df9a2",
-      "tree_hash": "ac7b05c5bf61a75b4d3baa469fd1957b61f1d371"
+      "commit": "4f5bfc24c83be1e0cbaa4e7d5a88e864a1684379",
+      "tree_hash": "3648ac3f5498104e37897fcda0c82d109415ba51"
     },
     "reverse-engineer-anything": {
       "source": "github.com/morluto/rea/.agents/skills/reverse-engineer-anything",
-      "commit": "20e932fac7f6daa093668ab752a48e9ed24a8929",
-      "tree_hash": "48f5bc662a8f6c03951c8b8111971f317cfda3ba"
+      "commit": "be32625b29101fc6b482a38798a6ef22e68f9e94",
+      "tree_hash": "ff288830c5e8ee860fe3e936119b4450a496c36e"
     },
     "setup-pstack": {
       "source": "github.com/backnotprop/pstack/skills/setup-pstack",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "74753c26f636ed4c67ca506b03a02a736c5346f0"
+      "commit": "c3464c11c60b1352d5e8f5f0428a3a6943837568",
+      "tree_hash": "33393492e19dd18116f6dfec14dd9b25e51b9cf0"
     },
     "sharpen": {
       "source": "github.com/backnotprop/pstack/skills/sharpen",
@@ -381,8 +381,8 @@
     },
     "statechart": {
       "source": "github.com/backnotprop/pstack/skills/statechart",
-      "commit": "74bcc61bd216687b1d6d480c28f109adfc9824ec",
-      "tree_hash": "23c4f2aa01a8c02cc5cb49556888283c620d628d"
+      "commit": "c3464c11c60b1352d5e8f5f0428a3a6943837568",
+      "tree_hash": "d3d60f78916e8c17a598c39738e45ab419603f06"
     },
     "swarm": {
       "source": "github.com/backnotprop/pstack/skills/swarm",
