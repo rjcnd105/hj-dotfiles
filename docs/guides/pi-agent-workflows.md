@@ -11,13 +11,13 @@ cd /path/to/project
 pi
 ```
 
-Pi 안에서 `/login`에서 **OpenAI (ChatGPT subscription)**("Sign in with ChatGPT")를 골라 OpenAI 구독 로그인을 완료한다. 이어 `/model`에서 `openai/gpt-6.1-sol`을 선택하고 `/thinking`에서 xhigh를 확인한다. `openai-codex`(Pi 1.1.0의 "OpenAI Codex (legacy)", 로그인 항목 "OpenAI (ChatGPT Plus/Pro)")는 토큰을 따로 저장하므로, 그 공급자의 모델이나 하위 에이전트를 쓸 때만 그 항목으로 따로 로그인한다. `pi auth check`는 로컬 토큰만 보므로 서버가 거부한 토큰도 `ready`로 표시한다. 별도 터미널에서 아래 명령으로 준비 상태를 확인할 수 있다. `--credentials`는 붙이지 않는다.
+Pi 안에서 `/login`에서 **OpenAI (ChatGPT subscription)**("Sign in with ChatGPT")를 골라 OpenAI 구독 로그인을 완료한다. 이어 `/model`에서 `openai/gpt-6.2-sol`을 선택하고 `/thinking`에서 max를 확인한다. `openai-codex`(Pi 1.1.0의 "OpenAI Codex (legacy)", 로그인 항목 "OpenAI (ChatGPT Plus/Pro)")는 토큰을 따로 저장하므로, 그 공급자의 모델이나 하위 에이전트를 쓸 때만 그 항목으로 따로 로그인한다. `pi auth check`는 로컬 토큰만 보므로 서버가 거부한 토큰도 `ready`로 표시한다. 별도 터미널에서 아래 명령으로 준비 상태를 확인할 수 있다. `--credentials`는 붙이지 않는다.
 
 ```sh
 pi auth check --provider openai --json
 ```
 
-로그인 뒤에는 같은 저장소에서 `pi`로 시작한다. 현재 Mac에서는 mise shim이 PATH에 있어 게임 저장소에서도 이 명령이 동작한다. `mise exec -- pi`는 shell의 mise 활성화나 PATH가 준비되지 않았거나 mise 환경을 명시하고 싶을 때 쓰는 선택 사항이다. 기본 대화 모델은 `openai/gpt-6.1-sol`/xhigh다. 로그인 전에는 인증 가능한 다른 제공자로 초기 모델 선택이 달라질 수 있다. Pi 인증 파일은 `~/.pi/agent/auth.json`에 로컬로 남으며 flake에 들어가지 않는다.
+로그인 뒤에는 같은 저장소에서 `pi`로 시작한다. 현재 Mac에서는 mise shim이 PATH에 있어 게임 저장소에서도 이 명령이 동작한다. `mise exec -- pi`는 shell의 mise 활성화나 PATH가 준비되지 않았거나 mise 환경을 명시하고 싶을 때 쓰는 선택 사항이다. 기본 대화 모델은 `openai/gpt-6.2-sol`/max다. 로그인 전에는 인증 가능한 다른 제공자로 초기 모델 선택이 달라질 수 있다. Pi 인증 파일은 `~/.pi/agent/auth.json`에 로컬로 남으며 flake에 들어가지 않는다.
 
 ## 하루 작업 흐름
 
@@ -26,7 +26,7 @@ pi auth check --provider openai --json
 3. 위임했다면 메인 세션이 결과를 기다려 변경과 검사 결과를 읽고 필요한 재검증을 수행한다. 브라우저 화면이나 실제 게임 조작처럼 작업자의 기본 도구 밖에 있는 증거는 부모가 확인한다.
 4. 완료 후 `/session`으로 사용량과 세션 정보를 확인한다. Pi는 세션을 자동 저장한다. 다음에 같은 디렉터리에서 `pi --continue`로 이어간다.
 
-이 설정은 하위 에이전트를 `openai/gpt-6.1-sol`/xhigh와 새 문맥으로 시작한다. 2026-10-07 비교에서 매번 위임하는 방식은 품질 차이 없이 시간과 비용만 늘렸다([검증 기록](pi-agent-validation.md#위임-강제-제거-2026-10-07)). 한 번에 상위 위임 흐름 하나를 실행하고, 그 흐름 안의 동시 작업은 최대 2개, 위임 깊이는 1단계다. 자식은 부모의 MCP 확장을 자동 상속하지 않아 지정한 Sol 모델을 유지한다. `worker`, `researcher`, `evidence-auditor`는 발견된 스킬 목록을 받는다. 조사 역할은 `~/.agents/skills/ego-browser/SKILL.md`를 읽고 bash로 브라우저를 사용한다. 작업 브리프에도 관련 스킬 경로를 명시한다.
+이 설정은 하위 에이전트를 `openai/gpt-6.1-terra`/max와 새 문맥으로 시작한다. 2026-10-07 비교에서 매번 위임하는 방식은 품질 차이 없이 시간과 비용만 늘렸다([검증 기록](pi-agent-validation.md#위임-강제-제거-2026-10-07)). 한 번에 상위 위임 흐름 하나를 실행하고, 그 흐름 안의 동시 작업은 최대 2개, 위임 깊이는 1단계다. 자식은 부모의 MCP 확장을 자동 상속하지 않아 지정한 모델을 유지한다. `worker`, `researcher`, `evidence-auditor`는 발견된 스킬 목록을 받는다. 조사 역할은 `~/.agents/skills/ego-browser/SKILL.md`를 읽고 bash로 브라우저를 사용한다. 작업 브리프에도 관련 스킬 경로를 명시한다.
 
 부모의 기본 내장 도구는 `read`, `bash`, `edit`, `write`다. Pi 내장 MCP는 CodeGraph를 `codemode` 노출로 두어, 모델이 `codemode` 스크립트에서 필요한 도구만 호출한다. 웹 조사와 화면 조작은 `ego-browser` 스킬을 읽고 CLI로 실행한다. 이 구성은 평소 문맥의 도구 수를 줄이지만, Codex보다 품질·속도·비용이 낫다는 보장은 없다.
 
@@ -48,12 +48,12 @@ pi auth check --provider openai --json
 
 | 목적 | Pi에서 하는 일 |
 |---|---|
-| 설계·원인 분석·구현·검증 | 메인 세션(`openai/gpt-6.1-sol`)이 직접 한다. 현재 기본값은 xhigh다. |
-| 병렬 독립 작업·긴 기계적 처리 | 메인 세션에 Sol 6.1/xhigh `worker` 위임을 요청한다. |
-| 부모 모델을 직접 Sol로 전환 | `/model`에서 `openai-codex/gpt-6-sol` 선택 후 `/thinking`에서 max를 확인한다. 한 번의 실행은 `pi --model openai-codex/gpt-6-sol --thinking max`로 시작할 수 있다. |
+| 설계·원인 분석·구현·검증 | 메인 세션(`openai/gpt-6.2-sol`)이 직접 한다. 현재 기본값은 max다. |
+| 병렬 독립 작업·긴 기계적 처리 | 메인 세션에 Terra 6.1/max `worker` 위임을 요청한다. |
+| 부모 모델을 Codex 공급자의 Sol로 전환 | `/model`에서 `openai-codex/gpt-6.2-sol` 선택 후 `/thinking`에서 max를 확인한다. 한 번의 실행은 `pi --model openai-codex/gpt-6.2-sol --thinking max`로 시작할 수 있다. |
 | OpenRouter 모델 직접 사용 | `/model`에서 `openrouter/aion-labs/aion-3.5`, `openrouter/deepseek/deepseek-v4.1-flash`, `openrouter/xiaomi/mimo-v2.6-pro` 중 하나를 선택하거나 `pi --model <모델>`로 시작한다. DeepSeek V4.1 Flash의 기본 thinking은 off이고 나머지는 전역 기본 high를 따른다. |
 
-`Ctrl+P`는 현재 설정된 `openai/gpt-6.1-sol`, Codex 공급자의 Astra·Sol 6·Sol 6.1, Aion 3.5, DeepSeek V4.1 Flash, MiMo V2.6 Pro 일곱 모델 사이를 순환한다. `/model`은 인증 가능한 더 넓은 모델 목록을 검색한다. 모델과 thinking 변경은 현재 세션에 기록되며, 재개하면 복원된다. `/model` 선택 화면에서 `Ctrl+S`는 새 세션의 기본 모델도 저장한다. 이 동작은 링크된 저장소 설정 원본을 수정하므로 전역 기본값을 바꾸려는 경우에만 쓰고 diff를 확인한다.
+`Ctrl+P`는 OpenAI와 Codex 공급자 각각의 Terra 6.1·Sol 6.2·Astra 6.2, Aion 3.5, DeepSeek V4.1 Flash, MiMo V2.6 Pro 아홉 모델 사이를 순환한다. `/model`은 인증 가능한 더 넓은 모델 목록을 검색한다. 모델과 thinking 변경은 현재 세션에 기록되며, 재개하면 복원된다. `/model` 선택 화면에서 `Ctrl+S`는 새 세션의 기본 모델도 저장한다. 이 동작은 링크된 저장소 설정 원본을 수정하므로 전역 기본값을 바꾸려는 경우에만 쓰고 diff를 확인한다.
 
 `/name`으로 작업 이름을 붙이고, `/resume` 또는 `pi --resume`으로 다른 세션을 고른다. `/tree`는 현재 세션의 이전 지점에서 다른 대화 분기를 만든다. 별도 세션으로 분리하려면 `/fork`, 현재 분기의 복사본이 필요하면 `/clone`을 쓴다.
 

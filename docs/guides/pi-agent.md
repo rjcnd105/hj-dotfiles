@@ -11,7 +11,7 @@ Pi는 agent 디렉터리에서 컨텍스트 파일을 하나 읽고, 작업 디�
 | 구성 | 버전 | 용도 |
 |---|---|---|
 | Pi CLI | mise `latest` (2026-10-07 기준 1.0.4) | OpenAI 구독과 OpenRouter 모델 실행, 내장 MCP로 CodeGraph 연결 |
-| [pi-subagents](https://github.com/nicobailon/pi-subagents) | git main (2026-10-02, Pi 1.0 수정 #2634 포함, npm 릴리스 전) | Sol 6.1/high의 독립된 작업 문맥과 결과 회수 |
+| [pi-subagents](https://github.com/nicobailon/pi-subagents) | git main (2026-10-02, Pi 1.0 수정 #2634 포함, npm 릴리스 전) | Terra 6.1/max의 독립된 작업 문맥과 결과 회수 |
 | [pi-vcc](https://github.com/sting8k/pi-vcc) | 0.8.0 | 모델 호출 없는 세션 압축과 현재 세션 원문 재검색 |
 | [pi-ask-user](https://github.com/edlsh/pi-ask-user) | 0.15.1 | 결정이 필요할 때 선택지·다중 선택·자유 입력으로 사용자에게 묻는 `ask_user` 도구 |
 | pi-intercom | 고정하지 않음 (2026-10-07 기준 0.16.1) | Pi 세션 간 1:1 메시지, pi-subagents 하위 에이전트의 `contact_supervisor` |
@@ -38,7 +38,7 @@ Pi는 agent 디렉터리에서 컨텍스트 파일을 하나 읽고, 작업 디�
    done
    ```
 
-4. `pi`를 열고 `/login`에서 **OpenAI (ChatGPT subscription)**("Sign in with ChatGPT")를 골라 OpenAI 구독 로그인을 완료한다. 로그인 전에는 인증 가능한 OpenRouter 모델로 열릴 수 있다. Pi는 토큰을 로컬 `~/.pi/agent/auth.json`에 저장한다. 로그인 뒤 `/model`에서 `openai/gpt-6.1-sol`을 선택하고 xhigh를 확인한다. 새 세션의 설정상 기본값은 `openai/gpt-6.1-sol`/xhigh다. `openai-codex`(Pi 1.1.0의 "OpenAI Codex (legacy)", 로그인 항목 "OpenAI (ChatGPT Plus/Pro)")는 토큰을 따로 저장하므로, 그 공급자의 모델이나 하위 에이전트를 쓸 때만 그 항목으로 따로 로그인한다. `pi auth check`는 로컬 토큰만 보므로 서버가 거부한 토큰도 `ready`로 표시한다.
+4. `pi`를 열고 `/login`에서 **OpenAI (ChatGPT subscription)**("Sign in with ChatGPT")를 골라 OpenAI 구독 로그인을 완료한다. 로그인 전에는 인증 가능한 OpenRouter 모델로 열릴 수 있다. Pi는 토큰을 로컬 `~/.pi/agent/auth.json`에 저장한다. 로그인 뒤 `/model`에서 `openai/gpt-6.2-sol`을 선택하고 max를 확인한다. 새 세션의 설정상 기본값은 `openai/gpt-6.2-sol`/max다. `openai-codex`(Pi 1.1.0의 "OpenAI Codex (legacy)", 로그인 항목 "OpenAI (ChatGPT Plus/Pro)")는 토큰을 따로 저장하므로, 그 공급자의 모델이나 하위 에이전트를 쓸 때만 그 항목으로 따로 로그인한다. `pi auth check`는 로컬 토큰만 보므로 서버가 거부한 토큰도 `ready`로 표시한다.
 
    ```sh
    pi
@@ -52,7 +52,7 @@ ps-frontend-admin처럼 Node 22.14를 고정한 저장소에서는 PATH의 `node
 
 ## 작업 방식
 
-기본 대화는 `openai/gpt-6.1-sol`/xhigh이고, 기본 대화가 계획·구현·검증을 직접 맡는다. 병렬로 나눌 수 있는 독립 작업, 메인 문맥을 채울 긴 기계적 처리, 사용자·프로젝트·스킬의 명시 요청이 있을 때만 하위 에이전트에 맡긴다. `pi-subagents`의 기본 모델과 내장 역할은 `openai/gpt-6.1-sol`/xhigh다. 부모가 범위와 파일 소유권을 명시해 작업을 맡기고, 결과를 기다려 검토한 뒤 보고한다. 한 번에 하나의 상위 하위 에이전트 작업 흐름을 실행한다. 확장의 동시 실행 한도 2는 각 흐름 안에 적용된다. 위임을 강제하지 않는 근거는 [2026-10-07 하네스 비교](pi-agent-validation.md#위임-강제-제거-2026-10-07)에 있다.
+기본 대화는 `openai/gpt-6.2-sol`/max이고, 기본 대화가 계획·구현·검증을 직접 맡는다. 병렬로 나눌 수 있는 독립 작업, 메인 문맥을 채울 긴 기계적 처리, 사용자·프로젝트·스킬의 명시 요청이 있을 때만 하위 에이전트에 맡긴다. `pi-subagents`의 기본 모델과 내장 역할은 `openai/gpt-6.1-terra`/max다. 부모가 범위와 파일 소유권을 명시해 작업을 맡기고, 결과를 기다려 검토한 뒤 보고한다. 한 번에 하나의 상위 하위 에이전트 작업 흐름을 실행한다. 확장의 동시 실행 한도 2는 각 흐름 안에 적용된다. 위임을 강제하지 않는 근거는 [2026-10-07 하네스 비교](pi-agent-validation.md#위임-강제-제거-2026-10-07)에 있다.
 
 ## 확인 기록 (2026-10-29)
 
