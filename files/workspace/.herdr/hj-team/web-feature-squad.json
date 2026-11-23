@@ -2,26 +2,13 @@
   "schemaVersion": 1,
   "id": "web-feature-squad",
   "name": "Web Feature Squad",
-  "description": "범용 웹 기능을 구현하고 실제 브라우저 QA와 적대적 코드 리뷰를 병렬로 돌릴 때. 기본: 프론트엔드 개발(implement), Web QA(browser-qa), 코드 리뷰어(deep-review). 선택: 디자이너(design-review). 서버: bun dev.",
-  "servers": [
-    {
-      "id": "web",
-      "command": [
-        "bun",
-        "dev"
-      ],
-      "cwd": "."
-    }
-  ],
+  "description": "범용 웹 기능을 구현하고 실제 브라우저 QA와 적대적 코드 리뷰를 병렬로 돌릴 때. 기본: 프론트엔드 개발(implement), Web QA(browser-qa), 코드 리뷰어(deep-review). 선택: 디자이너(ux-ideate).",
   "roles": [
     {
       "id": "dev",
       "title": "Frontend Developer",
       "route": "implement",
       "default": true,
-      "owns": [
-        "src/**"
-      ],
       "talksTo": [
         "web-qa",
         "reviewer",
@@ -50,7 +37,13 @@
       "checkpoints": [
         "Verify the critical user journey and relevant viewport and gesture cases."
       ],
-      "instructions": "Discover live URLs with hc-team servers --run, then verify behavior in the browser. Report concise repro steps and artifact locations."
+      "instructions": "Discover live URLs with hc-team servers --run, then verify behavior in the browser. Report concise repro steps and artifact locations.",
+      "tools": [
+        "ego-browser (`ego-browser skill` 후 `ego-browser nodejs`)",
+        "input-replay (`scripts/replay.mjs`)",
+        "ego-rec (`ego-rec test <automation.mjs>`)",
+        "hc-team servers --run <runId>"
+      ]
     },
     {
       "id": "reviewer",
@@ -70,7 +63,7 @@
     {
       "id": "designer",
       "title": "Product Designer",
-      "route": "design-review",
+      "route": "ux-ideate",
       "default": false,
       "readOnly": true,
       "skills": [

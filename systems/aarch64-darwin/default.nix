@@ -42,6 +42,16 @@
     RunAtLoad = true;
   };
 
+  launchd.user.agents.nix-host-environment.serviceConfig = {
+    ProgramArguments = [
+      "/bin/launchctl"
+      "setenv"
+      "USER_HOST"
+      myOptions.hostName
+    ];
+    RunAtLoad = true;
+  };
+
   networking = {
     hostName = myOptions.userName;
     computerName = myOptions.userName;

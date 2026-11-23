@@ -2,33 +2,30 @@
   "schemaVersion": 1,
   "id": "godot-game-loop",
   "name": "Godot 게임 개발 루프 (구현 · 플레이 QA · 픽셀 아트)",
-  "description": "Godot/GDScript 픽셀 게임의 계획된 태스크(T###)를 끊김 없이 돌릴 때. 기본: 게임플레이 개발(implement), 플레이 QA(browser-qa), 픽셀 아티스트(pixel-art). 선택: 계획·리뷰(plan), 시스템 적대적 리뷰(deep-review).",
+  "description": "Godot/GDScript 2D·픽셀 게임 태스크를 구현·플레이 검증·아트 제작으로 끊김 없이 돌릴 때. 기본: 게임플레이 개발(implement-complex), 플레이 QA(browser-qa), 픽셀 아티스트(pixel-art). 선택: 계획·리뷰(plan), 시스템 적대적 리뷰(deep-review).",
   "roles": [
     {
       "id": "gameplay-dev",
-      "title": "게임플레이 개발 (GDScript · GUT)",
-      "route": "implement",
+      "title": "게임플레이 개발 (GDScript · 테스트)",
+      "route": "implement-complex",
       "default": true,
-      "owns": [
-        "src/** (art/ 제외)",
-        "test/**",
-        "tools/**"
-      ],
       "talksTo": [
         "game-qa",
         "pixel-artist",
         "plan-reviewer"
       ],
       "checkpoints": [
-        "python3 tools/lint.py exit 0",
-        "영향받는 GUT 스크립트(tools/test_impact.py --run)가 assertion 0이 아닌 상태로 통과한다",
-        "공유 상태나 세이브를 바꾸면 전체 test_parallel.py를 통과한다"
+        "프로젝트의 린트와 영향받는 단위·통합 테스트가 모두 통과한다",
+        "공유 상태나 세이브 구조를 바꿨다면 전체 회귀 테스트를 통과한다"
       ],
-      "instructions": "docs/production/plans/<TASK>.md의 결정된 계획을 구현하고 task.py verify로 evidence 로그를 남긴다. 게임 창은 직접 띄우지 않고 화면 확인이 필요하면 시나리오와 기대 화면을 game-qa에 보낸다. 픽셀 아트는 직접 고치지 않고 pixel-artist에 스프라이트·크기·프레임을 요청해 결과만 연결한다. 기다리는 동안 계획의 다음 작업을 이어서 진행한다."
+      "instructions": "전달된 태스크와 프로젝트 문서·오버레이에 적힌 계획을 구현하고 검증 로그를 남긴다. 게임 실행 창은 직접 띄우지 않고 화면 확인이 필요하면 시나리오와 기대 화면을 game-qa에 보낸다. 픽셀 아트는 직접 고치지 않고 pixel-artist에 스프라이트·크기·프레임을 요청해 결과만 연결한다.",
+      "tools": [
+        "godot-ai MCP (씬·노드·스크립트·테스트 실행)"
+      ]
     },
     {
       "id": "game-qa",
-      "title": "플레이 QA (qa-live 창 · 화면 증거)",
+      "title": "플레이 QA (실행 검증 · 화면 증거)",
       "route": "browser-qa",
       "default": true,
       "readOnly": true,
@@ -37,54 +34,47 @@
         "pixel-artist"
       ],
       "checkpoints": [
-        "mise run qa-live -- run <scenario>로 대상 기능의 실제 입력 경로를 끝까지 진행했다",
-        "캡처한 화면 경로와 확인한 프레임, 로그 줄을 결과에 남긴다"
+        "프로젝트의 QA 실행 경로로 대상 기능의 실제 입력 흐름을 끝까지 검증했다",
+        "캡처한 화면 경로, 확인한 상태, 관련 로그를 결과에 남긴다"
       ],
-      "instructions": "열려 있는 qa-live 창 하나만 사용한다. 테스트마다 새 게임 창을 띄우지 않는다. 기능의 실제 입력을 넣고 화면 캡처로 배치·겹침·모션·아트 크기를 검증한다. 결과는 hc-team send --kind result로 로직 문제는 gameplay-dev에, 아트 문제는 pixel-artist에 보낸다."
+      "instructions": "프로젝트 오버레이나 저장소 문서에 안내된 단일 게임 QA 실행 환경을 사용한다. 테스트마다 불필요하게 새 게임 창을 중복 실행하지 않는다. 실제 입력을 넣고 화면 캡처로 배치·겹침·모션·아트 크기를 검증한 뒤, 결과는 hc-team send --kind result로 로직 문제는 gameplay-dev에, 아트 문제는 pixel-artist에 보낸다.",
+      "tools": [
+        "godot-ai MCP / 프로젝트 오버레이에 정의된 단일 QA 실행 스크립트"
+      ]
     },
     {
       "id": "pixel-artist",
       "title": "픽셀 아티스트 (Aseprite)",
       "route": "pixel-art",
       "default": true,
-      "skills": [
-        "pixel-art-direction",
-        "aseprite-tools",
-        "sprite-gen",
-        "pixel-snapper"
-      ],
-      "owns": [
-        "src/**/art/**",
-        "docs/production/concepts/**"
-      ],
       "talksTo": [
         "gameplay-dev",
         "game-qa"
       ],
       "checkpoints": [
-        "pixel-art-direction 순서대로 무료 에셋 후보를 먼저 검토했다",
-        "결과물을 게임 안 원래 크기로 확인하고 임시 승인 기록을 남겼다"
+        "프로젝트 아트 가이드와 해상도·팔레트 규격에 맞게 제작했다",
+        "결과물을 게임 내 실제 크기로 확인하고 파일 경로·export 설정을 남겼다"
       ],
-      "instructions": "DESIGN.md와 docs/production/art-direction/ 기준에 따라 열려 있는 Aseprite 창에서 손으로 그리거나 tools/art/pixelcode.py로 굽는다. 완성한 파일 경로와 export 설정을 gameplay-dev에 hc-team send --kind handoff로 보낸다."
+      "instructions": "프로젝트의 아트 가이드(오버레이 또는 저장소 문서)에 따라 Aseprite나 지정된 아트 도구로 에셋을 제작·수정한다. 완성한 파일 경로와 export 설정을 gameplay-dev에 hc-team send --kind handoff로 보낸다.",
+      "tools": [
+        "Aseprite CLI 및 프로젝트 아트 가이드"
+      ]
     },
     {
       "id": "plan-reviewer",
-      "title": "계획·통합 리뷰어 (디렉터 보조)",
+      "title": "계획·통합 리뷰어",
       "route": "plan",
       "default": false,
       "readOnly": true,
-      "skills": [
-        "game-fun-audit"
-      ],
       "talksTo": [
         "gameplay-dev",
         "game-qa"
       ],
       "checkpoints": [
-        "계획에 결정이 모두 내려져 있고 미결 질문은 open-questions.md에만 있다",
-        "반복되는 실수는 tools/lint.py 규칙 후보로 제안한다"
+        "구현 범위·의사결정·미결 질문이 명확히 분리되어 있다",
+        "반복되는 실수는 프로젝트 린트·체크 규칙 후보로 제안한다"
       ],
-      "instructions": "다음 태스크 계획을 docs/production/plans/<TASK>.md에 쓰거나 리뷰 준비된 보고서를 한 번에 검토한다. ADR·디자인 문서 불일치와 과한 QA 단계를 짚어 gameplay-dev에 보낸다."
+      "instructions": "태스크 계획을 정리하거나 완료된 작업 보고서를 검토한다. 설계 문서와의 불일치나 과도한 검증 단계를 짚어 gameplay-dev에 보낸다. 파일은 수정하지 않는다."
     },
     {
       "id": "systems-reviewer",
@@ -96,9 +86,9 @@
         "gameplay-dev"
       ],
       "checkpoints": [
-        "지적마다 file:line과 깨지는 게임 상태(세이브·씬 전환·인벤토리)를 적는다"
+        "지적마다 file:line과 깨지는 게임 상태(세이브·씬 전환·상태 동기화)를 적는다"
       ],
-      "instructions": "jj diff --from main --to @ 범위를 읽기 전용으로 검토해 세이브 포맷·씬 전환·인벤토리·오토로드 결합 결함을 찾고 심각도순으로 gameplay-dev에 hc-team send --kind review로 보낸다."
+      "instructions": "현재 작업 변경분(diff)을 읽기 전용으로 검토해 세이브 포맷·씬 전환·상태 머신·전역 상태 결합 결함을 찾고 심각도순으로 gameplay-dev에 hc-team send --kind review로 보낸다."
     }
   ]
 }

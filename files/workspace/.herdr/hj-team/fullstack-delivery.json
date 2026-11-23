@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "id": "fullstack-delivery",
   "name": "Fullstack Delivery",
-  "description": "백엔드 API와 프론트엔드 SPA(예: deopjib Elixir/Ash + React)를 계약 기반으로 병렬 구현·통합 검증할 때. 기본: 백엔드(investigate), 프론트엔드(implement), Web QA(browser-qa). 선택: 통합 리뷰(deep-review).",
+  "description": "백엔드 API와 프론트엔드 SPA를 계약 기반으로 병렬 구현·통합 검증할 때. 기본: 백엔드(implement-complex), 프론트엔드(implement), Web QA(browser-qa). 선택: 통합 리뷰(deep-review).",
   "roles": [
     {
       "id": "backend",
       "title": "Backend Developer",
-      "route": "investigate",
+      "route": "implement-complex",
       "talksTo": [
         "frontend",
         "web-qa",
@@ -50,7 +50,11 @@
       "checkpoints": [
         "Verify a complete browser-to-API journey and its principal failure case."
       ],
-      "instructions": "Use hc-team servers --run to find the app. Test the integrated flow, then report reproducible behavior and evidence."
+      "instructions": "Use hc-team servers --run to find the app. Test the integrated flow, then report reproducible behavior and evidence.",
+      "tools": [
+        "ego-browser (`ego-browser skill` 후 `ego-browser nodejs`)",
+        "hc-team servers --run <runId>"
+      ]
     },
     {
       "id": "reviewer",
