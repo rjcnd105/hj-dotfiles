@@ -1,1 +1,1 @@
-../../.codex/AGENTS.md
+../../.skillshare/extras/agent-guide/AGENTS.md

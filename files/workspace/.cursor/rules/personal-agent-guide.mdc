@@ -1,9 +1,9 @@
 ---
-description: Codex-first personal engineering collaboration and verification guide
+description: Shared personal engineering collaboration and verification guide
 alwaysApply: true
 ---
 
-<!-- skillshare:extra src="../../.codex/AGENTS.md" sha256=bfd62e2ca0abd174 -->
+<!-- skillshare:extra src="../../.skillshare/extras/agent-guide/AGENTS.md" sha256=4cf9c0f788774075 -->
 # Personal Agent Guide
 
 ## Role and communication
@@ -135,28 +135,21 @@ mechanisms. Ordinary implementation and diagnosis skip this protocol.
 - Before completion, audit the leading result against the exact contract and
   task-relevant failure modes.
 
-## Model routing and delegation
+## Delegation
 
 - Work in the main session by default; the selected model plans, implements,
   and verifies.
 - Delegate to a subagent only when it clearly helps: independent work that can
   run in parallel with disjoint file ownership, long mechanical processing that
   would flood the main context, or an explicit request from the user, project,
-  or skill. For execution subagents, use the runtime's configured subagent
-  model and reasoning (pi: `subagents` in settings; Claude Code:
-  `CLAUDE_CODE_SUBAGENT_MODEL` in settings, so omit `model` on `Agent`); if
-  none is configured, use the newest `gpt-*-sol` model the runtime lists, with
-  `high` reasoning. A model named in the request takes precedence. Start a subagent at
+  or skill.
+- For execution subagents, use the runtime's configured subagent model and
+  reasoning. A model named in the request takes precedence. Start a subagent at
   the lowest reasoning level that fits its job.
 - Give a subagent the objective, scope and exclusions, owned paths, relevant
   evidence, and acceptance checks. Wait for its result and review it against
   the goal before reporting.
-- Keep each delegated turn bounded to one unit that ends in a report. Claude
-  Code holds a `SendMessage` to a running subagent until that turn ends, across
-  any number of tool rounds. `success` only means it reached the inbox, and a
-  report can predate the directive. Send later units after the report. When one
-  turn must stay long and needs a clean stop, the brief chains a signal check to
-  every step, such as `[ -e "$STOP" ] && echo STOP_FOUND || <step>`.
+- Keep each delegated turn bounded to one unit that ends in a report.
 
 ## Workflow
 

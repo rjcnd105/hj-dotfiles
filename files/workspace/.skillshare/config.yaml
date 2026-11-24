@@ -274,15 +274,18 @@ skills:
   - name: herdr-core
     source: https://github.com/herdrdev/herdr-core/skills/herdr-core
 
-# .codex/AGENTS.md is the source of the personal agent guide. Claude and Pi read
-# it through relative symlinks; Cursor needs its own frontmatter, so it gets an
-# append; Antigravity reads ~/.gemini/AGENTS.md directly (copy so homes/file.nix
-# projects it into ~).
+# .skillshare/extras/agent-guide/AGENTS.md is the harness-agnostic shared core.
+# Each agent keeps its own rules separately: Claude uses .claude/rules/*.md,
+# Pi uses .config/pi/APPEND_SYSTEM.md, and Codex / Antigravity / Cursor keep
+# their agent-specific header above the skillshare append marker.
 extras:
   - name: agent-guide
-    source: .codex
+    source: .skillshare/extras/agent-guide
     file: AGENTS.md
     targets:
+      - path: .codex
+        mode: append
+        as: AGENTS.md
       - path: .claude/rules
         mode: symlink
         as: personal-agent-guide.md
@@ -293,7 +296,7 @@ extras:
         mode: symlink
         as: AGENTS.md
       - path: .gemini
-        mode: copy
+        mode: append
         as: AGENTS.md
 
 mcp:
