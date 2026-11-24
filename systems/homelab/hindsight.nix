@@ -109,9 +109,9 @@ in
             "--model"
             embeddingModel
             "--embeddings"
-            # Vulkan GTT(15.23 GiB)를 LLM 추론(Ollama/Inkling 등)용으로 비워 두고 임베딩은 CPU 고정.
-            "--device"
-            "none"
+            "--n-gpu-layers"
+            "99"
+            "--no-mmap"
             "--host"
             "127.0.0.1"
             "--port"
@@ -123,6 +123,10 @@ in
             "2"
           ];
           DynamicUser = true;
+          SupplementaryGroups = [
+            "render"
+            "video"
+          ];
           Restart = "on-failure";
           RestartSec = "5s";
         };
