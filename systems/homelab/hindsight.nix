@@ -103,6 +103,7 @@ in
       systemd.services.hindsight-embedding = {
         description = "llama.cpp embedding server for Hindsight (KURE-v3)";
         wantedBy = [ "multi-user.target" ];
+        environment.XDG_CACHE_HOME = "/var/cache/hindsight-embedding";
         serviceConfig = {
           ExecStart = lib.escapeShellArgs [
             "${config.services.llama-cpp.package}/bin/llama-server"
@@ -111,7 +112,6 @@ in
             "--embeddings"
             "--n-gpu-layers"
             "99"
-            "--no-mmap"
             "--host"
             "127.0.0.1"
             "--port"
@@ -123,6 +123,7 @@ in
             "2"
           ];
           DynamicUser = true;
+          CacheDirectory = "hindsight-embedding";
           SupplementaryGroups = [
             "render"
             "video"
