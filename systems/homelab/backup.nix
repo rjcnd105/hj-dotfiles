@@ -1,21 +1,28 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }:
 let
   dumpDir = "/var/backup/deopjib";
+  databases = lib.unique config.services.postgresql.ensureDatabases;
 in
 {
+  assertions = [
+    {
+      assertion = config.services.postgresql.enable;
+      message = "homelab backup requires services.postgresql.enable.";
+    }
+  ];
+
   sops.secrets = {
     BACKUP_R2_ACCESS_KEY_ID.mode = "0400";
     BACKUP_R2_SECRET_ACCESS_KEY.mode = "0400";
-    # 계정 ID가 포함된 R2 엔드포인트 URL — 공개 레포에 남기지 않으려 sops로 관리.
     BACKUP_RESTIC_REPOSITORY.mode = "0400";
     BACKUP_RESTIC_PASSWORD.mode = "0400";
   };
 
-  # restic의 S3 백엔드는 AWS_* 환경변수를 요구한다. 값 합성은 템플릿에서만.
   sops.templates."restic-r2.env" = {
     content = ''
       AWS_ACCESS_KEY_ID=${config.sops.placeholder.BACKUP_R2_ACCESS_KEY_ID}
@@ -33,14 +40,14 @@ in
     passwordFile = config.sops.secrets.BACKUP_RESTIC_PASSWORD.path;
     environmentFile = config.sops.templates."restic-r2.env".path;
     paths = [ dumpDir ];
-    # 백업 직전 호스트 공유 PG 논리 덤프 (platform-v2 Phase 3에서 컨테이너 PG 대체).
-    # root 유닛에서 postgres 사용자로 강등해 peer 인증으로 덤프한다.
     backupPrepareCommand = ''
       set -euo pipefail
-      for db in deopjib_dev deopjib_prod hindsight; do
+      for db in ${lib.escapeShellArgs databases}; do
+        tmp=${dumpDir}/."$db".sql.zst.tmp.$$
         ${pkgs.util-linux}/bin/runuser -u postgres -- \
           ${config.services.postgresql.package}/bin/pg_dump --clean --if-exists "$db" \
-          | ${pkgs.zstd}/bin/zstd -q -f -o ${dumpDir}/"$db".sql.zst
+          | ${pkgs.zstd}/bin/zstd -q -f -o "$tmp"
+        mv -f "$tmp" ${dumpDir}/"$db".sql.zst
       done
     '';
     pruneOpts = [
@@ -54,7 +61,6 @@ in
     };
   };
 
-  # Persistent 타이머가 부팅 직후 발화할 수 있으므로 secrets 렌더 이후로 순서 고정.
   systemd.services.restic-backups-homelab = {
     requires = [ "sops-install-secrets.service" ];
     # requires면 postgres가 멈춰 있을 때 백업이 postgres를 띄운다. switch 중이면 옛 unit 정의로

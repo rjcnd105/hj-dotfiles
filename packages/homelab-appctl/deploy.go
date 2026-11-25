@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -34,7 +35,6 @@ func commandOutput(name string, args ...string) (string, error) {
 	return stdout.String(), err
 }
 
-// imageID returns the local image id for a reference, or "" when absent.
 func imageID(ref string) string {
 	cmd := exec.Command("podman", "image", "inspect", ref, "--format", "{{.Id}}")
 	var stdout bytes.Buffer
@@ -51,6 +51,24 @@ type imageSnapshot struct {
 	ImageID  string `json:"imageId"`
 }
 
+type deploySummary struct {
+	App        string `json:"app"`
+	Channel    string `json:"channel"`
+	Target     string `json:"target"`
+	DeployedAt string `json:"deployedAt"`
+	Result     string `json:"result"`
+	Images     struct {
+		Before []imageSnapshot `json:"before"`
+		After  []imageSnapshot `json:"after"`
+	} `json:"images"`
+	Migration struct {
+		Result string `json:"result"`
+	} `json:"migration"`
+	Smoke struct {
+		Result string `json:"result"`
+	} `json:"smoke"`
+}
+
 func snapshotImages(meta *Metadata) []imageSnapshot {
 	snapshots := make([]imageSnapshot, 0, len(meta.Services))
 	for _, service := range meta.Services {
@@ -61,22 +79,6 @@ func snapshotImages(meta *Metadata) []imageSnapshot {
 		})
 	}
 	return snapshots
-}
-
-func writeSnapshotTSV(path string, snapshots []imageSnapshot) error {
-	var builder strings.Builder
-	for _, snapshot := range snapshots {
-		fmt.Fprintf(&builder, "%s\t%s\t%s\n", snapshot.Name, snapshot.ImageRef, snapshot.ImageID)
-	}
-	return os.WriteFile(path, []byte(builder.String()), 0o644)
-}
-
-func writeDesiredTSV(path string, desired []DesiredImage) error {
-	var builder strings.Builder
-	for _, image := range desired {
-		fmt.Fprintf(&builder, "%s\t%s\t%s\t%s\n", image.Service, image.ImageRef, image.ImageName, image.Digest)
-	}
-	return os.WriteFile(path, []byte(builder.String()), 0o644)
 }
 
 type deployRecord struct {
@@ -91,30 +93,22 @@ type deployRecord struct {
 }
 
 func (r *deployRecord) write(result string, updateLatest bool) error {
-	summary := map[string]any{
-		"app":        r.app,
-		"channel":    r.channel,
-		"target":     r.target,
-		"deployedAt": time.Now().UTC().Format("2006-01-02T15:04:05Z"),
-		"result":     result,
-		"images": map[string]any{
-			"before": snapshotList(r.before),
-			"after":  snapshotList(r.after),
-		},
-		"migration": map[string]any{"result": r.migrationResult},
-		"smoke":     map[string]any{"result": r.smokeResult},
-	}
-	if r.target == "" {
-		summary["target"] = nil
-	}
+	var summary deploySummary
+	summary.App = r.app
+	summary.Channel = r.channel
+	summary.Target = r.target
+	summary.DeployedAt = time.Now().UTC().Format("2006-01-02T15:04:05Z")
+	summary.Result = result
+	summary.Images.Before = snapshotList(r.before)
+	summary.Images.After = snapshotList(r.after)
+	summary.Migration.Result = r.migrationResult
+	summary.Smoke.Result = r.smokeResult
+
 	data, err := json.MarshalIndent(summary, "", "  ")
 	if err != nil {
 		return err
 	}
 	if err := os.WriteFile(filepath.Join(r.path, "summary.json"), append(data, '\n'), 0o644); err != nil {
-		return err
-	}
-	if err := os.WriteFile(filepath.Join(r.path, "result"), []byte(result+"\n"), 0o644); err != nil {
 		return err
 	}
 	if !updateLatest {
@@ -136,27 +130,25 @@ func snapshotList(snapshots []imageSnapshot) []imageSnapshot {
 	return snapshots
 }
 
-// currentTarget returns the target of the latest successful deploy whose
-// admitted metadata is byte-identical to the current metadata.
 func currentTarget(recordDir string, meta *Metadata) string {
 	latest := filepath.Join(recordDir, "latest")
-	result, err := os.ReadFile(filepath.Join(latest, "result"))
-	if err != nil || strings.TrimSpace(string(result)) != "ok" {
+	rawSummary, err := os.ReadFile(filepath.Join(latest, "summary.json"))
+	if err != nil {
 		return ""
 	}
-	target, err := os.ReadFile(filepath.Join(latest, "target"))
-	if err != nil {
+	var summary deploySummary
+	if err := json.Unmarshal(rawSummary, &summary); err != nil || summary.Result != "ok" {
 		return ""
 	}
 	recorded, err := os.ReadFile(filepath.Join(latest, "metadata.json"))
 	if err != nil || !bytes.Equal(recorded, meta.raw) {
 		return ""
 	}
-	return strings.TrimSpace(string(target))
+	return strings.TrimSpace(summary.Target)
 }
 
-func acquireDeployLock(recordDir string) (*os.File, error) {
-	lock, err := os.OpenFile(filepath.Join(recordDir, "deploy.lock"), os.O_CREATE|os.O_WRONLY, 0o644)
+func acquireLock(lockPath string) (*os.File, error) {
+	lock, err := os.OpenFile(lockPath, os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		return nil, err
 	}
@@ -166,24 +158,22 @@ func acquireDeployLock(recordDir string) (*os.File, error) {
 		if err == nil {
 			return lock, nil
 		}
+		if !errors.Is(err, syscall.EWOULDBLOCK) && !errors.Is(err, syscall.EAGAIN) && !errors.Is(err, syscall.EINTR) {
+			lock.Close()
+			return nil, err
+		}
 		if time.Now().After(deadline) {
 			lock.Close()
-			return nil, fmt.Errorf("timed out waiting for deploy lock")
+			return nil, fmt.Errorf("timed out waiting for lock %s", lockPath)
 		}
 		time.Sleep(time.Second)
 	}
 }
 
-func pullReleaseImages(meta *Metadata, desired []DesiredImage) error {
-	var authArgs []string
-	if meta.RegistryAuthFile != "" {
-		authArgs = []string{"--authfile", meta.RegistryAuthFile}
-	}
+func pullReleaseImages(desired []DesiredImage) error {
 	for _, image := range desired {
 		fmt.Printf("pull: %s@%s\n", image.ImageName, image.Digest)
-		args := append([]string{"pull"}, authArgs...)
-		args = append(args, image.ImageName+"@"+image.Digest)
-		if err := runCommand("podman", args...); err != nil {
+		if err := runCommand("podman", "pull", image.ImageName+"@"+image.Digest); err != nil {
 			return err
 		}
 	}
@@ -226,7 +216,36 @@ func restoreReleaseImages(desired []DesiredImage, before []imageSnapshot) bool {
 	return ok
 }
 
-// pruneDeployRecords keeps the newest keepDeployRecords record directories.
+func runMigrationByDigest(meta *Metadata, desired []DesiredImage) error {
+	var migrateImage string
+	for _, image := range desired {
+		if image.Service == meta.Migration.Service {
+			migrateImage = image.ImageName + "@" + image.Digest
+			break
+		}
+	}
+	if migrateImage == "" {
+		return fmt.Errorf("migration service %q not found in desired images", meta.Migration.Service)
+	}
+	runDir := runtimeRoot()
+	if err := os.MkdirAll(runDir, 0o750); err != nil {
+		return err
+	}
+	imageFile := filepath.Join(runDir, meta.UnitPrefix+"-migrate.image")
+	tmpFile := imageFile + ".tmp"
+	if err := os.WriteFile(tmpFile, []byte(migrateImage+"\n"), 0o600); err != nil {
+		return err
+	}
+	if err := os.Rename(tmpFile, imageFile); err != nil {
+		_ = os.Remove(tmpFile)
+		return err
+	}
+	defer os.Remove(imageFile)
+
+	fmt.Printf("migrate: %s (%s)\n", meta.Migration.Unit, migrateImage)
+	return runCommand("systemctl", "start", meta.Migration.Unit)
+}
+
 func pruneDeployRecords(recordDir string) {
 	entries, err := os.ReadDir(recordDir)
 	if err != nil {
@@ -244,28 +263,30 @@ func pruneDeployRecords(recordDir string) {
 		return
 	}
 	for _, name := range records[keepDeployRecords:] {
-		os.RemoveAll(filepath.Join(recordDir, name))
+		_ = os.RemoveAll(filepath.Join(recordDir, name))
 	}
 }
 
-// pruneReleaseImages keeps the newest keepImageIDs untagged image ids per
-// release image name. A tagged id is some channel's -current (this deploy has
-// already moved its own tags) and is never removed. Channels share image
-// names, so protecting only this channel's refs would remove another
-// channel's current image.
-func pruneReleaseImages(desired []DesiredImage) {
-	names := map[string]bool{}
-	for _, image := range desired {
-		names[image.ImageName] = true
+func pruneUntaggedImages(imageRepos []string) {
+	lockPath := filepath.Join(stateRoot(), "image-prune.lock")
+	if err := os.MkdirAll(filepath.Dir(lockPath), 0o755); err == nil {
+		if lock, err := acquireLock(lockPath); err == nil {
+			defer lock.Close()
+		}
 	}
-	for name := range names {
-		output, err := commandOutput("podman", "images", "--sort", "created", name, "--format", "{{.ID}} {{.Tag}}")
+	seenRepos := map[string]bool{}
+	for _, repo := range imageRepos {
+		if seenRepos[repo] {
+			continue
+		}
+		seenRepos[repo] = true
+		output, err := commandOutput("podman", "images", "--sort", "created", repo, "--format", "{{.ID}} {{.Tag}}")
 		if err != nil {
 			continue
 		}
 		var ids []string
 		seen := map[string]bool{}
-		protected := map[string]bool{}
+		taggedImageIDs := map[string]bool{}
 		for _, line := range strings.Split(output, "\n") {
 			fields := strings.Fields(line)
 			if len(fields) != 2 {
@@ -273,7 +294,7 @@ func pruneReleaseImages(desired []DesiredImage) {
 			}
 			id := fields[0]
 			if fields[1] != "<none>" {
-				protected[id] = true
+				taggedImageIDs[id] = true
 			}
 			if !seen[id] {
 				seen[id] = true
@@ -282,14 +303,14 @@ func pruneReleaseImages(desired []DesiredImage) {
 		}
 		kept := 0
 		for _, id := range ids {
-			if protected[id] {
+			if taggedImageIDs[id] {
 				continue
 			}
 			if kept < keepImageIDs {
 				kept++
 				continue
 			}
-			fmt.Printf("prune image: %s %s\n", name, id)
+			fmt.Printf("prune image: %s %s\n", repo, id)
 			if err := exec.Command("podman", "rmi", id).Run(); err != nil {
 				fmt.Fprintf(os.Stderr, "image prune skipped (in use?): %s\n", id)
 			}
@@ -298,6 +319,9 @@ func pruneReleaseImages(desired []DesiredImage) {
 }
 
 func cmdDeployDryRun(meta *Metadata, app, channel, target string) error {
+	if err := validateTargetPattern(meta, target); err != nil {
+		return err
+	}
 	metaPath := filepath.Join(metadataRoot(), app, channel+".json")
 	recordDir := filepath.Join(stateRoot(), app, channel)
 	releaseManifestURL, err := manifestURL(meta, target)
@@ -362,12 +386,15 @@ func cmdDeploy(meta *Metadata, app, channel, target string) error {
 	if os.Geteuid() != 0 && !testModeActive() {
 		return fmt.Errorf("deploy requires root because it writes %s and controls system services; run: sudo -n homelab-appctl deploy %s %s --target %s", stateRoot(), app, channel, target)
 	}
+	if err := validateTargetPattern(meta, target); err != nil {
+		return err
+	}
 
 	recordDir := filepath.Join(stateRoot(), app, channel)
 	if err := os.MkdirAll(recordDir, 0o755); err != nil {
 		return err
 	}
-	lock, err := acquireDeployLock(recordDir)
+	lock, err := acquireLock(filepath.Join(recordDir, "deploy.lock"))
 	if err != nil {
 		return fmt.Errorf("%w: %s/%s", err, app, channel)
 	}
@@ -388,11 +415,6 @@ func cmdDeploy(meta *Metadata, app, channel, target string) error {
 	if err := os.WriteFile(filepath.Join(recordPath, "metadata.json"), meta.raw, 0o644); err != nil {
 		return err
 	}
-	shaOut, err := commandOutput("sha256sum", filepath.Join(recordPath, "metadata.json"))
-	if err == nil {
-		os.WriteFile(filepath.Join(recordPath, "metadata.sha256"), []byte(shaOut), 0o644)
-	}
-	os.WriteFile(filepath.Join(recordPath, "target"), []byte(target+"\n"), 0o644)
 
 	record := &deployRecord{
 		dir:             recordDir,
@@ -433,22 +455,25 @@ func cmdDeploy(meta *Metadata, app, channel, target string) error {
 		_ = record.write("manifest-invalid", false)
 		return err
 	}
-	if err := writeDesiredTSV(filepath.Join(recordPath, "desired-images.tsv"), desired); err != nil {
-		return err
-	}
 
 	record.before = snapshotImages(meta)
-	if err := writeSnapshotTSV(filepath.Join(recordPath, "before-images.tsv"), record.before); err != nil {
-		return err
-	}
 
-	if err := pullReleaseImages(meta, desired); err != nil {
+	if err := pullReleaseImages(desired); err != nil {
 		_ = record.write("pull-failed", false)
 		return err
 	}
 
 	if err := record.write("in-progress", true); err != nil {
 		return err
+	}
+
+	if meta.Migration.Unit != "" {
+		if err := runMigrationByDigest(meta, desired); err != nil {
+			record.migrationResult = "failed"
+			_ = record.write("migration-failed", true)
+			return err
+		}
+		record.migrationResult = "ok"
 	}
 
 	if err := activateReleaseImages(desired); err != nil {
@@ -460,24 +485,7 @@ func cmdDeploy(meta *Metadata, app, channel, target string) error {
 		return err
 	}
 
-	if meta.Migration.Unit != "" {
-		fmt.Printf("migrate: %s\n", meta.Migration.Unit)
-		if err := runCommand("systemctl", "start", meta.Migration.Unit); err != nil {
-			record.migrationResult = "failed"
-			if restoreReleaseImages(desired, record.before) {
-				_ = record.write("migration-failed", true)
-			} else {
-				_ = record.write("migration-recovery-failed", true)
-			}
-			return err
-		}
-		record.migrationResult = "ok"
-	}
-
-	releaseUnits := []string{}
-	for _, service := range meta.releaseServices() {
-		releaseUnits = append(releaseUnits, service.ServiceUnit)
-	}
+	releaseUnits := meta.serviceUnits()
 	fmt.Printf("restart: %s\n", strings.Join(releaseUnits, " "))
 	if err := runCommand("systemctl", append([]string{"restart"}, releaseUnits...)...); err != nil {
 		_ = record.write("restart-failed", true)
@@ -485,9 +493,6 @@ func cmdDeploy(meta *Metadata, app, channel, target string) error {
 	}
 
 	record.after = snapshotImages(meta)
-	if err := writeSnapshotTSV(filepath.Join(recordPath, "after-images.tsv"), record.after); err != nil {
-		return err
-	}
 
 	if err := cmdSmoke(meta); err != nil {
 		record.smokeResult = "failed"
@@ -502,6 +507,10 @@ func cmdDeploy(meta *Metadata, app, channel, target string) error {
 	fmt.Printf("deploy record: %s\n", recordPath)
 
 	pruneDeployRecords(recordDir)
-	pruneReleaseImages(desired)
+	repos := make([]string, 0, len(desired))
+	for _, image := range desired {
+		repos = append(repos, image.ImageName)
+	}
+	pruneUntaggedImages(repos)
 	return nil
 }

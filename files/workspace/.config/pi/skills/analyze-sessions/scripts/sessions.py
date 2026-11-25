@@ -349,13 +349,13 @@ class Filters:
     cwd_substrs: list = field(default_factory=list)
     model_substrs: list = field(default_factory=list)
     provider: Optional[str] = None
-    session_id: Optional[str] = None  # exact or prefix
-    include_subagents: Optional[bool] = None  # tri-state; script default if None
+    session_id: Optional[str] = None
+    include_subagents: bool = False
     limit: Optional[int] = None
     min_cost: Optional[float] = None
     min_messages: Optional[int] = None
     errors_only: bool = False
-    grep: Optional[str] = None  # substring on user text, case-insensitive
+    grep: Optional[str] = None
 
     def matches(self, s: SessionSummary) -> bool:
         if self.session_id:
@@ -419,7 +419,9 @@ def add_filter_args(p: argparse.ArgumentParser, *, subagents_default: bool) -> N
                    help="Case-insensitive substring match on the user prompts of the session.")
 
 
-def filters_from_args(args: argparse.Namespace, *, subagents_default: bool) -> Filters:
+def filters_from_args(
+    args: argparse.Namespace, *, subagents_default: bool, apply_limit: bool = True
+) -> Filters:
     f = Filters()
     f.sessions_dir = args.sessions_dir.expanduser()
     if getattr(args, "since", None):
@@ -432,7 +434,7 @@ def filters_from_args(args: argparse.Namespace, *, subagents_default: bool) -> F
     f.session_id = getattr(args, "session", None)
     inc = getattr(args, "include_subagents", None)
     f.include_subagents = subagents_default if inc is None else inc
-    f.limit = getattr(args, "limit", None)
+    f.limit = getattr(args, "limit", None) if apply_limit else None
     f.min_cost = getattr(args, "min_cost", None)
     f.min_messages = getattr(args, "min_messages", None)
     f.errors_only = bool(getattr(args, "errors_only", False))

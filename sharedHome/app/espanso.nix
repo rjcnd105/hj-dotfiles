@@ -1,5 +1,0 @@
-{
-  programs.espanso = {
-    enable = true;
-  };
-}

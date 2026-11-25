@@ -40,11 +40,8 @@ def main() -> int:
                 args.errors_only)):
         args.since = "7d"
 
-    filters = S.filters_from_args(args, subagents_default=True)
-    # For grouped views, --limit caps groups, not sessions. Drop it from the
-    # session-level filter so grouping sees every matching session.
+    filters = S.filters_from_args(args, subagents_default=True, apply_limit=False)
     group_limit = args.limit if args.by != "total" else None
-    filters.limit = None
 
     summaries = S.load_summaries(filters)
 

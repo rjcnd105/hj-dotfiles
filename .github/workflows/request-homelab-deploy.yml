@@ -10,7 +10,7 @@ on:
   workflow_call:
     inputs:
       app:
-        description: Admitted homelab app key.
+        description: Admitted homelab app name (contract.name).
         required: true
         type: string
       channel:
@@ -68,15 +68,22 @@ jobs:
 
           # Blob ids, because compare truncates its file list at 300 files.
           blob() {
-            local sha
-            if sha="$(gh api "repos/$GITHUB_REPOSITORY/contents/$1?ref=$2" --jq .sha 2>/dev/null)"; then
-              echo "$sha"
-            else
-              echo missing
+            local out status
+            if out="$(gh api -i "repos/$GITHUB_REPOSITORY/contents/$1?ref=$2" 2>&1)"; then
+              printf '%s\n' "$out" | sed '1,/^\r*$/d' | jq -r .sha
+              return 0
             fi
+            status="$(printf '%s\n' "$out" | sed -n 's/^HTTP\/[0-9.]* \([0-9][0-9][0-9]\).*/\1/p' | head -n 1)"
+            if [ "$status" = 404 ]; then
+              echo missing
+              return 0
+            fi
+            echo "::error::GitHub API failed checking $1 at $2: $out" >&2
+            return 1
           }
           contract_changed=false
-          for path in $CONTRACT_PATHS; do
+          read -r -a contract_paths <<< "$CONTRACT_PATHS"
+          for path in "${contract_paths[@]}"; do
             before="$(blob "$path" "$admitted")"
             after="$(blob "$path" "$GITHUB_SHA")"
             if [ "$before" = missing ] && [ "$after" = missing ]; then

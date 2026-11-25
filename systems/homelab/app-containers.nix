@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  myOptions,
   pkgs,
   ...
 }:
@@ -12,7 +11,6 @@ let
     filterAttrs
     flatten
     listToAttrs
-    mapAttrs'
     mapAttrsToList
     mkEnableOption
     mkIf
@@ -23,10 +21,20 @@ let
     unique
     ;
 
+  conventions = import ./app-conventions.nix { inherit lib; };
+  inherit (conventions)
+    appGatewayFor
+    appSubnetFor
+    bridgeInterfaceFor
+    sharedPostgresNameFor
+    unitPrefixFor
+    usesSharedOllama
+    usesSharedPostgres
+    ;
+
   cfg = config.homelab;
   enabledApps = filterAttrs (_: app: app.enable) cfg.apps;
   hasApps = enabledApps != { };
-  cloudflareTunnelId = "a19003a7-293f-4872-b8a5-1db544878f45";
   podmanDnsLifecycleService = cfg.podmanDnsLifecycle.unit;
 
   validId = value: builtins.match "^[a-z0-9][a-z0-9-]*$" value != null;
@@ -46,42 +54,10 @@ let
       ) (builtins.length names)
     );
 
-  unitPrefixFor = app: "${app.contract.name}-${app.contract.channel}";
-  bridgeInterfaceFor = app: "br-${unitPrefixFor app}";
-
-  caddyPortFor =
-    app: if app.host.caddyPort == null then app.host.loopbackPortBase - 1 else app.host.caddyPort;
-
   servicePortClaimsForApp =
-    app:
-    let
-      servicePorts = portMapFor app.contract.services app.host.loopbackPortBase;
-    in
-    builtins.attrValues servicePorts;
+    app: builtins.attrValues (portMapFor app.contract.services app.host.loopbackPortBase);
 
-  registryAuthFileFor =
-    app:
-    if app.host.registryAuth == null then null else cfg.registryAuths.${app.host.registryAuth}.authFile;
-
-  imageRefFor =
-    app: service:
-    if builtins.hasAttr service.image app.contract.images then
-      app.contract.images.${service.image}
-    else
-      "invalid-image-reference";
-
-  releaseManaged = service: service.updatePolicy == "manual";
-
-  # Contract v2: digest-only admission + platform conventions (PORT, needs.postgres, needs.ollama).
-  isV2 = app: app.contract.schemaVersion == 2;
-  usesSharedPostgres = app: isV2 app && app.contract.needs.postgres;
-  usesSharedOllama = app: isV2 app && app.contract.needs.ollama.models != [ ];
-
-  # Shared-PostgreSQL role/db name; PostgreSQL identifiers use underscores.
-  sharedPostgresNameFor =
-    app: lib.replaceStrings [ "-" ] [ "_" ] "${app.contract.name}_${app.contract.channel}";
-  appSubnetFor = app: "10.90.${toString app.host.subnetId}.0/24";
-  appGatewayFor = app: "10.90.${toString app.host.subnetId}.1";
+  imageRefFor = app: service: app.contract.images.${service.image};
 
   envTemplateNameFor = app: serviceName: "${unitPrefixFor app}-${serviceName}.env";
 
@@ -125,9 +101,10 @@ let
         in
         "${envName}=${builtins.getAttr secretName config.sops.placeholder}";
 
-      # v2 convention: containers listen on PORT (= internalPort); contract env wins.
-      effectiveEnv =
-        lib.optionalAttrs (isV2 app) { PORT = toString service.internalPort; } // service.env;
+      effectiveEnv = {
+        PORT = toString service.internalPort;
+      }
+      // service.env;
       envLines = mapAttrsToList (key: value: "${key}=${value}") effectiveEnv;
       secretLines = map secretLine service.requiredSecretEnv;
       platformLines =
@@ -188,56 +165,24 @@ let
     )
   );
 
-  appIngress = listToAttrs (
-    mapAttrsToList (
-      _appName: app: nameValuePair app.host.domain "http://localhost:${toString (caddyPortFor app)}"
-    ) enabledApps
-  );
-
   routeLineFor =
-    app: servicePorts: route:
+    servicePorts: route:
     let
-      targetPort =
-        if builtins.hasAttr route.service servicePorts then servicePorts.${route.service} else 0;
-      target = "127.0.0.1:${toString targetPort}";
+      target = "127.0.0.1:${toString servicePorts.${route.service}}";
     in
     if route.path == "/" then "reverse_proxy ${target}" else "reverse_proxy ${route.path} ${target}";
 
-  caddyVirtualHosts = mapAttrs' (
-    _appName: app:
-    let
-      servicePorts = portMapFor app.contract.services app.host.loopbackPortBase;
-      caddyPort = caddyPortFor app;
-    in
-    nameValuePair "http://${app.host.domain}:${toString caddyPort}" {
-      extraConfig = ''
-        bind 127.0.0.1
-
-        ${concatLines (map (routeLineFor app servicePorts) app.contract.routes)}
-      '';
-    }
-  ) enabledApps;
-
-  quadletImageFor =
-    app: serviceName: service:
-    let
-      authFile = registryAuthFileFor app;
-      unitPrefix = unitPrefixFor app;
-    in
-    nameValuePair "${unitPrefix}-${serviceName}" {
-      autoStart = false;
-      unitConfig = {
-        Description = "Pull ${unitPrefix}-${serviceName} image";
-        After = lib.optional (authFile != null) "sops-install-secrets.service";
+  appPublicRoutes = listToAttrs (
+    mapAttrsToList (
+      _appName: app:
+      let
+        servicePorts = portMapFor app.contract.services app.host.loopbackPortBase;
+      in
+      nameValuePair app.host.domain {
+        extraConfig = concatLines (map (routeLineFor servicePorts) app.contract.routes);
       }
-      // lib.optionalAttrs (authFile != null) {
-        Requires = [ "sops-install-secrets.service" ];
-      };
-      imageConfig = {
-        image = imageRefFor app service;
-        authFile = authFile;
-      };
-    };
+    ) enabledApps
+  );
 
   quadletVolumeFor =
     app: volumeName: _volume:
@@ -262,7 +207,6 @@ let
     let
       unitPrefix = unitPrefixFor app;
       servicePorts = portMapFor app.contract.services app.host.loopbackPortBase;
-      authFile = registryAuthFileFor app;
       envTemplate = config.sops.templates.${envTemplateNameFor app serviceName}.path;
       networkService = "${unitPrefix}-network.service";
       dependencyServices = map (name: "${unitPrefix}-${name}.service") service.dependsOn;
@@ -277,8 +221,6 @@ let
         ]
         ++ dependencyServices
         ++ lib.optional (usesSharedPostgres app) "postgresql.service";
-        # 비밀번호 동기화 oneshot은 Wants로 끌어오고 After로만 순서를 강제한다
-        # (Requires면 앱 재시작마다 재실행 실패가 앱을 함께 내린다).
         Wants = lib.optional (usesSharedPostgres app) "homelab-postgres-credentials.service";
         After = [
           "sops-install-secrets.service"
@@ -296,13 +238,8 @@ let
       };
       containerConfig = {
         name = "${unitPrefix}-${serviceName}";
-        image =
-          if releaseManaged service then imageRefFor app service else "${unitPrefix}-${serviceName}.image";
+        image = imageRefFor app service;
         pull = "never";
-        autoUpdate = if service.updatePolicy == "registry-auto" then "registry" else null;
-        labels = lib.optionalAttrs (service.updatePolicy == "registry-auto" && authFile != null) {
-          "io.containers.autoupdate.authfile" = authFile;
-        };
         logDriver = "journald";
         environmentFiles = [ envTemplate ];
         networks = [ "${unitPrefix}.network" ];
@@ -324,8 +261,6 @@ let
         RestartSec = "5s";
         TimeoutStartSec = app.host.timeoutStartSec;
         TimeoutStopSec = 120;
-      }
-      // lib.optionalAttrs (releaseManaged service) {
         # -current 태그는 appctl이 첫 배포에서 만드는 활성화 포인터다. 그 전에 시작하면
         # pull=never라 실패해 switch가 status 4로 끝나므로 태그가 없으면 실패 없이 건너뛴다.
         ExecCondition = "${pkgs.podman}/bin/podman image exists ${imageRefFor app service}";
@@ -347,8 +282,6 @@ let
       networkConfig = {
         name = unitPrefix;
         interfaceName = bridgeInterfaceFor app;
-      }
-      // lib.optionalAttrs (isV2 app) {
         subnets = [ (appSubnetFor app) ];
         gateways = [ (appGatewayFor app) ];
       };
@@ -363,8 +296,8 @@ let
       service = contract.services.${migrationServiceName};
       envTemplate = config.sops.templates.${envTemplateNameFor app migrationServiceName}.path;
       imageRef = imageRefFor app service;
+      migrateImageFile = "/run/homelab-appctl/${unitPrefix}-migrate.image";
       networkService = "${unitPrefix}-network.service";
-      imageService = "${unitPrefix}-${migrationServiceName}-image.service";
       dependencyServices = map (name: "${unitPrefix}-${name}.service") service.dependsOn;
       volumeServices = map (mount: "${unitPrefix}-${mount.volume}-volume.service") service.volumeMounts;
       volumeArgs = concatStringsSep " " (
@@ -378,7 +311,6 @@ let
         "network-online.target"
         networkService
       ]
-      ++ lib.optional (!releaseManaged service) imageService
       ++ dependencyServices
       ++ volumeServices
       ++ lib.optional (usesSharedPostgres app) "postgresql.service";
@@ -388,7 +320,6 @@ let
         "network-online.target"
         networkService
       ]
-      ++ lib.optional (!releaseManaged service) imageService
       ++ dependencyServices
       ++ volumeServices
       ++ lib.optionals (usesSharedPostgres app) [
@@ -397,8 +328,12 @@ let
       ];
       serviceConfig.Type = "oneshot";
       script = ''
+        image=${lib.escapeShellArg imageRef}
+        if [ -r ${lib.escapeShellArg migrateImageFile} ]; then
+          image=$(cat ${lib.escapeShellArg migrateImageFile})
+        fi
         ${pkgs.podman}/bin/podman rm -f ${lib.escapeShellArg "${unitPrefix}-migrate"} >/dev/null 2>&1 || true
-        exec ${pkgs.podman}/bin/podman run --rm --pull=never --name ${lib.escapeShellArg "${unitPrefix}-migrate"} --env-file ${lib.escapeShellArg envTemplate} --network ${lib.escapeShellArg unitPrefix} ${volumeArgs} ${lib.escapeShellArg imageRef} ${lib.escapeShellArgs contract.migrations.command}
+        exec ${pkgs.podman}/bin/podman run --rm --pull=never --name ${lib.escapeShellArg "${unitPrefix}-migrate"} --env-file ${lib.escapeShellArg envTemplate} --network ${lib.escapeShellArg unitPrefix} ${volumeArgs} "$image" ${lib.escapeShellArgs contract.migrations.command}
       '';
     };
 
@@ -412,39 +347,29 @@ let
     app: serviceName: service:
     let
       unitPrefix = unitPrefixFor app;
-      servicePorts = portMapFor app.contract.services app.host.loopbackPortBase;
     in
     {
       name = serviceName;
       imageKey = service.image;
       imageRef = imageRefFor app service;
-      imageName = if releaseManaged service then releaseImageNameFor app service else null;
-      imageUnit = if releaseManaged service then null else "${unitPrefix}-${serviceName}-image.service";
-      releaseManaged = releaseManaged service;
+      imageName = releaseImageNameFor app service;
       serviceUnit = "${unitPrefix}-${serviceName}.service";
       containerName = "${unitPrefix}-${serviceName}";
-      internalPort = service.internalPort;
-      loopbackPort = servicePorts.${serviceName};
-      healthPath = service.healthPath;
-      dependsOn = service.dependsOn;
-      updatePolicy = service.updatePolicy;
     };
 
   appMetadataFor =
-    appName: app:
+    app:
     let
       releaseChannel = releaseChannelFor app;
       unitPrefix = unitPrefixFor app;
-      caddyPort = caddyPortFor app;
     in
     {
-      appKey = appName;
       name = app.contract.name;
       channel = app.contract.channel;
       unitPrefix = unitPrefix;
       domain = app.host.domain;
-      caddyUrl = "http://127.0.0.1:${toString caddyPort}";
-      registryAuthFile = registryAuthFileFor app;
+      caddyUrl = "http://127.0.0.1:${toString cfg.caddyPort}";
+      contractVersion = 2;
       smokePaths = smokePathsFor app;
       services = mapAttrsToList (serviceMetadataFor app) app.contract.services;
       migration =
@@ -469,25 +394,15 @@ let
           {
             manifestUrl = app.contract.release.manifestUrl;
             tag = releaseChannel.tag;
-            mode = releaseChannel.mode;
             targetPattern = releaseChannel.targetPattern;
-            strategy = releaseChannel.strategy;
-            migrate = releaseChannel.migrate;
             smokePaths = releaseChannel.smokePaths;
           };
-    }
-    // lib.optionalAttrs (!isV2 app) {
-      runtimeContractSourceSha256 = app.runtimeContractSourceSha256;
-      homelabAdmissionSourceSha256 = app.homelabAdmissionSourceSha256;
-      manifestSchemaSourceSha256 = app.manifestSchemaSourceSha256;
-      manifestGeneratorSourceSha256 = app.manifestGeneratorSourceSha256;
-    }
-    // lib.optionalAttrs (isV2 app) { contractVersion = 2; };
+    };
 
   metadataEtcFor =
-    appName: app:
+    _appName: app:
     nameValuePair "homelab-apps/${app.contract.name}/${app.contract.channel}.json" {
-      text = builtins.toJSON (appMetadataFor appName app) + "\n";
+      text = builtins.toJSON (appMetadataFor app) + "\n";
     };
 
   metadataEtcEntries = listToAttrs (mapAttrsToList metadataEtcFor enabledApps);
@@ -496,16 +411,6 @@ let
     flatten (
       mapAttrsToList (
         _appName: app: mapAttrsToList (quadletVolumeFor app) app.contract.volumes
-      ) enabledApps
-    )
-  );
-  quadletImages = listToAttrs (
-    flatten (
-      mapAttrsToList (
-        _appName: app:
-        mapAttrsToList (quadletImageFor app) (
-          filterAttrs (_serviceName: service: !releaseManaged service) app.contract.services
-        )
       ) enabledApps
     )
   );
@@ -526,24 +431,11 @@ let
       contract = app.contract;
       routeDomains = map (route: route.host) contract.routes;
       serviceNames = builtins.attrNames contract.services;
-      imageNames = builtins.attrNames contract.images;
       volumeNames = builtins.attrNames contract.volumes;
       hostVolumeNames = builtins.attrNames app.host.volumes;
       releaseChannels = contract.release.channels;
       migrationMode = contract.migrations.mode;
       migrationService = contract.migrations.service;
-      registryAutoServices = filterAttrs (
-        _: service: service.updatePolicy == "registry-auto"
-      ) contract.services;
-      migrationServiceIsRegistryAuto =
-        migrationService != null && builtins.hasAttr migrationService registryAutoServices;
-      manualServices = filterAttrs (_: service: releaseManaged service) contract.services;
-      sourceHashes = [
-        app.runtimeContractSourceSha256
-        app.homelabAdmissionSourceSha256
-        app.manifestSchemaSourceSha256
-        app.manifestGeneratorSourceSha256
-      ];
     in
     [
       {
@@ -567,13 +459,8 @@ let
         message = "homelab.apps.${appName}: generated bridge interface must not exceed Linux's 15-character limit.";
       }
       {
-        assertion = builtins.all (domain: domain == app.host.domain) routeDomains;
-        message = "homelab.apps.${appName}: every contract route host must match host.domain.";
-      }
-      {
-        assertion =
-          app.host.registryAuth == null || builtins.hasAttr app.host.registryAuth cfg.registryAuths;
-        message = "homelab.apps.${appName}: host.registryAuth must reference homelab.registryAuths.";
+        assertion = contract.routes != [ ] && builtins.all (domain: domain == app.host.domain) routeDomains;
+        message = "homelab.apps.${appName}: contract.routes must be non-empty and every route host must match host.domain.";
       }
       {
         assertion =
@@ -586,22 +473,8 @@ let
         message = "homelab.apps.${appName}: migrations.command is required when migrations are enabled.";
       }
       {
-        assertion = migrationMode == "none" || !migrationServiceIsRegistryAuto;
-        message = "homelab.apps.${appName}: registry-auto is not allowed on the migration service.";
-      }
-      {
-        assertion =
-          isV2 app
-          || builtins.all (hash: hash != null && builtins.match "^[0-9a-f]{64}$" hash != null) sourceHashes;
-        message = "homelab.apps.${appName}: schemaVersion 1 requires all four deployment source hashes as lowercase SHA-256 hex digests.";
-      }
-      {
-        assertion = !isV2 app || builtins.all (hash: hash == null) sourceHashes;
-        message = "homelab.apps.${appName}: schemaVersion 2 admits releases by digest only; source hashes must not be set.";
-      }
-      {
-        assertion = !isV2 app || app.host.subnetId != null;
-        message = "homelab.apps.${appName}: schemaVersion 2 requires host.subnetId (bridge subnet 10.90.<id>.0/24).";
+        assertion = app.host.subnetId != null;
+        message = "homelab.apps.${appName}: host.subnetId is required (bridge subnet 10.90.<id>.0/24).";
       }
       {
         assertion = !usesSharedPostgres app || app.host.postgresPasswordSecret != null;
@@ -628,9 +501,8 @@ let
         message = "homelab.apps.${appName}: OLLAMA_URL is platform-injected under needs.ollama; the contract must not declare it.";
       }
       {
-        assertion =
-          manualServices == { } || (releaseChannelFor app != null && contract.release.manifestUrl != null);
-        message = "homelab.apps.${appName}: manual services require release channel metadata and a manifestUrl.";
+        assertion = releaseChannelFor app != null && contract.release.manifestUrl != null;
+        message = "homelab.apps.${appName}: release channel metadata and manifestUrl are required.";
       }
       {
         assertion =
@@ -649,11 +521,9 @@ let
         message = "homelab.apps.${appName}: host.releaseManifestOrigins must contain HTTPS origins without a trailing slash.";
       }
       {
-        assertion =
-          manualServices == { }
-          || builtins.any (
-            origin: lib.hasPrefix "${origin}/" contract.release.manifestUrl
-          ) app.host.releaseManifestOrigins;
+        assertion = builtins.any (
+          origin: lib.hasPrefix "${origin}/" contract.release.manifestUrl
+        ) app.host.releaseManifestOrigins;
         message = "homelab.apps.${appName}: release.manifestUrl must match a host-admitted releaseManifestOrigin.";
       }
     ]
@@ -664,10 +534,6 @@ let
           {
             assertion = validId channelName;
             message = "homelab.apps.${appName}: release channel ${channelName} must match ^[a-z0-9][a-z0-9-]*$.";
-          }
-          {
-            assertion = channel.migrate != "manual" || migrationMode == "manual";
-            message = "homelab.apps.${appName}: release channel ${channelName} cannot request manual migration when contract.migrations.mode is not manual.";
           }
           {
             assertion = lib.hasPrefix "^" channel.targetPattern && lib.hasSuffix "$" channel.targetPattern;
@@ -681,17 +547,13 @@ let
       ) releaseChannels
     )
     ++ map (route: {
-      assertion = builtins.elem route.service serviceNames;
-      message = "homelab.apps.${appName}: route ${route.path} must reference contract.services.";
+      assertion = builtins.match "^/.*" route.path != null;
+      message = "homelab.apps.${appName}: route path ${route.path} must start with '/'.";
     }) contract.routes
     ++ flatten (
       mapAttrsToList (
         serviceName: service:
         [
-          {
-            assertion = builtins.elem service.image imageNames;
-            message = "homelab.apps.${appName}.${serviceName}: service.image must reference contract.images.";
-          }
           {
             assertion = builtins.all (
               dependency: dependency != serviceName && builtins.elem dependency serviceNames
@@ -704,24 +566,9 @@ let
           }
           {
             assertion =
-              !releaseManaged service
-              || (
-                releaseChannelFor app != null
-                && lib.hasSuffix ":${(releaseChannelFor app).tag}" (imageRefFor app service)
-              );
-            message = "homelab.apps.${appName}.${serviceName}: manual image refs must end with the admitted release channel tag.";
-          }
-          {
-            assertion =
-              service.updatePolicy != "pinned-digest"
-              || builtins.match ".*@sha256:[0-9a-f]{64}$" (imageRefFor app service) != null;
-            message = "homelab.apps.${appName}.${serviceName}: pinned-digest image refs must end with @sha256:<64 lowercase hex>.";
-          }
-          {
-            assertion = builtins.elem "${unitPrefixFor app}-${serviceName}" (
-              (quadletContainerFor app serviceName service).value.containerConfig.networkAliases
-            );
-            message = "homelab.apps.${appName}.${serviceName}: generated container must declare its network DNS alias.";
+              releaseChannelFor app != null
+              && lib.hasSuffix ":${(releaseChannelFor app).tag}" (imageRefFor app service);
+            message = "homelab.apps.${appName}.${serviceName}: image refs must end with the admitted release channel tag.";
           }
         ]
         ++ map (envName: {
@@ -736,10 +583,9 @@ let
     );
 
   domainList = mapAttrsToList (_appName: app: app.host.domain) enabledApps;
-  caddyPorts = mapAttrsToList (_appName: app: caddyPortFor app) enabledApps;
   unitPrefixes = mapAttrsToList (_appName: app: unitPrefixFor app) enabledApps;
-  v2SubnetIds = builtins.filter (id: id != null) (
-    mapAttrsToList (_appName: app: if isV2 app then app.host.subnetId else null) enabledApps
+  subnetIds = builtins.filter (id: id != null) (
+    mapAttrsToList (_appName: app: app.host.subnetId) enabledApps
   );
   serviceLoopbackPorts = flatten (
     mapAttrsToList (_appName: app: servicePortClaimsForApp app) enabledApps
@@ -766,244 +612,211 @@ in
       '';
     };
 
-    registryAuths = mkOption {
-      type = types.attrsOf (
-        types.submodule {
-          options.authFile = mkOption {
-            type = types.str;
-            description = "Runtime path to a Podman auth.json file.";
-          };
-        }
-      );
-      default = { };
-      description = "Named registry auth files available to homelab app containers.";
-    };
-
     apps = mkOption {
       type = types.attrsOf (
         types.submodule {
           options = {
             enable = mkEnableOption "homelab app container admission";
 
-            runtimeContractSourceSha256 = mkOption {
-              type = types.nullOr types.str;
-              default = null;
-              description = "SHA-256 of the app-owned runtime contract source (schemaVersion 1 only).";
-            };
-
-            homelabAdmissionSourceSha256 = mkOption {
-              type = types.nullOr types.str;
-              default = null;
-              description = "SHA-256 of the pinned app-owned homelab admission source (schemaVersion 1 only).";
-            };
-
-            manifestSchemaSourceSha256 = mkOption {
-              type = types.nullOr types.str;
-              default = null;
-              description = "SHA-256 of the pinned app-owned release manifest schema (schemaVersion 1 only).";
-            };
-
-            manifestGeneratorSourceSha256 = mkOption {
-              type = types.nullOr types.str;
-              default = null;
-              description = "SHA-256 of the pinned app-owned release manifest generator (schemaVersion 1 only).";
-            };
-
             contract = mkOption {
-              type = types.submodule {
-                options = {
-                  name = mkOption { type = types.str; };
-                  channel = mkOption { type = types.str; };
-                  schemaVersion = mkOption {
-                    type = types.enum [
-                      1
-                      2
-                    ];
-                    default = 1;
-                    description = "Contract schema version. v2 admits releases by digest only and enables the PORT, needs.postgres and needs.ollama platform conventions.";
-                  };
-                  needs = mkOption {
-                    type = types.submodule {
-                      options.postgres = mkOption {
-                        type = types.bool;
-                        default = false;
-                        description = "Provision a role/database on the shared host PostgreSQL and inject DATABASE_URL (schemaVersion 2 only).";
-                      };
-                      options.ollama.models = mkOption {
-                        type = types.listOf types.str;
-                        default = [ ];
-                        description = "Ollama models pulled on the shared host server; a non-empty list injects OLLAMA_URL (schemaVersion 2 only).";
-                      };
+              type = types.submodule (
+                { config, ... }:
+                let
+                  contractCfg = config;
+                in
+                {
+                  options = {
+                    name = mkOption { type = types.str; };
+                    channel = mkOption { type = types.str; };
+                    schemaVersion = mkOption {
+                      type = types.enum [ 2 ];
+                      default = 2;
+                      description = "Contract schema version (digest-only v2).";
                     };
-                    default = { };
-                  };
-                  images = mkOption { type = types.attrsOf types.str; };
-                  services = mkOption {
-                    type = types.attrsOf (
-                      types.submodule {
-                        options = {
-                          image = mkOption { type = types.str; };
-                          internalPort = mkOption {
-                            type = types.port;
-                            default = 3000;
+                    needs = mkOption {
+                      type = types.submodule {
+                        options.postgres = mkOption {
+                          type = types.bool;
+                          default = false;
+                          description = "Provision a role/database on the shared host PostgreSQL and inject DATABASE_URL.";
+                        };
+                        options.ollama.models = mkOption {
+                          type = types.listOf types.str;
+                          default = [ ];
+                          description = "Ollama models pulled on the shared host server; a non-empty list injects OLLAMA_URL.";
+                        };
+                      };
+                      default = { };
+                    };
+                    images = mkOption { type = types.attrsOf types.str; };
+                    services = mkOption {
+                      type = types.attrsOf (
+                        types.submodule {
+                          options = {
+                            image = mkOption {
+                              type = types.enum (builtins.attrNames contractCfg.images);
+                            };
+                            internalPort = mkOption {
+                              type = types.port;
+                              default = 3000;
+                            };
+                            healthPath = mkOption {
+                              type = types.nullOr types.str;
+                              default = null;
+                            };
+                            dependsOn = mkOption {
+                              type = types.listOf types.str;
+                              default = [ ];
+                            };
+                            readiness = mkOption {
+                              type = types.nullOr (
+                                types.submodule {
+                                  options = {
+                                    command = mkOption { type = types.listOf types.str; };
+                                    interval = mkOption { type = types.str; };
+                                    retries = mkOption { type = types.ints.positive; };
+                                    timeout = mkOption { type = types.str; };
+                                  };
+                                }
+                              );
+                              default = null;
+                            };
+                            env = mkOption {
+                              type = types.attrsOf types.str;
+                              default = { };
+                            };
+                            requiredSecretEnv = mkOption {
+                              type = types.listOf types.str;
+                              default = [ ];
+                            };
+                            updatePolicy = mkOption {
+                              type = types.enum [ "manual" ];
+                              default = "manual";
+                            };
+                            volumeMounts = mkOption {
+                              type = types.listOf (
+                                types.submodule {
+                                  options = {
+                                    volume = mkOption { type = types.str; };
+                                    mountPath = mkOption { type = types.str; };
+                                    readOnly = mkOption {
+                                      type = types.bool;
+                                      default = false;
+                                    };
+                                  };
+                                }
+                              );
+                              default = [ ];
+                            };
                           };
-                          healthPath = mkOption {
+                        }
+                      );
+                    };
+                    routes = mkOption {
+                      type = types.listOf (
+                        types.submodule {
+                          options = {
+                            host = mkOption { type = types.str; };
+                            path = mkOption { type = types.str; };
+                            service = mkOption {
+                              type = types.enum (builtins.attrNames contractCfg.services);
+                            };
+                          };
+                        }
+                      );
+                    };
+                    migrations = mkOption {
+                      type = types.submodule {
+                        options = {
+                          mode = mkOption {
+                            type = types.enum [
+                              "none"
+                              "manual"
+                            ];
+                            default = "none";
+                          };
+                          service = mkOption {
                             type = types.nullOr types.str;
                             default = null;
                           };
-                          dependsOn = mkOption {
+                          command = mkOption {
                             type = types.listOf types.str;
                             default = [ ];
                           };
-                          readiness = mkOption {
-                            type = types.nullOr (
-                              types.submodule {
-                                options = {
-                                  command = mkOption { type = types.listOf types.str; };
-                                  interval = mkOption { type = types.str; };
-                                  retries = mkOption { type = types.ints.positive; };
-                                  timeout = mkOption { type = types.str; };
-                                };
-                              }
-                            );
+                        };
+                      };
+                      default = { };
+                    };
+                    release = mkOption {
+                      type = types.submodule {
+                        options = {
+                          versioning = mkOption {
+                            type = types.enum [ "external" ];
+                            default = "external";
+                          };
+                          manifestUrl = mkOption {
+                            type = types.nullOr types.str;
                             default = null;
                           };
-                          env = mkOption {
-                            type = types.attrsOf types.str;
-                            default = { };
-                          };
-                          requiredSecretEnv = mkOption {
-                            type = types.listOf types.str;
-                            default = [ ];
-                          };
-                          updatePolicy = mkOption {
-                            type = types.enum [
-                              "manual"
-                              "registry-auto"
-                              "pinned-digest"
-                            ];
-                          };
-                          volumeMounts = mkOption {
-                            type = types.listOf (
+                          channels = mkOption {
+                            type = types.attrsOf (
                               types.submodule {
                                 options = {
-                                  volume = mkOption { type = types.str; };
-                                  mountPath = mkOption { type = types.str; };
-                                  readOnly = mkOption {
-                                    type = types.bool;
-                                    default = false;
+                                  tag = mkOption { type = types.str; };
+                                  mode = mkOption {
+                                    type = types.enum [
+                                      "manual"
+                                      "auto"
+                                      "approved"
+                                    ];
+                                    default = "manual";
+                                  };
+                                  targetPattern = mkOption {
+                                    type = types.str;
+                                    description = "Anchored regular expression for release targets admitted to this channel.";
+                                  };
+                                  strategy = mkOption {
+                                    type = types.enum [ "coordinated" ];
+                                    default = "coordinated";
+                                  };
+                                  smokePaths = mkOption {
+                                    type = types.listOf types.str;
+                                    default = [ ];
+                                  };
+                                  migrate = mkOption {
+                                    type = types.enum [
+                                      "none"
+                                      "manual"
+                                    ];
+                                    default = "none";
                                   };
                                 };
                               }
                             );
-                            default = [ ];
+                            default = { };
                           };
                         };
-                      }
-                    );
-                  };
-                  routes = mkOption {
-                    type = types.listOf (
-                      types.submodule {
-                        options = {
-                          host = mkOption { type = types.str; };
-                          path = mkOption { type = types.str; };
-                          service = mkOption { type = types.str; };
-                        };
-                      }
-                    );
-                  };
-                  migrations = mkOption {
-                    type = types.submodule {
-                      options = {
-                        mode = mkOption {
-                          type = types.enum [
-                            "none"
-                            "manual"
-                          ];
-                          default = "none";
-                        };
-                        service = mkOption {
-                          type = types.nullOr types.str;
-                          default = null;
-                        };
-                        command = mkOption {
-                          type = types.listOf types.str;
-                          default = [ ];
-                        };
                       };
+                      default = { };
                     };
-                    default = { };
-                  };
-                  release = mkOption {
-                    type = types.submodule {
-                      options = {
-                        versioning = mkOption {
-                          type = types.enum [ "external" ];
-                          default = "external";
-                        };
-                        manifestUrl = mkOption {
-                          type = types.nullOr types.str;
-                          default = null;
-                        };
-                        channels = mkOption {
-                          type = types.attrsOf (
-                            types.submodule {
-                              options = {
-                                tag = mkOption { type = types.str; };
-                                mode = mkOption {
-                                  type = types.enum [
-                                    "manual"
-                                    "auto"
-                                    "approved"
-                                  ];
-                                  default = "manual";
-                                };
-                                targetPattern = mkOption {
-                                  type = types.str;
-                                  description = "Anchored regular expression for release targets admitted to this channel.";
-                                };
-                                strategy = mkOption {
-                                  type = types.enum [ "coordinated" ];
-                                  default = "coordinated";
-                                };
-                                smokePaths = mkOption {
-                                  type = types.listOf types.str;
-                                  default = [ ];
-                                };
-                                migrate = mkOption {
-                                  type = types.enum [
-                                    "none"
-                                    "manual"
-                                  ];
-                                  default = "none";
-                                };
-                              };
-                            }
-                          );
-                          default = { };
-                        };
-                      };
+                    volumes = mkOption {
+                      type = types.attrsOf (
+                        types.submodule {
+                          options.notes = mkOption {
+                            type = types.str;
+                            default = "";
+                          };
+                        }
+                      );
+                      default = { };
                     };
-                    default = { };
+                    notes = mkOption {
+                      type = types.str;
+                      default = "";
+                    };
                   };
-                  volumes = mkOption {
-                    type = types.attrsOf (
-                      types.submodule {
-                        options.notes = mkOption {
-                          type = types.str;
-                          default = "";
-                        };
-                      }
-                    );
-                    default = { };
-                  };
-                  notes = mkOption {
-                    type = types.str;
-                    default = "";
-                  };
-                };
-              };
+                }
+              );
             };
 
             host = {
@@ -1015,23 +828,15 @@ in
                 type = types.port;
                 description = "First host loopback port assigned to app service containers.";
               };
-              caddyPort = mkOption {
-                type = types.nullOr types.port;
-                default = null;
-              };
-              registryAuth = mkOption {
-                type = types.nullOr types.str;
-                default = null;
-              };
               postgresPasswordSecret = mkOption {
                 type = types.nullOr types.str;
                 default = null;
-                description = "sops secret holding this app's shared-PostgreSQL role password (schemaVersion 2 with needs.postgres).";
+                description = "sops secret holding this app's shared-PostgreSQL role password.";
               };
               subnetId = mkOption {
                 type = types.nullOr (types.ints.between 1 250);
                 default = null;
-                description = "Third octet of the v2 app bridge subnet 10.90.<id>.0/24; containers reach host services via the .1 gateway.";
+                description = "Third octet of the app bridge subnet 10.90.<id>.0/24; containers reach host services via the .1 gateway.";
               };
               releaseManifestOrigins = mkOption {
                 type = types.listOf types.str;
@@ -1047,20 +852,7 @@ in
                 default = { };
               };
               volumes = mkOption {
-                type = types.attrsOf (
-                  types.submodule {
-                    options = {
-                      backup = mkOption {
-                        type = types.bool;
-                        default = false;
-                      };
-                      class = mkOption {
-                        type = types.str;
-                        default = "local-podman";
-                      };
-                    };
-                  }
-                );
+                type = types.attrsOf (types.submodule { options = { }; });
                 default = { };
               };
             };
@@ -1083,18 +875,12 @@ in
         message = "homelab.apps entries must use unique host.domain values.";
       }
       {
-        assertion =
-          unique serviceLoopbackPorts == serviceLoopbackPorts
-          && builtins.all (port: !(builtins.elem port caddyPorts)) serviceLoopbackPorts;
-        message = "homelab.apps entries must use unique service loopback ports, and service ports must not collide with host.caddyPort.";
-      }
-      {
         assertion = unique unitPrefixes == unitPrefixes;
         message = "homelab.apps entries must render unique <name>-<channel> unit prefixes.";
       }
       {
-        assertion = unique v2SubnetIds == v2SubnetIds;
-        message = "homelab.apps v2 entries must use unique host.subnetId values.";
+        assertion = unique subnetIds == subnetIds;
+        message = "homelab.apps entries must use unique host.subnetId values.";
       }
     ]
     ++ flatten (mapAttrsToList assertionsForApp enabledApps);
@@ -1102,19 +888,14 @@ in
     sops.secrets = sopsSecrets;
     sops.templates = sopsTemplates;
 
-    services.caddy = {
-      enable = true;
-      virtualHosts = caddyVirtualHosts;
-    };
-
-    services.cloudflared.tunnels.${cloudflareTunnelId}.ingress = appIngress;
+    homelab.publicRoutes = appPublicRoutes;
+    homelab.reservedLoopbackPorts = serviceLoopbackPorts;
 
     networking.firewall.interfaces = appDnsFirewallInterfaces;
 
     virtualisation.quadlet = {
       networks = quadletNetworks;
       volumes = quadletVolumes;
-      images = quadletImages;
       containers = quadletContainers;
     };
 
@@ -1127,10 +908,7 @@ in
 
     security.sudo.extraRules = [
       {
-        users = [
-          myOptions.userName
-          "github-runner-homelab"
-        ];
+        users = [ "github-runner-homelab" ];
         runAs = "root";
         commands =
           let
@@ -1150,6 +928,7 @@ in
 
     systemd.tmpfiles.rules = [
       "d /var/lib/homelab-appctl 0750 root root - -"
+      "d /run/homelab-appctl 0750 root root - -"
     ];
   };
 }

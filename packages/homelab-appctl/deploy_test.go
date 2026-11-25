@@ -11,8 +11,16 @@ import (
 	"testing"
 )
 
-// E2E 스텁: podman/systemctl을 PATH 스텁으로 바꿔 전체 deploy 트랜잭션을
-// 검증한다 (성공 → no-op → migration 실패 복구).
+func readSummary(t *testing.T, dir string) deploySummary {
+	t.Helper()
+	var s deploySummary
+	data := readFile(t, filepath.Join(dir, "summary.json"))
+	if err := json.Unmarshal([]byte(data), &s); err != nil {
+		t.Fatalf("parse summary.json: %v", err)
+	}
+	return s
+}
+
 func TestDeployTransactionWithStubs(t *testing.T) {
 	if os.Geteuid() == 0 {
 		t.Skip("stub transaction test must run unprivileged")
@@ -24,6 +32,7 @@ func TestDeployTransactionWithStubs(t *testing.T) {
 	stubState := filepath.Join(work, "stub-state")
 	stubLog := filepath.Join(work, "commands.log")
 	manifestDir := filepath.Join(work, "manifests")
+	migrateCapture := filepath.Join(work, "migrate-image.txt")
 	for _, dir := range []string{binDir, stateDir, filepath.Join(metaDir, "deopjib"), stubState, manifestDir} {
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			t.Fatal(err)
@@ -44,7 +53,7 @@ case "$1" in
       *backend:dev-current) cat "$STUB_STATE/backend" 2>/dev/null || true ;;
       *web:dev-current) cat "$STUB_STATE/web" 2>/dev/null || true ;;
       *@sha256:*) printf 'digest-id\n' ;;
-      *) printf 'db-pinned\n' ;;
+      *) exit 1 ;;
     esac
     ;;
   pull) : ;;
@@ -62,12 +71,13 @@ case "$1" in
 esac
 `)
 	writeStub("systemctl", `echo "systemctl $*" >> "$STUB_LOG"
-if [ "$1" = start ] && [ "${STUB_FAIL_MIGRATION:-0}" = 1 ]; then
-  exit 1
+if [ "$1" = start ]; then
+  cat "$HOMELAB_APPCTL_STATE_ROOT/run/deopjib-dev-migrate.image" > "$MIGRATE_CAPTURE" 2>/dev/null || true
+  if [ "${STUB_FAIL_MIGRATION:-0}" = 1 ]; then
+    exit 1
+  fi
 fi
 exit 0
-`)
-	writeStub("sha256sum", `exit 0
 `)
 
 	smoke := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -76,8 +86,7 @@ exit 0
 	defer smoke.Close()
 
 	writeManifest := func(target string) {
-		manifest := v1Manifest(target)
-		data, err := json.Marshal(manifest)
+		data, err := json.Marshal(v2Manifest(target))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -88,26 +97,22 @@ exit 0
 	writeManifest("deopjib-v1.0.0")
 	writeManifest("deopjib-v1.0.1")
 
-	meta := v1Metadata()
-	meta.AppKey = "deopjib"
-	meta.UnitPrefix = "deopjib-dev"
-	meta.Domain = "dev.deopjib.site"
+	meta := v2Metadata()
 	meta.CaddyURL = smoke.URL
-	meta.SmokePaths = []string{"/health"}
 	meta.Migration = MigrationMeta{Mode: "manual", Service: "backend", Unit: "deopjib-dev-migrate.service", Command: []string{"/app/bin/migrate"}}
 	meta.Release.ManifestURL = "file://" + manifestDir + "/{target}.json"
 	metaBytes, err := json.Marshal(meta)
 	if err != nil {
 		t.Fatal(err)
 	}
-	metaPath := filepath.Join(metaDir, "deopjib", "dev.json")
-	if err := os.WriteFile(metaPath, metaBytes, 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(metaDir, "deopjib", "dev.json"), metaBytes, 0o644); err != nil {
 		t.Fatal(err)
 	}
 
 	t.Setenv("PATH", binDir+":"+os.Getenv("PATH"))
 	t.Setenv("STUB_LOG", stubLog)
 	t.Setenv("STUB_STATE", stubState)
+	t.Setenv("MIGRATE_CAPTURE", migrateCapture)
 	t.Setenv("HOMELAB_APPCTL_METADATA_ROOT", metaDir)
 	t.Setenv("HOMELAB_APPCTL_STATE_ROOT", stateDir)
 	t.Setenv("HOMELAB_APPCTL_TEST_ALLOW_FILE_URL", "1")
@@ -119,77 +124,85 @@ exit 0
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	// 1. 성공 트랜잭션.
-	if err := cmdDeploy(loaded, "deopjib", "dev", "deopjib-v1.0.0"); err != nil {
-		t.Fatalf("deploy failed: %v", err)
-	}
 	latest := filepath.Join(stateDir, "deopjib", "dev", "latest")
-	result, _ := os.ReadFile(filepath.Join(latest, "result"))
-	if strings.TrimSpace(string(result)) != "ok" {
-		t.Fatalf("expected ok result, got %q", result)
-	}
-	log := readFile(t, stubLog)
-	if got := strings.Count(log, "systemctl restart"); got != 1 {
-		t.Fatalf("expected exactly one restart transaction, got %d\n%s", got, log)
-	}
-	if !strings.Contains(log, "systemctl restart deopjib-dev-backend.service deopjib-dev-web.service") {
-		t.Fatalf("release units not restarted together:\n%s", log)
-	}
-	if strings.Contains(log, "deopjib-dev-db.service") {
-		t.Fatalf("pinned database service touched:\n%s", log)
-	}
-	if got := strings.Count(log, "systemctl start deopjib-dev-migrate.service"); got != 1 {
-		t.Fatalf("expected exactly one migration start, got %d", got)
-	}
-	if got := strings.Count(log, "podman pull"); got != 2 {
-		t.Fatalf("expected 2 pulls, got %d", got)
-	}
 
-	// 2. 같은 target 재요청은 no-op.
-	before := readFile(t, stubLog)
-	if err := cmdDeploy(loaded, "deopjib", "dev", "deopjib-v1.0.0"); err != nil {
-		t.Fatalf("no-op deploy failed: %v", err)
-	}
-	if readFile(t, stubLog) != before {
-		t.Fatalf("no-op deploy executed commands")
-	}
+	t.Run("success_migrates_by_digest_before_tag", func(t *testing.T) {
+		if err := cmdDeploy(loaded, "deopjib", "dev", "deopjib-v1.0.0"); err != nil {
+			t.Fatalf("deploy failed: %v", err)
+		}
+		summary := readSummary(t, latest)
+		if summary.Result != "ok" || summary.Target != "deopjib-v1.0.0" {
+			t.Fatalf("unexpected summary: %+v", summary)
+		}
+		if got := strings.TrimSpace(readFile(t, migrateCapture)); got != "ghcr.io/x/backend@sha256:"+hexA {
+			t.Fatalf("migration did not receive exact digest: %q", got)
+		}
+		log := readFile(t, stubLog)
+		migIdx := strings.Index(log, "systemctl start deopjib-dev-migrate.service")
+		tagIdx := strings.Index(log, "podman tag ")
+		if migIdx < 0 || tagIdx < 0 || migIdx > tagIdx {
+			t.Fatalf("expected migration before podman tag:\n%s", log)
+		}
+		if got := strings.Count(log, "systemctl restart"); got != 1 {
+			t.Fatalf("expected one restart transaction, got %d\n%s", got, log)
+		}
+		if !strings.Contains(log, "systemctl restart deopjib-dev-backend.service deopjib-dev-web.service") {
+			t.Fatalf("release units not restarted together:\n%s", log)
+		}
+		if got := strings.Count(log, "podman pull"); got != 2 {
+			t.Fatalf("expected 2 pulls, got %d", got)
+		}
+	})
 
-	// 2b. 존재하지 않는 target 실패가 정상 가동 중인 latest를 덮어쓰지 않아야 한다.
-	if err := cmdDeploy(loaded, "deopjib", "dev", "deopjib-v9.9.9"); err == nil {
-		t.Fatalf("missing manifest unexpectedly succeeded")
-	} else if !strings.Contains(err.Error(), "no such file") {
-		t.Fatalf("expected wrapped download error, got: %v", err)
-	}
-	if err := cmdDeploy(loaded, "deopjib", "dev", "deopjib-v1.0.0"); err != nil {
-		t.Fatalf("no-op deploy after failed download failed: %v", err)
-	}
-	if readFile(t, stubLog) != before {
-		t.Fatalf("failed download broke no-op detection on running target")
-	}
+	t.Run("noop_same_target", func(t *testing.T) {
+		before := readFile(t, stubLog)
+		if err := cmdDeploy(loaded, "deopjib", "dev", "deopjib-v1.0.0"); err != nil {
+			t.Fatalf("no-op deploy failed: %v", err)
+		}
+		if readFile(t, stubLog) != before {
+			t.Fatalf("no-op deploy executed commands")
+		}
+	})
 
-	// 3. migration 실패 시 이전 태그 복원.
-	previousBackend := readFile(t, filepath.Join(stubState, "backend"))
-	previousWeb := readFile(t, filepath.Join(stubState, "web"))
-	t.Setenv("STUB_FAIL_MIGRATION", "1")
-	if err := cmdDeploy(loaded, "deopjib", "dev", "deopjib-v1.0.1"); err == nil {
-		t.Fatalf("migration failure unexpectedly succeeded")
-	}
-	t.Setenv("STUB_FAIL_MIGRATION", "0")
-	result, _ = os.ReadFile(filepath.Join(latest, "result"))
-	if strings.TrimSpace(string(result)) != "migration-failed" {
-		t.Fatalf("expected migration-failed, got %q", result)
-	}
-	if readFile(t, filepath.Join(stubState, "backend")) != previousBackend {
-		t.Fatalf("backend tag not restored after migration failure")
-	}
-	if readFile(t, filepath.Join(stubState, "web")) != previousWeb {
-		t.Fatalf("web tag not restored after migration failure")
-	}
+	t.Run("failed_download_preserves_running_latest", func(t *testing.T) {
+		before := readFile(t, stubLog)
+		if err := cmdDeploy(loaded, "deopjib", "dev", "deopjib-v9.9.9"); err == nil {
+			t.Fatalf("missing manifest unexpectedly succeeded")
+		} else if !strings.Contains(err.Error(), "no such file") {
+			t.Fatalf("expected wrapped download error, got: %v", err)
+		}
+		if err := cmdDeploy(loaded, "deopjib", "dev", "deopjib-v1.0.0"); err != nil {
+			t.Fatalf("no-op deploy after failed download failed: %v", err)
+		}
+		if readFile(t, stubLog) != before {
+			t.Fatalf("failed download broke no-op detection on running target")
+		}
+	})
+
+	t.Run("migration_failure_leaves_current_tags_untouched", func(t *testing.T) {
+		previousBackend := readFile(t, filepath.Join(stubState, "backend"))
+		previousWeb := readFile(t, filepath.Join(stubState, "web"))
+		logBefore := readFile(t, stubLog)
+		t.Setenv("STUB_FAIL_MIGRATION", "1")
+		if err := cmdDeploy(loaded, "deopjib", "dev", "deopjib-v1.0.1"); err == nil {
+			t.Fatalf("migration failure unexpectedly succeeded")
+		}
+		t.Setenv("STUB_FAIL_MIGRATION", "0")
+		summary := readSummary(t, latest)
+		if summary.Result != "migration-failed" {
+			t.Fatalf("expected migration-failed, got %q", summary.Result)
+		}
+		newLog := strings.TrimPrefix(readFile(t, stubLog), logBefore)
+		if strings.Contains(newLog, "podman tag ") {
+			t.Fatalf("podman tag ran despite migration failure:\n%s", newLog)
+		}
+		if readFile(t, filepath.Join(stubState, "backend")) != previousBackend ||
+			readFile(t, filepath.Join(stubState, "web")) != previousWeb {
+			t.Fatalf("current tags changed after migration failure")
+		}
+	})
 }
 
-// 첫 배포 실패 복구가 같은 이미지를 쓰는 다른 채널의 태그를 지우지 않는다.
-// 스텁은 podman처럼 이름 없는 untag를 모든 이름 삭제로 다룬다.
 func TestRestoreFirstDeployKeepsOtherChannelTag(t *testing.T) {
 	binDir := t.TempDir()
 	names := filepath.Join(t.TempDir(), "names")
@@ -225,8 +238,6 @@ esac
 	}
 }
 
-// prune은 다른 채널이 아직 태그로 가리키는 옛 이미지를 지우지 않고 태그 없는 옛 릴리스만
-// 최근 keepImageIDs개를 넘으면 지운다. 스텁 출력은 podman images 기본 정렬(최신 먼저)이다.
 func TestPruneKeepsOtherChannelImage(t *testing.T) {
 	binDir := t.TempDir()
 	removed := filepath.Join(t.TempDir(), "removed")
@@ -241,9 +252,10 @@ esac
 		t.Fatal(err)
 	}
 	t.Setenv("PATH", binDir+":"+os.Getenv("PATH"))
+	t.Setenv("HOMELAB_APPCTL_STATE_ROOT", t.TempDir())
 	t.Setenv("REMOVED", removed)
 
-	pruneReleaseImages([]DesiredImage{{Service: "backend", ImageName: "ghcr.io/example/app-backend"}})
+	pruneUntaggedImages([]string{"ghcr.io/example/app-backend"})
 
 	if got := readFile(t, removed); got != "u4\n" {
 		t.Fatalf("expected only u4 removed, got %q", got)
@@ -274,7 +286,6 @@ func TestPruneDeployRecords(t *testing.T) {
 	if len(records) != keepDeployRecords {
 		t.Fatalf("expected %d records kept, got %d", keepDeployRecords, len(records))
 	}
-	// 최신 레코드가 남아 있어야 한다.
 	newest := fmt.Sprintf("20260828T%06dZ.aaaaaa", keepDeployRecords+2)
 	if _, err := os.Stat(filepath.Join(dir, newest)); err != nil {
 		t.Fatalf("newest record was pruned")

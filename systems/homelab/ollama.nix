@@ -14,23 +14,19 @@ let
     unique
     ;
 
-  enabledApps = filterAttrs (_: app: app.enable) config.homelab.apps;
-  ollamaAppList = builtins.attrValues (
-    filterAttrs (
-      _: app: app.contract.schemaVersion == 2 && app.contract.needs.ollama.models != [ ]
-    ) enabledApps
-  );
+  conventions = import ./app-conventions.nix { inherit lib; };
+  inherit (conventions) bridgeInterfaceFor usesSharedOllama;
 
-  # app-containers.nix와 같은 규약: 앱 브리지는 br-<name>-<channel>.
-  bridgeFor = app: "br-${app.contract.name}-${app.contract.channel}";
+  enabledApps = filterAttrs (_: app: app.enable) config.homelab.apps;
+  ollamaAppList = builtins.attrValues (filterAttrs (_: usesSharedOllama) enabledApps);
 in
 {
   options.homelab.ollama.enable = mkOption {
     type = types.bool;
     default = ollamaAppList != [ ];
-    defaultText = lib.literalMD "`true` when any admitted v2 app lists `needs.ollama.models`";
+    defaultText = lib.literalMD "`true` when any admitted app lists `needs.ollama.models`";
     description = ''
-      Shared Ollama server on the Radeon iGPU (Vulkan) for v2 apps. Models load on
+      Shared Ollama server on the Radeon iGPU (Vulkan) for admitted apps. Models load on
       request and unload when idle, so the server costs no memory between requests.
     '';
   };
@@ -42,18 +38,14 @@ in
     services.ollama = {
       enable = true;
       package = pkgs.ollama-vulkan;
-      # listen은 0.0.0.0이지만 방화벽이 앱 브리지 인터페이스에만 포트를 연다.
       host = "0.0.0.0";
       port = 11434;
       loadModels = unique (concatMap (app: app.contract.needs.ollama.models) ollamaAppList);
-      # 계약에서 빠진 모델은 지워서 디스크에 쌓이지 않게 한다.
       syncModels = true;
       environmentVariables = {
         OLLAMA_VULKAN = "1";
         OLLAMA_IGPU_ENABLE = "1";
-        # 요청이 끝나고 2분 뒤 모델을 내려 평소에는 iGPU/RAM을 비운다.
         OLLAMA_KEEP_ALIVE = "2m";
-        # 한 앱의 처리 단계(예: OCR → 텍스트 모델)가 서로를 내리고 다시 올리지 않게 한다.
         OLLAMA_MAX_LOADED_MODELS = toString (
           lib.foldl' lib.max 1 (map (app: lib.length app.contract.needs.ollama.models) ollamaAppList)
         );
@@ -66,7 +58,7 @@ in
 
     networking.firewall.interfaces = builtins.listToAttrs (
       map (app: {
-        name = bridgeFor app;
+        name = bridgeInterfaceFor app;
         value.allowedTCPPorts = [ config.services.ollama.port ];
       }) ollamaAppList
     );

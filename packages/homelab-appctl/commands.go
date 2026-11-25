@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -13,7 +14,10 @@ func cmdList() error {
 	root := metadataRoot()
 	entries, err := os.ReadDir(root)
 	if err != nil {
-		return nil
+		if errors.Is(err, os.ErrNotExist) {
+			return nil
+		}
+		return err
 	}
 	var paths []string
 	for _, entry := range entries {
@@ -22,6 +26,7 @@ func cmdList() error {
 		}
 		files, err := os.ReadDir(filepath.Join(root, entry.Name()))
 		if err != nil {
+			fmt.Fprintf(os.Stderr, "warning: cannot read %s: %v\n", entry.Name(), err)
 			continue
 		}
 		for _, file := range files {
@@ -36,6 +41,7 @@ func cmdList() error {
 		channel := filepath.Base(path[:len(path)-len(".json")])
 		meta, err := loadMetadata(app, channel)
 		if err != nil {
+			fmt.Fprintf(os.Stderr, "warning: skipping %s: %v\n", path, err)
 			continue
 		}
 		fmt.Printf("%s\t%s\t%s\t%s\n", meta.Name, meta.Channel, meta.Domain, meta.UnitPrefix)

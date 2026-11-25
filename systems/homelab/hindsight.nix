@@ -1,18 +1,6 @@
-# Hindsight — 코딩 에이전트(Claude Code, Codex, pi)가 공유하는 메모리 서버.
-# 공개 노출은 Caddy(loopback) → cloudflared 경유만 허용하고, 인증은 Hindsight API 키다.
-# 코딩 에이전트 클라이언트가 Authorization 헤더만 보낼 수 있어 CF Access는 걸지 않는다.
-#
-# 구성: API 컨테이너 + 공유 PostgreSQL(pgvector)
-#       + llama.cpp 임베딩(KURE-v3, Vulkan) + 차원 절단 프록시
-#       + llama.cpp 리랭커(KURE-Reranker-nano, Vulkan). LLM은 OpenRouter.
-#
-# 2단계 활성화 (새 sops secret과 소비 서비스를 한 switch에 넣으면 243/CREDENTIALS로 실패):
-#   1. enable — secret·DB·임베딩·라우팅만 배포
-#   2. server.enable — secret을 읽는 DB 설정 oneshot과 API 컨테이너
-#
-# 대시보드(Control Plane)는 beszel과 같은 경로로 노출한다:
-# Caddy(loopback) → cloudflared → Cloudflare Access. API 키는 대시보드 컨테이너만 갖고
-# 브라우저에는 내려가지 않으므로, 이 호스트명은 Access 앱이 있어야만 열어도 된다.
+# Hindsight: 공개 노출은 Caddy(loopback) → cloudflared 경유만 허용한다.
+# API는 코딩 에이전트가 Authorization 헤더만 보낼 수 있어 CF Access를 걸지 않고 API 키로 인증한다.
+# Control Plane(hindsight-ui)은 API 키가 컨테이너에만 있어 CF Access 앱이 있어야만 노출한다.
 {
   config,
   lib,
@@ -22,21 +10,17 @@
 let
   cfg = config.homelab.hindsight;
   domain = "hindsight.deopjib.cc";
-  # 앱 레인(loopbackPortBase 18100+, caddy 18099), beszel(18090-18091)과 겹치지 않는 로컬 포트.
-  caddyPort = 18092;
+  dashboardDomain = "hindsight-ui.deopjib.cc";
   apiPort = 18093;
   embeddingPort = 18094;
   llamaPort = 18095;
-  dashboardDomain = "hindsight-ui.deopjib.cc";
-  dashboardCaddyPort = 18096;
   dashboardPort = 18097;
   rerankerPort = 18098;
 
-  # 태그는 움직일 수 있으므로 digest로 고정한다 (hindsight-api:1.3.0, 멀티 아키텍처 인덱스).
+  hindsightVersion = "1.3.0";
   # slim 전환은 1.3.0 안정화 검증 후 별도 단계로 분리한다.
-  image = "ghcr.io/vectorize-io/hindsight-api@sha256:c054765e9196fb1fe63497be06bcb55256c9024cc9314f951dc59858985ab242";
-  # hindsight-control-plane:1.3.0. API와 같은 버전으로 맞춘다.
-  dashboardImage = "ghcr.io/vectorize-io/hindsight-control-plane@sha256:df58ce2597e837f359684cfe0e004aaa93bbb89983f1f1b8bd2cab881b457554";
+  image = "ghcr.io/vectorize-io/hindsight-api:${hindsightVersion}@sha256:c054765e9196fb1fe63497be06bcb55256c9024cc9314f951dc59858985ab242";
+  dashboardImage = "ghcr.io/vectorize-io/hindsight-control-plane:${hindsightVersion}@sha256:df58ce2597e837f359684cfe0e004aaa93bbb89983f1f1b8bd2cab881b457554";
 
   # KURE-v3는 2,048차원 Matryoshka 모델이다. 1,024차원으로 잘라 쓴다(docs/adr/0001).
   # 차원을 바꾸면 저장된 벡터를 전부 다시 임베딩해야 한다.
@@ -91,380 +75,349 @@ let
     '';
   };
 
+  retainInstructions = lib.strings.trim (builtins.readFile ./hindsight-retain-instructions.txt);
+  reflectMission = lib.strings.trim (builtins.readFile ./hindsight-reflect-mission.txt);
+
   secretsFile = ../../secrets/homelab/secrets.yaml;
 in
 {
-  options.homelab.hindsight = {
-    enable = lib.mkEnableOption "Hindsight memory server prerequisites (secrets, database, embeddings, routing)";
-    server.enable = lib.mkEnableOption "Hindsight API container (requires the sops secrets to be deployed first)";
-    dashboard.enable = lib.mkEnableOption "Hindsight Control Plane behind Caddy + cloudflared + CF Access (requires the env template to be deployed first)";
-  };
+  options.homelab.hindsight.enable = lib.mkEnableOption "Hindsight memory server, embedding stack, and Control Plane";
 
-  config = lib.mkMerge [
-    (lib.mkIf cfg.enable {
-      sops.secrets = {
-        HINDSIGHT_DB_PASSWORD.mode = "0400";
-        HINDSIGHT_API_KEY.mode = "0400";
-        OPENROUTER_API_KEY = {
-          sopsFile = secretsFile;
-          mode = "0400";
-        };
-      };
+  config = lib.mkIf cfg.enable {
+    hardware.graphics.enable = true;
 
-      sops.templates."hindsight.env" = {
-        content = ''
-          HINDSIGHT_API_DATABASE_URL=postgresql://hindsight:${config.sops.placeholder.HINDSIGHT_DB_PASSWORD}@127.0.0.1:5432/hindsight
-          HINDSIGHT_API_TENANT_API_KEY=${config.sops.placeholder.HINDSIGHT_API_KEY}
-          HINDSIGHT_API_LLM_API_KEY=${config.sops.placeholder.OPENROUTER_API_KEY}
-        '';
+    homelab.reservedLoopbackPorts = [
+      apiPort
+      embeddingPort
+      llamaPort
+      dashboardPort
+      rerankerPort
+    ];
+
+    homelab.publicRoutes = {
+      ${domain}.extraConfig = ''
+        respond /metrics 404
+        reverse_proxy 127.0.0.1:${toString apiPort}
+      '';
+      ${dashboardDomain}.extraConfig = ''
+        reverse_proxy 127.0.0.1:${toString dashboardPort}
+      '';
+    };
+
+    sops.secrets = {
+      HINDSIGHT_DB_PASSWORD.mode = "0400";
+      HINDSIGHT_API_KEY.mode = "0400";
+      OPENROUTER_API_KEY = {
+        sopsFile = secretsFile;
         mode = "0400";
-        # secret 값만 바뀌면 unit 정의는 그대로라 컨테이너가 옛 값을 계속 쓴다.
-        restartUnits = [ "hindsight.service" ];
       };
+    };
 
-      # 대시보드 컨테이너에는 API 키만 준다 (DB·LLM secret은 주지 않는다).
-      sops.templates."hindsight-control-plane.env" = {
-        content = ''
-          HINDSIGHT_CP_DATAPLANE_API_KEY=${config.sops.placeholder.HINDSIGHT_API_KEY}
-        '';
-        mode = "0400";
-        # restartUnits는 유닛이 있을 때만 건다. 없는 유닛을 넣으면 sops-install-secrets가
-        # try-restart 실패로 죽어 switch가 깨진다.
-        restartUnits = lib.optional (
-          cfg.server.enable && cfg.dashboard.enable
-        ) "hindsight-control-plane.service";
-      };
+    sops.templates."hindsight.env" = {
+      content = ''
+        HINDSIGHT_API_DATABASE_URL=postgresql://hindsight:${config.sops.placeholder.HINDSIGHT_DB_PASSWORD}@127.0.0.1:5432/hindsight
+        HINDSIGHT_API_TENANT_API_KEY=${config.sops.placeholder.HINDSIGHT_API_KEY}
+        HINDSIGHT_API_LLM_API_KEY=${config.sops.placeholder.OPENROUTER_API_KEY}
+      '';
+      mode = "0400";
+      restartUnits = [ "hindsight.service" ];
+    };
 
-      homelab.postgres.enable = true;
-      services.postgresql = {
-        extensions = ps: [ ps.pgvector ];
-        ensureDatabases = [ "hindsight" ];
-        ensureUsers = [
-          {
-            name = "hindsight";
-            ensureDBOwnership = true;
-          }
+    sops.templates."hindsight-control-plane.env" = {
+      content = ''
+        HINDSIGHT_CP_DATAPLANE_API_KEY=${config.sops.placeholder.HINDSIGHT_API_KEY}
+      '';
+      mode = "0400";
+      restartUnits = [ "hindsight-control-plane.service" ];
+    };
+
+    homelab.postgres.enable = true;
+    services.postgresql = {
+      extensions = ps: [ ps.pgvector ];
+      ensureDatabases = [ "hindsight" ];
+      ensureUsers = [
+        {
+          name = "hindsight";
+          ensureDBOwnership = true;
+        }
+      ];
+    };
+
+    systemd.services.hindsight-embedding = {
+      description = "llama.cpp embedding server for Hindsight (KURE-v3)";
+      wantedBy = [ "multi-user.target" ];
+      environment.XDG_CACHE_HOME = "/var/cache/hindsight-embedding";
+      serviceConfig = {
+        ExecStart = lib.escapeShellArgs [
+          "${config.services.llama-cpp.package}/bin/llama-server"
+          "--model"
+          embeddingModel
+          "--embeddings"
+          "--n-gpu-layers"
+          "99"
+          "--host"
+          "127.0.0.1"
+          "--port"
+          (toString llamaPort)
+          # 슬롯 2개 × 8,192 토큰 (모델 최대 입력 길이).
+          "--ctx-size"
+          "16384"
+          "--parallel"
+          "2"
         ];
+        DynamicUser = true;
+        CacheDirectory = "hindsight-embedding";
+        SupplementaryGroups = [
+          "render"
+          "video"
+        ];
+        Restart = "on-failure";
+        RestartSec = "5s";
       };
+    };
 
-      systemd.services.hindsight-embedding = {
-        description = "llama.cpp embedding server for Hindsight (KURE-v3)";
-        wantedBy = [ "multi-user.target" ];
-        environment.XDG_CACHE_HOME = "/var/cache/hindsight-embedding";
-        serviceConfig = {
-          ExecStart = lib.escapeShellArgs [
-            "${config.services.llama-cpp.package}/bin/llama-server"
-            "--model"
-            embeddingModel
-            "--embeddings"
-            "--n-gpu-layers"
-            "99"
-            "--host"
-            "127.0.0.1"
-            "--port"
-            (toString llamaPort)
-            # 슬롯 2개 × 8,192 토큰 (모델 최대 입력 길이).
-            "--ctx-size"
-            "16384"
-            "--parallel"
-            "2"
-          ];
-          DynamicUser = true;
-          CacheDirectory = "hindsight-embedding";
-          SupplementaryGroups = [
-            "render"
-            "video"
-          ];
-          Restart = "on-failure";
-          RestartSec = "5s";
-        };
+    systemd.services.hindsight-embedding-proxy = {
+      description = "Matryoshka truncation proxy in front of the Hindsight embedding server";
+      wantedBy = [ "multi-user.target" ];
+      after = [ "hindsight-embedding.service" ];
+      environment = {
+        UPSTREAM = "http://127.0.0.1:${toString llamaPort}";
+        LISTEN_PORT = toString embeddingPort;
       };
-
-      systemd.services.hindsight-embedding-proxy = {
-        description = "Matryoshka truncation proxy in front of the Hindsight embedding server";
-        wantedBy = [ "multi-user.target" ];
-        after = [ "hindsight-embedding.service" ];
-        environment = {
-          UPSTREAM = "http://127.0.0.1:${toString llamaPort}";
-          LISTEN_PORT = toString embeddingPort;
-        };
-        serviceConfig = {
-          ExecStart = "${pkgs.python3}/bin/python3 ${./hindsight-embedding-proxy.py}";
-          DynamicUser = true;
-          Restart = "on-failure";
-          RestartSec = "5s";
-        };
+      serviceConfig = {
+        ExecStart = "${pkgs.python3}/bin/python3 ${./hindsight-embedding-proxy.py}";
+        DynamicUser = true;
+        Restart = "on-failure";
+        RestartSec = "5s";
       };
+    };
 
-      systemd.services.hindsight-reranker = {
-        description = "llama.cpp reranker server for Hindsight (KURE-Reranker-nano)";
-        wantedBy = [ "multi-user.target" ];
-        onFailure = [ "hindsight-reranker-notify.service" ];
-        # RestartSec=5s에서는 기본 10초 창 안에 5회 실패에 도달하지 못해 failed 상태와
-        # OnFailure 알림이 영영 발동하지 않는다. 120초 창으로 크래시 루프를 감지한다.
-        startLimitIntervalSec = 120;
-        startLimitBurst = 5;
-        environment.XDG_CACHE_HOME = "/var/cache/hindsight-reranker";
-        serviceConfig = {
-          ExecStart = lib.escapeShellArgs [
-            "${config.services.llama-cpp.package}/bin/llama-server"
-            "--model"
-            rerankerModel
-            "--reranking"
-            "--pooling"
-            "rank"
-            "--n-gpu-layers"
-            "99"
-            "--host"
-            "127.0.0.1"
-            "--port"
-            (toString rerankerPort)
-            # 슬롯 2개 × 8,192 토큰 (ModernBERT 최대 입력 길이). 비인과 인코더는 단일 시퀀스를
-            # ubatch로 쪼갤 수 없어 batch/ubatch를 슬롯 길이와 맞춘다.
-            "--ctx-size"
-            "16384"
-            "--batch-size"
-            "8192"
-            "--ubatch-size"
-            "8192"
-            "--parallel"
-            "2"
-          ];
-          DynamicUser = true;
-          CacheDirectory = "hindsight-reranker";
-          SupplementaryGroups = [
-            "render"
-            "video"
-          ];
-          Restart = "on-failure";
-          RestartSec = "5s";
-        };
+    systemd.services.hindsight-reranker = {
+      description = "llama.cpp reranker server for Hindsight (KURE-Reranker-nano)";
+      wantedBy = [ "multi-user.target" ];
+      onFailure = [ "hindsight-reranker-notify.service" ];
+      # RestartSec=5s에서는 기본 10초 창 안에 5회 실패에 도달하지 못해 failed 상태와
+      # OnFailure 알림이 영영 발동하지 않는다. 120초 창으로 크래시 루프를 감지한다.
+      startLimitIntervalSec = 120;
+      startLimitBurst = 5;
+      environment.XDG_CACHE_HOME = "/var/cache/hindsight-reranker";
+      serviceConfig = {
+        ExecStart = lib.escapeShellArgs [
+          "${config.services.llama-cpp.package}/bin/llama-server"
+          "--model"
+          rerankerModel
+          "--reranking"
+          "--pooling"
+          "rank"
+          "--n-gpu-layers"
+          "99"
+          "--host"
+          "127.0.0.1"
+          "--port"
+          (toString rerankerPort)
+          # 슬롯 2개 × 8,192 토큰 (ModernBERT 최대 입력 길이). 비인과 인코더는 단일 시퀀스를
+          # ubatch로 쪼갤 수 없어 batch/ubatch를 슬롯 길이와 맞춘다.
+          "--ctx-size"
+          "16384"
+          "--batch-size"
+          "8192"
+          "--ubatch-size"
+          "8192"
+          "--parallel"
+          "2"
+        ];
+        DynamicUser = true;
+        CacheDirectory = "hindsight-reranker";
+        SupplementaryGroups = [
+          "render"
+          "video"
+        ];
+        Restart = "on-failure";
+        RestartSec = "5s";
       };
+    };
 
-      systemd.services.hindsight-reranker-notify = {
-        description = "Send Telegram alert when hindsight-reranker.service fails";
-        requires = [ "sops-install-secrets.service" ];
-        after = [
+    systemd.services.hindsight-reranker-notify = {
+      description = "Send Telegram alert when hindsight-reranker.service fails";
+      requires = [ "sops-install-secrets.service" ];
+      after = [
+        "sops-install-secrets.service"
+        "network-online.target"
+      ];
+      wants = [ "network-online.target" ];
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = lib.getExe rerankerNotify;
+        DynamicUser = true;
+        SupplementaryGroups = [ "systemd-journal" ];
+        LoadCredential = [
+          "telegram-bot-token:${config.sops.secrets.TELEGRAM_BOT_TOKEN.path}"
+          "telegram-chat-id:${config.sops.secrets.TELEGRAM_CHAT_ID.path}"
+        ];
+        ProtectSystem = "strict";
+        ProtectHome = true;
+        PrivateTmp = true;
+        NoNewPrivileges = true;
+      };
+    };
+
+    # 확장은 superuser가 미리 만든다. Hindsight는 이미 있는 확장을 건너뛰므로
+    # 앱 role은 superuser 권한 없이 자기 DB만 소유한다.
+    systemd.services.hindsight-postgres-setup = {
+      description = "Create Hindsight PostgreSQL extensions and sync the role password from sops";
+      requires = [
+        "postgresql.service"
+        "sops-install-secrets.service"
+      ];
+      after = [
+        "postgresql.service"
+        "postgresql-setup.service"
+        "sops-install-secrets.service"
+      ];
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        User = "postgres";
+        LoadCredential = [ "db-password:${config.sops.secrets.HINDSIGHT_DB_PASSWORD.path}" ];
+      };
+      script = ''
+        PG_APP_PASSWORD=$(cat "$CREDENTIALS_DIRECTORY/db-password") \
+          ${config.services.postgresql.package}/bin/psql \
+          --dbname hindsight --no-psqlrc --quiet \
+          --set ON_ERROR_STOP=1 --file - <<'SQL'
+        CREATE EXTENSION IF NOT EXISTS vector;
+        CREATE EXTENSION IF NOT EXISTS pg_trgm;
+        CREATE EXTENSION IF NOT EXISTS btree_gin;
+        \getenv pw PG_APP_PASSWORD
+        ALTER ROLE hindsight WITH PASSWORD :'pw';
+        SQL
+      '';
+    };
+
+    virtualisation.quadlet.containers.hindsight = {
+      autoStart = true;
+      unitConfig = {
+        Requires = [
+          "hindsight-postgres-setup.service"
+          "sops-install-secrets.service"
+        ];
+        After = [
+          "hindsight-postgres-setup.service"
+          "hindsight-embedding-proxy.service"
+          "hindsight-reranker.service"
           "sops-install-secrets.service"
           "network-online.target"
         ];
-        wants = [ "network-online.target" ];
-        serviceConfig = {
-          Type = "oneshot";
-          ExecStart = lib.getExe rerankerNotify;
-          DynamicUser = true;
-          SupplementaryGroups = [ "systemd-journal" ];
-          LoadCredential = [
-            "telegram-bot-token:${config.sops.secrets.TELEGRAM_BOT_TOKEN.path}"
-            "telegram-chat-id:${config.sops.secrets.TELEGRAM_CHAT_ID.path}"
-          ];
-          ProtectSystem = "strict";
-          ProtectHome = true;
-          PrivateTmp = true;
-          NoNewPrivileges = true;
-        };
-      };
-
-      services.caddy.virtualHosts."http://${domain}:${toString caddyPort}" = {
-        extraConfig = ''
-          bind 127.0.0.1
-
-          respond /metrics 404
-          reverse_proxy 127.0.0.1:${toString apiPort}
-        '';
-      };
-
-      services.cloudflared.tunnels."a19003a7-293f-4872-b8a5-1db544878f45".ingress.${domain} =
-        "http://localhost:${toString caddyPort}";
-    })
-
-    (lib.mkIf (cfg.enable && cfg.server.enable) {
-      # 확장은 superuser가 미리 만든다. Hindsight는 이미 있는 확장을 건너뛰므로
-      # 앱 role은 superuser 권한 없이 자기 DB만 소유한다.
-      systemd.services.hindsight-postgres-setup = {
-        description = "Create Hindsight PostgreSQL extensions and sync the role password from sops";
-        requires = [
-          "postgresql.service"
-          "sops-install-secrets.service"
+        Wants = [
+          "hindsight-reranker.service"
+          "network-online.target"
         ];
-        after = [
-          "postgresql.service"
-          "postgresql-setup.service"
-          "sops-install-secrets.service"
-        ];
-        wantedBy = [ "multi-user.target" ];
-        serviceConfig = {
-          Type = "oneshot";
-          RemainAfterExit = true;
-          User = "postgres";
-          LoadCredential = [ "db-password:${config.sops.secrets.HINDSIGHT_DB_PASSWORD.path}" ];
-        };
-        script = ''
-          PG_APP_PASSWORD=$(cat "$CREDENTIALS_DIRECTORY/db-password") \
-            ${config.services.postgresql.package}/bin/psql \
-            --dbname hindsight --no-psqlrc --quiet \
-            --set ON_ERROR_STOP=1 --file - <<'SQL'
-          CREATE EXTENSION IF NOT EXISTS vector;
-          CREATE EXTENSION IF NOT EXISTS pg_trgm;
-          CREATE EXTENSION IF NOT EXISTS btree_gin;
-          \getenv pw PG_APP_PASSWORD
-          ALTER ROLE hindsight WITH PASSWORD :'pw';
-          SQL
-        '';
       };
+      containerConfig = {
+        name = "hindsight";
+        inherit image;
+        pull = "missing";
+        logDriver = "journald";
+        networks = [ "host" ];
+        environmentFiles = [ config.sops.templates."hindsight.env".path ];
+        environments = {
+          HINDSIGHT_API_HOST = "127.0.0.1";
+          HINDSIGHT_API_PORT = toString apiPort;
 
-      # host 네트워크: PostgreSQL과 임베딩이 모두 loopback에 있다. API도 loopback에만 바인딩한다.
-      virtualisation.quadlet.containers.hindsight = {
-        autoStart = true;
-        unitConfig = {
-          Requires = [
-            "hindsight-postgres-setup.service"
-            "sops-install-secrets.service"
-          ];
-          After = [
-            "hindsight-postgres-setup.service"
-            "hindsight-embedding-proxy.service"
-            "hindsight-reranker.service"
-            "sops-install-secrets.service"
-            "network-online.target"
-          ];
-          Wants = [
-            "hindsight-reranker.service"
-            "network-online.target"
-          ];
-        };
-        containerConfig = {
-          name = "hindsight";
-          inherit image;
-          pull = "missing";
-          logDriver = "journald";
-          networks = [ "host" ];
-          environmentFiles = [ config.sops.templates."hindsight.env".path ];
-          environments = {
-            HINDSIGHT_API_HOST = "127.0.0.1";
-            HINDSIGHT_API_PORT = toString apiPort;
+          HINDSIGHT_API_TENANT_EXTENSION = "hindsight_api.extensions.builtin.tenant:ApiKeyTenantExtension";
 
-            HINDSIGHT_API_TENANT_EXTENSION = "hindsight_api.extensions.builtin.tenant:ApiKeyTenantExtension";
-
-            HINDSIGHT_API_LLM_PROVIDER = "openrouter";
-            HINDSIGHT_API_LLM_MODEL = "deepseek/deepseek-v4.1-flash-1017";
-            # OpenRouter 라우팅: fp8 이상인 upstream 중 최저가. fp4 계열은 사실 추출 품질 때문에 뺀다.
-            HINDSIGHT_API_LLM_EXTRA_BODY = builtins.toJSON {
-              provider = {
-                sort = "price";
-                quantizations = [
-                  "fp8"
-                  "fp16"
-                  "bf16"
-                ];
-              };
+          HINDSIGHT_API_LLM_PROVIDER = "openrouter";
+          HINDSIGHT_API_LLM_MODEL = "deepseek/deepseek-v4.1-flash-1017";
+          HINDSIGHT_API_LLM_EXTRA_BODY = builtins.toJSON {
+            provider = {
+              sort = "price";
+              quantizations = [
+                "fp8"
+                "fp16"
+                "bf16"
+              ];
             };
-            # 기동이 OpenRouter 가용성에 묶이지 않게 한다.
-            HINDSIGHT_API_SKIP_LLM_VERIFICATION = "true";
-
-            HINDSIGHT_API_EMBEDDINGS_PROVIDER = "openai";
-            HINDSIGHT_API_EMBEDDINGS_OPENAI_BASE_URL = "http://127.0.0.1:${toString embeddingPort}/v1";
-            HINDSIGHT_API_EMBEDDINGS_OPENAI_MODEL = "KURE-v3";
-            HINDSIGHT_API_EMBEDDINGS_OPENAI_API_KEY = "local";
-            HINDSIGHT_API_EMBEDDINGS_OPENAI_DIMENSIONS = toString embeddingDimensions;
-            HINDSIGHT_API_EMBEDDINGS_QUERY_PREFIX = "query: ";
-            HINDSIGHT_API_EMBEDDINGS_PASSAGE_PREFIX = "passage: ";
-
-            # 리랭커는 로컬 llama.cpp(KURE-Reranker-nano, Vulkan)를 Cohere /v1/rerank 호환으로 호출한다.
-            # 기본 내장 hs-rerank-1(CPU) 대비 6건 실측에서 서버 리랭킹 평균을 약 14% 단축했고,
-            # 장애·지연 시 클라이언트 7초 제한 안에서 RRF로 자동 전환한다(30초 cooldown 후 자동 복구).
-            HINDSIGHT_API_RERANKER_PROVIDER = "cohere";
-            HINDSIGHT_API_RERANKER_COHERE_BASE_URL = "http://127.0.0.1:${toString rerankerPort}/v1/rerank";
-            HINDSIGHT_API_RERANKER_COHERE_API_KEY = "local";
-            HINDSIGHT_API_RERANKER_COHERE_MODEL = "KURE-Reranker-nano";
-            HINDSIGHT_API_RERANKER_COHERE_MAX_CONCURRENT = "2";
-            HINDSIGHT_API_RERANKER_COHERE_TIMEOUT = "5.5";
-            HINDSIGHT_API_RERANKER_MAX_RETRIES = "1";
-            HINDSIGHT_API_RERANKER_INITIAL_BACKOFF = "0.2";
-            HINDSIGHT_API_RERANKER_RETRY_BUDGET = "5.5";
-            HINDSIGHT_API_RERANKER_1_PROVIDER = "rrf";
-            HINDSIGHT_API_RERANKER_MAX_CANDIDATES_LOW = "80";
-
-            # 공유 PostgreSQL(max_connections 100)을 앱과 나눠 쓴다. 기본 풀 상한은 100이다.
-            HINDSIGHT_API_DB_POOL_MIN_SIZE = "2";
-            HINDSIGHT_API_DB_POOL_MAX_SIZE = "10";
-
-            # 모든 bank의 기본 기억 정책. 정책은 여기 한 곳에만 둔다(클라이언트는 manageBankConfig를 꺼서 bank에 쓰지 않는다).
-            # 값은 한 줄로 유지한다(systemd Environment 값).
-            # 추출: 실패·검증된 성공·사용자 피드백·결정만 남긴다. 규칙은 chunk마다 따로 적용되므로 "조각" 기준으로 썼다.
-            HINDSIGHT_API_RETAIN_EXTRACTION_MODE = "custom";
-            HINDSIGHT_API_RETAIN_CUSTOM_INSTRUCTIONS = "This bank is a lean lessons log shared by coding agents, not a session diary or a research notebook. The input is ONE FRAGMENT of a longer JSONL transcript (user, assistant and compact action turns). Most fragments contain nothing worth keeping: an empty list is the normal, correct result. Extract a fact ONLY for: (1) FAILURE - something broke or an approach did not work: the symptom with the exact error string, the root cause, and the fix or workaround; (2) VERIFIED SUCCESS - a non-obvious command, option or configuration that was actually run and confirmed to work, with what made it work; (3) USER FEEDBACK - a correction, standing preference or rejected approach stated by the user, with the reason when given; (4) DECISION - a choice the user settled between alternatives and why, final state only. Test every candidate: would an agent in a different session months from now act differently because of it? If not, drop it. NEVER extract: what the agent did, said, checked, created, committed, pushed, recommended or plans to do; what the user asked for, approved or delegated for the task at hand; progress, status, counts or the state of the working copy; background gathered during research (product comparisons, prices, benchmarks, version numbers, documentation contents) unless it is the stated reason for a decision; anything the repository's code, docs or git history already records; proposals that were not settled; claims not verified in the transcript; anything quoted from memory (a 'From Hindsight memory' note, recalled or injected memories, a reflect answer), which is already stored, unless the transcript corrects it. Write each fact as a standalone lesson or rule naming the exact tool, file, option or system, not as a story about the session. Merge related points into one fact; more than three facts from one fragment is rare. Write each fact in the language the user used.";
-            # 긴 세션은 여러 chunk로 나뉜다. 크게 잡아 한 조각 안에서 대화가 스스로 고친 내용의 최종 상태를 보게 한다(기본 3000).
-            HINDSIGHT_API_RETAIN_CHUNK_SIZE = "12000";
-            # reflect: 물은 것만 기억에서 짧게 답하게 한다. "keep it short"만으로는 줄지 않아 단어 수 상한과 금지 항목을 적었다.
-            HINDSIGHT_API_REFLECT_MISSION = "You answer coding agents from a shared lessons log: failures and their fixes, approaches verified to work, the user's feedback, and settled decisions. Answer ONLY the question asked, in at most 120 words: lead with the direct answer, then the exact commands, options, paths, values and error strings that support it. No headings, no background, no verification history, no related or also-worth-knowing points. When memories conflict the latest one wins; name what it superseded in one clause. Never add advice that memory does not contain. If memory does not answer the question, say so in one sentence. Answer in the language of the question.";
-
-            # 최소 구성: 백그라운드 통합(observation 생성)은 끈다. 페이지는 observation에서 만들어지므로
-            # 함께 쓰지 않는다. mental model도 갱신마다 LLM을 쓰는 부가 기능이라 두지 않는다.
-            # 수동 통합(POST /consolidate) 실행 시 요약 품질과 홈랩 부하를 고정하기 위해 mission과 병렬성(1)만 둔다.
-            # recall에 observation과 world/experience를 함께 요청할 때는 원본 중복을 자동 제거한다(단독 요청 시 no-op).
-            # docs/guides/hindsight.md 실험 목록 참고.
-            # v1.3.0부터 기본 활성화된 Knowledge Banks(멀티모달 문서고)는 쓰지 않아 워커·메모리 예산을 막는다.
-            HINDSIGHT_API_ENABLE_KB = "false";
-            HINDSIGHT_API_ENABLE_AUTO_CONSOLIDATION = "false";
-            HINDSIGHT_API_CONSOLIDATION_LLM_PARALLELISM = "1";
-            HINDSIGHT_API_RECALL_PREFER_OBSERVATIONS = "true";
-            HINDSIGHT_API_OBSERVATIONS_MISSION = "This bank is a lessons log for coding agents. Each fact is already one complete lesson: a failure with its symptom, exact error string, cause and fix, a verified command or setting, a user preference, or a settled decision. Treat every fact as lasting. In this bank ONE FACET means ONE WHOLE LESSON, so never split a fact: a fact that adds something gets exactly ONE entry in new, the fact's own text kept whole, with commands, flags, paths, ports, values and error strings copied exactly; it may be long. Every observation must read alone: name the project, tool, file or setting, and never point to another sentence ('this value', 'the fix is', 'in that case'). Before writing new, look for an existing observation about the same problem or the same setting, even when worded differently: if it already covers the fact, mark repeats; if the fact adds a cause, fix, condition or value to it, mark changes and write text as the full merged lesson, keeping every exact value from both. The same failure, command or setting seen again at a later time is the same lesson, not a separate event: mark repeats. For an earlier fact of this batch, use same_as_fact only when this fact adds nothing. Lessons about different problems stay separate even when they share a tool, project or port.";
           };
-        };
-        serviceConfig = {
-          Restart = "on-failure";
-          RestartSec = "10s";
-          # 첫 기동은 약 1GB 이미지를 받는다.
-          TimeoutStartSec = 900;
-          TimeoutStopSec = 60;
+          HINDSIGHT_API_SKIP_LLM_VERIFICATION = "true";
+
+          HINDSIGHT_API_EMBEDDINGS_PROVIDER = "openai";
+          HINDSIGHT_API_EMBEDDINGS_OPENAI_BASE_URL = "http://127.0.0.1:${toString embeddingPort}/v1";
+          HINDSIGHT_API_EMBEDDINGS_OPENAI_MODEL = "KURE-v3";
+          HINDSIGHT_API_EMBEDDINGS_OPENAI_API_KEY = "local";
+          HINDSIGHT_API_EMBEDDINGS_OPENAI_DIMENSIONS = toString embeddingDimensions;
+          HINDSIGHT_API_EMBEDDINGS_QUERY_PREFIX = "query: ";
+          HINDSIGHT_API_EMBEDDINGS_PASSAGE_PREFIX = "passage: ";
+
+          # 리랭커는 로컬 llama.cpp(KURE-Reranker-nano, Vulkan)를 Cohere /v1/rerank 호환으로 호출한다.
+          # 기본 내장 hs-rerank-1(CPU) 대비 6건 실측에서 서버 리랭킹 평균을 약 14% 단축했고,
+          # 장애·지연 시 클라이언트 7초 제한 안에서 RRF로 자동 전환한다(30초 cooldown 후 자동 복구).
+          HINDSIGHT_API_RERANKER_PROVIDER = "cohere";
+          HINDSIGHT_API_RERANKER_COHERE_BASE_URL = "http://127.0.0.1:${toString rerankerPort}/v1/rerank";
+          HINDSIGHT_API_RERANKER_COHERE_API_KEY = "local";
+          HINDSIGHT_API_RERANKER_COHERE_MODEL = "KURE-Reranker-nano";
+          HINDSIGHT_API_RERANKER_COHERE_MAX_CONCURRENT = "2";
+          HINDSIGHT_API_RERANKER_COHERE_TIMEOUT = "5.5";
+          HINDSIGHT_API_RERANKER_MAX_RETRIES = "1";
+          HINDSIGHT_API_RERANKER_INITIAL_BACKOFF = "0.2";
+          HINDSIGHT_API_RERANKER_RETRY_BUDGET = "5.5";
+          HINDSIGHT_API_RERANKER_1_PROVIDER = "rrf";
+          HINDSIGHT_API_RERANKER_MAX_CANDIDATES_LOW = "80";
+
+          # 공유 PostgreSQL(max_connections 100)을 앱과 나눠 쓴다. 기본 풀 상한은 100이다.
+          HINDSIGHT_API_DB_POOL_MIN_SIZE = "2";
+          HINDSIGHT_API_DB_POOL_MAX_SIZE = "10";
+
+          HINDSIGHT_API_RETAIN_EXTRACTION_MODE = "custom";
+          HINDSIGHT_API_RETAIN_CUSTOM_INSTRUCTIONS = retainInstructions;
+          HINDSIGHT_API_RETAIN_CHUNK_SIZE = "12000";
+          HINDSIGHT_API_REFLECT_MISSION = reflectMission;
+
+          # v1.3.0부터 기본 활성화된 Knowledge Banks(멀티모달 문서고)는 쓰지 않아 워커·메모리 예산을 막는다.
+          HINDSIGHT_API_ENABLE_KB = "false";
+          HINDSIGHT_API_ENABLE_AUTO_CONSOLIDATION = "false";
+          HINDSIGHT_API_CONSOLIDATION_LLM_PARALLELISM = "1";
+          HINDSIGHT_API_RECALL_PREFER_OBSERVATIONS = "true";
+          HINDSIGHT_API_OBSERVATIONS_MISSION = "This bank is a lessons log for coding agents. Each fact is already one complete lesson: a failure with its symptom, exact error string, cause and fix, a verified command or setting, a user preference, or a settled decision. Treat every fact as lasting. In this bank ONE FACET means ONE WHOLE LESSON, so never split a fact: a fact that adds something gets exactly ONE entry in new, the fact's own text kept whole, with commands, flags, paths, ports, values and error strings copied exactly; it may be long. Every observation must read alone: name the project, tool, file or setting, and never point to another sentence ('this value', 'the fix is', 'in that case'). Before writing new, look for an existing observation about the same problem or the same setting, even when worded differently: if it already covers the fact, mark repeats; if the fact adds a cause, fix, condition or value to it, mark changes and write text as the full merged lesson, keeping every exact value from both. The same failure, command or setting seen again at a later time is the same lesson, not a separate event: mark repeats. For an earlier fact of this batch, use same_as_fact only when this fact adds nothing. Lessons about different problems stay separate even when they share a tool, project or port.";
         };
       };
-    })
+      serviceConfig = {
+        Restart = "on-failure";
+        RestartSec = "10s";
+        TimeoutStartSec = 900;
+        TimeoutStopSec = 60;
+      };
+    };
 
-    (lib.mkIf (cfg.enable && cfg.server.enable && cfg.dashboard.enable) {
-      virtualisation.quadlet.containers.hindsight-control-plane = {
-        autoStart = true;
-        unitConfig = {
-          Requires = [ "sops-install-secrets.service" ];
-          After = [
-            "sops-install-secrets.service"
-            "hindsight.service"
-            "network-online.target"
-          ];
-          Wants = [ "network-online.target" ];
-        };
-        containerConfig = {
-          name = "hindsight-control-plane";
-          image = dashboardImage;
-          pull = "missing";
-          logDriver = "journald";
-          # API가 호스트 loopback에만 있어 host 네트워크를 쓴다. 대시보드도 loopback에만 바인딩한다.
-          networks = [ "host" ];
-          environmentFiles = [ config.sops.templates."hindsight-control-plane.env".path ];
-          environments = {
-            HINDSIGHT_CP_HOSTNAME = "127.0.0.1";
-            HINDSIGHT_CP_PORT = toString dashboardPort;
-            HINDSIGHT_CP_DATAPLANE_API_URL = "http://127.0.0.1:${toString apiPort}";
-          };
-        };
-        serviceConfig = {
-          Restart = "on-failure";
-          RestartSec = "10s";
-          TimeoutStartSec = 600;
+    virtualisation.quadlet.containers.hindsight-control-plane = {
+      autoStart = true;
+      unitConfig = {
+        Requires = [ "sops-install-secrets.service" ];
+        After = [
+          "sops-install-secrets.service"
+          "hindsight.service"
+          "network-online.target"
+        ];
+        Wants = [ "network-online.target" ];
+      };
+      containerConfig = {
+        name = "hindsight-control-plane";
+        image = dashboardImage;
+        pull = "missing";
+        logDriver = "journald";
+        networks = [ "host" ];
+        environmentFiles = [ config.sops.templates."hindsight-control-plane.env".path ];
+        environments = {
+          HINDSIGHT_CP_HOSTNAME = "127.0.0.1";
+          HINDSIGHT_CP_PORT = toString dashboardPort;
+          HINDSIGHT_CP_DATAPLANE_API_URL = "http://127.0.0.1:${toString apiPort}";
         };
       };
-
-      services.caddy.virtualHosts."http://${dashboardDomain}:${toString dashboardCaddyPort}" = {
-        extraConfig = ''
-          bind 127.0.0.1
-
-          reverse_proxy 127.0.0.1:${toString dashboardPort}
-        '';
+      serviceConfig = {
+        Restart = "on-failure";
+        RestartSec = "10s";
+        TimeoutStartSec = 600;
       };
-
-      services.cloudflared.tunnels."a19003a7-293f-4872-b8a5-1db544878f45".ingress.${dashboardDomain} =
-        "http://localhost:${toString dashboardCaddyPort}";
-    })
-  ];
+    };
+  };
 }

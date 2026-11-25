@@ -17,9 +17,11 @@
 
   home.sessionVariables = {
     HOME_VERSION = inputs.nixpkgs.lib.trivial.release;
-    PROJECT_PATH = "${myOptions.absoluteProjectPath}";
     EDITOR = pkgs.helix + "/bin/hx";
     USER_PROFILE = config.home.profileDirectory;
+  }
+  // lib.optionalAttrs (myOptions.absoluteProjectPath != null) {
+    PROJECT_PATH = myOptions.absoluteProjectPath;
   }
   // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
     VISUAL = "/usr/local/bin/zed";

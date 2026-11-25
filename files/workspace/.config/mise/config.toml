@@ -229,16 +229,11 @@ if [ -z "$MSG" ]; then echo "API 응답 실패"; exit 1; fi
 printf '%s\n' "$MSG"
 '''
 
-# claude native 설치를 위함
 [tasks.install-claude]
 description = "Claude Code CLI 네이티브 스크립트로 설치"
 run = "curl -fsSL https://claude.ai/install.sh | bash"
 
 [env]
-_.path = [
-  # "$HOME/.cache/.bun/bin",
-  # "$HOME/.local/scripts"
-]
 # `mise env --redacted` filters to redacted vars; it does not mask values.
 _.file = [
   { path = "$HOME/.config/sops-nix/secrets/rendered/env/CONTEXT7_API_KEY.env", redact = true, read_only = true },
@@ -246,7 +241,6 @@ _.file = [
   { path = "$HOME/.config/sops-nix/secrets/rendered/env/GITHUB_TOKEN.env", redact = true, read_only = true },
   { path = "$HOME/.config/sops-nix/secrets/rendered/env/TYPESAFE_API_KEY.env", redact = true, read_only = true },
 ]
-SKILLIB = "$HOME/.local/agents/skills"
 # HyperFrames skills are skillshare dependencies (files/workspace/.skillshare); stop
 # its CLI from installing standalone copies into the skillshare-owned skill directories.
 HYPERFRAMES_SKIP_SKILLS = "1"
@@ -255,5 +249,3 @@ ASEPRITE_BIN = "/Applications/Aseprite.app/Contents/MacOS/aseprite"
 MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES = 3
 ENABLE_LSP_TOOL = "1"
 CLAUDE_CODE_AUTO_COMPACT_WINDOW = 400000
-
-# USER_TYPE = "ant"

@@ -39,7 +39,6 @@
       url = "github:rjcnd105/front-vibe-helper";
       flake = false;
     };
-
   };
 
   outputs =
@@ -57,18 +56,19 @@
       frontVibeHelperApp,
     }:
     let
-      # 형태는 ${host}_${username}
       hosts = {
         workspace_hj = {
+          hostName = "workspace";
+          userName = "hj";
           system = "aarch64-darwin";
           email = "rjcnd123@gmail.com";
           projectPath = "/Users/hj/dot/nix-dots";
         };
         homelab_hj = {
+          hostName = "homelab";
+          userName = "hj";
           system = "x86_64-linux";
           email = "rjcnd123@gmail.com";
-          filesHost = "workspace";
-          projectPath = "/etc/nixos";
         };
       };
       lib = nixpkgs.lib;
@@ -77,62 +77,40 @@
         "x86_64-linux"
       ];
       eachSystem = lib.genAttrs systems;
-      myLib = import ./config/lib.nix {
-        inherit lib;
-        pkgs = nixpkgs;
-      };
 
       getModulePaths =
-        prefix: system: host: user:
+        prefix: system: host:
         builtins.filter builtins.pathExists [
           ./${prefix}/default.nix
           ./${prefix}/${system}/default.nix
-          ./${prefix}/${system}/${host}/default.nix
-          ./${prefix}/${system}/${host}/${user}/default.nix
           ./${prefix}/${host}/default.nix
-          ./${prefix}/${host}/${user}/default.nix
         ];
 
       darwinHosts = lib.filterAttrs (_: v: lib.hasSuffix "darwin" v.system) hosts;
       linuxHosts = lib.filterAttrs (_: v: lib.hasSuffix "linux" v.system) hosts;
 
-      parseHostKey =
-        key: config:
-        let
-          split = builtins.split "_" key;
-          hostName = builtins.elemAt split 0;
-          userName = builtins.elemAt split 2;
-        in
-        {
-          inherit hostName userName;
-          myOptions = {
-            inherit key;
-            inherit (config) email system;
-            inherit hostName userName;
-            filesHost = config.filesHost or hostName;
-            paths = myLib.config.paths;
-            absoluteProjectPath = config.projectPath;
-            _debug = { };
-          };
-        };
+      mkMyOptions = key: hostCfg: {
+        inherit key;
+        inherit (hostCfg)
+          email
+          system
+          hostName
+          userName
+          ;
+        filesHost = hostCfg.filesHost or "workspace";
+        absoluteProjectPath = hostCfg.projectPath or null;
+      };
 
       nixpkgsConfig = system: {
         inherit system;
         overlays = [
           (_final: _prev: {
             pwgen = nixpkgsPwgen.legacyPackages.${system}.pwgen;
-            direnv = _prev.direnv.overrideAttrs (old: {
+            direnv = _prev.direnv.overrideAttrs (_old: {
               doCheck = false;
             });
           })
         ];
-        config = {
-          allowUnfreePredicate =
-            pkg:
-            builtins.elem (lib.getName pkg) [
-              "vault"
-            ];
-        };
       };
 
       pkgsFor = system: import nixpkgs (nixpkgsConfig system);
@@ -156,11 +134,8 @@
         };
 
       treefmtEval = eachSystem (system: treefmt-nix.lib.evalModule (pkgsFor system) treefmtModule);
-
     in
     {
-      _debug = { };
-
       formatter = eachSystem (system: treefmtEval.${system}.config.build.wrapper);
 
       checks = import ./checks {
@@ -175,45 +150,43 @@
       };
 
       darwinConfigurations = lib.mapAttrs (
-        key: config:
+        key: hostCfg:
         let
-          parsed = parseHostKey key config;
-          inherit (parsed) hostName userName myOptions;
-          systemModulePaths = getModulePaths "systems" config.system hostName userName;
-          homeModulePaths = getModulePaths "homes" config.system hostName userName;
+          myOptions = mkMyOptions key hostCfg;
+          systemModulePaths = getModulePaths "systems" hostCfg.system hostCfg.hostName;
+          homeModulePaths = getModulePaths "homes" hostCfg.system hostCfg.hostName;
         in
         darwin.lib.darwinSystem {
-          system = config.system;
+          system = hostCfg.system;
           specialArgs = {
             inherit inputs myOptions;
           };
           modules = [
-            { nixpkgs = nixpkgsConfig config.system; }
+            { nixpkgs = nixpkgsConfig hostCfg.system; }
             home-manager.darwinModules.home-manager
-            { home-manager.users.${userName}.imports = homeModulePaths; }
+            { home-manager.users.${hostCfg.userName}.imports = homeModulePaths; }
           ]
           ++ systemModulePaths;
         }
       ) darwinHosts;
 
       nixosConfigurations = lib.mapAttrs (
-        key: config:
+        key: hostCfg:
         let
-          parsed = parseHostKey key config;
-          inherit (parsed) hostName userName myOptions;
-          systemModulePaths = getModulePaths "systems" config.system hostName userName;
-          homeModulePaths = getModulePaths "homes" config.system hostName userName;
+          myOptions = mkMyOptions key hostCfg;
+          systemModulePaths = getModulePaths "systems" hostCfg.system hostCfg.hostName;
+          homeModulePaths = getModulePaths "homes" hostCfg.system hostCfg.hostName;
         in
         nixpkgs.lib.nixosSystem {
-          system = config.system;
+          system = hostCfg.system;
           specialArgs = {
             inherit inputs myOptions;
           };
           modules = [
-            { nixpkgs = nixpkgsConfig config.system; }
+            { nixpkgs = nixpkgsConfig hostCfg.system; }
             { system.configurationRevision = self.rev or self.dirtyRev or "dirty"; }
             home-manager.nixosModules.home-manager
-            { home-manager.users.${userName}.imports = homeModulePaths; }
+            { home-manager.users.${hostCfg.userName}.imports = homeModulePaths; }
             comin.nixosModules.comin
             quadlet-nix.nixosModules.quadlet
           ]

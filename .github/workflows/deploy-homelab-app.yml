@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       app:
-        description: "Admitted homelab app key"
+        description: "Admitted homelab app name (contract.name)"
         required: true
         type: string
       channel:

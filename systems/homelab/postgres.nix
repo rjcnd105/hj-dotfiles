@@ -13,24 +13,25 @@ let
     types
     ;
 
-  enabledApps = filterAttrs (_: app: app.enable) config.homelab.apps;
-  pgApps = filterAttrs (
-    _: app: app.contract.schemaVersion == 2 && app.contract.needs.postgres
-  ) enabledApps;
-  pgAppList = builtins.attrValues pgApps;
+  conventions = import ./app-conventions.nix { inherit lib; };
+  inherit (conventions)
+    appSubnetFor
+    bridgeInterfaceFor
+    sharedPostgresNameFor
+    usesSharedPostgres
+    ;
 
-  # app-containers.nix와 같은 규약: role = db = <name>_<channel> (하이픈 → 언더스코어).
-  pgNameFor = app: lib.replaceStrings [ "-" ] [ "_" ] "${app.contract.name}_${app.contract.channel}";
-  subnetFor = app: "10.90.${toString app.host.subnetId}.0/24";
-  bridgeFor = app: "br-${app.contract.name}-${app.contract.channel}";
+  enabledApps = filterAttrs (_: app: app.enable) config.homelab.apps;
+  pgApps = filterAttrs (_: usesSharedPostgres) enabledApps;
+  pgAppList = builtins.attrValues pgApps;
 in
 {
   options.homelab.postgres.enable = mkOption {
     type = types.bool;
     default = pgApps != { };
-    defaultText = lib.literalMD "`true` when any admitted v2 app sets `needs.postgres`";
+    defaultText = lib.literalMD "`true` when any admitted app sets `needs.postgres`";
     description = ''
-      Shared native PostgreSQL for v2 apps. Auto-enabled by admitted contracts;
+      Shared native PostgreSQL for admitted apps. Auto-enabled by admitted contracts;
       set explicitly to provision the server ahead of an app migration window.
     '';
   };
@@ -38,17 +39,18 @@ in
   config = mkIf config.homelab.postgres.enable {
     services.postgresql = {
       enable = true;
-      # 컨테이너 PG(postgres:18)와 동일 메이저 — pg_dump 이관 호환.
       package = pkgs.postgresql_18;
-      # listen은 '*'이지만 방화벽이 앱 브리지 인터페이스에만 5432를 연다.
       enableTCPIP = true;
-      ensureDatabases = map pgNameFor pgAppList;
+      ensureDatabases = map sharedPostgresNameFor pgAppList;
       ensureUsers = map (app: {
-        name = pgNameFor app;
+        name = sharedPostgresNameFor app;
         ensureDBOwnership = true;
       }) pgAppList;
       authentication = concatLines (
-        map (app: "host ${pgNameFor app} ${pgNameFor app} ${subnetFor app} scram-sha-256") pgAppList
+        map (
+          app:
+          "host ${sharedPostgresNameFor app} ${sharedPostgresNameFor app} ${appSubnetFor app} scram-sha-256"
+        ) pgAppList
       );
       # 모듈 기본값은 hba_file을 store 경로로 둔다. hba_file은 재시작해야 바뀌므로 hba만
       # 바뀌어도 postgres와 의존 앱이 모두 재시작된다. 고정 경로로 두고 내용이 바뀌면 reload만
@@ -75,7 +77,7 @@ in
 
     networking.firewall.interfaces = builtins.listToAttrs (
       map (app: {
-        name = bridgeFor app;
+        name = bridgeInterfaceFor app;
         value.allowedTCPPorts = [ 5432 ];
       }) pgAppList
     );
@@ -119,7 +121,7 @@ in
             --dbname postgres --no-psqlrc --quiet \
             --set ON_ERROR_STOP=1 --file - <<'SQL'
           \getenv pw PG_APP_PASSWORD
-          ALTER ROLE ${pgNameFor app} WITH PASSWORD :'pw';
+          ALTER ROLE ${sharedPostgresNameFor app} WITH PASSWORD :'pw';
           SQL
         '') pgAppList
       );

@@ -8,11 +8,7 @@ import (
 	"regexp"
 )
 
-// Metadata mirrors /etc/homelab-apps/<app>/<channel>.json rendered by
-// systems/homelab/app-containers.nix. contractVersion 0 (absent) means the
-// schemaVersion 1 contract with the four deployment source hashes.
 type Metadata struct {
-	AppKey          string `json:"appKey"`
 	Name            string `json:"name"`
 	Channel         string `json:"channel"`
 	UnitPrefix      string `json:"unitPrefix"`
@@ -20,31 +16,21 @@ type Metadata struct {
 	CaddyURL        string `json:"caddyUrl"`
 	ContractVersion int    `json:"contractVersion"`
 
-	RuntimeContractSourceSha256   string `json:"runtimeContractSourceSha256"`
-	HomelabAdmissionSourceSha256  string `json:"homelabAdmissionSourceSha256"`
-	ManifestSchemaSourceSha256    string `json:"manifestSchemaSourceSha256"`
-	ManifestGeneratorSourceSha256 string `json:"manifestGeneratorSourceSha256"`
-
-	RegistryAuthFile string        `json:"registryAuthFile"`
-	SmokePaths       []string      `json:"smokePaths"`
-	Services         []ServiceMeta `json:"services"`
-	Migration        MigrationMeta `json:"migration"`
-	Release          *ReleaseMeta  `json:"release"`
+	SmokePaths []string      `json:"smokePaths"`
+	Services   []ServiceMeta `json:"services"`
+	Migration  MigrationMeta `json:"migration"`
+	Release    *ReleaseMeta  `json:"release"`
 
 	raw []byte
 }
 
 type ServiceMeta struct {
-	Name           string   `json:"name"`
-	ImageKey       string   `json:"imageKey"`
-	ImageRef       string   `json:"imageRef"`
-	ImageName      string   `json:"imageName"`
-	ReleaseManaged bool     `json:"releaseManaged"`
-	ServiceUnit    string   `json:"serviceUnit"`
-	ContainerName  string   `json:"containerName"`
-	HealthPath     string   `json:"healthPath"`
-	DependsOn      []string `json:"dependsOn"`
-	UpdatePolicy   string   `json:"updatePolicy"`
+	Name          string `json:"name"`
+	ImageKey      string `json:"imageKey"`
+	ImageRef      string `json:"imageRef"`
+	ImageName     string `json:"imageName"`
+	ServiceUnit   string `json:"serviceUnit"`
+	ContainerName string `json:"containerName"`
 }
 
 type MigrationMeta struct {
@@ -57,10 +43,7 @@ type MigrationMeta struct {
 type ReleaseMeta struct {
 	ManifestURL   string   `json:"manifestUrl"`
 	Tag           string   `json:"tag"`
-	Mode          string   `json:"mode"`
 	TargetPattern string   `json:"targetPattern"`
-	Strategy      string   `json:"strategy"`
-	Migrate       string   `json:"migrate"`
 	SmokePaths    []string `json:"smokePaths"`
 }
 
@@ -95,6 +78,16 @@ func stateRoot() string {
 	return "/var/lib/homelab-appctl"
 }
 
+func runtimeRoot() string {
+	if v := os.Getenv("HOMELAB_APPCTL_RUNTIME_ROOT"); v != "" {
+		return v
+	}
+	if testModeActive() {
+		return filepath.Join(stateRoot(), "run")
+	}
+	return "/run/homelab-appctl"
+}
+
 func loadMetadata(app, channel string) (*Metadata, error) {
 	if err := requireID("app", app); err != nil {
 		return nil, err
@@ -111,6 +104,15 @@ func loadMetadata(app, channel string) (*Metadata, error) {
 	if err := json.Unmarshal(raw, &meta); err != nil {
 		return nil, fmt.Errorf("invalid metadata %s: %w", path, err)
 	}
+	if meta.ContractVersion != 2 {
+		return nil, fmt.Errorf("invalid metadata %s: unsupported contractVersion %d", path, meta.ContractVersion)
+	}
+	if meta.Name == "" || meta.Channel == "" || meta.Domain == "" || meta.CaddyURL == "" {
+		return nil, fmt.Errorf("invalid metadata %s: missing required identity or routing fields", path)
+	}
+	if len(meta.Services) == 0 {
+		return nil, fmt.Errorf("invalid metadata %s: no services declared", path)
+	}
 	meta.raw = raw
 	return &meta, nil
 }
@@ -124,11 +126,5 @@ func (m *Metadata) serviceUnits() []string {
 }
 
 func (m *Metadata) releaseServices() []ServiceMeta {
-	var services []ServiceMeta
-	for _, service := range m.Services {
-		if service.ReleaseManaged {
-			services = append(services, service)
-		}
-	}
-	return services
+	return m.Services
 }

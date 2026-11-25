@@ -1,6 +1,4 @@
 {
-  inputs,
-  pkgs,
   myOptions,
   ...
 }:
@@ -20,7 +18,7 @@
       core = {
         quotePath = false;
         precomposeunicode = true;
-        excludesfile = "~/.config/git/.gitignore_global"; # 글로벌 ignore 경로
+        excludesfile = "~/.config/git/.gitignore_global";
       };
       push = {
         autoSetupRemote = true;
@@ -30,12 +28,6 @@
     signing = {
       format = "openpgp";
     };
-
-    ignores = [
-      ".DS_Store"
-      "*.swp"
-    ];
-
   };
 
   home.shellAliases = {
@@ -47,5 +39,4 @@
     ga = "git add . -p";
     gp = "git push";
   };
-
 }

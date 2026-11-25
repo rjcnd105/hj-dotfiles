@@ -2,7 +2,6 @@
   lib,
   buildGoModule,
   makeWrapper,
-  coreutils,
   podman,
   systemd,
   githubTokenFile ? null,
@@ -19,17 +18,14 @@ buildGoModule {
     ];
   };
 
-  # 외부 Go 의존성 없음 (stdlib 전용).
   vendorHash = null;
 
   nativeBuildInputs = [ makeWrapper ];
 
-  # 런타임 도구는 호출 환경 PATH에 의존하지 않도록 wrapper로 고정한다.
   postInstall = ''
     wrapProgram $out/bin/homelab-appctl \
       --prefix PATH : ${
         lib.makeBinPath [
-          coreutils
           podman
           systemd
         ]

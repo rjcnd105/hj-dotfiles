@@ -160,20 +160,21 @@ let
       dnsLifecycleService = "podman-dns-lifecycle.service";
       dnsLifecycleConfig = homelab.homelab.podmanDnsLifecycle;
       dnsLifecycleUnit = homelab.systemd.services.podman-dns-lifecycle;
-      expectedDnsLifecycleMembers = [
-        "deopjib-dev-backend.service"
-        "deopjib-dev-network.service"
-        "deopjib-dev-web.service"
-        "deopjib-prod-backend.service"
-        "deopjib-prod-network.service"
-        "deopjib-prod-web.service"
-        "fvh-live-app.service"
-        "fvh-live-network.service"
-      ];
+      expectedDnsLifecycleMembers = lib.sort builtins.lessThan (
+        lib.flatten (
+          lib.mapAttrsToList (
+            _: app:
+            let
+              prefix = "${app.contract.name}-${app.contract.channel}";
+            in
+            [ "${prefix}-network.service" ]
+            ++ map (svc: "${prefix}-${svc}.service") (builtins.attrNames app.contract.services)
+          ) (lib.filterAttrs (_: app: app.enable) homelab.homelab.apps)
+        )
+      );
       podman = homelab.virtualisation.podman.package;
       pkgs = pkgsFor "x86_64-linux";
       backendContainer = quadlet.containers.deopjib-dev-backend;
-      deopjibImages = lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.images;
       networkText = builtins.unsafeDiscardStringContext network._configText;
       podmanPath = builtins.unsafeDiscardStringContext "${podman}";
       deopjibContainers = builtins.attrValues (
@@ -185,7 +186,6 @@ let
       ++ builtins.attrValues (
         lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.volumes
       )
-      ++ builtins.attrValues (lib.filterAttrs (name: _: lib.hasPrefix "deopjib-dev-" name) quadlet.images)
       ++ deopjibContainers;
       quadletSources = pkgs.linkFarm "deopjib-dev-quadlets" (
         map (object: {
@@ -197,9 +197,6 @@ let
     assert network.networkConfig.name == "deopjib-dev";
     assert network.networkConfig.interfaceName == "br-deopjib-dev";
     assert builtins.elem 53 homelab.networking.firewall.interfaces.br-deopjib-dev.allowedUDPPorts;
-    # v2: 컨테이너 db 없음 — 공유 호스트 PostgreSQL에 systemd 의존성으로 연결.
-    assert builtins.attrNames deopjibImages == [ ];
-    assert !(quadlet.containers ? deopjib-dev-db);
     assert backendContainer.containerConfig.image == "ghcr.io/rjcnd105/deopjib-backend:dev-current";
     assert backendContainer.containerConfig.pull == "never";
     assert builtins.elem "postgresql.service" backendContainer.unitConfig.Requires;
@@ -209,6 +206,8 @@ let
     assert !(builtins.elem "homelab-postgres-credentials.service" backendContainer.unitConfig.Requires);
     assert homelab.systemd.services.homelab-postgres-credentials.serviceConfig.RemainAfterExit;
     assert builtins.elem "deopjib_dev" homelab.services.postgresql.ensureDatabases;
+    assert lib.hasInfix "/run/homelab-appctl/deopjib-dev-migrate.image"
+      homelab.systemd.services.deopjib-dev-migrate.script;
     assert builtins.all (
       container:
       builtins.elem networkService container.unitConfig.PartOf
@@ -220,7 +219,6 @@ let
     assert lib.sort builtins.lessThan dnsLifecycleConfig.members == expectedDnsLifecycleMembers;
     assert builtins.elem podman dnsLifecycleUnit.restartTriggers;
     assert builtins.length dnsLifecycleUnit.restartTriggers == 2;
-    assert !(homelab.system.activationScripts ? homelabAppContainersRefresh);
     pkgs.runCommand "homelab-quadlet-lifecycle-invariants" { } ''
       export QUADLET_UNIT_DIRS=${quadletSources}
       ${podman}/libexec/podman/quadlet -dryrun -no-kmsg-log > generated-units.txt
@@ -401,6 +399,7 @@ let
     modules = [
       inputs.sops-nix.nixosModules.sops
       inputs.quadlet-nix.nixosModules.quadlet
+      ../systems/homelab/cloudflared.nix
       ../systems/homelab/app-containers.nix
       ../systems/homelab/postgres.nix
       ../systems/homelab/podman-dns-lifecycle.nix
@@ -430,8 +429,12 @@ let
       fixtureToplevel = builtins.unsafeDiscardStringContext fixture.system.build.toplevel.drvPath;
     in
     assert metadata.contractVersion == 2;
+    assert metadata.caddyUrl == "http://127.0.0.1:18099";
+    assert !(metadata ? appKey);
     assert !(metadata ? runtimeContractSourceSha256);
     assert !(metadata ? homelabAdmissionSourceSha256);
+    assert fixture.homelab.publicRoutes ? "dev.example.test";
+    assert fixture.services.caddy.virtualHosts ? "http://dev.example.test:18099";
     assert lib.hasInfix "PORT=3000" envTemplate;
     assert lib.hasInfix "DATABASE_URL=postgresql://example_dev:" envTemplate;
     assert lib.hasInfix "@10.90.7.1:5432/example_dev" envTemplate;

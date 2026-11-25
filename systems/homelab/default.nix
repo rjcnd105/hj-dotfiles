@@ -60,11 +60,7 @@ in
     ./hindsight.nix
   ];
 
-  homelab.hindsight = {
-    enable = true;
-    server.enable = true;
-    dashboard.enable = true;
-  };
+  homelab.hindsight.enable = true;
 
   homelab.beszel = {
     enable = true;

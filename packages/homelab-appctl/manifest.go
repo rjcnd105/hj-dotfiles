@@ -13,21 +13,13 @@ import (
 	"time"
 )
 
-// Manifest is the app-published release manifest.
-// schemaVersion 1 carries the four deployment source hashes; schemaVersion 2
-// is digest-only: {schemaVersion, app, target, images{key: {name, digest}}}.
+const maxManifestBytes = 4 << 20
+
 type Manifest struct {
-	SchemaVersion      int    `json:"schemaVersion"`
-	App                string `json:"app"`
-	Target             string `json:"target"`
-	SourceRev          string `json:"sourceRev"`
-	DeploymentContract struct {
-		RuntimeSourceSha256   string `json:"runtimeSourceSha256"`
-		AdmissionSourceSha256 string `json:"admissionSourceSha256"`
-		SchemaSourceSha256    string `json:"schemaSourceSha256"`
-		GeneratorSourceSha256 string `json:"generatorSourceSha256"`
-	} `json:"deploymentContract"`
-	Images map[string]ManifestImage `json:"images"`
+	SchemaVersion int                      `json:"schemaVersion"`
+	App           string                   `json:"app"`
+	Target        string                   `json:"target"`
+	Images        map[string]ManifestImage `json:"images"`
 }
 
 type ManifestImage struct {
@@ -35,7 +27,6 @@ type ManifestImage struct {
 	Digest string `json:"digest"`
 }
 
-// DesiredImage is one release-managed image resolved against the manifest.
 type DesiredImage struct {
 	Service   string
 	ImageRef  string
@@ -43,10 +34,7 @@ type DesiredImage struct {
 	Digest    string
 }
 
-var (
-	digestPattern    = regexp.MustCompile(`^sha256:[0-9a-f]{64}$`)
-	sourceRevPattern = regexp.MustCompile(`^[0-9a-f]{40}$`)
-)
+var digestPattern = regexp.MustCompile(`^sha256:[0-9a-f]{64}$`)
 
 func manifestURL(meta *Metadata, target string) (string, error) {
 	if meta.Release == nil || meta.Release.ManifestURL == "" {
@@ -59,7 +47,7 @@ func manifestURL(meta *Metadata, target string) (string, error) {
 	return strings.ReplaceAll(template, "{target}", target), nil
 }
 
-func validateManifest(meta *Metadata, manifest *Manifest, target string) error {
+func validateTargetPattern(meta *Metadata, target string) error {
 	if meta.Release == nil {
 		return errors.New("metadata has no release section")
 	}
@@ -67,40 +55,24 @@ func validateManifest(meta *Metadata, manifest *Manifest, target string) error {
 	if err != nil {
 		return fmt.Errorf("invalid admitted target pattern: %w", err)
 	}
+	if !pattern.MatchString(target) {
+		return fmt.Errorf("target %q does not match admitted pattern %s", target, meta.Release.TargetPattern)
+	}
+	return nil
+}
+
+func validateManifest(meta *Metadata, manifest *Manifest, target string) error {
+	if err := validateTargetPattern(meta, target); err != nil {
+		return err
+	}
+	if manifest.SchemaVersion != 2 {
+		return fmt.Errorf("contract v2 requires manifest schemaVersion 2, got %d", manifest.SchemaVersion)
+	}
 	if manifest.App != meta.Name {
 		return fmt.Errorf("manifest app %q does not match admitted app %q", manifest.App, meta.Name)
 	}
 	if manifest.Target != target {
 		return fmt.Errorf("manifest target %q does not match requested target %q", manifest.Target, target)
-	}
-	if !pattern.MatchString(target) {
-		return fmt.Errorf("target %q does not match admitted pattern %s", target, meta.Release.TargetPattern)
-	}
-
-	if meta.ContractVersion == 2 {
-		if manifest.SchemaVersion != 2 {
-			return fmt.Errorf("contract v2 requires manifest schemaVersion 2, got %d", manifest.SchemaVersion)
-		}
-		return nil
-	}
-
-	if manifest.SchemaVersion != 1 {
-		return fmt.Errorf("contract v1 requires manifest schemaVersion 1, got %d", manifest.SchemaVersion)
-	}
-	if !sourceRevPattern.MatchString(manifest.SourceRev) {
-		return fmt.Errorf("manifest sourceRev must be a 40-hex commit id")
-	}
-	contract := manifest.DeploymentContract
-	hashPairs := []struct{ manifest, admitted, label string }{
-		{contract.RuntimeSourceSha256, meta.RuntimeContractSourceSha256, "runtimeSourceSha256"},
-		{contract.AdmissionSourceSha256, meta.HomelabAdmissionSourceSha256, "admissionSourceSha256"},
-		{contract.SchemaSourceSha256, meta.ManifestSchemaSourceSha256, "schemaSourceSha256"},
-		{contract.GeneratorSourceSha256, meta.ManifestGeneratorSourceSha256, "generatorSourceSha256"},
-	}
-	for _, pair := range hashPairs {
-		if pair.manifest == "" || pair.manifest != pair.admitted {
-			return fmt.Errorf("manifest %s does not match admitted metadata", pair.label)
-		}
 	}
 	return nil
 }
@@ -147,8 +119,6 @@ func githubTokenFile() string {
 	return os.Getenv("HOMELAB_APPCTL_GITHUB_TOKEN_FILE")
 }
 
-// testModeActive gates test-only behavior (file:// manifests, non-root deploy)
-// to non-root runs whose metadata and state roots are both overridden.
 func testModeActive() bool {
 	return os.Getenv("HOMELAB_APPCTL_TEST_ALLOW_FILE_URL") == "1" &&
 		os.Geteuid() != 0 &&
@@ -156,10 +126,8 @@ func testModeActive() bool {
 		stateRoot() != "/var/lib/homelab-appctl"
 }
 
-// downloadManifest fetches a release manifest. HTTPS only; file:// is allowed
-// only for non-root test runs with overridden roots. GitHub release-download
-// URLs resolve through the REST API when a token is configured, because the
-// browser download path rejects fine-grained PATs.
+// GitHub release-download URLs resolve through the REST API when a token is
+// configured, because the browser download path rejects fine-grained PATs.
 func downloadManifest(rawURL, output string) error {
 	switch {
 	case strings.HasPrefix(rawURL, "https://github.com/") && strings.Contains(rawURL, "/releases/download/"):
@@ -189,19 +157,19 @@ func downloadManifest(rawURL, output string) error {
 
 func fetchToFile(rawURL, output string, header http.Header) error {
 	client := httpsOnlyClient(30 * time.Second)
-	req, err := http.NewRequest(http.MethodGet, rawURL, nil)
-	if err != nil {
-		return err
-	}
-	for key, values := range header {
-		for _, value := range values {
-			req.Header.Add(key, value)
-		}
-	}
 	var lastErr error
 	for attempt := 0; attempt < 3; attempt++ {
 		if attempt > 0 {
 			time.Sleep(time.Duration(attempt) * time.Second)
+		}
+		req, err := http.NewRequest(http.MethodGet, rawURL, nil)
+		if err != nil {
+			return err
+		}
+		for key, values := range header {
+			for _, value := range values {
+				req.Header.Add(key, value)
+			}
 		}
 		resp, err := client.Do(req)
 		if err != nil {
@@ -212,13 +180,19 @@ func fetchToFile(rawURL, output string, header http.Header) error {
 			io.Copy(io.Discard, resp.Body)
 			resp.Body.Close()
 			lastErr = fmt.Errorf("GET %s: %s", rawURL, resp.Status)
+			if resp.StatusCode >= 400 && resp.StatusCode < 500 && resp.StatusCode != http.StatusTooManyRequests {
+				return lastErr
+			}
 			continue
 		}
-		data, err := io.ReadAll(resp.Body)
+		data, err := io.ReadAll(io.LimitReader(resp.Body, maxManifestBytes+1))
 		resp.Body.Close()
 		if err != nil {
 			lastErr = err
 			continue
+		}
+		if len(data) > maxManifestBytes {
+			return fmt.Errorf("GET %s: response exceeded %d bytes", rawURL, maxManifestBytes)
 		}
 		return os.WriteFile(output, data, 0o644)
 	}
