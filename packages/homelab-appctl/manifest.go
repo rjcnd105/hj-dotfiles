@@ -165,7 +165,8 @@ func downloadManifest(rawURL, output string) error {
 	case strings.HasPrefix(rawURL, "https://github.com/") && strings.Contains(rawURL, "/releases/download/"):
 		tokenFile := githubTokenFile()
 		if tokenFile != "" {
-			if _, err := os.Stat(tokenFile); err == nil {
+			if f, err := os.Open(tokenFile); err == nil {
+				f.Close()
 				return githubReleaseAsset(rawURL, output, tokenFile)
 			}
 		}

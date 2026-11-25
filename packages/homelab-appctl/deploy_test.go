@@ -155,6 +155,19 @@ exit 0
 		t.Fatalf("no-op deploy executed commands")
 	}
 
+	// 2b. 존재하지 않는 target 실패가 정상 가동 중인 latest를 덮어쓰지 않아야 한다.
+	if err := cmdDeploy(loaded, "deopjib", "dev", "deopjib-v9.9.9"); err == nil {
+		t.Fatalf("missing manifest unexpectedly succeeded")
+	} else if !strings.Contains(err.Error(), "no such file") {
+		t.Fatalf("expected wrapped download error, got: %v", err)
+	}
+	if err := cmdDeploy(loaded, "deopjib", "dev", "deopjib-v1.0.0"); err != nil {
+		t.Fatalf("no-op deploy after failed download failed: %v", err)
+	}
+	if readFile(t, stubLog) != before {
+		t.Fatalf("failed download broke no-op detection on running target")
+	}
+
 	// 3. migration 실패 시 이전 태그 복원.
 	previousBackend := readFile(t, filepath.Join(stubState, "backend"))
 	previousWeb := readFile(t, filepath.Join(stubState, "web"))
@@ -265,6 +278,36 @@ func TestPruneDeployRecords(t *testing.T) {
 	newest := fmt.Sprintf("20260828T%06dZ.aaaaaa", keepDeployRecords+2)
 	if _, err := os.Stat(filepath.Join(dir, newest)); err != nil {
 		t.Fatalf("newest record was pruned")
+	}
+}
+
+func TestCmdSmokeDoesNotFollowRedirects(t *testing.T) {
+	redirected := false
+	external := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		redirected = true
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer external.Close()
+
+	loopback := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Host != "app.example.test" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		http.Redirect(w, r, external.URL+"/escaped", http.StatusFound)
+	}))
+	defer loopback.Close()
+
+	meta := &Metadata{
+		Domain:     "app.example.test",
+		CaddyURL:   loopback.URL,
+		SmokePaths: []string{"/"},
+	}
+	if err := cmdSmoke(meta); err != nil {
+		t.Fatalf("cmdSmoke rejected 302 loopback redirect: %v", err)
+	}
+	if redirected {
+		t.Fatalf("cmdSmoke followed redirect off loopback")
 	}
 }
 

@@ -80,8 +80,15 @@ in
       }) pgAppList
     );
 
-    # role 비밀번호를 sops에서 동기화한다. LoadCredential이 root 전용 secret을
-    # postgres 사용자에게만 노출하고, SQL은 stdin으로 전달해 argv에 남지 않는다.
+    sops.secrets = mkIf (pgAppList != [ ]) (
+      builtins.listToAttrs (
+        map (app: {
+          name = app.host.postgresPasswordSecret;
+          value.restartUnits = [ "homelab-postgres-credentials.service" ];
+        }) pgAppList
+      )
+    );
+
     systemd.services.homelab-postgres-credentials = mkIf (pgAppList != [ ]) {
       description = "Sync shared PostgreSQL role passwords from sops";
       requires = [
@@ -98,6 +105,7 @@ in
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         Type = "oneshot";
+        RemainAfterExit = true;
         User = "postgres";
         LoadCredential = map (
           app:

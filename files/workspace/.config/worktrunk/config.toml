@@ -37,8 +37,4 @@ mise = "if command -v mise >/dev/null 2>&1; then mise trust --all --quiet >/dev/
 
 [step.copy-ignored]
 # .venv는 절대 경로가 박혀 있어 복사하면 primary의 인터프리터를 가리킨다. uv sync로 새로 만든다.
-# exclude는 git이 나열한 항목 자체에만 맞춰 보고 상위 디렉터리로 거슬러 올라가지 않는다.
-# 그래서 통째로 무시된 디렉터리의 안쪽 경로(.next/dev 같은)는 못 빼고,
-# 디렉터리 안 .gitignore(*)로 디렉터리와 파일이 따로 나열되는 .husky/_는 둘 다 적는다.
-# .husky/_는 위 hooks 단계가 primary 것을 가리키게 하므로 복사하지 않는다.
-exclude = [".DS_Store", ".venv/", ".husky/_", ".husky/_/*"]
+exclude = [".DS_Store", ".venv/", ".husky/_/"]

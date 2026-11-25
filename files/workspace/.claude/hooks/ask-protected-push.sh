@@ -1,37 +1,96 @@
 #!/bin/sh
-# PreToolUse(Bash) 훅. ~/work/gm 저장소에서 보호 브랜치로 push 할 때만 확인을 요청한다.
-# 그 밖의 명령은 아무것도 출력하지 않고 끝내서 기존 권한 판단(allow 규칙, auto 분류기)에 맡긴다.
-# 판단이 애매하면 묻는 쪽으로 기운다. 잘못 물어도 한 번 승인하면 되지만, 놓치면 되돌릴 수 없다.
 set -f
 
 input=$(cat)
 case "$input" in *push*) ;; *) exit 0 ;; esac
 
-cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty')
-cwd=$(printf '%s' "$input" | jq -r '.cwd // empty')
+ask_static() {
+  printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"push 명령을 안전하게 검증할 수 없어 확인이 필요합니다(jq 오류 또는 미설치)."}}'
+  exit 0
+}
+
+ask() {
+  jq -cn --arg r "$1" \
+    '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"ask",permissionDecisionReason:$r}}' || ask_static
+  exit 0
+}
+
+command -v jq >/dev/null 2>&1 || ask_static
+cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty') || ask_static
+cwd=$(printf '%s' "$input" | jq -r '.cwd // empty') || ask_static
 [ -d "$cwd" ] || cwd=$PWD
 
 protected='main|dev|master|stg-frontend'
 sp='[[:space:]]'
-# push 앞에 올 수 있는 전역 옵션: -C <dir>, -c <k=v>, -R <dir>, --flag[=value]
 opt="($sp+(-[CcR]$sp+[^[:space:]]+|--?[[:alnum:]-]+(=[^[:space:]]+)?))*"
 
-# `git push …`, `git -C x push …`, `jj git push …` 조각을 뽑는다. 커밋 메시지 속 "push" 는 걸리지 않는다.
 segments=$(printf '%s\n' "$cmd" |
   grep -oE "(^|[^[:alnum:]_./-])(git|jj)$opt$sp+(git$sp+)?push(${sp}[^;&|]*)?")
 [ -n "$segments" ] || exit 0
 
-ask() {
-  jq -cn --arg r "$1" \
-    '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"ask",permissionDecisionReason:$r}}'
-  exit 0
+is_protected_ref() {
+  ref=$(printf '%s' "$1" | sed -E "s/^[\"']+//; s/[\"']+\$//; s/^\+//; s#^refs/heads/##")
+  printf '%s' "$ref" | grep -Eqx "$protected"
+}
+
+check_refspec_safe() {
+  spec=$(printf '%s' "$1" | sed -E "s/^[\"']+//; s/[\"']+\$//")
+  case "$spec" in
+    *:*)
+      src=${spec%%:*}
+      dst=${spec#*:}
+      ;;
+    *)
+      src=$spec
+      dst=$spec
+      ;;
+  esac
+  src_clean=$(printf '%s' "$src" | sed -E 's/^\+//; s#^refs/heads/##')
+  dst_clean=$(printf '%s' "$dst" | sed -E 's/^\+//; s#^refs/heads/##')
+
+  if [ -z "$dst_clean" ]; then
+    ask "대상 ref가 비어 있는 push($spec)입니다. 확인이 필요합니다."
+  fi
+  if is_protected_ref "$src_clean" || is_protected_ref "$dst_clean"; then
+    ask "보호 브랜치($protected)를 가리키는 push($spec)입니다."
+  fi
+  case "$src_clean" in
+    HEAD | @ | HEAD~* | HEAD^* | @~* | @^*)
+      return 1
+      ;;
+  esac
+  case "$dst_clean" in
+    HEAD | @)
+      return 1
+      ;;
+  esac
+  case "$spec" in
+    *'*'* | *'$'* | *'`'*)
+      ask "동적이거나 와일드카드가 포함된 push refspec($spec)입니다."
+      ;;
+  esac
+  return 0
+}
+
+check_current_branch_safe() {
+  target_dir=$1
+  branch=$(git -C "$target_dir" branch --show-current 2>/dev/null)
+  upstream=$(git -C "$target_dir" rev-parse --abbrev-ref '@{u}' 2>/dev/null)
+  if [ -z "$branch" ]; then
+    ask "현재 브랜치를 확인할 수 없어 보호 브랜치($protected) 여부를 보장할 수 없습니다."
+  fi
+  if is_protected_ref "$branch"; then
+    ask "현재 브랜치($branch)가 보호 브랜치($protected)입니다."
+  fi
+  if [ -n "$upstream" ] && is_protected_ref "${upstream#*/}"; then
+    ask "현재 upstream($upstream)이 보호 브랜치($protected)입니다."
+  fi
 }
 
 while IFS= read -r seg; do
   [ -n "$seg" ] || continue
   args=${seg#*push}
 
-  # 이 push 가 실행될 폴더: -C/-R 값, 없으면 앞서 나온 마지막 cd, 그것도 없으면 세션 cwd
   dir=$(printf '%s' "$seg" | sed -nE "s/.*$sp-[CR]$sp+([^[:space:]]+).*/\1/p")
   if [ -z "$dir" ]; then
     before=${cmd%%"$seg"*}
@@ -48,39 +107,60 @@ while IFS= read -r seg; do
     /*) ;;
     *) dir="$cwd/$dir" ;;
   esac
-  # 변수로 적은 경로처럼 풀 수 없는 폴더면 cwd 로 보고, 범위 판단에 명령 전체를 함께 본다.
-  hint=
-  [ -d "$dir" ] || { dir=$cwd; hint=$cmd; }
 
-  # 범위: ~/work/gm 아래 저장소. 다른 곳에 만든 worktree 도 원본 .git 위치로 잡는다.
+  unresolved_dir_cmd_fallback=
+  [ -d "$dir" ] || { dir=$cwd; unresolved_dir_cmd_fallback=$cmd; }
+
   common=$(git -C "$dir" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
-  case "$dir/ $common/ $hint" in */work/gm/*) ;; *) continue ;; esac
+  case "$dir/ $common/ $unresolved_dir_cmd_fallback" in */work/gm/*) ;; *) continue ;; esac
 
-  if printf '%s' "$args" |
-    grep -Eq "(^|[[:space:]:+'\"]|refs/heads/)($protected)(\$|[[:space:]:'\"])"; then
-    ask "보호 브랜치($protected)를 가리키는 push 입니다."
-  fi
-  if printf '%s' "$args" | grep -Eq -- "(^|$sp)--(all|mirror|tracked|deleted)($sp|\$)"; then
-    ask "여러 브랜치를 한꺼번에 보내는 push 라 보호 브랜치($protected)가 포함될 수 있습니다."
+  if printf '%s' "$args" | grep -Eq -- "(^|$sp)(--all|--mirror|--tracked|--deleted|--tags)($sp|\$)"; then
+    ask "여러 브랜치/태그를 한꺼번에 보내는 push라 보호 브랜치($protected)가 포함될 수 있습니다."
   fi
 
   case "$seg" in
     jj* | ?jj*)
-      # bookmark 를 고르지 않은 jj git push 는 무엇이 나갈지 명령만으로 알 수 없다.
-      printf '%s' "$args" | grep -Eq -- "(^|$sp)(-b|--bookmark|-c|--change|--named)($sp|=|\$)" ||
-        ask "보낼 bookmark 를 지정하지 않은 jj git push 입니다. 보호 브랜치($protected)가 포함될 수 있습니다."
+      if ! printf '%s' "$args" | grep -Eq -- "(^|$sp)(-b|--bookmark|-c|--change|--named)($sp|=|\$)"; then
+        ask "보낼 bookmark를 지정하지 않은 jj git push입니다. 보호 브랜치($protected)가 포함될 수 있습니다."
+      fi
+      if printf '%s' "$args" |
+        grep -Eq "(^|[[:space:]:=+'\"]|refs/heads/)($protected)(\$|[[:space:]:'\"])"; then
+        ask "보호 브랜치($protected)를 가리키는 jj git push입니다."
+      fi
       continue
       ;;
   esac
 
-  # 대상 브랜치를 적지 않았거나 HEAD 로 적은 git push 는 현재 브랜치와 upstream 을 본다.
-  positional=$(printf '%s\n' $args | grep -vE '^(-|[0-9]*[<>])' | grep -c .)
-  if [ "$positional" -lt 2 ] || printf '%s\n' $args | grep -Eq '^(HEAD|@)(:|$)'; then
-    branch=$(git -C "$dir" branch --show-current 2>/dev/null)
-    upstream=$(git -C "$dir" rev-parse --abbrev-ref '@{u}' 2>/dev/null)
-    if printf '%s\n%s\n' "$branch" "${upstream#*/}" | grep -Eqx "$protected"; then
-      ask "현재 브랜치(${branch:-?}, upstream ${upstream:-없음})가 보호 브랜치($protected)입니다."
+  pos_count=0
+  skip_next=0
+  need_branch_check=0
+  for tok in $args; do
+    if [ "$skip_next" -eq 1 ]; then
+      skip_next=0
+      continue
     fi
+    case "$tok" in
+      -o | --push-option | --repo | --receive-pack | --exec)
+        skip_next=1
+        continue
+        ;;
+      -*)
+        continue
+        ;;
+      [0-9]*'<'* | [0-9]*'>'* | '<'* | '>'*)
+        continue
+        ;;
+    esac
+    pos_count=$((pos_count + 1))
+    if [ "$pos_count" -ge 2 ]; then
+      if ! check_refspec_safe "$tok"; then
+        need_branch_check=1
+      fi
+    fi
+  done
+
+  if [ "$pos_count" -lt 2 ] || [ "$need_branch_check" -eq 1 ]; then
+    check_current_branch_safe "$dir"
   fi
 done <<EOF
 $segments

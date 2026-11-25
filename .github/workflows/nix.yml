@@ -23,31 +23,13 @@ jobs:
 
       - uses: DeterminateSystems/determinate-nix-action@v3
         with:
-          # Default is ${{ github.token }}, which is scoped to this repo only and
-          # cannot read the private deopjibApp input. The action turns this into
-          # nix.conf `access-tokens`.
           github-token: ${{ secrets.NIX_GITHUB_TOKEN }}
 
-      - name: Evaluate root flake outputs
+      - name: Evaluate all-system flake outputs
         run: nix flake check --all-systems --no-build --show-trace
 
-      - name: Build homelab-appctl (unit + stub E2E tests)
-        run: nix build .#checks.x86_64-linux.homelab-appctl-package --show-trace
+      - name: Evaluate darwin configuration
+        run: nix eval .#darwinConfigurations.workspace_hj.system.drvPath --show-trace
 
-      - name: Check homelab Quadlet lifecycle
-        run: nix build .#checks.x86_64-linux.homelab-quadlet-lifecycle-invariants --show-trace
-
-      - name: Check homelab contract v2 invariants
-        run: nix build .#checks.x86_64-linux.homelab-contract-v2-invariants --show-trace
-
-      - name: Check homelab release dry-run
-        run: nix build .#checks.x86_64-linux.homelab-appctl-release-dry-run --show-trace
-
-      - name: Check homelab unit executables exist
-        run: nix build .#checks.x86_64-linux.homelab-unit-executables-exist --show-trace
-
-      - name: Check sops secrets are strings
-        run: nix build .#checks.x86_64-linux.sops-secrets-are-strings --show-trace
-
-      - name: Check root formatting
-        run: nix build .#checks.x86_64-linux.formatting --show-trace
+      - name: Build and run x86_64-linux checks
+        run: nix flake check --show-trace

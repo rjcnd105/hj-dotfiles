@@ -6,38 +6,20 @@
   myOptions,
   ...
 }:
-let
-  # aqua = import (myOptions.paths.pkgs + "/aqua.nix") {
-  #   inherit pkgs;
-  # };
-in
 {
   home.username = myOptions.userName;
 
-  # services = {
-  #   gpg-agent = {
-  #     enable = true;
-  #     defaultCacheTtl = 1800;
-  #     enableSshSupport = true;
-  #   };
-  # };
-
   home.shellAliases = {
-    grep = "rg";
-    find = "fd";
-    sd = "sed";
-    ping = "gping"; # 그래픽 ping
+    ping = "gping";
     pskill = "ps -f | fzf | awk '{print $2}' | xargs kill";
+    lzg = "lazygit";
   };
 
   home.sessionVariables = {
     HOME_VERSION = inputs.nixpkgs.lib.trivial.release;
-    AQUA_GLOBAL_CONFIG = config.xdg.configHome + "/aqua/aqua.toml";
     PROJECT_PATH = "${myOptions.absoluteProjectPath}";
     EDITOR = pkgs.helix + "/bin/hx";
-
     USER_PROFILE = config.home.profileDirectory;
-    HM_CURRENT = "/run/current-system/sw";
   }
   // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
     VISUAL = "/usr/local/bin/zed";
@@ -47,64 +29,35 @@ in
   };
 
   home.sessionPath = [
-    "/usr/bin"
     "${config.home.homeDirectory}/.local/bin"
     "${config.home.homeDirectory}/.cache/.bun/bin"
     "${config.home.homeDirectory}/.local/scripts"
   ];
 
-  home.stateVersion = inputs.nixpkgs.lib.trivial.release;
+  home.stateVersion = "26.11";
 
-  home.packages =
-    with pkgs;
-    [
-      zsh
-      helix
-      ripgrep # grep 대체 (rg)
-      sd # sed 대체 (더 직관적)
-      jq # json 파싱
-      # tlrc # 문서 보기
-      coreutils # 기본 유틸리티
-      file # 파일 타입 확인
-      fd # find 대체
-      restic # 백업 도구
-      # nmap # 네트워크 스캔
-      pwgen # 패스워드 생성
-      # fastfetch # 빠른 fetch
-      curl # 다운로드
-      cloudflared # homelab SSH 접속 (CF Access ProxyCommand)
-      # procs
-      gping # ping 대체, 그래프 표시 기능
-      dua # 디스크 사용량
-      fontconfig
-      # 7zip
-      p7zip
-      # 압축
-      zstd
+  home.packages = [
+    pkgs.zsh
+    pkgs.helix
+    pkgs.ripgrep
+    pkgs.sd
+    pkgs.jq
+    pkgs.coreutils
+    pkgs.file
+    pkgs.fd
+    pkgs.restic
+    pkgs.pwgen
+    pkgs.curl
+    pkgs.cloudflared
+    pkgs.gping
+    pkgs.dua
+    pkgs.p7zip
+    pkgs.zstd
+  ]
+  ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
+    pkgs.fontconfig
+    pkgs.lima
+  ];
 
-      # hyperfine # 벤치마크 도구
-      # termshark # Wireshark의 TUI 버전
-      # bandwhich # 실시간 네트워크 사용량을 프로세스별로 표시
-      # mtr-gui # traceroute 대체, 더 상호작용적
-      lima # macOS 전용 Linux VM
-    ]
-    ++ [
-      pkgs.sarasa-gothic
-      pkgs.nerd-fonts.d2coding
-      pkgs.nerd-fonts.jetbrains-mono
-      # 필요한 다른 폰트들...
-      #
-      # aqua
-    ];
-
-  home.shellAliases = {
-    lzg = "lazygit";
-  };
-
-  # @see https://github.com/nix-community/home-manager/blob/master/modules/files.nix
-  home.activation = {
-
-  };
-
-  fonts.fontconfig.enable = true;
+  fonts.fontconfig.enable = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin true;
 }

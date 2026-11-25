@@ -21,6 +21,7 @@ import argparse
 import json
 import sys
 from collections import defaultdict
+from datetime import datetime, timezone
 
 import sessions as S
 
@@ -41,8 +42,7 @@ def main() -> int:
     filters = S.filters_from_args(args, subagents_default=False)
     summaries = S.load_summaries(filters)
 
-    # Re-scan each matching session and collect its user prompts.
-    sess_prompts = []  # list of (summary, [prompts])
+    sess_prompts: list[tuple[S.SessionSummary, list[tuple[int | None, str]]]] = []
     total_prompts = 0
     for s in summaries:
         prompts = _collect_prompts(s.path, args.max_chars, args.min_chars,
@@ -98,6 +98,8 @@ def _collect_prompts(path, max_chars: int, min_chars: int, since, until):
 
 
 def _extract_text(content) -> str:
+    if isinstance(content, str):
+        return content
     if not isinstance(content, list):
         return ""
     chunks = []
@@ -110,15 +112,14 @@ def _extract_text(content) -> str:
 
 
 def _render_markdown(sess_prompts, total_prompts: int) -> None:
-    # Group by project (cwd), newest first within each group, project order by
-    # most recent session.
     by_proj = defaultdict(list)
     for s, prompts in sess_prompts:
         by_proj[s.cwd or "?"].append((s, prompts))
 
+    epoch_min = datetime.min.replace(tzinfo=timezone.utc)
     proj_order = sorted(by_proj.keys(),
                         key=lambda k: max((s.started_at for s, _ in by_proj[k]
-                                           if s.started_at), default=None) or 0,
+                                           if s.started_at), default=epoch_min),
                         reverse=True)
 
     print(f"# Pi prompts dump")
@@ -129,9 +130,8 @@ def _render_markdown(sess_prompts, total_prompts: int) -> None:
     for proj in proj_order:
         print(f"## {proj}")
         print()
-        # newest session first
         for s, prompts in sorted(by_proj[proj],
-                                 key=lambda x: x[0].started_at or 0,
+                                 key=lambda x: x[0].started_at or epoch_min,
                                  reverse=True):
             print(f"### {S.fmt_short_ts(s.started_at)}  ·  `{s.short_id}`  "
                   f"·  {len(prompts)} prompt{'s' if len(prompts) != 1 else ''}")

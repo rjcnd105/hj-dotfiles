@@ -36,10 +36,7 @@
       "wheel"
       "podman"
     ];
-    linger = true; # home-manager systemd user service 부팅 상주
-    openssh.authorizedKeys.keys = [
-      # 설치 시 SSH 공개키 추가
-    ];
+    linger = true;
   };
 
   nix.settings = {

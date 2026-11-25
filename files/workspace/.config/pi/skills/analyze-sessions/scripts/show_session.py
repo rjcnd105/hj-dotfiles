@@ -156,10 +156,23 @@ def _render_assistant(m: dict, ts: str, args) -> None:
     model = m.get("model") or "?"
     usage = m.get("usage") or {}
     cost = (usage.get("cost") or {}).get("total")
-    cost_str = f"  ·  {S.fmt_money(cost)}" if isinstance(cost, (int, float)) else ""
+    cost_str = (
+        f"  ·  {S.fmt_money(cost)}"
+        if isinstance(cost, (int, float)) and not isinstance(cost, bool)
+        else ""
+    )
     print(f"## 🤖 Assistant ({model})  ·  {ts}{cost_str}")
     print()
-    for c in m.get("content") or []:
+    content = m.get("content")
+    if isinstance(content, str):
+        text = S.truncate(content, args.max_assistant_text) if args.max_assistant_text else content
+        if text:
+            print(text)
+            print()
+        return
+    for c in content or []:
+        if not isinstance(c, dict):
+            continue
         ct = c.get("type")
         if ct == "thinking":
             if args.max_thinking < 0:
@@ -206,6 +219,8 @@ def _render_tool_result(m: dict, ts: str, max_chars: int) -> None:
 
 
 def _join_text(content) -> str:
+    if isinstance(content, str):
+        return content
     if not isinstance(content, list):
         return ""
     parts = []

@@ -17,8 +17,10 @@ let
     text = ''
       token_file=${config.sops.secrets.TELEGRAM_BOT_TOKEN.path}
       chat_id_file=${config.sops.secrets.TELEGRAM_CHAT_ID.path}
-      # 알림 실패가 comin 배포 기록을 실패로 만들면 안 된다.
-      [ -r "$token_file" ] && [ -r "$chat_id_file" ] || exit 0
+      if [ ! -r "$token_file" ] || [ ! -r "$chat_id_file" ]; then
+        echo "comin-telegram-notify: telegram secret file unreadable" >&2
+        exit 1
+      fi
 
       status="''${COMIN_STATUS:-unknown}"
       sha="''${COMIN_GIT_SHA:-unknown}"

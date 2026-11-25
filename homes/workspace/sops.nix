@@ -147,18 +147,15 @@ let
 in
 {
 
-  ## ssh to age
-  # nix-shell -p ssh-to-age --run 'cat ~/.ssh/id_ed25519.pub | ssh-to-age'
-
-  # sops·age CLI는 systems/mise-packages.nix(mise 전역 설정의 `nix:` 선언)가 설치한다.
-
   # sops-nix는 darwin에서 launchd agent로 돈다. HM activation의
   # `launchctl bootout` + `bootstrap`은 이미 로드된 job에서 RunAtLoad를 다시
   # 발화시키지 못해(runs=0) switch 후에도 렌더 파일이 옛날 것으로 남는다.
   # kickstart는 실제로 재실행된다(runs=1). switch를 막지 않도록 실패는 무시.
-  home.activation.sopsNixKickstart = lib.hm.dag.entryAfter [ "sops-nix" ] ''
-    run /bin/launchctl kickstart -k "gui/$(/usr/bin/id -u)/org.nix-community.home.sops-nix" || true
-  '';
+  home.activation.sopsNixKickstart = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (
+    lib.hm.dag.entryAfter [ "sops-nix" ] ''
+      run /bin/launchctl kickstart -k "gui/$(/usr/bin/id -u)/org.nix-community.home.sops-nix" || true
+    ''
+  );
 
   home.sessionVariables = {
     SOPS_DIR = sops_dir;
@@ -183,8 +180,6 @@ in
       "workspace-secrets.env".content = mkEnvContent workspace_env_vars;
 
       "llm.env".content = mkEnvContent llm_env_vars;
-
-      "context7.env".content = mkEnvContent [ "CONTEXT7_API_KEY" ];
 
       "last30days.env" = {
         path = "${config.home.homeDirectory}/.config/last30days/.env";

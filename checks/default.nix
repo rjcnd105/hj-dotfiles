@@ -204,7 +204,10 @@ let
     assert backendContainer.containerConfig.pull == "never";
     assert builtins.elem "postgresql.service" backendContainer.unitConfig.Requires;
     assert builtins.elem "postgresql.service" backendContainer.unitConfig.After;
+    assert builtins.elem "homelab-postgres-credentials.service" backendContainer.unitConfig.Wants;
     assert builtins.elem "homelab-postgres-credentials.service" backendContainer.unitConfig.After;
+    assert !(builtins.elem "homelab-postgres-credentials.service" backendContainer.unitConfig.Requires);
+    assert homelab.systemd.services.homelab-postgres-credentials.serviceConfig.RemainAfterExit;
     assert builtins.elem "deopjib_dev" homelab.services.postgresql.ensureDatabases;
     assert builtins.all (
       container:
@@ -482,6 +485,33 @@ let
       [ "$status" -eq 0 ] || exit 1
       touch "$out"
     '';
+
+  homelabRestartUnitsExist =
+    let
+      pkgs = pkgsFor "x86_64-linux";
+      homelab = self.nixosConfigurations.homelab_hj.config;
+      knownServices =
+        (builtins.attrNames homelab.systemd.services)
+        ++ (builtins.attrNames homelab.virtualisation.quadlet.containers);
+      restartTargets = lib.unique (
+        lib.flatten (
+          (lib.mapAttrsToList (_: tpl: tpl.restartUnits) homelab.sops.templates)
+          ++ (lib.mapAttrsToList (_: sec: sec.restartUnits) homelab.sops.secrets)
+        )
+      );
+      missing = builtins.filter (
+        unit:
+        let
+          base = lib.removeSuffix ".service" unit;
+        in
+        !(builtins.elem base knownServices)
+      ) restartTargets;
+    in
+    assert
+      missing == [ ] || throw "sops restartUnits reference nonexistent services: ${toString missing}";
+    pkgs.runCommand "homelab-restart-units-exist" { } ''
+      touch "$out"
+    '';
 in
 lib.recursiveUpdate
   (eachSystem (system: {
@@ -498,4 +528,5 @@ lib.recursiveUpdate
     x86_64-linux.homelab-quadlet-lifecycle-invariants = homelabQuadletLifecycleInvariants;
     x86_64-linux.homelab-contract-v2-invariants = homelabContractV2Invariants;
     x86_64-linux.homelab-unit-executables-exist = homelabUnitExecutablesExist;
+    x86_64-linux.homelab-restart-units-exist = homelabRestartUnitsExist;
   }

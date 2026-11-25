@@ -67,7 +67,12 @@ func cmdSmoke(meta *Metadata) error {
 	if len(meta.SmokePaths) == 0 {
 		return fmt.Errorf("metadata has no smoke paths")
 	}
-	client := &http.Client{Timeout: 5 * time.Second}
+	client := &http.Client{
+		Timeout: 5 * time.Second,
+		CheckRedirect: func(*http.Request, []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
 	const maxAttempts = 12
 	for _, path := range meta.SmokePaths {
 		fmt.Printf("smoke: %s %s\n", meta.Domain, path)

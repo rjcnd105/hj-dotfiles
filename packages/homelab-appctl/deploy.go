@@ -90,7 +90,7 @@ type deployRecord struct {
 	before, after        []imageSnapshot
 }
 
-func (r *deployRecord) write(result string) {
+func (r *deployRecord) write(result string, updateLatest bool) error {
 	summary := map[string]any{
 		"app":        r.app,
 		"channel":    r.channel,
@@ -108,17 +108,25 @@ func (r *deployRecord) write(result string) {
 		summary["target"] = nil
 	}
 	data, err := json.MarshalIndent(summary, "", "  ")
-	if err == nil {
-		os.WriteFile(filepath.Join(r.path, "summary.json"), append(data, '\n'), 0o644)
+	if err != nil {
+		return err
 	}
-	os.WriteFile(filepath.Join(r.path, "result"), []byte(result+"\n"), 0o644)
-
+	if err := os.WriteFile(filepath.Join(r.path, "summary.json"), append(data, '\n'), 0o644); err != nil {
+		return err
+	}
+	if err := os.WriteFile(filepath.Join(r.path, "result"), []byte(result+"\n"), 0o644); err != nil {
+		return err
+	}
+	if !updateLatest {
+		return nil
+	}
 	latest := filepath.Join(r.dir, "latest")
 	tmp := latest + ".tmp"
-	os.Remove(tmp)
-	if err := os.Symlink(r.path, tmp); err == nil {
-		os.Rename(tmp, latest)
+	_ = os.Remove(tmp)
+	if err := os.Symlink(r.path, tmp); err != nil {
+		return err
 	}
+	return os.Rename(tmp, latest)
 }
 
 func snapshotList(snapshots []imageSnapshot) []imageSnapshot {
@@ -251,7 +259,7 @@ func pruneReleaseImages(desired []DesiredImage) {
 		names[image.ImageName] = true
 	}
 	for name := range names {
-		output, err := commandOutput("podman", "images", name, "--format", "{{.ID}} {{.Tag}}")
+		output, err := commandOutput("podman", "images", "--sort", "created", name, "--format", "{{.ID}} {{.Tag}}")
 		if err != nil {
 			continue
 		}
@@ -315,7 +323,7 @@ func cmdDeployDryRun(meta *Metadata, app, channel, target string) error {
 	defer os.RemoveAll(tmpDir)
 	manifestPath := filepath.Join(tmpDir, "release-manifest.json")
 	if err := downloadManifest(releaseManifestURL, manifestPath); err != nil {
-		return fmt.Errorf("release manifest download failed: %s", releaseManifestURL)
+		return fmt.Errorf("release manifest download failed (%s): %w", releaseManifestURL, err)
 	}
 	manifest, err := loadManifest(manifestPath)
 	if err != nil {
@@ -399,47 +407,55 @@ func cmdDeploy(meta *Metadata, app, channel, target string) error {
 	if meta.Migration.Unit != "" {
 		record.migrationResult = "not-run"
 	}
-	record.before = snapshotImages(meta)
-	writeSnapshotTSV(filepath.Join(recordPath, "before-images.tsv"), record.before)
-	record.write("in-progress")
 
 	releaseManifestURL, err := manifestURL(meta, target)
 	if err != nil {
-		record.write("manifest-invalid")
+		_ = record.write("manifest-invalid", false)
 		return err
 	}
 	fmt.Printf("manifest: %s\n", releaseManifestURL)
 	manifestPath := filepath.Join(recordPath, "release-manifest.json")
 	if err := downloadManifest(releaseManifestURL, manifestPath); err != nil {
-		record.write("manifest-download-failed")
-		return fmt.Errorf("release manifest download failed: %s", releaseManifestURL)
+		_ = record.write("manifest-download-failed", false)
+		return fmt.Errorf("release manifest download failed (%s): %w", releaseManifestURL, err)
 	}
 	manifest, err := loadManifest(manifestPath)
 	if err != nil {
-		record.write("manifest-invalid")
+		_ = record.write("manifest-invalid", false)
 		return err
 	}
 	if err := validateManifest(meta, manifest, target); err != nil {
-		record.write("manifest-invalid")
+		_ = record.write("manifest-invalid", false)
 		return fmt.Errorf("release manifest does not match admitted metadata: %w", err)
 	}
 	desired, err := desiredImages(meta, manifest)
 	if err != nil {
-		record.write("manifest-invalid")
+		_ = record.write("manifest-invalid", false)
 		return err
 	}
-	writeDesiredTSV(filepath.Join(recordPath, "desired-images.tsv"), desired)
+	if err := writeDesiredTSV(filepath.Join(recordPath, "desired-images.tsv"), desired); err != nil {
+		return err
+	}
+
+	record.before = snapshotImages(meta)
+	if err := writeSnapshotTSV(filepath.Join(recordPath, "before-images.tsv"), record.before); err != nil {
+		return err
+	}
 
 	if err := pullReleaseImages(meta, desired); err != nil {
-		record.write("pull-failed")
+		_ = record.write("pull-failed", false)
+		return err
+	}
+
+	if err := record.write("in-progress", true); err != nil {
 		return err
 	}
 
 	if err := activateReleaseImages(desired); err != nil {
 		if restoreReleaseImages(desired, record.before) {
-			record.write("activation-failed")
+			_ = record.write("activation-failed", true)
 		} else {
-			record.write("activation-recovery-failed")
+			_ = record.write("activation-recovery-failed", true)
 		}
 		return err
 	}
@@ -449,9 +465,9 @@ func cmdDeploy(meta *Metadata, app, channel, target string) error {
 		if err := runCommand("systemctl", "start", meta.Migration.Unit); err != nil {
 			record.migrationResult = "failed"
 			if restoreReleaseImages(desired, record.before) {
-				record.write("migration-failed")
+				_ = record.write("migration-failed", true)
 			} else {
-				record.write("migration-recovery-failed")
+				_ = record.write("migration-recovery-failed", true)
 			}
 			return err
 		}
@@ -462,27 +478,27 @@ func cmdDeploy(meta *Metadata, app, channel, target string) error {
 	for _, service := range meta.releaseServices() {
 		releaseUnits = append(releaseUnits, service.ServiceUnit)
 	}
-	if len(releaseUnits) == 0 {
-		record.write("manifest-invalid")
-		return fmt.Errorf("metadata has no release service units")
-	}
 	fmt.Printf("restart: %s\n", strings.Join(releaseUnits, " "))
 	if err := runCommand("systemctl", append([]string{"restart"}, releaseUnits...)...); err != nil {
-		record.write("restart-failed")
+		_ = record.write("restart-failed", true)
 		return err
 	}
 
 	record.after = snapshotImages(meta)
-	writeSnapshotTSV(filepath.Join(recordPath, "after-images.tsv"), record.after)
+	if err := writeSnapshotTSV(filepath.Join(recordPath, "after-images.tsv"), record.after); err != nil {
+		return err
+	}
 
 	if err := cmdSmoke(meta); err != nil {
 		record.smokeResult = "failed"
-		record.write("smoke-failed")
+		_ = record.write("smoke-failed", true)
 		fmt.Fprintf(os.Stderr, "smoke failed; deploy a known-good release target to roll back: %s\n", recordPath)
 		return err
 	}
 	record.smokeResult = "ok"
-	record.write("ok")
+	if err := record.write("ok", true); err != nil {
+		return err
+	}
 	fmt.Printf("deploy record: %s\n", recordPath)
 
 	pruneDeployRecords(recordDir)
