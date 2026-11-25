@@ -2,8 +2,12 @@
 
 - For `invoke_subagent`, keep the default `Model: "inherit"` unless the request
   asks for a lighter (`flash_lite`, `flash`) or larger (`pro`) tier.
+- In zsh, quote literal arguments that start with `=`, such as separators
+  (`echo '====='`), and use `=` instead of `==` inside `[ ]`. zsh expands a
+  leading `=` as a command path, and a failed expansion aborts the rest of the
+  command line. Leave operators inside `[[ ]]` unquoted.
 
-<!-- skillshare:extra src="../.skillshare/extras/agent-guide/AGENTS.md" sha256=4cf9c0f788774075 -->
+<!-- skillshare:extra src="../.skillshare/extras/agent-guide/AGENTS.md" sha256=3620002448f5be11 -->
 # Personal Agent Guide
 
 ## Role and communication
@@ -86,20 +90,15 @@
 - Encode a repeated correction in the project's existing checks (lint, type,
   test), not as another instruction or memory. Propose the check when it falls
   outside the request.
-- If a requested boundary creates parallel authority or out-of-band coordination,
-  report the conflict and ask for the smallest boundary adjustment.
 - Prefer current local truth: the checkout, generated schemas/types, installed
-  documentation, and live browser/network/log/API evidence. Diagnose before
-  patching and fix the root cause.
-- When the documentation and existing code conflict, follow the code's
-  conventions, and in your final reply, list all the inconsistencies you found.
+  or official documentation, and live browser/network/log/API evidence.
+  Diagnose before patching and fix the root cause.
+- When docs and code conflict, follow the code and note material inconsistencies
+  that affected the task.
 - Support non-trivial claims with concrete files, commands, tests, primary
   sources, constructions, or counterexamples in proportion to risk.
-- Retrieve again only for a required missing fact, an explicit exhaustive
-  request, a named artifact, or an important unsupported claim. If results are
-  empty, partial, or suspiciously narrow, try one or two meaningful fallbacks.
-- Never simplify away required behavior, data-loss protection, accessibility,
-  required UX polish, or an explicit request.
+- If you simplify, note any dropped behavior; keep data-loss protection and
+  accessibility unless agreed.
 
 ## Implementation simplicity
 
@@ -122,19 +121,6 @@
   Small local duplication can be cheaper than premature abstraction; do not
   duplicate business rules or public contracts that can drift.
 
-## Hard problem protocol
-
-Use only when a task has material uncertainty or risk, or several plausible
-mechanisms. Ordinary implementation and diagnosis skip this protocol.
-
-- Keep one leading route and one independent alternative only when they cover
-  mechanisms that can fail differently.
-- If the leading route fails, try the alternative. Add another route or round
-  only for a new mechanism, evidence, or material risk. Mark an equivalent
-  unproved claim as blocked.
-- Before completion, audit the leading result against the exact contract and
-  task-relevant failure modes.
-
 ## Delegation
 
 - Work in the main session by default; the selected model plans, implements,
@@ -153,25 +139,8 @@ mechanisms. Ordinary implementation and diagnosis skip this protocol.
 
 ## Workflow
 
-- Use `VCS_KIND` as the VCS switch. If absent, establish it once per repository
-  with `jj root >/dev/null 2>&1`: success means `VCS_KIND=jj`, otherwise
-  `VCS_KIND=git`. Re-check after moving to another repo or worktree.
-- Pull minimum context: locate with `rg`/`rg --files`, outline large files, and
-  read only relevant bodies. Batch independent reads or tool calls in the same
-  session, keep dependent work sequential, and synthesize retrieved evidence
-  before writes.
-- In zsh, quote literal arguments that start with `=`, such as separators
-  (`echo '====='`), and use `=` instead of `==` inside `[ ]`. zsh expands a
-  leading `=` as a command path, and a failed expansion aborts the rest of the
-  command line. Leave operators inside `[[ ]]` unquoted.
-- To read another terminal tab: if `HC_TERMINAL_ID` is set, match the tab to
-  `where` in `hc ls`, then run `hc read <t>` (the `herdr` CLI is a different
-  tool). If unset, ask for pasted output or a log file unless the user names a
-  Herdr tab.
-- Prefer installed or official primary documentation for current technical
-  claims; use Context7 when available for library/framework APIs.
-- Honor explicit search restrictions; otherwise use the smallest useful
-  primary-source lookup.
+- When running VCS commands, use `VCS_KIND` (`jj` if `jj root` succeeds, else
+  `git`); re-check per repo or worktree.
 - After changes, run the most relevant targeted tests, type, lint, build, render,
   or smoke checks available. Do not write tests for a reversible, low-impact
   change when they only mirror the implementation. Never claim a check passed
@@ -179,10 +148,6 @@ mechanisms. Ordinary implementation and diagnosis skip this protocol.
   best check.
 - Once the focused required checks pass, broaden or repeat verification only
   when new changes, failures, or unresolved concerns justify it.
-- Declare completion only when the exact outcome passes focused verification.
-  If blocked, report the strongest established result, exact gap, and minimal
+- If blocked, report the strongest established result, exact gap, and minimal
   next action or input.
-- For recurring monitoring, rely on completion notifications when available;
-  otherwise run a cheap no-change check first and emit one status line. Choose
-  intervals from current runtime/cache constraints and stop scheduling when done.
 <!-- /skillshare:extra -->
