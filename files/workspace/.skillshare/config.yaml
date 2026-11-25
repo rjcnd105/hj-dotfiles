@@ -308,6 +308,15 @@ mcp:
         - --auto-connect
         - --channel=stable
       targets: [claude, codex, cursor]
+    codegraph:
+      command: codegraph
+      args:
+        - serve
+        - --mcp
+      targets: [claude, codex, cursor, pi]
+      piOptions:
+        exposure: codemode
+        description: Symbol graph and verbatim source for repos that have a .codegraph/ index
     openaiDeveloperDocs:
       url: https://developers.openai.com/mcp
       targets: [claude, codex, cursor]

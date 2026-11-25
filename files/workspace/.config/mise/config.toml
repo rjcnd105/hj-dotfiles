@@ -151,6 +151,8 @@ version = "latest"
 
 [tools."aqua:colbymchenry/codegraph"]
 version = "latest"
+# Non-login agent sub-sessions (e.g. hc) have ~/.local/bin in PATH without mise shims.
+postinstall = { run = 'mkdir -p "$HOME/.local/bin" && ln -sfn "${MISE_DATA_DIR:-$HOME/.local/share/mise}/shims/codegraph" "$HOME/.local/bin/codegraph"', when = "always" }
 
 [tools."aqua:tamasfe/taplo"]
 version = "latest"

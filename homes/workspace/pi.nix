@@ -18,7 +18,11 @@ in
     # Pi-specific rules use APPEND_SYSTEM.md.
     ".pi/agent/AGENTS.md" = link "AGENTS.md";
     ".pi/agent/APPEND_SYSTEM.md" = link "APPEND_SYSTEM.md";
-    ".pi/agent/mcp.json" = link "mcp.json";
+    # skillshare(`sync mcp -p`)가 project 경로인 .pi/mcp.json에 쓴다.
+    ".pi/agent/mcp.json" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${workspace}/.pi/mcp.json";
+      force = true;
+    };
     ".pi/agent/pi-vcc-config.json" = link "pi-vcc-config.json";
     ".pi/agent/extensions/subagent/config.json" = link "extensions/subagent/config.json";
     ".pi/agent/skills/analyze-sessions" = link "skills/analyze-sessions";

@@ -123,17 +123,73 @@ enabled = false
 path = "/Users/hj/dot/nix-dots/files/workspace/.agents/skills/pdf/SKILL.md"
 enabled = false
 
+# Codex 번들 스킬이 재설치되어도 아래 항목은 비활성화한다.
 [[skills.config]]
-path = "/Users/hj/dot/nix-dots/files/workspace/.codex/skills/.system/imagegen/SKILL.md"
-enabled = true
+path = "skills/.system/create-statusline/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "skills/.system/imagegen/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "skills/.system/review-agent/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "skills/.system/skill-creator/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "skills/.system/skill-installer/SKILL.md"
+enabled = false
+
+# OpenAI 서버 기본 설치(403 uninstall 불가) 원격 플러그인 스킬 비활성화
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/pages/0.1.26/skills/maintain-space/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/pages/0.1.26/skills/manage-schedules/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/pages/0.1.26/skills/organize-space/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/pages/0.1.26/skills/write-page/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/sites/1.2.1-followup/skills/sites/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/sites/1.2.1-followup/skills/sites-remix/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/work-pets/0.1.6/skills/create-pet/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/work-pets/0.1.6/skills/pets/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/work-pets/0.1.6/skills/update-pet/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/visualize/1.0.89/skills/visualize/SKILL.md"
+enabled = false
+
+[[skills.config]]
+path = "/Users/hj/.codex/plugins/cache/openai-curated-remote/plugin-management/0.1.0/skills/plugin-management/SKILL.md"
+enabled = false
 
 [plugins."github@openai-curated"]
-enabled = true
-
-[plugins."documents@openai-primary-runtime"]
-enabled = true
-
-[plugins."spreadsheets@openai-primary-runtime"]
 enabled = true
 
 [plugins."presentations@openai-primary-runtime"]
@@ -143,12 +199,6 @@ enabled = false
 enabled = true
 
 [plugins."browser@openai-bundled"]
-enabled = true
-
-[plugins."pdf@openai-primary-runtime"]
-enabled = true
-
-[plugins."template-creator@openai-primary-runtime"]
 enabled = true
 
 [tui]
@@ -252,9 +302,6 @@ source = "/Users/hj/.local/share/worktrunk/marketplace"
 source_type = "git"
 source = "https://github.com/google/elephant-goldfish-model.git"
 
-[plugins."visualize@openai-bundled"]
-enabled = true
-
 [plugins."codex-app-tools@openai-bundled"]
 enabled = true
 
@@ -289,7 +336,7 @@ url = "https://developers.openai.com/mcp"
 [mcp_servers.node_repl]
 args = []
 command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
-env_vars = ["BROWSER_USE_ACCESS_EXECUTOR_ID", "BROWSER_USE_ACCESS_PIPE_PATH", "BROWSER_USE_ACCESS_VERIFYING_IDENTITY"]
+env_vars = ["BROWSER_USE_ACCESS_EXECUTOR_ID", "BROWSER_USE_ACCESS_PIPE_PATH", "BROWSER_USE_ACCESS_VERIFYING_IDENTITY", "CODEX_APP_RUNTIME_CLI_PATH"]
 startup_timeout_sec = 120
 
 [mcp_servers.node_repl.env]
@@ -304,10 +351,11 @@ NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = ""
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.1111.71025"
-NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/hj/.codex/plugins/cache/openai-bundled/browser/26.1111.71025/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
+BROWSER_USE_CODEX_APP_VERSION = "26.1120.41243"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/hj/.codex/plugins/cache/openai-bundled/browser/26.1120.41243/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
 SKY_CUA_SERVICE_PATH = "/Users/hj/.codex/computer-use/Codex Computer Use.app"
 CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex"
+NODE_REPL_LAZY_TRUSTED_WORKER = "0"
 
 [mcp_servers.computer-use]
 command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
@@ -323,3 +371,7 @@ command = "npx"
 args = ["-y", "rea-agents@latest", "mcp"]
 
 [mcp_servers.rea.env]
+
+[mcp_servers.codegraph]
+args = ['serve', '--mcp']
+command = 'codegraph'

@@ -98,12 +98,16 @@ in
   # ${PROJECT_ROOT}/files/${hostName} 내의 모든 파일/폴더를 ~/ 기준으로 매핑
   # .skillshare/는 files/workspace를 루트로 쓰는 skillshare 프로젝트다. ~/에 링크하면
   # ~에서 실행한 skillshare가 ~를 두 번째 프로젝트로 잡는다.
-  home.file = lib.filterAttrs (name: _: !lib.hasPrefix ".skillshare/" name) (
-    removeAttrs (mkLinkFolders {
-      scanPath = scanBasePath;
-      linkPath = linkBasePath;
-    }) (builtins.attrNames ghosttyDirectLinks)
-  );
+  # .pi/는 skillshare가 쓰는 Pi project 출력이다. homes/workspace/pi.nix가
+  # ~/.pi/agent/로 연결하므로 ~/.pi/에 프로젝트 설정으로 다시 링크하지 않는다.
+  home.file =
+    lib.filterAttrs (name: _: !lib.hasPrefix ".skillshare/" name && !lib.hasPrefix ".pi/" name)
+      (
+        removeAttrs (mkLinkFolders {
+          scanPath = scanBasePath;
+          linkPath = linkBasePath;
+        }) (builtins.attrNames ghosttyDirectLinks)
+      );
 
   home.activation.linkGhosttyDirect = lib.mkIf (ghosttyDirectLinks != { }) (
     lib.hm.dag.entryAfter [ "linkGeneration" ] (

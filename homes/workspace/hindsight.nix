@@ -37,6 +37,14 @@ in
       apiUrl = "https://hindsight.deopjib.cc";
       apiToken = config.sops.placeholder.HINDSIGHT_API_KEY;
       autoUpdate = false;
+      # 동적 이름(`coding-agent::<저장소>`)으로 두면 갈라지는 프로젝트만 고정한다.
+      # 별도 clone과 하위 디렉터리를 한 bank로 모으고, mise env와 달리 하네스가 env를
+      # 물려받지 못해도 적용된다.
+      mapPathToBank = {
+        "${config.home.homeDirectory}/work/gm/gentle-renewal" = "gentle-renewal";
+        "${config.home.homeDirectory}/work/gm/gentle-renewal-2" = "gentle-renewal";
+        "${config.home.homeDirectory}/study_ex/my-backend/deopjib" = "deopjib";
+      };
       # 최소 구성: 세션 첫 프롬프트에 recall 결과를 한 번 주입하고, LLM을 쓰는 부가 기능은 끈다.
       autoInject = "recall";
       # 기본 recall은 observation만 찾는데, 서버에서 통합을 꺼 두어 observation이 생기지 않는다.

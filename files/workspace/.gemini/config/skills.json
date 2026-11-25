@@ -1,0 +1,8 @@
+{
+  "entries": [
+    {
+      "path": "/Users/hj/.agents/skills",
+      "exclude": ["ego-browser", "hindsight-coding-agent"]
+    }
+  ]
+}

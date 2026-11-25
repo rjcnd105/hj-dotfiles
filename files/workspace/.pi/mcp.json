@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "codegraph": {
+      "args": [
+        "serve",
+        "--mcp"
+      ],
+      "command": "codegraph",
+      "description": "Symbol graph and verbatim source for repos that have a .codegraph/ index",
+      "exposure": "codemode"
+    }
+  }
+}

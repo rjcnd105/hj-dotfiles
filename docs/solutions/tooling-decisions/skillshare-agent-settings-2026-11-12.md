@@ -45,17 +45,26 @@ macOS의 `~/.config/skillshare/config.yaml`은 Herdr skillshare 패널이 global
   - 직접 작성한 local skill은 git에 추적한다.
   - 원격 skill은 skillshare가 관리하는 `.skillshare/.gitignore`가 제외한다.
     새 머신에서는 `skillshare install -p`로 받는다.
-- `.codex/AGENTS.md`: 공용 지침 원본. 직접 수정한다.
-- 생성물(직접 수정하지 않음)
+- `.skillshare/extras/agent-guide/AGENTS.md`: 하네스 중립 공통 지침 원본. 직접 수정한다.
+- 에이전트별 전용 지침 원본(직접 수정):
+  - Claude Code: `.claude/rules/claude-harness.md` (`CLAUDE_CODE_SUBAGENT_MODEL`, `SendMessage` 등)
+  - Pi: `.config/pi/APPEND_SYSTEM.md` (`pi-subagents`, `pi-goal`, `codegraph`, `ego-browser`)
+  - Codex: `.codex/AGENTS.md`의 `<!-- skillshare:extra ... -->` 마커 위 헤더 블록
+  - Antigravity: `.gemini/AGENTS.md`의 `<!-- skillshare:extra ... -->` 마커 위 헤더 블록
+  - Cursor: `.cursor/rules/personal-agent-guide.mdc`의 frontmatter 헤더
+- 생성물(마커 이하·링크는 직접 수정하지 않음)
   - Claude Code: `.claude/skills/<name>/`, `.mcp.json`,
-    `.claude/rules/personal-agent-guide.md`(`.codex/AGENTS.md`로 가는 symlink)
-  - Codex: `.agents/skills/<name>/`, `.codex/config.toml`의 `[mcp_servers.*]`
+    `.claude/rules/personal-agent-guide.md`(`.skillshare/extras/agent-guide/AGENTS.md`로 가는 symlink)
+  - Codex: `.agents/skills/<name>/`, `.codex/config.toml`의 `[mcp_servers.*]`,
+    `.codex/AGENTS.md` (헤더 뒤에 append 블록)
   - Cursor: `.cursor/mcp.json`, `.cursor/rules/personal-agent-guide.mdc`
     (frontmatter 뒤에 append 블록). Cursor는 `.agents/skills`를 읽으므로
     cursor target의 skill 배포는 끈다.
-  - Pi: `.config/pi/AGENTS.md`(`.codex/AGENTS.md`로 가는 symlink,
-    `homes/workspace/pi.nix`가 `~/.pi/agent/AGENTS.md`로 연결)
-  - Antigravity: `.gemini/AGENTS.md`(`.codex/AGENTS.md`의 copy,
+  - Pi: `.config/pi/AGENTS.md`(`.skillshare/extras/agent-guide/AGENTS.md`로 가는 symlink,
+    `homes/workspace/pi.nix`가 `~/.pi/agent/AGENTS.md`로 연결), `.pi/mcp.json`
+    (project mode의 Pi MCP 경로. `homes/workspace/pi.nix`가 `~/.pi/agent/mcp.json`으로
+    연결하고, `homes/file.nix`는 `.pi/`를 `~/.pi/`에 링크하지 않는다)
+  - Antigravity: `.gemini/AGENTS.md`(헤더 뒤에 append 블록,
     `homes/file.nix`가 `~/.gemini/AGENTS.md`로 연결)
   - `.claude/skills/`, `.agents/skills/` 루트의 `.skillshare-manifest.json`
 
@@ -67,9 +76,15 @@ skillshare 밖에 남는 항목:
 
 - `.claude/skills/synced`: Claude 계정 동기화 skill. 루트 `.gitignore`가 제외한다.
 - `ego-browser`, `hindsight-coding-agent`: 앱·플러그인이 제공하는 skill 링크
-- `.config/pi/mcp.json`(codegraph): skillshare에 pi target이 없어 손으로 관리한다.
-  Pi는 `~/.agents/skills`를 직접 탐색하고, 제외 목록은
-  `.config/pi/settings.json`의 `skills`가 가진다.
+- Pi skill: skillshare target 없이 Pi가 `~/.agents/skills`를 직접 탐색하고, 제외
+  목록은 `.config/pi/settings.json`의 `skills`가 가진다. Pi MCP는 `pi` target으로
+  배포한다.
+- `.gemini/config/skills.json`: Antigravity가 `~/.agents/skills`를 읽도록 등록한다.
+  skillshare의 `antigravity` project 경로는 codex와 같은 `.agents/skills`라서
+  target을 추가해도 Antigravity 전역 탐색 위치(`~/.gemini/config/`)에는 배포되지
+  않는다. `path`는 절대 경로로 쓴다. `~/`는 `must be an absolute path`로 거부된다.
+  `~/.gemini/config/skills`에 따로 링크된 `ego-browser`, `hindsight-coding-agent`는
+  `exclude`로 뺀다.
 
 ## Copy mode
 

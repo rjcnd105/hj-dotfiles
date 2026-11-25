@@ -21,6 +21,14 @@
         "rea-agents@latest",
         "mcp"
       ]
+    },
+    "codegraph": {
+      "args": [
+        "serve",
+        "--mcp"
+      ],
+      "command": "codegraph",
+      "type": "stdio"
     }
   }
 }

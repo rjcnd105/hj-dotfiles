@@ -69,7 +69,7 @@ Position the hovercard relative to its trigger using **CSS Anchor Positioning**.
   /* Position the card below the trigger, aligned with its inline-start edge
      and spanning toward the inline-end, flipping if it overflows the viewport. */
   position-area: block-end span-inline-end;
-  position-try-fallbacks: flip-block, flip-inline;
+  position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
 }
 ```
 
@@ -84,10 +84,10 @@ By default, interest is shown and lost for keyboard and mouse users with a delay
 }
 ```
 
-If users are likely to move through multiple triggers in quick succession, set the initial delay to `0s` if an interest-triggered popover is already open.
+If users are likely to move through multiple triggers in quick succession, set the initial delay to `0s` if an interest-triggered popover is already open. To prevent performance issues with `:has()`, select a nearby container with a small number of child nodes, and target the triggers as directly as possible.
 
 ```css
-:root:has(:interest-source) [interestfor] {
+.container:has( > li > a:interest-source) [interestfor] {
   interest-delay-start: 0s;
 }
 ```
@@ -173,7 +173,7 @@ By assigning matching `view-transition-name` values to elements in the hovercard
 <body>
   <main id="main-content">
     <h1>The buzz on hummingbirds</h1>
-    <img src="bird.jpg">
+    <img src="bird.jpg" alt="A hummingbird in flight">
   </main>
 </body>
 ```
@@ -241,6 +241,16 @@ Caveats when using the polyfill:
 }
 ```
 
+To prevent popovers from showing before the polyfill loads, hide them with CSS:
+
+```css
+@supports not selector(:popover-open) {
+  [popover]:not(.\:popover-open) {
+    display: none;
+  }
+}
+```
+
 ### Fallbacks & browser support for `popover="hint"`
 
 Browser support for popover="hint": Limited availability.
@@ -292,11 +302,19 @@ When using the polyfill, the CSS API changes slightly to account for the lack of
 }
 ```
 
+Set the initial delay to `0s` if an interest-triggered popover is already open and users are likely to move through multiple triggers in quick succession.
+
+```css
+.container:has([interestfor]:is(:interest-source, .interest-source)) [interestfor] {
+  --interest-delay-start: 0s;
+}
+```
+
 ### Fallbacks & browser support for Anchor positioning
 
 Browser support for Anchor positioning: Limited availability.
-Supported by: Safari 27 (Sep 2026).
-Unsupported in: Chrome, Edge, and Firefox.
+Supported by: Chrome 157 (Nov 2026), Edge 157 (Nov 2026), and Safari 27 (Sep 2026).
+Unsupported in: Firefox.
 
 Without CSS Anchor Positioning, tethered elements such as `[popover]` overlays fall back to their default user-agent placement (centered in the viewport for popovers). Depending on whether spatial tethering is required for your use case, either conditionally load the polyfill or gate your positioning rules with `@supports`.
 

@@ -8,33 +8,33 @@
     },
     "architect": {
       "source": "github.com/backnotprop/pstack/skills/architect",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "c251a8599b9d9bb90d366eae92f542ba3fe5c773"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "700394675a0c50da60596e2d7e02c58a1957136b"
     },
     "arena": {
       "source": "github.com/backnotprop/pstack/skills/arena",
-      "commit": "c3464c11c60b1352d5e8f5f0428a3a6943837568",
-      "tree_hash": "95b350288808b6eb5576a9326dda0abd924afb4c"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "b648345ae455ef39fda228d59836d34c2ec59927"
     },
     "automate-me": {
       "source": "github.com/backnotprop/pstack/skills/automate-me",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "cfe9a7f06abacbf124b55e057fa6e5dc0767dc6a"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "d4446b0cf353baf20557aad39b22781bb229d99b"
     },
     "benchmark-checklist": {
       "source": "github.com/backnotprop/pstack/skills/benchmark-checklist",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "95621ebe5e1571f3689186adc741c2de2ab96552"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "e0ee8ddd36334b1301d5d0e299dd353210616f4e"
     },
     "blast-radius": {
       "source": "github.com/backnotprop/pstack/skills/blast-radius",
-      "commit": "74bcc61bd216687b1d6d480c28f109adfc9824ec",
-      "tree_hash": "88d9b57545971959dd93878d6c6ac7f3a84737b8"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "ed977cfdea6515c6fa16e9dd4247f6d4d53943a9"
     },
     "bro": {
       "source": "github.com/backnotprop/pstack/skills/bro",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "53c3b2c5dc11fe0ee4156468da27505df9239dc6"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "45d1f4c1ec27d28c7b5525f72026ad1b7326b416"
     },
     "claude-api": {
       "source": "github.com/anthropics/skills/skills/claude-api",
@@ -43,23 +43,23 @@
     },
     "correct": {
       "source": "github.com/backnotprop/pstack/skills/correct",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "5ebee6f7fe9cd7f97b1c698dbbf4f19ed8c4c5f4"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "4f2fd1667d100f48da1d9a6a4bd37c56a71853cc"
     },
     "create-formal-verification-skill": {
       "source": "github.com/backnotprop/pstack/skills/create-formal-verification-skill",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "091f2a26d46f7bed511d0532a1329532a45899e0"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "4e7454c598aac315f806ac37c078fc1e9d9ad4d9"
     },
     "create-verification-skill": {
       "source": "github.com/backnotprop/pstack/skills/create-verification-skill",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "97a20d3674c1befc5d51e4b8f60590903e23a134"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "764e15418d818e1bf4e9805dbed3d5bb7a9d83f7"
     },
     "diagram-design": {
       "source": "github.com/cathrynlavery/diagram-design/skills/diagram-design",
-      "commit": "ff6fffa70a5cc520aa73b2ff77e1dcc0f5cc3733",
-      "tree_hash": "455a09aec349931d55f9438756b1ccfcdfa6b04f"
+      "commit": "b228c5d77794a84150fca41b22940bb316b1398d",
+      "tree_hash": "912c4832afaf65c33969cf025c0a30c05e4f9cdf"
     },
     "domain-modeling": {
       "source": "github.com/mattpocock/skills/skills/engineering/domain-modeling",
@@ -68,13 +68,13 @@
     },
     "figma": {
       "source": "github.com/heygen-com/hyperframes/skills/figma",
-      "commit": "4f5bfc24c83be1e0cbaa4e7d5a88e864a1684379",
-      "tree_hash": "1133096792ac6d7756eac760ce4e7a5e66a90689"
+      "commit": "b975bbed4badcccd084718430dcf6bd67796f8ea",
+      "tree_hash": "98ea5c6c021a3a4dd9dba13c821ab96bd9012a6a"
     },
     "figure-it-out": {
       "source": "github.com/backnotprop/pstack/skills/figure-it-out",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "cf79a57fddc5869cda3cf8a4e18e2d0fd041a447"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "3fcc3c8e7dc6d98ed60982a6a734dac0dffcbf99"
     },
     "grill-me": {
       "source": "github.com/mattpocock/skills/skills/productivity/grill-me",
@@ -98,28 +98,28 @@
     },
     "how": {
       "source": "github.com/backnotprop/pstack/skills/how",
-      "commit": "74bcc61bd216687b1d6d480c28f109adfc9824ec",
-      "tree_hash": "d7a6f2baff1a9fe0842ade86c88a66e2541407b1"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "c0233e8d7feff6a9617ca56c47b9f310324e9391"
     },
     "hyperframes": {
       "source": "github.com/heygen-com/hyperframes/skills/hyperframes",
-      "commit": "4f5bfc24c83be1e0cbaa4e7d5a88e864a1684379",
-      "tree_hash": "dc7fc09d8e7be1170bc12003f9b8fc6ea928cf2b"
+      "commit": "b975bbed4badcccd084718430dcf6bd67796f8ea",
+      "tree_hash": "c8a4e37f734ed910d18bedd8881c14ced6f702d9"
     },
     "hyperframes-cli": {
       "source": "github.com/heygen-com/hyperframes/skills/hyperframes-cli",
-      "commit": "4f5bfc24c83be1e0cbaa4e7d5a88e864a1684379",
-      "tree_hash": "489449625dbdeb222a7db88c084f7139b933b124"
+      "commit": "b975bbed4badcccd084718430dcf6bd67796f8ea",
+      "tree_hash": "6100aad9f1fc9914e9a6099927b08a14ec32706b"
     },
     "hyperframes-registry": {
       "source": "github.com/heygen-com/hyperframes/skills/hyperframes-registry",
-      "commit": "4f5bfc24c83be1e0cbaa4e7d5a88e864a1684379",
-      "tree_hash": "6ee3da8e65ed9af9503a12f5714d03818ae6f781"
+      "commit": "b975bbed4badcccd084718430dcf6bd67796f8ea",
+      "tree_hash": "36c5ff182a62d97203b7af84ace031a5b9ea02d6"
     },
     "in-your-own-words": {
       "source": "github.com/backnotprop/pstack/skills/in-your-own-words",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "e5ff93020dd4ed33b80d9df9a235d1945c676a0d"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "3945a8a650f29c4d0d77e03732ce7a21c6726f1b"
     },
     "interface-design": {
       "source": "github.com/dammyjay93/interface-design/.claude/skills/interface-design",
@@ -128,8 +128,8 @@
     },
     "interrogate": {
       "source": "github.com/backnotprop/pstack/skills/interrogate",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "10107039bb8ef3ac7e742d4f73fa8a58b1b0f153"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "9e5a88f12a1c5b0b1636f05b547e008a4bab52f0"
     },
     "jujutsu-suki": {
       "source": "github.com/Xerxes-2/jujutsu-suki",
@@ -137,13 +137,13 @@
     },
     "ketchup": {
       "source": "github.com/backnotprop/pstack/skills/ketchup",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "a9107df45437d783334d80da4c91a03a305e2fd4"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "8fcb3fd17abefe7a6d7c858a0f8898576a9a83b6"
     },
     "ketchup-video": {
       "source": "github.com/backnotprop/pstack/skills/ketchup-video",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "73f013af52a35306c4bb5b484dae72bf1c8f9edd"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "ac4280ab5a7c00fc7ac3dc0ed66e195cf74f10a9"
     },
     "korean-writing-style": {
       "source": "github.com/ggplab/claude-playbook/02-skills/korean-writing-style",
@@ -152,23 +152,23 @@
     },
     "maintain-formal-verification-skill": {
       "source": "github.com/backnotprop/pstack/skills/maintain-formal-verification-skill",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "0b843c90b8b04a639dbd86fec9795610374715f2"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "0d662c23552fc4f674fc320a6fdd1c5780b6ca06"
     },
     "maintain-verification-skill": {
       "source": "github.com/backnotprop/pstack/skills/maintain-verification-skill",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "35325a9f380b1dc6d79d7502b5667feba00b752b"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "b66fed47446295e2048902c7d0526feb378a7376"
     },
     "make-bot-ui": {
       "source": "github.com/backnotprop/pstack/skills/make-bot-ui",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "1645159d827f9adea7a9270082368eb1599927b8"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "31e22a34dbd14088789e2a1e7cb8a3924d4cc6f5"
     },
     "media-use": {
       "source": "github.com/heygen-com/hyperframes/skills/media-use",
-      "commit": "4f5bfc24c83be1e0cbaa4e7d5a88e864a1684379",
-      "tree_hash": "0c73f41a0e9e0ef465334611134e543382f42b43"
+      "commit": "b975bbed4badcccd084718430dcf6bd67796f8ea",
+      "tree_hash": "50d27e7f81a1b5c3c73e79d2cddc7cff188e2b65"
     },
     "modern-react-guidance": {
       "source": "github.com/adhhamdev/modern-react-guidance",
@@ -176,8 +176,8 @@
     },
     "modern-web-guidance": {
       "source": "github.com/GoogleChrome/modern-web-guidance/skills/modern-web-guidance",
-      "commit": "4dd968349e54ca45a05dd5c818fb035c9054b022",
-      "tree_hash": "2bafd62db079eae1a4b6c34d0af4f9c3490266a2"
+      "commit": "2b4aa13a72dd47cd135b06ce5abfccd92e19b24f",
+      "tree_hash": "94cd548883b7cd735ee0d2bdd723c68a212a0933"
     },
     "nixos-managing": {
       "source": "github.com/michalzubkowicz/nixos-management-skill/nixos-managing",
@@ -186,8 +186,8 @@
     },
     "no-comments": {
       "source": "github.com/backnotprop/pstack/skills/no-comments",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "20c971ac4e84924e173a6f98e7650f10a2cc3f43"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "eb54d1d6eb3a38cb0e95ec1b2fb2fcf1258b6532"
     },
     "obsidian-bases": {
       "source": "github.com/kepano/obsidian-skills/plugins/obsidian/skills/obsidian-bases",
@@ -206,153 +206,153 @@
     },
     "poteto-help": {
       "source": "github.com/backnotprop/pstack/skills/poteto-help",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "123b46d1fe735623b8f7bf2b69dc7a6c1777eef6"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "60166b95c259a8fe0a5ec9f5ad6e710665fb85f6"
     },
     "poteto-mode": {
       "source": "github.com/backnotprop/pstack/skills/poteto-mode",
-      "commit": "c3464c11c60b1352d5e8f5f0428a3a6943837568",
-      "tree_hash": "e4847c4a3713e55c62a65d63c1534a1ea0ba8cd8"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "e349f23c1d6d3f12a798084912e55e79d9bd5710"
     },
     "principle-attack-the-premise": {
       "source": "github.com/backnotprop/pstack/skills/principle-attack-the-premise",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "c82bc65197a802bce740f4a65d39e9c600c79013"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "b5042111923c99c03c87b637ce3609a0a286533d"
     },
     "principle-boundary-discipline": {
       "source": "github.com/backnotprop/pstack/skills/principle-boundary-discipline",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "d7c9f885052de6177eb888c51c22285f4d225278"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "16b7256de8b61fcf14be0714a839ada0643cb2cd"
     },
     "principle-build-the-lever": {
       "source": "github.com/backnotprop/pstack/skills/principle-build-the-lever",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "12058cceb18fcc376d4d4769f4f6712f1ed28b62"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "c62d36fdbe15ac0dbcf080cc7815c563ec086374"
     },
     "principle-encode-lessons-in-structure": {
       "source": "github.com/backnotprop/pstack/skills/principle-encode-lessons-in-structure",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "1e42cd4db78cc95d0297dc0264c1a74439c90be9"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "c97857d798ca494da70f42754be5ae9e31e57b55"
     },
     "principle-exhaust-the-design-space": {
       "source": "github.com/backnotprop/pstack/skills/principle-exhaust-the-design-space",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "3d93455dc2b3c0d9954e20384ed8569138bd1eb0"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "73f88b9b4afb429dabdedff632d31de052ec44dd"
     },
     "principle-experience-first": {
       "source": "github.com/backnotprop/pstack/skills/principle-experience-first",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "2dbcf0d0d4473ca3a93d17e2167b587cfec7f6da"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "b57a7f38b2903269dee763845941a91cf9ad1c8c"
     },
     "principle-explain-the-number": {
       "source": "github.com/backnotprop/pstack/skills/principle-explain-the-number",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "8461455edc3b13feef93aba9a600b3af16f4a2f9"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "1bfca997f148efbfaebb39bcc9dd7812c0a98aa8"
     },
     "principle-fix-root-causes": {
       "source": "github.com/backnotprop/pstack/skills/principle-fix-root-causes",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "6edd70a10872c757a49aac1d0b7a34e696901ac3"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "3a13d0aab06b5cc7ca2d7441cec86eebfa1e9e03"
     },
     "principle-foundational-thinking": {
       "source": "github.com/backnotprop/pstack/skills/principle-foundational-thinking",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "49fc29c7f64b8f1e0ed56d2359c53243cc4e37d6"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "cb8442b924dbd2b52f5d50cbb653f446381a1e1f"
     },
     "principle-guard-the-context-window": {
       "source": "github.com/backnotprop/pstack/skills/principle-guard-the-context-window",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "bf09c18e975ded9dc137631c6529db941dda24a2"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "69fe38f2970127d4662889bc3604ba47e2706b3f"
     },
     "principle-laziness-protocol": {
       "source": "github.com/backnotprop/pstack/skills/principle-laziness-protocol",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "cb8aa817489838fe615d0dfe321d263e8a3f1faa"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "789b74122b2dec4699842286ef420f0fd48de45e"
     },
     "principle-make-operations-idempotent": {
       "source": "github.com/backnotprop/pstack/skills/principle-make-operations-idempotent",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "8fe8816c3620993245104a14bd83536b4362fda8"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "d8d2f98731d266a605977d7184e68ac14acd265c"
     },
     "principle-migrate-callers-then-delete-legacy-apis": {
       "source": "github.com/backnotprop/pstack/skills/principle-migrate-callers-then-delete-legacy-apis",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "cf45195158110569ac6a97d0e8dbed04531373ed"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "f96b6e5fea87c302c9123becefa010dfdac96193"
     },
     "principle-minimize-reader-load": {
       "source": "github.com/backnotprop/pstack/skills/principle-minimize-reader-load",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "83722d6d8707f842217b7e1e611b77933c1eb4a8"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "76e386c9ad6eeacd45f57018caac1e3651c041ae"
     },
     "principle-model-the-domain": {
       "source": "github.com/backnotprop/pstack/skills/principle-model-the-domain",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "90e1d94729175ce6899cc57e5b0250dbf73de8b4"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "a8339c5cbdd438030413acbd97f139db11b35810"
     },
     "principle-never-block-on-the-human": {
       "source": "github.com/backnotprop/pstack/skills/principle-never-block-on-the-human",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "d2578043c77706411c48c5b7cfe03dc3d45e3b15"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "68e562e4bdd9cb3f4ad7126610c2eb0be615dab2"
     },
     "principle-outcome-oriented-execution": {
       "source": "github.com/backnotprop/pstack/skills/principle-outcome-oriented-execution",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "8d87411f36c74111e5e54a804dda727e2c034914"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "9bd3c3540208e666e4ffe7b460192efab95b5da9"
     },
     "principle-prove-it-works": {
       "source": "github.com/backnotprop/pstack/skills/principle-prove-it-works",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "71f6ab944f3fc9d5bb9b1b261edfa80ded54b96c"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "29778cecbbc8de028ee101bacd5e436dd919613d"
     },
     "principle-redesign-from-first-principles": {
       "source": "github.com/backnotprop/pstack/skills/principle-redesign-from-first-principles",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "20822072ed14c75eed7f527f734c5d347c43845e"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "ee1b1bb11c85f262d9eb7ff5bda63fbc98991828"
     },
     "principle-separate-before-serializing-shared-state": {
       "source": "github.com/backnotprop/pstack/skills/principle-separate-before-serializing-shared-state",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "15bc5fb33e9b5848d3400857ebeac175044dc6c8"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "11e74b2199f19caff832d044f3c0ac875071b0ea"
     },
     "principle-sequence-verifiable-units": {
       "source": "github.com/backnotprop/pstack/skills/principle-sequence-verifiable-units",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "af35037d5f04bacc0654b6e05732d7ca37ff3023"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "c0af1bec4d17b0da9b3c3ed23479415606dc904a"
     },
     "principle-subtract-before-you-add": {
       "source": "github.com/backnotprop/pstack/skills/principle-subtract-before-you-add",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "760f5b131e920c0e9914a0ef8cb4b875918af31a"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "bb66733ed5c41f5597811df433c0095d06a69dff"
     },
     "principle-test-behavior-not-implementation": {
       "source": "github.com/backnotprop/pstack/skills/principle-test-behavior-not-implementation",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "76d920dd320db21e8e8bc2a316554acfb1d23263"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "e836b43c35cbffcd5a4f0311a98e64a273f965f4"
     },
     "principle-type-system-discipline": {
       "source": "github.com/backnotprop/pstack/skills/principle-type-system-discipline",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "5847636501d4a92dc1173a30fc09475fe22fbbca"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "933c20ab8ae81046c95912c44b9631fc3e9c7d87"
     },
     "recall": {
       "source": "github.com/backnotprop/pstack/skills/recall",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "c5d1f5b7ce64805aa9f270ac1250bba992807f11"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "89129b0ab6ba7196666a8d4beb9bd89f3ae7ca24"
     },
     "reflect": {
       "source": "github.com/backnotprop/pstack/skills/reflect",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "bbe230b906762ce402a090ec99008e25ae6172c6"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "e8fe87830549379a4ea06d0cea8634d3c10b1168"
     },
     "remotion-to-hyperframes": {
       "source": "github.com/heygen-com/hyperframes/skills/remotion-to-hyperframes",
-      "commit": "4f5bfc24c83be1e0cbaa4e7d5a88e864a1684379",
-      "tree_hash": "3648ac3f5498104e37897fcda0c82d109415ba51"
+      "commit": "b975bbed4badcccd084718430dcf6bd67796f8ea",
+      "tree_hash": "46c2da706d8ffcb86f58d801319982988d0d2371"
     },
     "reverse-engineer-anything": {
       "source": "github.com/morluto/rea/.agents/skills/reverse-engineer-anything",
-      "commit": "be32625b29101fc6b482a38798a6ef22e68f9e94",
-      "tree_hash": "ff288830c5e8ee860fe3e936119b4450a496c36e"
+      "commit": "299c592b636de2080f6ce123e5fbc58effce45f2",
+      "tree_hash": "fd813a7aa6ed9d12b95d8fbe1fcf0a49767a8536"
     },
     "setup-pstack": {
       "source": "github.com/backnotprop/pstack/skills/setup-pstack",
@@ -361,8 +361,8 @@
     },
     "sharpen": {
       "source": "github.com/backnotprop/pstack/skills/sharpen",
-      "commit": "74bcc61bd216687b1d6d480c28f109adfc9824ec",
-      "tree_hash": "672ef555c7b4c24b4a5bd016647c5d836a1d6aa6"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "ac315e8dcc8f49833d95c2105c95a60803363d34"
     },
     "show-me": {
       "source": "github.com/humanlayer/skills/plugins/show-me/skills/show-me",
@@ -371,53 +371,53 @@
     },
     "show-me-your-work": {
       "source": "github.com/backnotprop/pstack/skills/show-me-your-work",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "d2868f87767e9fb2de3dfaa5b4c8e521cd4b2dbc"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "df6c6f089da420504ec48a98910cf586baaede3b"
     },
     "slideshow": {
       "source": "github.com/heygen-com/hyperframes/skills/slideshow",
-      "commit": "a4139e9ead02bea455feb3409c0076d2de050896",
-      "tree_hash": "a98e5c4495a501823f8d6f7c78fa8cf667c06e36"
+      "commit": "b975bbed4badcccd084718430dcf6bd67796f8ea",
+      "tree_hash": "ed9c0b1adc98f77732c649595c18b92456a91e84"
     },
     "statechart": {
       "source": "github.com/backnotprop/pstack/skills/statechart",
-      "commit": "c3464c11c60b1352d5e8f5f0428a3a6943837568",
-      "tree_hash": "d3d60f78916e8c17a598c39738e45ab419603f06"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "bc53a83a64b6400b481c50681e078332c5180ec1"
     },
     "swarm": {
       "source": "github.com/backnotprop/pstack/skills/swarm",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "de635ea208314e54964ced817763ecf34c63aa33"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "2465664492e3ca747c8aa6fb59a1a92e0fcda4fc"
     },
     "tdd": {
       "source": "github.com/backnotprop/pstack/skills/tdd",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "1064da72ceca07bf7f36bddebada585bb59da7bc"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "8396eacd300a997047ce604d22f6648cc28768d7"
     },
     "teach": {
       "source": "github.com/backnotprop/pstack/skills/teach",
-      "commit": "74bcc61bd216687b1d6d480c28f109adfc9824ec",
-      "tree_hash": "f8530de72921e487b8b1e5d53a0f7867d31d6053"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "e7b69b36fc70b560aac35ad7f90b56ac0dc5b040"
     },
     "technical-writing": {
       "source": "github.com/backnotprop/pstack/skills/technical-writing",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "545f2339fc1812c1b8343dec8937054a0dc29155"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "d7f4332af644ace8031db558b7a6be90a22a4d55"
     },
     "typescript-best-practices": {
       "source": "github.com/backnotprop/pstack/skills/typescript-best-practices",
-      "commit": "97de40dcca2fa396124c3e70a1d8cc28005f60a3",
-      "tree_hash": "1ccca3c7c0d358c0cd5edd313cd03a31fc75ee5f"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "23f8582b80a61a67a906e6db77aab8934e98f18d"
     },
     "unslop": {
       "source": "github.com/backnotprop/pstack/skills/unslop",
-      "commit": "f2772d528dc1f9f24bfba17d4e9f280db86857ae",
-      "tree_hash": "3319d5baa095167501a128703a008446dd099d0c"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "e1711c7243f1754cf500b697dd55b5151bc9fd06"
     },
     "why": {
       "source": "github.com/backnotprop/pstack/skills/why",
-      "commit": "74bcc61bd216687b1d6d480c28f109adfc9824ec",
-      "tree_hash": "2608dc2d93794dd7060b826b81b6da0be6bc673c"
+      "commit": "2a5621683e2bbb274efea8b52dd69f5beef6c25f",
+      "tree_hash": "6d3bb5eaeb80eb7fcc788f38da777094d63d53b6"
     },
     "writing-for-agents": {
       "source": "github.com/mattpocock/skills/skills/productivity/writing-for-agents",
