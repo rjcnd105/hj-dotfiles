@@ -1,15 +1,4 @@
-################################################################################
-#                                    HELIX                                     #
-################################################################################
-
-###################
-# THEME           #
-###################
 theme = "rose_pine"
-
-###################
-# CONFIG          #
-###################
 
 [editor]
 auto-completion = true
@@ -108,10 +97,6 @@ separator = ":"
 mode.insert = "INSERT"
 mode.normal = "NORMAL"
 mode.select = "SELECT"
-
-###################
-# KEYBINDINGS     #
-###################
 
 [keys.normal]
 esc = ["collapse_selection", "keep_primary_selection"]

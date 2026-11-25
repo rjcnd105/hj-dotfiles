@@ -173,8 +173,7 @@ gh release upload "example-v${VERSION}" release.json
 `target`은 계약의 `targetPattern`과 일치해야 한다. 추가 필드(version, sourceRev
 등)는 자유롭게 넣어도 무시된다.
 
-GHCR 패키지는 Public이어야 한다. 호스트는 레지스트리 인증 없이 pull한다
-(`host.registryAuth` 미설정, `homelab.registryAuths` 없음). private 저장소에서 처음
+GHCR 패키지는 Public이어야 한다. 호스트는 레지스트리 인증 없이 pull한다. private 저장소에서 처음
 push한 패키지는 private로 생기고 공개 여부를 바꾸는 API가 없으므로, 첫 push 뒤
 `https://github.com/users/OWNER/packages/container/<package>/settings` →
 Change visibility → Public으로 바꾼다. 이미지에는 공개 사이트가 이미 서빙하는
@@ -189,6 +188,7 @@ Change visibility → Public으로 바꾼다. 이미지에는 공개 사이트�
 
 ```nix
 homelab.apps = import ./admit-app.nix {
+  inherit lib;
   admission = import "${inputs.myApp}/devops/homelab-admission.nix";
   releaseManifestOrigins = [ "https://github.com/OWNER/example-app" ];
   host = {
@@ -275,22 +275,22 @@ gh auth token | gh secret set HOMELAB_DEPLOY_DISPATCH_TOKEN -R OWNER/example-app
 ```
 
 첫 배포는 admission 활성화 뒤 직접 dispatch한다:
-`gh workflow run deploy-homelab-app.yml -R rjcnd105/hj-dotfiles -f app=<key> -f channel=<channel> -f target=<release-id>`.
+`gh workflow run deploy-homelab-app.yml -R rjcnd105/hj-dotfiles -f app=<contract.name> -f channel=<channel> -f target=<release-id>`.
 그 전까지 릴리스 서비스 unit은 `<channel>-current` 태그가 없어 `ExecCondition`으로
 시작을 건너뛴다(실패가 아니므로 switch를 깨지 않는다).
 
-deploy 트랜잭션 (실패 시 자동 태그 복원):
+deploy 트랜잭션:
 
-1. 앱/채널 락 → 같은 target이 최신 성공 기록과 metadata까지 동일하면 no-op
+1. 앱/채널 락 → 같은 target이 최신 성공 기록(`summary.json`)과 metadata까지 동일하면 no-op
 2. manifest 다운로드(HTTPS만; GitHub private release는 호스트 토큰으로 REST API 해석) → 검증
-3. 각 `name@digest` pull → 로컬 채널 태그 이동
-4. 선언된 migration oneshot 1회
-5. 릴리스 서비스 전체를 systemd 트랜잭션 1회로 restart (pinned 인프라는 건드리지 않음)
-6. Caddy-loopback smoke → 기록(`/var/lib/homelab-appctl/<app>/<channel>/`)
+3. 각 `name@digest` pull
+4. 선언된 migration oneshot 1회를 exact digest로 실행(실패 시 `-current` 태그 미변경)
+5. 로컬 채널 `-current` 태그 이동 → 릴리스 서비스 전체를 systemd 트랜잭션 1회로 restart
+6. Caddy-loopback(`127.0.0.1:18099`, `Host` 헤더) smoke → 기록(`/var/lib/homelab-appctl/<app>/<channel>/`)
 7. retention: 배포 기록 최근 10개, 릴리스 이미지 name별 태그 없는 최근 3개 id 유지.
    채널끼리 이미지 이름을 공유하므로 태그가 남은 id(다른 채널의 `-current`)는 지우지 않는다
 
-pull/tag/migration 실패는 이전 태그로 복원된다. restart/smoke 실패는 정상이었던
+pull/migration 실패는 기존 `-current` 태그를 건드리지 않으며, tag 단계 실패는 이전 태그로 복원된다. restart/smoke 실패는 정상이었던
 target을 다시 deploy하는 것이 롤백이다(별도 rollback 부명령 없음 — 릴리스 권한을
 둘로 만들지 않기 위해). 이미지 롤백은 DB 마이그레이션을 자동으로 되돌리지 않는다.
 

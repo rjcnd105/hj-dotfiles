@@ -5,7 +5,7 @@ Examples:
   python3 cost.py                                # last 7d, by day
   python3 cost.py --since 30d --by project
   python3 cost.py --since 30d --by model
-  python3 cost.py --cwd /Volumes/T7/code/blanc   # one project, all time
+  python3 cost.py --cwd /path/to/repo            # one project, all time
   python3 cost.py --since 30d --by session --limit 10 --show-subagents
 """
 

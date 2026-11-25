@@ -1,5 +1,4 @@
 {
-  # https://github.com/junegunn/fzf
   programs.fzf = {
     enable = true;
     # fzf와 Atuin이 둘 다 Ctrl-R을 잡는다. Atuin 통합이 나중에 source되어

@@ -1,6 +1,3 @@
-# flake checks. flake.nix에서 분리된 픽스처·검증 정의.
-#  - eval 단정(quadlet/contract-v2)은 --no-build에서도 실행된다.
-#  - x86_64-linux 빌드 체크는 CI(Linux)에서 빌드된다.
 {
   self,
   inputs,
@@ -21,7 +18,6 @@ let
       metadata = pkgs.writeText "deopjib-dev-metadata.json" (
         homelab.environment.etc."homelab-apps/deopjib/dev.json".text
       );
-      # v2 manifest는 jq로 직접 생성한다 (앱 레포 CI와 같은 방식; 전용 generator 없음).
       releaseManifest =
         pkgs.runCommand "deopjib-release-manifest-fixture"
           {
@@ -388,8 +384,6 @@ let
       touch "$out"
     '';
 
-  # 계약 v2 렌더링 픽스처: example 앱(needs.postgres, PORT/데이터 컨벤션)을
-  # 최소 NixOS 시스템으로 평가한다. 호스트에는 아무것도 배포되지 않는다.
   contractV2Fixture = inputs.nixpkgs.lib.nixosSystem {
     system = "x86_64-linux";
     specialArgs = {
@@ -455,14 +449,10 @@ let
       touch "$out"
     '';
 
-  # systemd 유닛의 ExecStart 실행 파일이 실제로 존재하는지 확인한다. Nix는 잘못된
-  # 바이너리 이름을 store 경로 문자열로 그대로 통과시키고, 호스트에서 status=203/EXEC로
-  # 터진다 (Phase 4 beszel `bin/beszel` vs `bin/beszel-hub`에서 실측).
   homelabUnitExecutablesExist =
     let
       pkgs = pkgsFor "x86_64-linux";
       homelab = self.nixosConfigurations.homelab_hj.config;
-      # ExecStart는 문자열/문자열 목록이며 `-`, `@`, `+` 등 접두 문자가 붙을 수 있다.
       execPath =
         entry:
         builtins.head (
@@ -523,7 +513,6 @@ lib.recursiveUpdate
     sops-secrets-are-strings = sopsSecretsAreStrings system;
   }))
   {
-    # buildGoModule checkPhase가 단위 테스트 + 스텁 E2E 트랜잭션 테스트를 실행한다.
     x86_64-linux.homelab-appctl-package =
       (pkgsFor "x86_64-linux").callPackage ../packages/homelab-appctl/package.nix
         { };

@@ -176,11 +176,9 @@ cp /tmp/hw-config.nix /mnt/etc/nixos/systems/homelab/hardware-configuration.nix
 
 ## Phase 11: 설치
 
-`ENABLE_SECRETS=0`으로 secrets 없이 설치한다. age 키가 아직 없으므로 secrets는 Phase 17 이후에 설정한다.
-
 ```bash
-# NixOS 설치 (secrets 제외)
-ENABLE_SECRETS=0 nixos-install --flake /mnt/etc/nixos#homelab_hj
+# NixOS 설치
+nixos-install --flake /mnt/etc/nixos#homelab_hj
 ```
 
 설치 중 root 비밀번호를 묻는다. 설정한다.
@@ -230,9 +228,9 @@ ssh hj@<homelab-ip>
 # SSH
 systemctl status sshd
 
-# Docker
-systemctl status docker
-docker run hello-world
+# Podman (docker 호환 CLI 포함)
+systemctl status podman.socket
+podman info
 
 # llama.cpp
 systemctl status llama-cpp

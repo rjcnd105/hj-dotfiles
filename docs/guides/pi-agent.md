@@ -2,7 +2,7 @@
 
 이 flake는 Pi 설정을 `files/workspace/.config/pi/`에 보관하고 Home Manager가 각 파일을 `~/.pi/agent/`에 쓰기 가능한 out-of-store 심볼릭 링크로 연결한다. `auth.json`, 세션, 패키지 캐시는 Pi가 로컬에서 관리한다. OMP는 사용하지 않는다.
 
-Pi는 agent 디렉터리에서 컨텍스트 파일을 하나 읽고, 작업 디렉터리와 모든 상위 디렉터리의 `AGENTS.md`·`CLAUDE.md`도 읽는다. 그래서 `~/.pi/agent/AGENTS.md`는 `files/workspace/.config/pi/AGENTS.md`(공용 지침 원본 `files/workspace/.codex/AGENTS.md`로 가는 symlink)에 연결하고, Pi 전용 지침은 `files/workspace/.config/pi/APPEND_SYSTEM.md`에 둔다. `files/workspace/AGENTS.md`는 `.gitignore`로 제외한다. 이 파일을 추적하면 Home Manager가 `~/AGENTS.md`로 연결해 홈 아래 저장소에서 같은 지침을 두 번 읽는다. 공용 지침은 `.codex/AGENTS.md`를 직접 수정하고, Claude·Cursor·Pi·Antigravity 사본은 [skillshare extras](../solutions/tooling-decisions/skillshare-agent-settings-2026-11-12.md#workflow)로 배포한다. 단, 신뢰한 프로젝트에 `.pi/APPEND_SYSTEM.md`가 있으면 그 파일이 전역 `APPEND_SYSTEM.md`를 대체한다.
+Pi는 agent 디렉터리에서 컨텍스트 파일을 하나 읽고, 작업 디렉터리와 모든 상위 디렉터리의 `AGENTS.md`·`CLAUDE.md`도 읽는다. 그래서 `~/.pi/agent/AGENTS.md`는 `files/workspace/.config/pi/AGENTS.md`(공용 지침 원본 `files/workspace/.skillshare/extras/agent-guide/AGENTS.md`로 가는 symlink)에 연결하고, Pi 전용 지침은 `files/workspace/.config/pi/APPEND_SYSTEM.md`에 둔다. `files/workspace/AGENTS.md`는 `.gitignore`로 제외한다. 이 파일을 추적하면 Home Manager가 `~/AGENTS.md`로 연결해 홈 아래 저장소에서 같은 지침을 두 번 읽는다. 공용 지침은 `.skillshare/extras/agent-guide/AGENTS.md`를 직접 수정하고, Claude·Codex·Cursor·Pi·Antigravity 사본은 [skillshare extras](../solutions/tooling-decisions/skillshare-agent-settings-2026-11-12.md#workflow)로 배포한다. 단, 신뢰한 프로젝트에 `.pi/APPEND_SYSTEM.md`가 있으면 그 파일이 전역 `APPEND_SYSTEM.md`를 대체한다.
 
 [작업별 사용법과 복사 가능한 요청 예시](pi-agent-workflows.md), [커뮤니티 벤치마크 해석과 직접 테스트 결과](pi-agent-validation.md)를 함께 참고한다.
 
@@ -38,7 +38,7 @@ Pi는 agent 디렉터리에서 컨텍스트 파일을 하나 읽고, 작업 디�
    done
    ```
 
-4. `pi`를 열고 `/login`에서 **OpenAI (ChatGPT subscription)**("Sign in with ChatGPT")를 골라 OpenAI 구독 로그인을 완료한다. 로그인 전에는 인증 가능한 OpenRouter 모델로 열릴 수 있다. Pi는 토큰을 로컬 `~/.pi/agent/auth.json`에 저장한다. 로그인 뒤 `/model`에서 `openai/gpt-6.2-sol`을 선택하고 max를 확인한다. 새 세션의 설정상 기본값은 `openai/gpt-6.2-sol`/max다. `openai-codex`(Pi 1.1.0의 "OpenAI Codex (legacy)", 로그인 항목 "OpenAI (ChatGPT Plus/Pro)")는 토큰을 따로 저장하므로, 그 공급자의 모델이나 하위 에이전트를 쓸 때만 그 항목으로 따로 로그인한다. `pi auth check`는 로컬 토큰만 보므로 서버가 거부한 토큰도 `ready`로 표시한다.
+4. `pi`를 열고 `/login`에서 **OpenAI (ChatGPT subscription)**("Sign in with ChatGPT")를 골라 OpenAI 구독 로그인을 완료한다. 로그인 전에는 인증 가능한 OpenRouter 모델로 열릴 수 있다. Pi는 토큰을 로컬 `~/.pi/agent/auth.json`에 저장한다. 로그인 뒤 `/model`에서 `openai/gpt-6.2-sol`을 선택하고 `xhigh`를 확인한다. 새 세션의 설정상 기본값은 `openai/gpt-6.2-sol`/`xhigh`다. `openai-codex`(Pi 1.1.0의 "OpenAI Codex (legacy)", 로그인 항목 "OpenAI (ChatGPT Plus/Pro)")는 토큰을 따로 저장하므로, 그 공급자의 모델이나 하위 에이전트를 쓸 때만 그 항목으로 따로 로그인한다. `pi auth check`는 로컬 토큰만 보므로 서버가 거부한 토큰도 `ready`로 표시한다.
 
    ```sh
    pi
@@ -48,11 +48,11 @@ Pi는 agent 디렉터리에서 컨텍스트 파일을 하나 읽고, 작업 디�
 
 ps-frontend-admin처럼 Node 22.14를 고정한 저장소에서는 PATH의 `node`가 22.14가 된다. Pi 1.0.4는 zstd 응답을 풀 때 Node 22.19 이상의 `zlib.createZstdDecompress`가 필요해 이 상태로는 첫 응답에서 멈춘다. Pi의 bin shim은 옆에 있는 `node`를 PATH보다 먼저 쓰므로, 전역 mise 설정의 `postinstall`이 `mise install` 때마다 그 자리에 전역 Node 26 링크를 만든다. 저장소의 `node`는 그대로 22.14로 남는다.
 
-첫 실행 시 Pi가 `settings.json`의 고정 버전 확장 패키지를 설치한다. `pi list`로 설치 목록을 확인한다. OpenRouter의 Aion 3.5, DeepSeek V4.1 Flash, MiMo V2.6 Pro는 모델 선택기에서 직접 고를 수 있으며, 키는 SOPS에서 mise 환경으로 주입된다. Pi는 `~/.agents/skills`를 기본으로 읽는다. Claude Code나 claude.ai에서만 의미 있는 스킬과 코딩 작업에서 쓰지 않는 스킬(Obsidian, kb, gitbutler, hindsight 등)은 `settings.json`의 `skills` 제외 규칙(`-skills/<이름>`, `~/.agents` 기준)으로 Pi에서만 뺀다. 제외한 스킬은 Claude Code와 Codex에서 계속 쓸 수 있다. 웹 조사와 로그인된 사이트·화면 조작은 공유 `ego-browser` 스킬과 CLI를 사용한다. 별도 웹 확장과 Chrome MCP는 두지 않는다. MCP는 Pi 내장 기능을 쓴다. `~/.pi/agent/mcp.json`(원본 `files/workspace/.pi/mcp.json`, skillshare가 `.skillshare/config.yaml`의 `mcp.servers`에서 생성)은 CodeGraph와 godot-ai를 `codemode` 노출로 선언한다. 두 서버의 도구는 모델에 직접 선언되지 않고 `codemode` 스크립트에서 호출한다. `pi mcp list`로 연결 상태를 확인한다. CodeGraph는 해당 저장소에 `.codegraph/` 인덱스가 있어야 한다. 내장 MCP는 프로젝트 설정으로 신뢰한 저장소의 `.pi/mcp.json`만 읽고, 프로젝트 루트의 `.mcp.json`이나 Codex 프로젝트 전용 설정은 읽지 않는다. gentle-renewal과 my-backend의 `.mcp.json` Figma 서버를 Pi에서 쓰려면 그 저장소에 `.pi/mcp.json`을 따로 둔다.
+첫 실행 시 Pi가 `settings.json`의 고정 버전 확장 패키지를 설치한다. `pi list`로 설치 목록을 확인한다. OpenRouter의 Aion 3.5, DeepSeek V4.1 Flash, MiMo V2.6 Pro는 모델 선택기에서 직접 고를 수 있으며, 키는 SOPS에서 mise 환경으로 주입된다. Pi는 `~/.agents/skills`를 기본으로 읽는다. Claude Code나 claude.ai에서만 의미 있는 스킬과 코딩 작업에서 쓰지 않는 스킬(Obsidian, kb, gitbutler, hindsight 등)은 `settings.json`의 `skills` 제외 규칙(`-skills/<이름>`, `~/.agents` 기준)으로 Pi에서만 뺀다. 제외한 스킬은 Claude Code와 Codex에서 계속 쓸 수 있다. 웹 조사와 로그인된 사이트·화면 조작은 공유 `ego-browser` 스킬과 CLI를 사용한다. 별도 웹 확장과 Chrome MCP는 두지 않는다. MCP는 Pi 내장 기능을 쓴다. `~/.pi/agent/mcp.json`(원본 `files/workspace/.pi/mcp.json`, skillshare가 `.skillshare/config.yaml`의 `mcp.servers`에서 생성)은 CodeGraph를 `codemode` 노출로 선언한다. 서버의 도구는 모델에 직접 선언되지 않고 `codemode` 스크립트에서 호출한다. `pi mcp list`로 연결 상태를 확인한다. CodeGraph는 해당 저장소에 `.codegraph/` 인덱스가 있어야 한다. 내장 MCP는 프로젝트 설정으로 신뢰한 저장소의 `.pi/mcp.json`만 읽고, 프로젝트 루트의 `.mcp.json`이나 Codex 프로젝트 전용 설정은 읽지 않는다. gentle-renewal과 my-backend의 `.mcp.json` Figma 서버를 Pi에서 쓰려면 그 저장소에 `.pi/mcp.json`을 따로 둔다.
 
 ## 작업 방식
 
-기본 대화는 `openai/gpt-6.2-sol`/max이고, 기본 대화가 계획·구현·검증을 직접 맡는다. 병렬로 나눌 수 있는 독립 작업, 메인 문맥을 채울 긴 기계적 처리, 사용자·프로젝트·스킬의 명시 요청이 있을 때만 하위 에이전트에 맡긴다. `pi-subagents`의 기본 모델과 내장 역할은 `openai/gpt-6.1-terra`/max다. 부모가 범위와 파일 소유권을 명시해 작업을 맡기고, 결과를 기다려 검토한 뒤 보고한다. 한 번에 하나의 상위 하위 에이전트 작업 흐름을 실행한다. 확장의 동시 실행 한도 2는 각 흐름 안에 적용된다. 위임을 강제하지 않는 근거는 [2026-10-07 하네스 비교](pi-agent-validation.md#위임-강제-제거-2026-10-07)에 있다.
+기본 대화는 `openai/gpt-6.2-sol`/`xhigh`이고, 기본 대화가 계획·구현·검증을 직접 맡는다. 병렬로 나눌 수 있는 독립 작업, 메인 문맥을 채울 긴 기계적 처리, 사용자·프로젝트·스킬의 명시 요청이 있을 때만 하위 에이전트에 맡긴다. `pi-subagents`의 기본 모델과 내장 역할은 `openai/gpt-6.1-terra`/max다. 부모가 범위와 파일 소유권을 명시해 작업을 맡기고, 결과를 기다려 검토한 뒤 보고한다. 한 번에 하나의 상위 하위 에이전트 작업 흐름을 실행한다. 확장의 동시 실행 한도 2는 각 흐름 안에 적용된다. 위임을 강제하지 않는 근거는 [2026-10-07 하네스 비교](pi-agent-validation.md#위임-강제-제거-2026-10-07)에 있다.
 
 ## 확인 기록 (2026-10-29)
 

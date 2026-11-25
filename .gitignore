@@ -2,12 +2,6 @@ result
 
 .direnv
 
-templates/**/.devenv*
-templates/**/devenv.local.nix
-templates/**/.direnv
-templates/**/.pre-commit-config.yaml
-
-
 **/nix.secrets.conf
 
 **/keys.txt

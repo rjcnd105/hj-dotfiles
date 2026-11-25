@@ -1,6 +1,6 @@
 # Flake Output Rules
 
-Use these rules when editing `flake.nix`, `flake.lock`, CI checks, templates, or
+Use these rules when editing `flake.nix`, `flake.lock`, CI checks, or
 flake inputs.
 
 ## Do
@@ -11,7 +11,6 @@ flake inputs.
   - `checks`
   - `formatter`
   - `devShells`
-  - `templates`
   - `packages` / `apps` when this repo intentionally exposes tools
   - `nixosModules` when exporting reusable modules
 - Evaluate concrete outputs before refactoring structure.
@@ -61,7 +60,7 @@ nix flake lock --update-input home-manager
 ```
 
 App inputs such as `deopjibApp` normally move through `Admit Homelab App`. Dependabot
-and `just flake_update` can also move them without its compare summary, so check their
+can also move them without its compare summary, so check its
 diffs for app inputs.
 
 Bad local reference:

@@ -8,23 +8,18 @@ editor = "zed"
 [ui]
 editor = "hx"
 default-command = "log"
-# merge-editor = "zed"
 diff-formatter = "difft"
 
 [git]
 private-commits = "description(glob:'wip:*') | description(glob:'private:*')"
 
 [snapshot]
-# https://docs.jj-vcs.dev/latest/working-copy/#stale-working-copy
 auto-update-stale = true
-
 
 [merge-tools.zed]
 program = "zed"
 diff-args = ["--wait", "--new", "--diff", "$left", "$right"]
-# jj resolve 실행 시 설정
-# (Zed는 아직 3-way merge 전용 UI가 없으므로, jj가 파일에 충돌 마커(<<<<)를
-# 심어두면 Zed로 그 파일을 열어서 수정하도록 설정합니다.)
+# Zed는 아직 3-way merge 전용 UI가 없어 충돌 마커가 들어간 파일을 직접 열어 수정한다.
 merge-args = ["--wait", "$output"]
 merge-tool-edits-conflict-markers = true
 
@@ -42,31 +37,9 @@ la = ["log", "-r", "all()"]
 gfetch = ["git", "fetch", "--all-remotes"]
 gpub = ["git", "push", "--allow-new"]
 zdiff = ["diff", "--tool", "zed"]
-# Take content from any change, and move it into @. The inverse of 'eject'
-# - jj consume xyz path/to/file`
 consume = ["squash", "--into", "@", "--from"]
-
 cp = ["restore", "--to", "@", "--from"]
-
-# Eject content from @ into any other change. The inverse of 'consume'
-# - jj eject xyz --interactive
 eject = ["squash", "--from", "@", "--into"]
-
-# 가장 가까운 mutable 북마크를 @-로 이동
-# bhere- = [
-#     "bookmark", "move",
-#     "--from", "closest_mut_bm(@)",
-#     "--to", "@-",
-# ]
-
-# 가장 가까운 북마크를 @-로 이동(warning: immutable도 포함!)
-# "bhere-!" = [
-#     "bookmark", "move",
-#     "--from", "closest_bm(@)",
-#     "--to", "@-",
-#     "--allow-backwards"
-# ]
-
 ai-desc = [
   "util",
   "exec",

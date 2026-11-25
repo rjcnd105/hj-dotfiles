@@ -8,7 +8,7 @@ content are truncated so the output stays digestible.
 Examples:
   python3 show_session.py --latest
   python3 show_session.py --session 019e475b
-  python3 show_session.py --cwd /Volumes/T7/code/blanc --latest
+  python3 show_session.py --cwd /path/to/repo --latest
   python3 show_session.py --session 019e475b --max-tool-output 4000
   python3 show_session.py --latest --include-subagents-content
 """

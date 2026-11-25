@@ -3,21 +3,17 @@ keys:
   - &homelab_age age13l5ytc0xuqawqzt07xt0gyskk07lyayfsndut3cnyd0slzka7ppq4m3k64
 
 creation_rules:
-  # 공통 secrets (모든 사용자가 접근)
   - path_regex: secrets/shared/[^/]+\.(yaml|json|env|ini)$
     key_groups:
       - age:
-          # - *admin_age
           - *hj_age
           - *homelab_age
 
-  # workspace/hj 전용 secrets
   - path_regex: secrets/workspace/[^/]+\.(yaml|json|env|ini)$
     key_groups:
       - age:
           - *hj_age
 
-  # homelab/hj secrets — homelab age key 생성 후 활성화
   - path_regex: secrets/homelab/[^/]+\.(yaml|json|env|ini)$
     key_groups:
       - age:

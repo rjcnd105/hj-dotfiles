@@ -11,7 +11,7 @@ model that's looking for prompting patterns.
 Examples:
   python3 prompts.py --since 30d
   python3 prompts.py --since 7d --max-chars 1500 --format jsonl
-  python3 prompts.py --cwd /Volumes/T7/code/blanc --since 30d
+  python3 prompts.py --cwd /path/to/repo --since 30d
   python3 prompts.py --grep "global instruction"
 """
 

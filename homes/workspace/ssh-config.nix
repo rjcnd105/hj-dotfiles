@@ -35,7 +35,6 @@
     };
   };
 
-  # macOS specific: ssh-add to keychain
   home.activation.addSSHKeyToAgent = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       if [ -f "$HOME/.ssh/id_ed25519" ]; then

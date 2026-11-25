@@ -50,7 +50,7 @@ macOS through nix-darwin and the homelab through NixOS. Key surfaces are:
 ## Flake Practices
 
 - Keep important workflows exposed as flake outputs: `nixosConfigurations`,
-  `darwinConfigurations`, `checks`, `formatter`, `devShells`, and templates.
+  `darwinConfigurations`, `checks`, `formatter`, and `devShells`.
 - Prefer evaluating concrete outputs before changing structure, for example
   `nix eval .#nixosConfigurations.homelab_hj.config.<path>`.
 - Keep host composition in Nix modules under `systems/` and user composition in
@@ -111,35 +111,27 @@ Responsibility boundary:
 
 - App repos own OCI image build/publish, SemVer/release decisions, release PRs,
   channel tags such as `dev-current`, and app-owned `devops/runtime-contract.nix`.
-- `nix-dots` owns host admission, registry auth, sops secrets, volumes, Caddy,
-  Cloudflared, Podman/Quadlet rendering, migrations, smoke checks, and
-  `homelab-appctl`.
+- `nix-dots` owns host admission, sops secrets, volumes, Caddy,
+  Cloudflared (`homelab.publicRoutes`), Podman/Quadlet rendering, migrations,
+  smoke checks, and `homelab-appctl`.
 - Do not add app-specific homelab deploy runners to app repos.
-- For `manual` services, treat the app release manifest as the immutable image
-  identity. The revision locked in `flake.lock` is the host policy boundary.
+- Treat the app release manifest as the immutable image identity. The revision
+  locked in `flake.lock` is the host policy boundary.
 
-Current host-side deploy ABI:
-
-```sh
-homelab-appctl list
-homelab-appctl status <app> <channel>
-homelab-appctl smoke <app> <channel>
-homelab-appctl deploy <app> <channel> --target <release-id> --dry-run
-sudo -n homelab-appctl deploy <app> <channel> --target <release-id>
-```
+Authoritative host-side deploy CLI: run `homelab-appctl --help` (covers `list`,
+`status`, `logs`, `smoke`, and `deploy`).
 
 `homelab-appctl` is a `nix-dots` homelab adapter, not a public deploy platform.
 Portable app output is the OCI image plus documented runtime needs.
 `deploy` is a root operation with a narrow passwordless sudo rule for the
-homelab operator user. Roll back directly only within the admitted deployment
-source-hash set; otherwise revert the app input through PR/comin first. DB migrations are a
-separate recovery decision.
+homelab runner and operator user. Roll back by deploying a known-good target;
+to restore an older contract, revert the pinned app input on `main` and wait
+for `comin` activation. DB migrations are a separate recovery decision.
 
 ## Safety Rules
 
 - Keep secrets out of Nix literals and app repos; use sops-backed host secrets.
 - Do not expose app containers directly to the public internet; route through
-  Caddy and Cloudflared.
-- Do not enable `registry-auto` for services that own or run schema migrations.
+  Caddy and Cloudflared (`homelab.publicRoutes`).
 - Manual migrations may have one-shot systemd units, but must not run during
   NixOS activation or background auto-update.

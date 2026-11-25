@@ -1,7 +1,3 @@
-// homelab-appctl: nix-dots homelab의 앱 릴리스 배포 어댑터.
-// argv ABI, /etc/homelab-apps 메타데이터, /var/lib/homelab-appctl 기록 경로는
-// 이전 셸 구현과 호환된다. deploy는 검증→pull→tag→migrate→단일 restart→smoke→
-// 기록→retention 트랜잭션이다.
 package main
 
 import (

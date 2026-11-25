@@ -1,5 +1,3 @@
-# 계약 v2 픽스처: PORT(=3000) 리슨, /data 단일 마운트, needs.postgres 컨벤션.
-# 실제 앱 레포의 devops/runtime-contract.nix가 따라야 할 모양의 기준 예시다.
 { channel, domain }:
 let
   imageTag = "${channel}-current";

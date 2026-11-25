@@ -14,12 +14,9 @@ Nix guidance.
 
 ## Formatting and Checks
 
-- `treefmt-nix` is the formatting boundary.
-- Run `nix fmt` after Nix/TOML edits.
-- Run `just check` or
-  `nix flake check --all-systems --no-build --show-trace` after Nix changes.
-- Do not add a second formatting system for Nix or TOML.
-- Do not add CI checks that require homelab SSH, sudo, or live DNS.
+Formatting and local check commands live in `AGENTS.md` (`Core Workflow`).
+Do not add a second formatting system for Nix or TOML, and do not add CI checks
+that require homelab SSH, sudo, or live DNS.
 
 ## Homelab App Runtime
 
@@ -27,50 +24,35 @@ Nix guidance.
   (`deopjib/devops/` in the `my-app` monorepo).
 - App repos may provide `devops/homelab-admission.nix` as structured admission
   requests.
-- `nix-dots` owns admission, host binding, registry auth, secrets, volumes,
-  routes, Podman/Quadlet rendering, Caddy, Cloudflared, migrations, smoke checks,
-  and `homelab-appctl`.
+- `nix-dots` owns admission, host binding, secrets, volumes,
+  routes (`homelab.publicRoutes`), Podman/Quadlet rendering, Caddy, Cloudflared,
+  migrations, smoke checks, and `homelab-appctl`.
 - Do not copy app-specific runtime shape from chat into `nix-dots` when the app
   repo can own a contract.
 - Do not add app-specific homelab deploy scripts to app repos.
-- `manual` services deploy the exact image digests in an app release manifest.
-  `nix-dots` checks its schema version, app, target, target pattern, and image
+- Services deploy exact image digests from a v2 app release manifest.
+  `nix-dots` checks schema version `2`, app, target, target pattern, and image
   names before any host mutation. App contract changes normally reach the host
   through the approved `Admit Homelab App` workflow.
 
 ## Homelab Deploy ABI
 
-The host-side deploy interface is:
+Run `homelab-appctl --help` for the authoritative CLI interface (`list`,
+`status`, `logs`, `smoke`, `deploy`). `homelab-appctl` reads generated metadata
+from `/etc/homelab-apps/<app>/<channel>.json` (host adapter detail; app repos
+must not depend on this path).
 
-```sh
-homelab-appctl list
-homelab-appctl status <app> <channel>
-homelab-appctl smoke <app> <channel>
-homelab-appctl deploy <app> <channel> --dry-run --target <identifier>
-sudo -n homelab-appctl deploy <app> <channel> --target <identifier>
-```
-
-`homelab-appctl` reads generated metadata from:
-
-```text
-/etc/homelab-apps/<app>/<channel>.json
-```
-
-Do not make the app repo depend on this path. This path is a host adapter detail.
 `deploy` requires root because it writes deploy records and controls system
-services. The runner's passwordless sudo rule grants only that subcommand. The
-operator user also holds `homelab-appctl *` through `systems/homelab/operator.nix`. A rollback is another deploy of a known-good
-target; restoring an older contract first requires a signed commit on `main` that
-reverts the pinned app input, then comin activation, because `Admit Homelab App`
-refuses backward moves.
+services. The runner's passwordless sudo rule grants only `homelab-appctl deploy *`,
+and the operator user holds `homelab-appctl *` through `systems/homelab/operator.nix`.
+A rollback is another deploy of a known-good target; restoring an older contract
+first requires a signed commit on `main` that reverts the pinned app input, then
+`comin` activation, because `Admit Homelab App` refuses backward moves.
 
-When `deploy` receives `--target <identifier>`, it compares that identifier
-with the most recent deploy record. Prefer app release identifiers such as
-`deopjib-v0.0.1`; full source SHAs are a transition format. Matching targets are
-no-ops only when the most recent record is successful and its admitted metadata
-is byte-identical; newer failed records or changed metadata allow retry.
-Different targets validate the release manifest, pull exact
-digests, migrate, restart release-managed services once, smoke, and record.
+`deploy` pulls exact digests, runs any declared migration by exact digest before
+moving `-current` tags, restarts release services once, runs loopback smoke
+checks against Caddy, and writes `summary.json` plus `metadata.json`. No-op
+matching semantics live in `packages/homelab-appctl/deploy.go` and its tests.
 
 External app repos request dev deploys through `.github/workflows/request-homelab-deploy.yml`, which
 dispatches `.github/workflows/deploy-homelab-app.yml` or
@@ -95,7 +77,6 @@ implementation details in app repos.
 - Direct edits to generated Quadlet files.
 - App-specific deployment code in app repos that knows homelab internals.
 - NixOS activation scripts that run migrations or deployments.
-- Registry auto-update on services that own schema migrations.
 - Secrets in `flake.nix`, app contracts, generated metadata, or docs.
 
 ## Sources

@@ -1,91 +1,40 @@
 # hj-dotfiles
 
-My mac flake, template, dev configs
+Personal nix-darwin (`workspace_hj`) and NixOS homelab (`homelab_hj`) flake configuration.
 
 ## Configuration Structure
 
-Global configuration files are always located in `./files/workspace/.config`.
-- When adding new dotfiles or agent configurations, verify this path.
+- `flake.nix`: host outputs (`darwinConfigurations`, `nixosConfigurations`), checks, formatter, and devShells.
+- `systems/`: NixOS and nix-darwin system modules (`systems/homelab/` for homelab services and app deployment).
+- `homes/` and `sharedHome/`: Home Manager modules.
+- `files/workspace/`: linked user dotfiles and agent configurations (`~/.config/...`, `.claude/`, `.codex/`, `.agents/`, `.skillshare/`).
+- `packages/homelab-appctl/`: host-side app release deploy CLI.
+- `docs/guides/` and `docs/solutions/`: operational guides and incident notes.
 
-## Install
+## Install (macOS)
 
-1. nix install (recomended determinate.systems)
+1. Install Determinate Nix:
 
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 ```
 
-2. [mise](https://mise.jdx.dev/installing-mise.html) install
-2. build
+2. Install [mise](https://mise.jdx.dev/installing-mise.html).
+3. Build and switch:
 
 ```bash
-nix build github:rjcnd105/hj-dotfiles#darwinConfigurations.workspace_hj.system --impure --fallback
+just build_hj-workspace
+just darwin-switch
 ```
 
-3. darwin switch
+## Supported Hosts
 
-```bash
-./result/sw/bin/darwin-rebuild switch --flake .#workspace_hj
-```
+- `workspace_hj` (`aarch64-darwin`, macOS via `nix-darwin` + Home Manager)
+- `homelab_hj` (`x86_64-linux`, NixOS + `comin` GitOps + Podman/Quadlet)
 
-## System
+## Key Tools
 
-Uses catppuccin theme
-
-### Support
-
-- aarch46-darwin
-
-### Preview
-
-![CleanShot 2024-12-08 at 18 46 53@2x](https://github.com/user-attachments/assets/fb76c014-0b20-42bd-8401-37af9287f856)
-
-### Features
-
-#### Shell
-
-- [alacritty](https://github.com/alacritty/alacritty)<br/>
-gui
-- [fish](https://github.com/fish-shell/fish-shell)<br/>
-better shell
-- [sharship](https://github.com/starship/starship)<br/>
-Shell customize, look pretty
-- [zellij](https://github.com/zellij-org/zellij)<br/>
-shell splitting
-- [yazi](https://github.com/sxyazi/yazi)<br/>
-Tree-based explorer
-- [carapace](https://github.com/carapace-sh/carapace)<br/>
-Command argument completion
-- [atuin](https://github.com/atuinsh/atuin)<br/>
-SQLite database shell history
-
-#### Dev
-
-- git
-- gh
-- lazygit
-- direnv
-- podman, podman-compose
-- docker-compatible CLI wrappers
-- lazydocker
-- devenv
-- mise
-
-#### Fonts
-
-d2 coding nerd, jetbrains-mono nerd, lilex nerd
-
-#### see also
-
-- System Packages<br/>
-<https://github.com/rjcnd105/hj-dotfiles/blob/main/systems/workspace/default.nix>
-- User packages<br/>
-<https://github.com/rjcnd105/hj-dotfiles/blob/main/homes/workspace/default.nix>
-
-## Templates
-
-devenv base.
-
-### phoenix
-
-[https://github.com/rjcnd105/hj-dotfiles/tree/main/templates/phoenix](https://github.com/rjcnd105/hj-dotfiles/tree/main/templates/phoenix)
+- Terminal & Shell: `ghostty`, `fish`, `starship`, `yazi`, `carapace`, `atuin`, `fzf`, `zoxide`, `eza`
+- VCS & Dev: `git`, `jj`, `gh`, `lazygit`, `worktrunk`, `helix`, `direnv`, `mise`, `devenv`, `ripgrep`, `fd`, `sd`
+- Fonts: `sarasa-gothic`, `nerd-fonts.d2coding`, `nerd-fonts.jetbrains-mono`
+- Homelab: `podman`, `quadlet-nix`, `caddy`, `cloudflared`, `postgresql_18`, `ollama-vulkan`, `llama.cpp`, `hindsight`, `beszel`, `restic`

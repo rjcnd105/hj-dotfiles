@@ -7,8 +7,6 @@
 {
   services.openssh = {
     enable = true;
-    # 맥은 외부 네트워크에도 나가므로 sshd를 키 인증으로만 연다.
-    # SSH 세션에는 LANG이 없어 CLI가 C 로케일로 떨어지므로 UTF-8을 넣어 준다.
     extraConfig = ''
       PasswordAuthentication no
       KbdInteractiveAuthentication no

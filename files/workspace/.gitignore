@@ -1,7 +1,5 @@
-
 # Home Manager links every file here into ~, and Pi and Claude Code read
 # AGENTS.md and CLAUDE.md from every parent directory, so a root copy would load
-# the personal guide twice in every repo under ~. The guide reaches each agent
-# through .codex/AGENTS.md (see docs/guides/pi-agent.md).
+# the personal guide twice in every repo under ~.
 /AGENTS.md
 /CLAUDE.md

@@ -72,7 +72,6 @@ in
   # 고정 nameserver를 쓰는 앱·컨테이너 DNS를 MagicDNS가 바꾸지 않게 한다.
   services.tailscale.extraSetFlags = [ "--accept-dns=false" ];
 
-  # 정적 IP — ipTIME DHCP 예약 대신 NixOS에서 직접 고정
   networking.interfaces.eno1.ipv4.addresses = [
     {
       address = "192.168.0.5";
@@ -85,15 +84,12 @@ in
     "111.118.0.11"
   ];
 
-  # zram 스왑 — 압축 RAM 기반 swap. 미사용 시 RAM 소비 ≈ 0.
   zramSwap = {
     enable = true;
     algorithm = "zstd";
     memoryPercent = 25;
   };
 
-  # earlyoom — kswapd livelock 전에 선제 조치 → SSH 유지.
-  # systemd-oomd와 중복 방지를 위해 oomd는 비활성.
   services.earlyoom = {
     enable = true;
     freeMemThreshold = 5;
@@ -104,8 +100,6 @@ in
   };
   systemd.oomd.enable = false;
 
-  # Podman runtime. dockerCompat keeps the `docker` command mapped to Podman;
-  # dockerSocket exposes Podman's Docker-compatible API at /run/docker.sock.
   virtualisation.podman = {
     enable = true;
     dockerCompat = true;
@@ -115,8 +109,6 @@ in
 
   systemd.timers.podman-auto-update.wantedBy = [ "timers.target" ];
 
-  # llama.cpp — Radeon 890M Vulkan 가속 활성(b12669, inkling2_loop 지원).
-  # 로컬 전용 바인딩. 외부 접근이 필요하면 host를 0.0.0.0으로 변경하고 firewall에 8080 추가
   hardware.graphics.enable = true;
   services.llama-cpp = {
     enable = true;
@@ -131,7 +123,6 @@ in
     "video"
   ];
 
-  # 자동 GC — comin GitOps 박스는 rebuild마다 세대가 쌓인다. 주간 정리 + store 중복 제거.
   nix.gc = {
     automatic = true;
     dates = "weekly";
@@ -139,7 +130,6 @@ in
   };
   nix.optimise.automatic = true;
 
-  # comin — GitOps: GitHub main 브랜치를 poll하여 자동 nixos-rebuild switch
   services.comin = {
     enable = true;
     hostname = "homelab_hj";
@@ -160,9 +150,7 @@ in
     devenv
     ghostty.terminfo
     llamaCppLatest
-    # 메모리/iGPU UMA 실측용 (dmidecode -t memory)
     dmidecode
-    # PCI 디바이스 조회 (lspci) — iGPU/NVMe BDF 확인
     pciutils
   ];
 }
