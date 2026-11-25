@@ -295,7 +295,6 @@ let
       unitPrefix = unitPrefixFor app;
       service = contract.services.${migrationServiceName};
       envTemplate = config.sops.templates.${envTemplateNameFor app migrationServiceName}.path;
-      imageRef = imageRefFor app service;
       migrateImageFile = "/run/homelab-appctl/${unitPrefix}-migrate.image";
       networkService = "${unitPrefix}-network.service";
       dependencyServices = map (name: "${unitPrefix}-${name}.service") service.dependsOn;
@@ -328,9 +327,14 @@ let
       ];
       serviceConfig.Type = "oneshot";
       script = ''
-        image=${lib.escapeShellArg imageRef}
-        if [ -r ${lib.escapeShellArg migrateImageFile} ]; then
-          image=$(cat ${lib.escapeShellArg migrateImageFile})
+        if [ ! -r ${lib.escapeShellArg migrateImageFile} ]; then
+          echo "missing migration image digest file: ${migrateImageFile}" >&2
+          exit 1
+        fi
+        image=$(${pkgs.coreutils}/bin/tr -d '\r\n' < ${lib.escapeShellArg migrateImageFile})
+        if ! printf '%s\n' "$image" | ${pkgs.gnugrep}/bin/grep -Eq '^[^[:space:]]+@sha256:[0-9a-f]{64}$'; then
+          echo "invalid migration image digest in ${migrateImageFile}: $image" >&2
+          exit 1
         fi
         ${pkgs.podman}/bin/podman rm -f ${lib.escapeShellArg "${unitPrefix}-migrate"} >/dev/null 2>&1 || true
         exec ${pkgs.podman}/bin/podman run --rm --pull=never --name ${lib.escapeShellArg "${unitPrefix}-migrate"} --env-file ${lib.escapeShellArg envTemplate} --network ${lib.escapeShellArg unitPrefix} ${volumeArgs} "$image" ${lib.escapeShellArgs contract.migrations.command}
@@ -369,7 +373,7 @@ let
       unitPrefix = unitPrefix;
       domain = app.host.domain;
       caddyUrl = "http://127.0.0.1:${toString cfg.caddyPort}";
-      contractVersion = 2;
+      contractVersion = app.contract.schemaVersion;
       smokePaths = smokePathsFor app;
       services = mapAttrsToList (serviceMetadataFor app) app.contract.services;
       migration =
@@ -445,6 +449,14 @@ let
       {
         assertion = validId contract.channel;
         message = "homelab.apps.${appName}: contract.channel must match ^[a-z0-9][a-z0-9-]*$.";
+      }
+      {
+        assertion = contract.schemaVersion == 2;
+        message = "homelab.apps.${appName}: only contract schemaVersion 2 is supported.";
+      }
+      {
+        assertion = contract.release.versioning == "external";
+        message = "homelab.apps.${appName}: only release.versioning = \"external\" is supported.";
       }
       {
         assertion = app.host.domain != null;
@@ -536,6 +548,14 @@ let
             message = "homelab.apps.${appName}: release channel ${channelName} must match ^[a-z0-9][a-z0-9-]*$.";
           }
           {
+            assertion = channel.migrate != "manual" || migrationMode == "manual";
+            message = "homelab.apps.${appName}: release channel ${channelName} cannot request manual migration when contract.migrations.mode is not manual.";
+          }
+          {
+            assertion = channel.strategy == "coordinated";
+            message = "homelab.apps.${appName}: release channel ${channelName} only supports strategy = \"coordinated\".";
+          }
+          {
             assertion = lib.hasPrefix "^" channel.targetPattern && lib.hasSuffix "$" channel.targetPattern;
             message = "homelab.apps.${appName}: release channel ${channelName} targetPattern must be anchored with ^ and $.";
           }
@@ -554,6 +574,10 @@ let
       mapAttrsToList (
         serviceName: service:
         [
+          {
+            assertion = service.updatePolicy == "manual";
+            message = "homelab.apps.${appName}.${serviceName}: only updatePolicy = \"manual\" is supported.";
+          }
           {
             assertion = builtins.all (
               dependency: dependency != serviceName && builtins.elem dependency serviceNames

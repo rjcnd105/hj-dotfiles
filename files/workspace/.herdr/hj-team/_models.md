@@ -12,10 +12,10 @@
 - 약점: 단순 정형 구현 워커로는 GPT-6.2 Sol 대비 비용 부담 [커뮤니티]
 - 쓰는 route: `investigate`, `pixel-art`
 
-## gpt-6.2-astra (`codex -m gpt-6.2-astra` / `pi --provider openai --model gpt-6.2-astra`)  확인: 2026-11-23
+## gpt-6.2-astra (`pi --provider openai --model gpt-6.2-astra`)  확인: 2026-11-26
 - 강점: 복잡한 다중 파일 구현·리팩터링·상태 머신·3D/게임 로직, 적대적 코드 리뷰에서의 실제 결함(verified defects) 탐지 최상위. **Fable 5.2보다 실체감 비용·구독 쿼터 효율이 훨씬 우수**하므로, 토큰이 많이 들지만 태스크·계약이 어느 정도 정해진 복잡한 작업에서는 Fable 5.2보다 Astra를 우선 선택 [커뮤니티 + 로컬]
 - 약점: 창의적 탐색·열린 기획·오케스트레이션·의도 파악이 약함("문자 그대로 해석" 경향), 리뷰 시 과잉 지적(false positive)과 same-lab bias 비율이 높음, Sol 대비 단가는 높음 [커뮤니티 + 로컬]
-- 쓰는 route: `implement-complex` (`pi`, `high`), `deep-review` (`codex`, `xhigh`, read-only)
+- 쓰는 route: `implement-complex` (`pi`, `high`), `deep-review` (`pi`, `xhigh`, `--exclude-tools edit,write`)
 
 ## gpt-6.2-sol (`pi --provider openai --model gpt-6.2-sol --thinking high`)  확인: 2026-11-23
 - 강점: 스펙과 계약이 명확히 주어진 정형 코딩·리팩터링·반복 테스트 워커로 최고 가성비(Astra 대비 ~25% 비용) [커뮤니티 + 로컬]

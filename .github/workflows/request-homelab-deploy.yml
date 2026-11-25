@@ -68,9 +68,13 @@ jobs:
 
           # Blob ids, because compare truncates its file list at 300 files.
           blob() {
-            local out status
+            local out status sha
             if out="$(gh api -i "repos/$GITHUB_REPOSITORY/contents/$1?ref=$2" 2>&1)"; then
-              printf '%s\n' "$out" | sed '1,/^\r*$/d' | jq -r .sha
+              if ! sha="$(printf '%s\n' "$out" | sed '1,/^\r*$/d' | jq -er 'select(type == "object" and (.type == "file" or .type == "symlink") and (.sha | type == "string") and (.sha | test("^[0-9a-f]{40}$"))) | .sha')"; then
+                echo "::error::GitHub API returned non-file or invalid JSON checking $1 at $2" >&2
+                return 1
+              fi
+              printf '%s\n' "$sha"
               return 0
             fi
             status="$(printf '%s\n' "$out" | sed -n 's/^HTTP\/[0-9.]* \([0-9][0-9][0-9]\).*/\1/p' | head -n 1)"
@@ -82,7 +86,11 @@ jobs:
             return 1
           }
           contract_changed=false
-          read -r -a contract_paths <<< "$CONTRACT_PATHS"
+          mapfile -t contract_paths < <(printf '%s\n' "$CONTRACT_PATHS" | tr -s '[:space:]' '\n' | sed '/^$/d')
+          if [ "${#contract_paths[@]}" -eq 0 ]; then
+            echo "::error::contract-paths is empty; specify at least one repo path" >&2
+            exit 1
+          fi
           for path in "${contract_paths[@]}"; do
             before="$(blob "$path" "$admitted")"
             after="$(blob "$path" "$GITHUB_SHA")"

@@ -85,22 +85,37 @@ let
     ".config/fish/user-functions.fish"
     ".claude/agents"
     ".claude/hooks"
-    ".claude/rules"
+    ".claude/rules/claude-harness.md"
+    ".claude/rules/pstack-models.md"
     ".claude/skills"
     ".agents/pstack-models.md"
     ".agents/skills"
     ".codex/AGENTS.md"
   ];
 
-  mkGitopsStoreFiles = builtins.listToAttrs (
-    map (relPath: {
-      name = relPath;
-      value = {
-        source = storeBasePath + "/${relPath}";
-        force = true;
-      };
-    }) (builtins.filter (relPath: builtins.pathExists (storeBasePath + "/${relPath}")) gitopsStorePaths)
-  );
+  # .claude/rules/personal-agent-guide.md는 저장소 안에서 ../../.skillshare/… 상대 링크라
+  # 디렉터리 전체를 store에 복사하면 store 바깥을 가리켜 끊어진다. 원본 파일을 직접 매핑한다.
+  gitopsStoreAliases = {
+    ".claude/rules/personal-agent-guide.md" = ".skillshare/extras/agent-guide/AGENTS.md";
+  };
+
+  mkGitopsStoreFiles =
+    builtins.listToAttrs (
+      map (relPath: {
+        name = relPath;
+        value = {
+          source = storeBasePath + "/${relPath}";
+          force = true;
+        };
+      }) (builtins.filter (relPath: builtins.pathExists (storeBasePath + "/${relPath}")) gitopsStorePaths)
+    )
+    //
+      lib.mapAttrs
+        (_dst: src: {
+          source = storeBasePath + "/${src}";
+          force = true;
+        })
+        (lib.filterAttrs (_dst: src: builtins.pathExists (storeBasePath + "/${src}")) gitopsStoreAliases);
 in
 {
   home.preferXdgDirectories = true;

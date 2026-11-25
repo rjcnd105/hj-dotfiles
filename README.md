@@ -20,7 +20,14 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 ```
 
 2. Install [mise](https://mise.jdx.dev/installing-mise.html).
-3. Build and switch:
+3. First-time bootstrap (`just` and `darwin-rebuild` are installed by the flake):
+
+```bash
+nix build .#darwinConfigurations.workspace_hj.system --fallback --experimental-features "nix-command flakes"
+sudo ./result/sw/bin/darwin-rebuild switch --flake .#workspace_hj
+```
+
+4. Subsequent updates:
 
 ```bash
 just build_hj-workspace

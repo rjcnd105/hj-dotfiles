@@ -1,0 +1,41 @@
+{
+  "$schema": "https://pi.dev/schemas/models.schema.json",
+  "providers": {
+    "homelab-ollama": {
+      "name": "Homelab Ollama",
+      "baseUrl": "http://homelab:11434/v1",
+      "api": "openai-completions",
+      "apiKey": "ollama",
+      "models": [
+        {
+          "id": "hf.co/abenzerps/Spark-X2.6-4B-Uncensored-GSQ-RCO-GGUF:IQ3_M",
+          "name": "Spark-X2.6-4B (homelab)",
+          "reasoning": true,
+          "input": ["text"],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 8192,
+          "maxTokens": 2048
+        },
+        {
+          "id": "hf.co/PaddlePaddle/PaddleOCR-VL-1.6-GGUF:latest",
+          "name": "PaddleOCR-VL-1.6 (homelab)",
+          "reasoning": false,
+          "input": ["text", "image"],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 8192,
+          "maxTokens": 2048
+        }
+      ]
+    }
+  }
+}

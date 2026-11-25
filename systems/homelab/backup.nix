@@ -40,8 +40,11 @@ in
     passwordFile = config.sops.secrets.BACKUP_RESTIC_PASSWORD.path;
     environmentFile = config.sops.templates."restic-r2.env".path;
     paths = [ dumpDir ];
+    exclude = [ "*.tmp.*" ];
     backupPrepareCommand = ''
       set -euo pipefail
+      rm -f ${dumpDir}/.*.sql.zst.tmp.*
+      trap 'rm -f ${dumpDir}/.*.sql.zst.tmp.$$' EXIT
       for db in ${lib.escapeShellArgs databases}; do
         tmp=${dumpDir}/."$db".sql.zst.tmp.$$
         ${pkgs.util-linux}/bin/runuser -u postgres -- \

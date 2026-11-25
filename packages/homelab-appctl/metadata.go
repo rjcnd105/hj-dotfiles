@@ -79,10 +79,10 @@ func stateRoot() string {
 }
 
 func runtimeRoot() string {
-	if v := os.Getenv("HOMELAB_APPCTL_RUNTIME_ROOT"); v != "" {
-		return v
-	}
 	if testModeActive() {
+		if v := os.Getenv("HOMELAB_APPCTL_RUNTIME_ROOT"); v != "" {
+			return v
+		}
 		return filepath.Join(stateRoot(), "run")
 	}
 	return "/run/homelab-appctl"

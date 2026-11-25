@@ -23,6 +23,8 @@ API 호스트명에는 Cloudflare Access를 걸지 않는다. 코딩 에이전�
 
 bank는 저장소마다 하나씩 생기고(`coding-agent::<저장소>`), 모든 bank가 서버 기본값을 그대로 쓴다. 정책은 `systems/homelab/hindsight.nix` 한 곳에서 바꾼다. 클라이언트는 `manageBankConfig: false`라서 bank에 자기 mission이나 retain strategy를 쓰지 않는다.
 
+bank 이름은 저장소 이름에서 나오고, 저장소 밖에서는 세션을 시작한 디렉터리 이름이 된다. 예외는 `homes/workspace/hindsight.nix`에 둔다. `mapPathToBank`는 clone이 여러 개이거나 이름을 고정할 프로젝트를 한 bank로 모으고, `paths.<경로>.disabled`는 Codex 앱의 프로젝트 없는 대화·자동화(`~/Documents/Codex`)처럼 기억이 필요 없는 경로를 끈다. 프로젝트 저장소의 mise env(`HINDSIGHT_BANK_ID`)는 하네스가 env를 물려받지 못하면 적용되지 않아 bank가 갈라졌다. `mapPathToBank`는 env보다 우선한다.
+
 - 추출은 `custom` 모드다. `HINDSIGHT_API_RETAIN_CUSTOM_INSTRUCTIONS`가 실패(원인과 해결), 검증된 성공, 사용자 피드백, 확정된 결정만 남기게 하고, 에이전트가 한 일·사용자 요청·그 작업에 한정된 승인과 위임·진행 보고·조사 배경·저장소에 이미 있는 내용·기억에서 인용된 내용(자동 주입, recall, reflect 답)은 버리게 한다.
 - 규칙은 chunk마다 따로 적용된다. 그래서 "조각 하나에서 3건을 넘는 일은 드물다"처럼 조각 기준으로 썼다. Hindsight 문서는 `HINDSIGHT_API_RETAIN_MISSION`을 출발점으로 권하지만, 실제 세션 조각 4개로 비교하면 mission 방식(`concise` + mission)이 25건, 이전 `custom` 규칙이 22건, 지금 규칙이 13건이었다(2026-11-12, `dry-run-extract`). mission과 `custom`을 함께 두지 않는다.
 - 제외 조항은 건수를 줄이기보다 다른 사실로 자리를 채운다. chunk당 3–4건은 거의 그대로이고, 뺀 자리에 덜 중요한 사실이 들어온다. 그래서 효과가 측정된 조항만 둔다. 승인·위임과 기억 인용 조항은 chunk 9개를 5회씩 번갈아 돌려 198건이 176건이 됐고(2026-11-12), 일회성 승인 사실이 5회 중 2회에서 0회로, 주입된 기억을 다시 뽑는 경우가 5회 중 5회에서 1회로 줄었으며 꼭 남아야 하는 사실은 그대로였다. "요약·보고에서 다시 뽑지 말라"는 조항은 효과가 없었고, "건수를 채우지 말라"는 문장은 넣으면 204건으로 늘고 기각된 요청까지 선호로 뽑혔다. 둘 다 채택하지 않았다.

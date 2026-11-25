@@ -20,7 +20,8 @@
     "openai/gpt-6.2-sol",
     "openai-codex/gpt-6.2-sol",
     "openai/gpt-6.2-astra",
-    "openai-codex/gpt-6.2-astra"
+    "openai-codex/gpt-6.2-astra",
+    "homelab-ollama/hf.co/abenzerps/Spark-X2.6-4B-Uncensored-GSQ-RCO-GGUF:IQ3_M"
   ],
   "packages": [
     "git:github.com/nicobailon/pi-subagents",
@@ -95,7 +96,7 @@
       }
     }
   },
-  "lastChangelogVersion": "1.6.0",
+  "lastChangelogVersion": "1.6.1",
   "theme": "dark",
   "skills": [
     "-/Users/hj/.agents/skills/claude-api/SKILL.md",

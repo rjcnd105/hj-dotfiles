@@ -7,6 +7,15 @@ let
   cfg = config.homelab;
   hasPublicRoutes = cfg.publicRoutes != { };
   allReservedPorts = cfg.reservedLoopbackPorts ++ lib.optional hasPublicRoutes cfg.caddyPort;
+  staticIngress = {
+    # SSH — 라우터 인바운드 포워딩 없이 원격 접속하는 유일한 경로.
+    # 클라이언트는 `cloudflared access ssh` ProxyCommand로 접속하며
+    # CF Access(이메일 OTP)가 SSH 핸드셰이크 전에 인증을 요구한다.
+    "ssh.deopjib.cc" = "ssh://localhost:22";
+  };
+  conflictingRouteDomains = builtins.filter (domain: builtins.hasAttr domain staticIngress) (
+    builtins.attrNames cfg.publicRoutes
+  );
 in
 {
   options.homelab = {
@@ -54,6 +63,10 @@ in
         assertion = lib.unique allReservedPorts == allReservedPorts;
         message = "homelab.reservedLoopbackPorts (including homelab.caddyPort) must be globally unique: ${toString allReservedPorts}";
       }
+      {
+        assertion = conflictingRouteDomains == [ ];
+        message = "homelab.publicRoutes must not collide with static cloudflared ingress domains: ${toString conflictingRouteDomains}";
+      }
     ];
 
     services.caddy = lib.mkIf hasPublicRoutes {
@@ -75,13 +88,9 @@ in
       tunnels.${cfg.cloudflareTunnelId} = {
         credentialsFile = config.sops.secrets."cloudflared-credentials".path;
         default = "http_status:404";
-        # SSH — 라우터 인바운드 포워딩 없이 원격 접속하는 유일한 경로.
-        # 클라이언트는 `cloudflared access ssh` ProxyCommand로 접속하며
-        # CF Access(이메일 OTP)가 SSH 핸드셰이크 전에 인증을 요구한다.
-        ingress = {
-          "ssh.deopjib.cc" = "ssh://localhost:22";
-        }
-        // lib.mapAttrs (_domain: _route: "http://localhost:${toString cfg.caddyPort}") cfg.publicRoutes;
+        ingress =
+          staticIngress
+          // lib.mapAttrs (_domain: _route: "http://localhost:${toString cfg.caddyPort}") cfg.publicRoutes;
       };
     };
 

@@ -18,7 +18,7 @@ nix-dots (호스트)
                 |
                 v
 homelab-appctl deploy <app> <channel> --target <release-id>
-  검증 → digest pull → 로컬 태그 이동 → migrate → 단일 restart → smoke → 기록
+  검증 → digest pull → migrate(digest) → 로컬 태그 이동 → 단일 restart → smoke → 기록
 ```
 
 책임 경계:
@@ -107,7 +107,6 @@ in
 - `updatePolicy = "manual"` 서비스의 이미지는 `:<channel>-current` 태그로 끝나야
   한다. 이 태그는 로컬 활성화 포인터일 뿐, 배포되는 바이트는 항상 manifest의
   digest가 결정한다.
-- `pinned-digest` 서비스(외부 인프라 이미지)는 `@sha256:<64hex>`로 끝나야 한다.
 - v2에서 소스 해시 4종은 존재하지 않는다. 검증은 앱명/target 패턴/이미지명/digest
   문법/HTTPS origin으로 끝난다.
 
@@ -373,7 +372,7 @@ nix-dots:
 
 ## 부록 A — 계약 v1 (레거시)
 
-지금 이 형식을 쓰는 앱은 없다. `manifest.go`와 `app-containers.nix`에 남은 v1 분기를 읽을 때만 필요하다. 차이점:
+지금 이 형식을 쓰는 앱은 없으며 `manifest.go`와 `app-containers.nix`에서 v1 분기는 제거됐다. 과거 git 히스토리를 읽을 때의 참고 요약:
 
 - `schemaVersion` 없음(=1). release manifest는 `schemaVersion: 1`이며
   `sourceRev`와 `deploymentContract`의 소스 해시 4종

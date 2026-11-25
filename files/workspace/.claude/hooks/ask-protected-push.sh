@@ -51,22 +51,17 @@ check_refspec_safe() {
   if [ -z "$dst_clean" ]; then
     ask "대상 ref가 비어 있는 push($spec)입니다. 확인이 필요합니다."
   fi
+  case "$spec" in
+    *'*'* | *'$'* | *'`'* | *'?'* | *'['* | *'@{'*)
+      ask "동적이거나 와일드카드가 포함된 push refspec($spec)입니다."
+      ;;
+  esac
   if is_protected_ref "$src_clean" || is_protected_ref "$dst_clean"; then
     ask "보호 브랜치($protected)를 가리키는 push($spec)입니다."
   fi
-  case "$src_clean" in
+  case "$dst_clean" in
     HEAD | @ | HEAD~* | HEAD^* | @~* | @^*)
       return 1
-      ;;
-  esac
-  case "$dst_clean" in
-    HEAD | @)
-      return 1
-      ;;
-  esac
-  case "$spec" in
-    *'*'* | *'$'* | *'`'*)
-      ask "동적이거나 와일드카드가 포함된 push refspec($spec)입니다."
       ;;
   esac
   return 0
@@ -122,6 +117,9 @@ while IFS= read -r seg; do
     jj* | ?jj*)
       if ! printf '%s' "$args" | grep -Eq -- "(^|$sp)(-b|--bookmark|-c|--change|--named)($sp|=|\$)"; then
         ask "보낼 bookmark를 지정하지 않은 jj git push입니다. 보호 브랜치($protected)가 포함될 수 있습니다."
+      fi
+      if printf '%s' "$args" | grep -Eq '[\*$`?[]'; then
+        ask "동적이거나 와일드카드가 포함된 jj git push입니다."
       fi
       if printf '%s' "$args" |
         grep -Eq "(^|[[:space:]:=+'\"]|refs/heads/)($protected)(\$|[[:space:]:'\"])"; then

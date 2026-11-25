@@ -37,9 +37,6 @@ concurrency:
   group: admit-homelab-app-${{ inputs.app }}
   cancel-in-progress: false
 
-# Leave persist-credentials at its default in checkouts: turning it off removes auth
-# during checkout through `git submodule foreach`, which fails on this repo's orphan
-# gitlink under files/workspace/.claude/skills.
 jobs:
   describe:
     runs-on: ubuntu-latest

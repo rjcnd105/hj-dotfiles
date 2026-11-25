@@ -300,7 +300,6 @@ git push
 ```
 
 push 후 comin이 homelab에서 자동으로 변경을 감지하고 secrets 포함 rebuild를 수행한다.
-(`ENABLE_SECRETS` 환경 변수를 넘기지 않으면 기본적으로 secrets 포함)
 
 ## Phase 20: comin 동작 확인
 
@@ -327,7 +326,7 @@ journalctl -u comin --since "5 minutes ago"
 ### nixos-install 실패
 - `hardware-configuration.nix`가 올바른지 확인
 - 네트워크 연결 확인 (패키지 다운로드 필요)
-- sops 관련 에러: `ENABLE_SECRETS=0`을 붙여서 실행했는지 확인
+- sops 관련 에러: 호스트 SSH ed25519 키(`/etc/ssh/ssh_host_ed25519_key`)에서 파생된 age 공개키가 `.sops.yaml` 수신자와 일치하는지 확인
 
 ### SSH 접속 안 됨
 - homelab에서 `systemctl status sshd` 확인

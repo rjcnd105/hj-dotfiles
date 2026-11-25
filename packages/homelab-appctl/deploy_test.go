@@ -292,33 +292,85 @@ func TestPruneDeployRecords(t *testing.T) {
 	}
 }
 
-func TestCmdSmokeDoesNotFollowRedirects(t *testing.T) {
-	redirected := false
-	external := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		redirected = true
-		w.WriteHeader(http.StatusOK)
-	}))
-	defer external.Close()
+func TestCmdSmokeRejectsRedirectsAndAccepts2xx(t *testing.T) {
+	origAttempts, origDelay := smokeMaxAttempts, smokeRetryDelay
+	smokeMaxAttempts, smokeRetryDelay = 2, 0
+	t.Cleanup(func() {
+		smokeMaxAttempts, smokeRetryDelay = origAttempts, origDelay
+	})
 
-	loopback := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Host != "app.example.test" {
-			w.WriteHeader(http.StatusBadRequest)
-			return
+	t.Run("rejects_302_without_following_redirect", func(t *testing.T) {
+		redirected := false
+		external := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			redirected = true
+			w.WriteHeader(http.StatusOK)
+		}))
+		defer external.Close()
+
+		loopback := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Host != "app.example.test" {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			http.Redirect(w, r, external.URL+"/escaped", http.StatusFound)
+		}))
+		defer loopback.Close()
+
+		meta := &Metadata{
+			Domain:     "app.example.test",
+			CaddyURL:   loopback.URL,
+			SmokePaths: []string{"/health"},
 		}
-		http.Redirect(w, r, external.URL+"/escaped", http.StatusFound)
-	}))
-	defer loopback.Close()
+		if err := cmdSmoke(meta); err == nil {
+			t.Fatalf("cmdSmoke accepted 302 redirect on /health")
+		}
+		if redirected {
+			t.Fatalf("cmdSmoke followed redirect off loopback")
+		}
+	})
 
-	meta := &Metadata{
-		Domain:     "app.example.test",
-		CaddyURL:   loopback.URL,
-		SmokePaths: []string{"/"},
+	t.Run("accepts_200_ok", func(t *testing.T) {
+		loopback := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Host != "app.example.test" || r.URL.Path != "/health" {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+		}))
+		defer loopback.Close()
+
+		meta := &Metadata{
+			Domain:     "app.example.test",
+			CaddyURL:   loopback.URL,
+			SmokePaths: []string{"/health"},
+		}
+		if err := cmdSmoke(meta); err != nil {
+			t.Fatalf("cmdSmoke rejected 200 OK: %v", err)
+		}
+	})
+}
+
+func TestPruneSkipsWhenLockUnavailable(t *testing.T) {
+	tmp := t.TempDir()
+	binDir := filepath.Join(tmp, "bin")
+	if err := os.MkdirAll(binDir, 0o755); err != nil {
+		t.Fatal(err)
 	}
-	if err := cmdSmoke(meta); err != nil {
-		t.Fatalf("cmdSmoke rejected 302 loopback redirect: %v", err)
+	stubLog := filepath.Join(tmp, "podman.log")
+	podmanStub := "#!/bin/sh\necho \"$*\" >> " + stubLog + "\n"
+	if err := os.WriteFile(filepath.Join(binDir, "podman"), []byte(podmanStub), 0o755); err != nil {
+		t.Fatal(err)
 	}
-	if redirected {
-		t.Fatalf("cmdSmoke followed redirect off loopback")
+	blockingFile := filepath.Join(tmp, "not-a-dir")
+	if err := os.WriteFile(blockingFile, []byte("x"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", binDir+":"+os.Getenv("PATH"))
+	t.Setenv("HOMELAB_APPCTL_STATE_ROOT", blockingFile)
+
+	pruneUntaggedImages([]string{"ghcr.io/example/app"})
+	if _, err := os.Stat(stubLog); !os.IsNotExist(err) {
+		t.Fatalf("pruneUntaggedImages ran podman despite failing to acquire lock")
 	}
 }
 

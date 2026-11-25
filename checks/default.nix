@@ -204,6 +204,8 @@ let
     assert builtins.elem "deopjib_dev" homelab.services.postgresql.ensureDatabases;
     assert lib.hasInfix "/run/homelab-appctl/deopjib-dev-migrate.image"
       homelab.systemd.services.deopjib-dev-migrate.script;
+    assert
+      !(lib.hasInfix "deopjib-backend:dev-current" homelab.systemd.services.deopjib-dev-migrate.script);
     assert builtins.all (
       container:
       builtins.elem networkService container.unitConfig.PartOf
@@ -384,33 +386,38 @@ let
       touch "$out"
     '';
 
-  contractV2Fixture = inputs.nixpkgs.lib.nixosSystem {
-    system = "x86_64-linux";
-    specialArgs = {
-      inherit inputs;
-      myOptions.userName = "hj";
-    };
-    modules = [
-      inputs.sops-nix.nixosModules.sops
-      inputs.quadlet-nix.nixosModules.quadlet
-      ../systems/homelab/cloudflared.nix
-      ../systems/homelab/app-containers.nix
-      ../systems/homelab/postgres.nix
-      ../systems/homelab/podman-dns-lifecycle.nix
-      ./fixtures/fixture-host.nix
-      {
-        homelab.apps = import ../systems/homelab/admit-app.nix {
-          inherit lib;
-          admission = import ./fixtures/example/homelab-admission.nix;
-          releaseManifestOrigins = [ "https://github.com/example/example" ];
-          host = {
-            subnetId = 7;
-            postgresPasswordSecret = "EXAMPLE_DEV_PG_PASSWORD";
+  mkContractV2Fixture =
+    extraModules:
+    inputs.nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = {
+        inherit inputs;
+        myOptions.userName = "hj";
+      };
+      modules = [
+        inputs.sops-nix.nixosModules.sops
+        inputs.quadlet-nix.nixosModules.quadlet
+        ../systems/homelab/cloudflared.nix
+        ../systems/homelab/app-containers.nix
+        ../systems/homelab/postgres.nix
+        ../systems/homelab/podman-dns-lifecycle.nix
+        ./fixtures/fixture-host.nix
+        {
+          homelab.apps = import ../systems/homelab/admit-app.nix {
+            inherit lib;
+            admission = import ./fixtures/example/homelab-admission.nix;
+            releaseManifestOrigins = [ "https://github.com/example/example" ];
+            host = {
+              subnetId = 7;
+              postgresPasswordSecret = "EXAMPLE_DEV_PG_PASSWORD";
+            };
           };
-        };
-      }
-    ];
-  };
+        }
+      ]
+      ++ extraModules;
+    };
+
+  contractV2Fixture = mkContractV2Fixture [ ];
 
   homelabContractV2Invariants =
     let
@@ -421,6 +428,9 @@ let
       network = fixture.virtualisation.quadlet.networks.example-dev;
       # toplevel 평가가 모듈 assertion까지 강제한다 (빌드는 하지 않는다).
       fixtureToplevel = builtins.unsafeDiscardStringContext fixture.system.build.toplevel.drvPath;
+      evalFails =
+        extraModules:
+        !(builtins.tryEval (mkContractV2Fixture extraModules).config.system.build.toplevel.drvPath).success;
     in
     assert metadata.contractVersion == 2;
     assert metadata.caddyUrl == "http://127.0.0.1:18099";
@@ -445,6 +455,14 @@ let
       fixture.virtualisation.quadlet.containers.example-dev-app.unitConfig.Requires;
     assert builtins.elem "homelab-postgres-credentials.service"
       fixture.virtualisation.quadlet.containers.example-dev-app.unitConfig.After;
+    assert evalFails [ { homelab.apps.example.contract.schemaVersion = lib.mkForce 1; } ];
+    assert evalFails [
+      { homelab.apps.example.contract.services.app.updatePolicy = lib.mkForce "registry-auto"; }
+    ];
+    assert evalFails [
+      { homelab.apps.example.contract.release.channels.dev.migrate = lib.mkForce "manual"; }
+    ];
+    assert evalFails [ { homelab.publicRoutes."ssh.deopjib.cc".extraConfig = "respond 200"; } ];
     pkgs.runCommand "homelab-contract-v2-invariants" { inherit fixtureToplevel; } ''
       touch "$out"
     '';

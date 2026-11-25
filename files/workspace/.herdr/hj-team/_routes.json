@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewed": "2026-11-23",
+  "reviewed": "2026-11-26",
   "routes": {
     "plan": {
       "command": [
@@ -54,13 +54,15 @@
     },
     "deep-review": {
       "command": [
-        "codex",
-        "-m",
+        "pi",
+        "--provider",
+        "openai",
+        "--model",
         "gpt-6.2-astra",
-        "-c",
-        "model_reasoning_effort=\"xhigh\"",
-        "-s",
-        "read-only"
+        "--thinking",
+        "xhigh",
+        "--exclude-tools",
+        "edit,write"
       ],
       "why": "고복잡도 심층 분석·적대적 코드 리뷰·실제 결함 탐지 최상위(과잉 지적 억제를 위해 근거 기반 프롬프트와 이종 모델 교차 권장)"
     },

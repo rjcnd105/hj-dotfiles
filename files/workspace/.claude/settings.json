@@ -175,6 +175,10 @@
       }
     ]
   },
+  "statusLine": {
+    "type": "command",
+    "command": "input=$(cat); dir=$(echo \"$input\" | jq -r '.workspace.current_dir'); branch=$(git -C \"$dir\" branch --show-current 2>/dev/null); echo \"$(echo \"$input\" | jq -r '.model.display_name') · $(basename \"$dir\")${branch:+ · $branch}\""
+  },
   "enabledPlugins": {
     "claude-md-management@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
@@ -225,7 +229,7 @@
       "effortLevel": "xhigh"
     },
     "claude-fable-5-2": {
-      "effortLevel": "high",
+      "effortLevel": "xhigh",
       "autoCompactWindow": 500000
     }
   },
@@ -241,10 +245,6 @@
     }
   },
   "tui": "fullscreen",
-  "statusLine": {
-    "type": "command",
-    "command": "input=$(cat); dir=$(echo \"$input\" | jq -r '.workspace.current_dir'); branch=$(git -C \"$dir\" branch --show-current 2>/dev/null); echo \"$(echo \"$input\" | jq -r '.model.display_name') · $(basename \"$dir\")${branch:+ · $branch}\""
-  },
   "timeFormat": "auto",
   "skipDangerousModePermissionPrompt": true,
   "editorMode": "normal",

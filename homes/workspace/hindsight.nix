@@ -45,6 +45,9 @@ in
         "${config.home.homeDirectory}/work/gm/gentle-renewal-2" = "gentle-renewal";
         "${config.home.homeDirectory}/study_ex/my-backend/deopjib" = "deopjib";
       };
+      # Codex 앱의 프로젝트 없는 대화와 자동화는 `~/Documents/Codex/<날짜>/<이름>`에서 떠서
+      # 이름마다 bank를 만든다. 저장소가 아니므로 기억을 끈다.
+      paths."${config.home.homeDirectory}/Documents/Codex".disabled = true;
       # 최소 구성: 세션 첫 프롬프트에 recall 결과를 한 번 주입하고, LLM을 쓰는 부가 기능은 끈다.
       autoInject = "recall";
       # 기본 recall은 observation만 찾는데, 서버에서 통합을 꺼 두어 observation이 생기지 않는다.

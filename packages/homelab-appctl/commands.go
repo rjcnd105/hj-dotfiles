@@ -69,6 +69,11 @@ func cmdLogs(meta *Metadata) error {
 	return runCommand("journalctl", args...)
 }
 
+var (
+	smokeMaxAttempts = 12
+	smokeRetryDelay  = 2 * time.Second
+)
+
 func cmdSmoke(meta *Metadata) error {
 	if len(meta.SmokePaths) == 0 {
 		return fmt.Errorf("metadata has no smoke paths")
@@ -79,14 +84,13 @@ func cmdSmoke(meta *Metadata) error {
 			return http.ErrUseLastResponse
 		},
 	}
-	const maxAttempts = 12
 	for _, path := range meta.SmokePaths {
 		fmt.Printf("smoke: %s %s\n", meta.Domain, path)
 		var lastErr error
-		for attempt := 1; attempt <= maxAttempts; attempt++ {
+		for attempt := 1; attempt <= smokeMaxAttempts; attempt++ {
 			if attempt > 1 {
-				fmt.Fprintf(os.Stderr, "smoke retry: %s %s attempt %d/%d\n", meta.Domain, path, attempt, maxAttempts)
-				time.Sleep(2 * time.Second)
+				fmt.Fprintf(os.Stderr, "smoke retry: %s %s attempt %d/%d\n", meta.Domain, path, attempt, smokeMaxAttempts)
+				time.Sleep(smokeRetryDelay)
 			}
 			req, err := http.NewRequest(http.MethodGet, meta.CaddyURL+path, nil)
 			if err != nil {
@@ -99,7 +103,7 @@ func cmdSmoke(meta *Metadata) error {
 				continue
 			}
 			resp.Body.Close()
-			if resp.StatusCode >= 200 && resp.StatusCode < 400 {
+			if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 				lastErr = nil
 				break
 			}

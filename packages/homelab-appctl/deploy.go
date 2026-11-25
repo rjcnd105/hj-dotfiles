@@ -269,11 +269,16 @@ func pruneDeployRecords(recordDir string) {
 
 func pruneUntaggedImages(imageRepos []string) {
 	lockPath := filepath.Join(stateRoot(), "image-prune.lock")
-	if err := os.MkdirAll(filepath.Dir(lockPath), 0o755); err == nil {
-		if lock, err := acquireLock(lockPath); err == nil {
-			defer lock.Close()
-		}
+	if err := os.MkdirAll(filepath.Dir(lockPath), 0o755); err != nil {
+		fmt.Fprintf(os.Stderr, "image prune skipped: cannot create lock dir: %v\n", err)
+		return
 	}
+	lock, err := acquireLock(lockPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "image prune skipped: %v\n", err)
+		return
+	}
+	defer lock.Close()
 	seenRepos := map[string]bool{}
 	for _, repo := range imageRepos {
 		if seenRepos[repo] {
