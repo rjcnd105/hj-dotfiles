@@ -401,8 +401,11 @@ in
 
             # 최소 구성: 백그라운드 통합(observation 생성)은 끈다. 페이지는 observation에서 만들어지므로
             # 함께 쓰지 않는다. mental model도 갱신마다 LLM을 쓰는 부가 기능이라 두지 않는다.
+            # 수동 통합(POST /consolidate) 실행 시 요약 품질과 홈랩 부하를 고정하기 위해 mission과 병렬성(1)만 둔다.
             # docs/guides/hindsight.md 실험 목록 참고.
             HINDSIGHT_API_ENABLE_AUTO_CONSOLIDATION = "false";
+            HINDSIGHT_API_CONSOLIDATION_LLM_PARALLELISM = "1";
+            HINDSIGHT_API_OBSERVATIONS_MISSION = "Consolidate a lean lessons log shared by coding agents: failures (symptom, exact error string, root cause, fix), verified working approaches, user feedback/preferences, and settled decisions. Preserve exact commands, flags, file paths, option names, values, and error strings verbatim; never paraphrase them into vague summaries. Keep each failure's symptom, root cause, and fix together in one observation, and do not split a single fact into multiple observations unless it covers unrelated topics. Merge duplicate or overlapping facts into one concise observation. When a newer fact contradicts or supersedes an existing observation, update the existing observation to the current rule and note what it replaced in one short clause instead of keeping both. Drop one-off task status, unchosen research background, and session narration. Write each observation in the language of its source facts.";
           };
         };
         serviceConfig = {
