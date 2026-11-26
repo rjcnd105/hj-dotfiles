@@ -50,6 +50,47 @@ let
     hash = "sha256-qwUcTBYgR7jrJjgJql/A8yCjDx0a5gEHTI4iCdgcm2M=";
   };
 
+  # hindsight-reranker 장애(failed 상태 진입) 시 Telegram 알림을 보낸다.
+  # 토큰이 argv/store에 남지 않도록 LoadCredential + curl stdin 설정을 사용한다.
+  rerankerNotify = pkgs.writeShellApplication {
+    name = "hindsight-reranker-telegram-notify";
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.curl
+      pkgs.systemd
+    ];
+    text = ''
+      cred_dir="''${CREDENTIALS_DIRECTORY:-}"
+      token_file="$cred_dir/telegram-bot-token"
+      chat_id_file="$cred_dir/telegram-chat-id"
+      [ -r "$token_file" ] && [ -r "$chat_id_file" ] || {
+        echo "hindsight-reranker-notify: telegram credentials unreadable" >&2
+        exit 0
+      }
+
+      status="$(systemctl show -p ActiveState -p SubState -p Result hindsight-reranker.service 2>/dev/null | tr '\n' ' ' || true)"
+      logs="$(journalctl -u hindsight-reranker.service -n 5 --no-pager --output=short-iso 2>/dev/null | tail -c 600 || true)"
+      text="$(printf '⚠️ homelab hindsight-reranker.service 장애\n상태: %s\nHindsight recall은 RRF fallback으로 동작 중입니다.\n%s' "$status" "$logs")"
+
+      umask 077
+      workdir="$(mktemp -d)"
+      trap 'rm -rf "$workdir"' EXIT
+      printf '%s' "$text" > "$workdir/text"
+      tr -d '\n' < "$chat_id_file" > "$workdir/chat"
+
+      printf 'url = "https://api.telegram.org/bot%s/sendMessage"\n' \
+        "$(tr -d '\n' < "$token_file")" |
+        curl -fsS --config - \
+          --connect-timeout 5 --max-time 15 --retry 2 \
+          --data-urlencode "chat_id@$workdir/chat" \
+          --data-urlencode "text@$workdir/text" \
+          -o /dev/null || {
+        echo "hindsight-reranker-notify: Telegram send failed" >&2
+        exit 0
+      }
+    '';
+  };
+
   secretsFile = ../../secrets/homelab/secrets.yaml;
 in
 {
@@ -158,6 +199,11 @@ in
       systemd.services.hindsight-reranker = {
         description = "llama.cpp reranker server for Hindsight (KURE-Reranker-nano)";
         wantedBy = [ "multi-user.target" ];
+        onFailure = [ "hindsight-reranker-notify.service" ];
+        # RestartSec=5s에서는 기본 10초 창 안에 5회 실패에 도달하지 못해 failed 상태와
+        # OnFailure 알림이 영영 발동하지 않는다. 120초 창으로 크래시 루프를 감지한다.
+        startLimitIntervalSec = 120;
+        startLimitBurst = 5;
         environment.XDG_CACHE_HOME = "/var/cache/hindsight-reranker";
         serviceConfig = {
           ExecStart = lib.escapeShellArgs [
@@ -192,6 +238,30 @@ in
           ];
           Restart = "on-failure";
           RestartSec = "5s";
+        };
+      };
+
+      systemd.services.hindsight-reranker-notify = {
+        description = "Send Telegram alert when hindsight-reranker.service fails";
+        requires = [ "sops-install-secrets.service" ];
+        after = [
+          "sops-install-secrets.service"
+          "network-online.target"
+        ];
+        wants = [ "network-online.target" ];
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = lib.getExe rerankerNotify;
+          DynamicUser = true;
+          SupplementaryGroups = [ "systemd-journal" ];
+          LoadCredential = [
+            "telegram-bot-token:${config.sops.secrets.TELEGRAM_BOT_TOKEN.path}"
+            "telegram-chat-id:${config.sops.secrets.TELEGRAM_CHAT_ID.path}"
+          ];
+          ProtectSystem = "strict";
+          ProtectHome = true;
+          PrivateTmp = true;
+          NoNewPrivileges = true;
         };
       };
 
@@ -258,7 +328,10 @@ in
             "sops-install-secrets.service"
             "network-online.target"
           ];
-          Wants = [ "network-online.target" ];
+          Wants = [
+            "hindsight-reranker.service"
+            "network-online.target"
+          ];
         };
         containerConfig = {
           name = "hindsight";
@@ -298,13 +371,18 @@ in
             HINDSIGHT_API_EMBEDDINGS_PASSAGE_PREFIX = "passage: ";
 
             # 리랭커는 로컬 llama.cpp(KURE-Reranker-nano, Vulkan)를 Cohere /v1/rerank 호환으로 호출한다.
-            # 기본 내장 hs-rerank-1(CPU, 후보당 ~44ms) 대비 레이턴시와 한국어 정확도를 개선한다.
-            # budget=low 후보 상한(80)은 교체 전후 비교를 위해 유지한다.
+            # 기본 내장 hs-rerank-1(CPU) 대비 6건 실측에서 서버 리랭킹 평균을 약 14% 단축했고,
+            # 장애·지연 시 클라이언트 7초 제한 안에서 RRF로 자동 전환한다(30초 cooldown 후 자동 복구).
             HINDSIGHT_API_RERANKER_PROVIDER = "cohere";
             HINDSIGHT_API_RERANKER_COHERE_BASE_URL = "http://127.0.0.1:${toString rerankerPort}/v1/rerank";
             HINDSIGHT_API_RERANKER_COHERE_API_KEY = "local";
             HINDSIGHT_API_RERANKER_COHERE_MODEL = "KURE-Reranker-nano";
             HINDSIGHT_API_RERANKER_COHERE_MAX_CONCURRENT = "2";
+            HINDSIGHT_API_RERANKER_COHERE_TIMEOUT = "5.5";
+            HINDSIGHT_API_RERANKER_MAX_RETRIES = "1";
+            HINDSIGHT_API_RERANKER_INITIAL_BACKOFF = "0.2";
+            HINDSIGHT_API_RERANKER_RETRY_BUDGET = "5.5";
+            HINDSIGHT_API_RERANKER_1_PROVIDER = "rrf";
             HINDSIGHT_API_RERANKER_MAX_CANDIDATES_LOW = "80";
 
             # 공유 PostgreSQL(max_connections 100)을 앱과 나눠 쓴다. 기본 풀 상한은 100이다.
