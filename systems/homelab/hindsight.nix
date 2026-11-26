@@ -402,7 +402,7 @@ in
             # v1.3.0부터 기본 활성화된 Knowledge Banks(멀티모달 문서고)는 쓰지 않아 워커·메모리 예산을 막는다.
             HINDSIGHT_API_ENABLE_KB = "false";
             HINDSIGHT_API_ENABLE_AUTO_CONSOLIDATION = "false";
-            HINDSIGHT_API_CONSOLIDATION_LLM_PARALLELISM = "1";
+            HINDSIGHT_API_CONSOLIDATION_LLM_PARALLELISM = "2";
             HINDSIGHT_API_RECALL_PREFER_OBSERVATIONS = "true";
             HINDSIGHT_API_OBSERVATIONS_MISSION = "This bank is a lessons log for coding agents. Each fact is already one complete lesson: a failure with its symptom, exact error string, cause and fix, a verified command or setting, a user preference, or a settled decision. Treat every fact as lasting. In this bank ONE FACET means ONE WHOLE LESSON, so never split a fact: a fact that adds something gets exactly ONE entry in new, the fact's own text kept whole, with commands, flags, paths, ports, values and error strings copied exactly; it may be long. Every observation must read alone: name the project, tool, file or setting, and never point to another sentence ('this value', 'the fix is', 'in that case'). Before writing new, look for an existing observation about the same problem or the same setting, even when worded differently: if it already covers the fact, mark repeats; if the fact adds a cause, fix, condition or value to it, mark changes and write text as the full merged lesson, keeping every exact value from both. The same failure, command or setting seen again at a later time is the same lesson, not a separate event: mark repeats. For an earlier fact of this batch, use same_as_fact only when this fact adds nothing. Lessons about different problems stay separate even when they share a tool, project or port.";
           };
