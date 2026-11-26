@@ -32,11 +32,11 @@ let
   dashboardPort = 18097;
   rerankerPort = 18098;
 
-  # 태그는 움직일 수 있으므로 digest로 고정한다 (hindsight-api:1.2.1, 멀티 아키텍처 인덱스).
-  # slim 이미지는 torch가 없어 hs-rerank-1을 프로세스 안에서 돌리지 못한다.
-  image = "ghcr.io/vectorize-io/hindsight-api@sha256:662109ece429871a81e036427fb93fbb09ba9dc4b01d320d356f114c0e1aedd8";
-  # hindsight-control-plane:1.2.1. API와 같은 버전으로 맞춘다.
-  dashboardImage = "ghcr.io/vectorize-io/hindsight-control-plane@sha256:74a113e1f02ace9e8feed954e6b42282e9e3d33b7e0b6d528158d05902552a9a";
+  # 태그는 움직일 수 있으므로 digest로 고정한다 (hindsight-api:1.3.0, 멀티 아키텍처 인덱스).
+  # slim 전환은 1.3.0 안정화 검증 후 별도 단계로 분리한다.
+  image = "ghcr.io/vectorize-io/hindsight-api@sha256:c054765e9196fb1fe63497be06bcb55256c9024cc9314f951dc59858985ab242";
+  # hindsight-control-plane:1.3.0. API와 같은 버전으로 맞춘다.
+  dashboardImage = "ghcr.io/vectorize-io/hindsight-control-plane@sha256:df58ce2597e837f359684cfe0e004aaa93bbb89983f1f1b8bd2cab881b457554";
 
   # KURE-v3는 2,048차원 Matryoshka 모델이다. 1,024차원으로 잘라 쓴다(docs/adr/0001).
   # 차원을 바꾸면 저장된 벡터를 전부 다시 임베딩해야 한다.
@@ -404,10 +404,12 @@ in
             # 수동 통합(POST /consolidate) 실행 시 요약 품질과 홈랩 부하를 고정하기 위해 mission과 병렬성(1)만 둔다.
             # recall에 observation과 world/experience를 함께 요청할 때는 원본 중복을 자동 제거한다(단독 요청 시 no-op).
             # docs/guides/hindsight.md 실험 목록 참고.
+            # v1.3.0부터 기본 활성화된 Knowledge Banks(멀티모달 문서고)는 쓰지 않아 워커·메모리 예산을 막는다.
+            HINDSIGHT_API_ENABLE_KB = "false";
             HINDSIGHT_API_ENABLE_AUTO_CONSOLIDATION = "false";
             HINDSIGHT_API_CONSOLIDATION_LLM_PARALLELISM = "1";
             HINDSIGHT_API_RECALL_PREFER_OBSERVATIONS = "true";
-            HINDSIGHT_API_OBSERVATIONS_MISSION = "This bank is a lessons log for coding agents. Each fact is already one complete lesson: a failure with its symptom, exact error string, cause and fix, a verified command or setting, a user preference, or a settled decision. Treat every fact as lasting. In this bank ONE FACET means ONE WHOLE LESSON, so never split a fact: a fact that adds something gets exactly ONE entry in new, the fact's own text kept whole, with commands, flags, paths, ports, values and error strings copied exactly; it may be long. Every observation must read alone: name the project, tool, file or setting, and never point to another sentence ('this value', 'the fix is', 'in that case'). Before writing new, look for an existing observation about the same problem or the same setting, even when worded differently: if it already covers the fact, mark repeats; if the fact adds a cause, fix, condition or value to it, mark changes and write text as the full merged lesson, keeping every exact value from both. For an earlier fact of this batch, use same_as_fact only when this fact adds nothing. Lessons about different problems stay separate even when they share a tool, project or port.";
+            HINDSIGHT_API_OBSERVATIONS_MISSION = "This bank is a lessons log for coding agents. Each fact is already one complete lesson: a failure with its symptom, exact error string, cause and fix, a verified command or setting, a user preference, or a settled decision. Treat every fact as lasting. In this bank ONE FACET means ONE WHOLE LESSON, so never split a fact: a fact that adds something gets exactly ONE entry in new, the fact's own text kept whole, with commands, flags, paths, ports, values and error strings copied exactly; it may be long. Every observation must read alone: name the project, tool, file or setting, and never point to another sentence ('this value', 'the fix is', 'in that case'). Before writing new, look for an existing observation about the same problem or the same setting, even when worded differently: if it already covers the fact, mark repeats; if the fact adds a cause, fix, condition or value to it, mark changes and write text as the full merged lesson, keeping every exact value from both. The same failure, command or setting seen again at a later time is the same lesson, not a separate event: mark repeats. For an earlier fact of this batch, use same_as_fact only when this fact adds nothing. Lessons about different problems stay separate even when they share a tool, project or port.";
           };
         };
         serviceConfig = {
