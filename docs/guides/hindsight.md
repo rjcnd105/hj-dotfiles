@@ -56,11 +56,10 @@ curl -X PATCH "$HINDSIGHT_URL/v1/default/banks/<bank>/memories/<memory_id>" \
 
 ## 서버 배포 순서
 
-새 sops secret과 그것을 `LoadCredential`로 읽는 서비스를 한 switch에 넣으면 `243/CREDENTIALS`로 실패한다. 그래서 옵션이 둘이다.
+새 sops secret과 그것을 `LoadCredential`로 읽는 서비스를 한 switch에 넣으면 `243/CREDENTIALS`로 실패한다. 그래서 단계별 옵션이 셋이다.
 
-1. `homelab.hindsight.enable` — secret, DB, 임베딩, 라우팅.
+1. `homelab.hindsight.enable` — secret, DB, 임베딩, 리랭커, API 라우팅.
 2. `homelab.hindsight.server.enable` — DB 설정 oneshot과 API 컨테이너.
-
 3. `homelab.hindsight.dashboard.enable` — 대시보드 컨테이너와 그 라우팅. 대시보드용 env 템플릿은 1에 들어 있다.
 
 sops 템플릿의 `restartUnits`에는 이미 있는 유닛만 넣는다. 없는 유닛이 들어가면 `sops-install-secrets`가 try-restart 실패로 죽어 switch가 깨지고, 이 유닛에 의존하는 `cloudflared`와 `hindsight`가 멈춘다(2026-11-12 실측, 약 4분 중단).

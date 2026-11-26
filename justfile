@@ -29,7 +29,7 @@ darwin-switch:
     else
       system_config="$("$nix_bin" "${build_args[@]}")"
     fi
-    [[ -x $system_config/sw/bin/darwin-rebuild ]]
+    [[ -x $system_config/sw/bin/darwin-rebuild ]] || { echo "darwin-rebuild not found in $system_config" >&2; exit 1; }
     if [[ $EUID -eq 0 ]]; then
       root_home=~root
       HOME="$root_home" NIX_REMOTE=daemon "$nix_env_bin" -p /nix/var/nix/profiles/system --set "$system_config"

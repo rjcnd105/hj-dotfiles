@@ -487,8 +487,8 @@ in
     (lib.mkIf cfg.dashboard.enable {
       assertions = [
         {
-          assertion = cfg.enable;
-          message = "homelab.hindsight.dashboard.enable requires homelab.hindsight.enable.";
+          assertion = cfg.enable && cfg.server.enable;
+          message = "homelab.hindsight.dashboard.enable requires homelab.hindsight.enable and homelab.hindsight.server.enable.";
         }
       ];
 

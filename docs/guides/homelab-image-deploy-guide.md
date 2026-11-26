@@ -283,7 +283,7 @@ deploy 트랜잭션:
 1. 앱/채널 락 → 같은 target이 최신 성공 기록(`summary.json`)과 metadata까지 동일하면 no-op
 2. manifest 다운로드(HTTPS만; GitHub private release는 호스트 토큰으로 REST API 해석) → 검증
 3. 각 `name@digest` pull
-4. 선언된 migration oneshot 1회를 exact digest로 실행(실패 시 `-current` 태그 미변경)
+4. 선언된 migration oneshot 1회를 exact digest로 실행(실패 시 `-current` 태그 미변경; migrate 유닛은 `homelab-appctl`이 실행 중에만 쓰는 digest 파일을 읽으므로 수동 `systemctl start` 불가)
 5. 로컬 채널 `-current` 태그 이동 → 릴리스 서비스 전체를 systemd 트랜잭션 1회로 restart
 6. Caddy-loopback(`127.0.0.1:18099`, `Host` 헤더) smoke → 기록(`/var/lib/homelab-appctl/<app>/<channel>/`)
 7. retention: 배포 기록 최근 10개, 릴리스 이미지 name별 태그 없는 최근 3개 id 유지.
