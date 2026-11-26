@@ -34,45 +34,63 @@ let
     hash = "sha256-qwUcTBYgR7jrJjgJql/A8yCjDx0a5gEHTI4iCdgcm2M=";
   };
 
-  # hindsight-reranker 장애(failed 상태 진입) 시 Telegram 알림을 보낸다.
+  # systemd 유닛 장애 시 Telegram 알림을 보낸다.
   # 토큰이 argv/store에 남지 않도록 LoadCredential + curl stdin 설정을 사용한다.
-  rerankerNotify = pkgs.writeShellApplication {
+  mkTelegramUnitNotify =
+    {
+      name,
+      unit,
+      note,
+    }:
+    pkgs.writeShellApplication {
+      inherit name;
+      runtimeInputs = [
+        pkgs.coreutils
+        pkgs.curl
+        pkgs.systemd
+      ];
+      text = ''
+        cred_dir="''${CREDENTIALS_DIRECTORY:-}"
+        token_file="$cred_dir/telegram-bot-token"
+        chat_id_file="$cred_dir/telegram-chat-id"
+        [ -r "$token_file" ] && [ -r "$chat_id_file" ] || {
+          echo "${name}: telegram credentials unreadable" >&2
+          exit 0
+        }
+
+        status="$(systemctl show -p ActiveState -p SubState -p Result ${lib.escapeShellArg unit} 2>/dev/null | tr '\n' ' ' || true)"
+        logs="$(journalctl -u ${lib.escapeShellArg unit} -n 5 --no-pager --output=short-iso 2>/dev/null | tail -c 600 || true)"
+        text="$(printf '⚠️ homelab %s 장애\n상태: %s\n%s\n%s' ${lib.escapeShellArg unit} "$status" ${lib.escapeShellArg note} "$logs")"
+
+        umask 077
+        workdir="$(mktemp -d)"
+        trap 'rm -rf "$workdir"' EXIT
+        printf '%s' "$text" > "$workdir/text"
+        tr -d '\n' < "$chat_id_file" > "$workdir/chat"
+
+        printf 'url = "https://api.telegram.org/bot%s/sendMessage"\n' \
+          "$(tr -d '\n' < "$token_file")" |
+          curl -fsS --config - \
+            --connect-timeout 5 --max-time 15 --retry 2 \
+            --data-urlencode "chat_id@$workdir/chat" \
+            --data-urlencode "text@$workdir/text" \
+            -o /dev/null || {
+          echo "${name}: Telegram send failed" >&2
+          exit 0
+        }
+      '';
+    };
+
+  rerankerNotify = mkTelegramUnitNotify {
     name = "hindsight-reranker-telegram-notify";
-    runtimeInputs = [
-      pkgs.coreutils
-      pkgs.curl
-      pkgs.systemd
-    ];
-    text = ''
-      cred_dir="''${CREDENTIALS_DIRECTORY:-}"
-      token_file="$cred_dir/telegram-bot-token"
-      chat_id_file="$cred_dir/telegram-chat-id"
-      [ -r "$token_file" ] && [ -r "$chat_id_file" ] || {
-        echo "hindsight-reranker-notify: telegram credentials unreadable" >&2
-        exit 0
-      }
+    unit = "hindsight-reranker.service";
+    note = "Hindsight recall은 RRF fallback으로 동작 중입니다.";
+  };
 
-      status="$(systemctl show -p ActiveState -p SubState -p Result hindsight-reranker.service 2>/dev/null | tr '\n' ' ' || true)"
-      logs="$(journalctl -u hindsight-reranker.service -n 5 --no-pager --output=short-iso 2>/dev/null | tail -c 600 || true)"
-      text="$(printf '⚠️ homelab hindsight-reranker.service 장애\n상태: %s\nHindsight recall은 RRF fallback으로 동작 중입니다.\n%s' "$status" "$logs")"
-
-      umask 077
-      workdir="$(mktemp -d)"
-      trap 'rm -rf "$workdir"' EXIT
-      printf '%s' "$text" > "$workdir/text"
-      tr -d '\n' < "$chat_id_file" > "$workdir/chat"
-
-      printf 'url = "https://api.telegram.org/bot%s/sendMessage"\n' \
-        "$(tr -d '\n' < "$token_file")" |
-        curl -fsS --config - \
-          --connect-timeout 5 --max-time 15 --retry 2 \
-          --data-urlencode "chat_id@$workdir/chat" \
-          --data-urlencode "text@$workdir/text" \
-          -o /dev/null || {
-        echo "hindsight-reranker-notify: Telegram send failed" >&2
-        exit 0
-      }
-    '';
+  consolidateNotify = mkTelegramUnitNotify {
+    name = "hindsight-consolidate-telegram-notify";
+    unit = "hindsight-consolidate.service";
+    note = "새벽 Hindsight observation 통합 배치에서 오류가 발생했습니다.";
   };
 
   retainInstructions = lib.strings.trim (builtins.readFile ./hindsight-retain-instructions.txt);
@@ -394,6 +412,74 @@ in
           RestartSec = "10s";
           TimeoutStartSec = 900;
           TimeoutStopSec = 60;
+        };
+      };
+
+      # 매일 새벽 02:30에 미통합 사실이 쌓인 bank만 순차 통합한다.
+      # 배치 1묶음(8건) 이상이거나 마지막 통합 후 3일 지난 자투리가 있을 때만 호출해
+      # 비용 낭비와 낮 시간 GPU 경합을 모두 피하고, 04:30 restic 백업 전에 끝나도록 90분 상한을 둔다.
+      systemd.services.hindsight-consolidate = {
+        description = "Nightly hybrid Hindsight observation consolidation";
+        requires = [ "sops-install-secrets.service" ];
+        after = [
+          "sops-install-secrets.service"
+          "hindsight.service"
+          "hindsight-reranker.service"
+          "hindsight-embedding-proxy.service"
+          "network-online.target"
+        ];
+        onFailure = [ "hindsight-consolidate-notify.service" ];
+        environment = {
+          API_URL = "http://127.0.0.1:${toString apiPort}";
+          MIN_PENDING_DAILY = "8";
+          MAX_AGE_DAYS = "3";
+          MAX_RUNTIME_SECONDS = "4500";
+        };
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = "${pkgs.python3}/bin/python3 ${./hindsight-consolidate-batch.py}";
+          DynamicUser = true;
+          LoadCredential = [ "hindsight-api-key:${config.sops.secrets.HINDSIGHT_API_KEY.path}" ];
+          RuntimeMaxSec = "90min";
+          ProtectSystem = "strict";
+          ProtectHome = true;
+          PrivateTmp = true;
+          NoNewPrivileges = true;
+        };
+      };
+
+      systemd.timers.hindsight-consolidate = {
+        description = "Run nightly hybrid Hindsight consolidation at 02:30";
+        wantedBy = [ "timers.target" ];
+        timerConfig = {
+          OnCalendar = "*-*-* 02:30:00";
+          RandomizedDelaySec = "5min";
+          Persistent = false;
+          Unit = "hindsight-consolidate.service";
+        };
+      };
+
+      systemd.services.hindsight-consolidate-notify = {
+        description = "Send Telegram alert when hindsight-consolidate.service fails";
+        requires = [ "sops-install-secrets.service" ];
+        after = [
+          "sops-install-secrets.service"
+          "network-online.target"
+        ];
+        wants = [ "network-online.target" ];
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = lib.getExe consolidateNotify;
+          DynamicUser = true;
+          SupplementaryGroups = [ "systemd-journal" ];
+          LoadCredential = [
+            "telegram-bot-token:${config.sops.secrets.TELEGRAM_BOT_TOKEN.path}"
+            "telegram-chat-id:${config.sops.secrets.TELEGRAM_CHAT_ID.path}"
+          ];
+          ProtectSystem = "strict";
+          ProtectHome = true;
+          PrivateTmp = true;
+          NoNewPrivileges = true;
         };
       };
     })
