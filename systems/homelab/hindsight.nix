@@ -2,8 +2,9 @@
 # 공개 노출은 Caddy(loopback) → cloudflared 경유만 허용하고, 인증은 Hindsight API 키다.
 # 코딩 에이전트 클라이언트가 Authorization 헤더만 보낼 수 있어 CF Access는 걸지 않는다.
 #
-# 구성: API 컨테이너(리랭커 hs-rerank-1 내장) + 공유 PostgreSQL(pgvector)
-#       + llama.cpp 임베딩(KURE-v3) + 차원 절단 프록시. LLM은 OpenRouter.
+# 구성: API 컨테이너 + 공유 PostgreSQL(pgvector)
+#       + llama.cpp 임베딩(KURE-v3, Vulkan) + 차원 절단 프록시
+#       + llama.cpp 리랭커(KURE-Reranker-nano, Vulkan). LLM은 OpenRouter.
 #
 # 2단계 활성화 (새 sops secret과 소비 서비스를 한 switch에 넣으면 243/CREDENTIALS로 실패):
 #   1. enable — secret·DB·임베딩·라우팅만 배포
@@ -29,6 +30,7 @@ let
   dashboardDomain = "hindsight-ui.deopjib.cc";
   dashboardCaddyPort = 18096;
   dashboardPort = 18097;
+  rerankerPort = 18098;
 
   # 태그는 움직일 수 있으므로 digest로 고정한다 (hindsight-api:1.2.1, 멀티 아키텍처 인덱스).
   # slim 이미지는 torch가 없어 hs-rerank-1을 프로세스 안에서 돌리지 못한다.
@@ -42,6 +44,10 @@ let
   embeddingModel = pkgs.fetchurl {
     url = "https://huggingface.co/mradermacher/KURE-v3-i1-GGUF/resolve/69c6ba8dfa49c8e2c714e849fbb5ea83bc85dafd/KURE-v3.i1-Q4_K_S.gguf";
     hash = "sha256-xrydOEPJo9i7H4kmJChYzVgozvkwCipdQRcy5OY15HU=";
+  };
+  rerankerModel = pkgs.fetchurl {
+    url = "https://huggingface.co/tykan/KURE-Reranker-nano-GGUF/resolve/96a9b5afa1b21baf5b329628e4a911dfe618e07a/KURE-Reranker-nano.F16.gguf";
+    hash = "sha256-qwUcTBYgR7jrJjgJql/A8yCjDx0a5gEHTI4iCdgcm2M=";
   };
 
   secretsFile = ../../secrets/homelab/secrets.yaml;
@@ -149,6 +155,46 @@ in
         };
       };
 
+      systemd.services.hindsight-reranker = {
+        description = "llama.cpp reranker server for Hindsight (KURE-Reranker-nano)";
+        wantedBy = [ "multi-user.target" ];
+        environment.XDG_CACHE_HOME = "/var/cache/hindsight-reranker";
+        serviceConfig = {
+          ExecStart = lib.escapeShellArgs [
+            "${config.services.llama-cpp.package}/bin/llama-server"
+            "--model"
+            rerankerModel
+            "--reranking"
+            "--pooling"
+            "rank"
+            "--n-gpu-layers"
+            "99"
+            "--host"
+            "127.0.0.1"
+            "--port"
+            (toString rerankerPort)
+            # 슬롯 2개 × 8,192 토큰 (ModernBERT 최대 입력 길이). 비인과 인코더는 단일 시퀀스를
+            # ubatch로 쪼갤 수 없어 batch/ubatch를 슬롯 길이와 맞춘다.
+            "--ctx-size"
+            "16384"
+            "--batch-size"
+            "8192"
+            "--ubatch-size"
+            "8192"
+            "--parallel"
+            "2"
+          ];
+          DynamicUser = true;
+          CacheDirectory = "hindsight-reranker";
+          SupplementaryGroups = [
+            "render"
+            "video"
+          ];
+          Restart = "on-failure";
+          RestartSec = "5s";
+        };
+      };
+
       services.caddy.virtualHosts."http://${domain}:${toString caddyPort}" = {
         extraConfig = ''
           bind 127.0.0.1
@@ -208,6 +254,7 @@ in
           After = [
             "hindsight-postgres-setup.service"
             "hindsight-embedding-proxy.service"
+            "hindsight-reranker.service"
             "sops-install-secrets.service"
             "network-online.target"
           ];
@@ -250,12 +297,15 @@ in
             HINDSIGHT_API_EMBEDDINGS_QUERY_PREFIX = "query: ";
             HINDSIGHT_API_EMBEDDINGS_PASSAGE_PREFIX = "passage: ";
 
-            # 리랭커는 기본값(local, hindsight-ai/hs-rerank-1)이며 이미지에 들어 있다.
-            # CPU에서 후보 1개에 약 44ms가 든다. 사실이 많은 bank는 budget=low recall도 후보가 200개를
-            # 넘어 10초 안팎이 걸리고, 클라이언트 자동 주입(제한 7초)이 빈손으로 끝난다. 자동 주입이 쓰는
-            # budget=low만 상한을 둔다(기본 300). 길이순 배치는 점수를 바꾸지 않고 패딩만 줄인다.
+            # 리랭커는 로컬 llama.cpp(KURE-Reranker-nano, Vulkan)를 Cohere /v1/rerank 호환으로 호출한다.
+            # 기본 내장 hs-rerank-1(CPU, 후보당 ~44ms) 대비 레이턴시와 한국어 정확도를 개선한다.
+            # budget=low 후보 상한(80)은 교체 전후 비교를 위해 유지한다.
+            HINDSIGHT_API_RERANKER_PROVIDER = "cohere";
+            HINDSIGHT_API_RERANKER_COHERE_BASE_URL = "http://127.0.0.1:${toString rerankerPort}/v1/rerank";
+            HINDSIGHT_API_RERANKER_COHERE_API_KEY = "local";
+            HINDSIGHT_API_RERANKER_COHERE_MODEL = "KURE-Reranker-nano";
+            HINDSIGHT_API_RERANKER_COHERE_MAX_CONCURRENT = "2";
             HINDSIGHT_API_RERANKER_MAX_CANDIDATES_LOW = "80";
-            HINDSIGHT_API_RERANKER_LOCAL_BUCKET_BATCHING = "true";
 
             # 공유 PostgreSQL(max_connections 100)을 앱과 나눠 쓴다. 기본 풀 상한은 100이다.
             HINDSIGHT_API_DB_POOL_MIN_SIZE = "2";
