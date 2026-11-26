@@ -24,7 +24,8 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 
 ```bash
 nix build .#darwinConfigurations.workspace_hj.system --fallback --experimental-features "nix-command flakes"
-sudo ./result/sw/bin/darwin-rebuild switch --flake .#workspace_hj
+sudo -H env NIX_REMOTE=daemon /nix/var/nix/profiles/default/bin/nix-env -p /nix/var/nix/profiles/system --set "$(readlink -f ./result)"
+sudo ./result/sw/bin/darwin-rebuild activate
 ```
 
 4. Subsequent updates:
