@@ -49,7 +49,7 @@ This is an unresolved follow-up report. Do not treat this document as a complete
 
 - `comin` fetched, built, and switched commit `96853d75726444002fea45386e45460f9c6459f0`.
 - `/run/current-system` became `/nix/store/hvc07v8562lhc31cw8qwy754w577pdfn-nixos-system-homelab-26.05.20260422.0726a0e`.
-- Main services were active: `hindsight-db.service`, `hindsight.service`, `cloudflared-tunnel-a19003a7-293f-4872-b8a5-1db544878f45.service`, `llama-swap.service`, and `embed-prefix-proxy.service`.
+- Main services were active: `hindsight-db.service`, `hindsight.service`, `cloudflared-tunnel-<tunnel-uuid>.service`, `llama-swap.service`, and `embed-prefix-proxy.service`.
 - `systemctl list-units --failed` reported `0 loaded units listed`.
 - Hindsight health returned `{"status":"healthy","database":"connected"}`.
 - `recall-eval-on-switch.service` completed with systemd `Result=success`, but logged:

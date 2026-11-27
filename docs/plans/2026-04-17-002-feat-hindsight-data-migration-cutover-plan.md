@@ -51,7 +51,7 @@ origin: docs/plans/2026-04-14-001-feat-vps-to-homelab-migration-plan.md
 ### Relevant Code and Patterns
 
 - `systems/homelab/hindsight-stack.nix` — 컷오버 대상 API 컨테이너. host network 모드, `HINDSIGHT_API_PORT=8888`
-- `systems/homelab/cloudflared.nix:13-19` — 현재 tunnel `a19003a7-293f-4872-b8a5-1db544878f45`의 ingress가 `hindsight-test.deopjib.site` → `localhost:8888` 1건뿐. 본 도메인 추가 + test subdomain 정리 대상
+- `systems/homelab/cloudflared.nix:13-19` — 현재 tunnel `<tunnel-uuid>`의 ingress가 `hindsight-test.deopjib.site` → `localhost:8888` 1건뿐. 본 도메인 추가 + test subdomain 정리 대상
 - `systems/homelab/sops.nix:33-45` — `sops.templates."services.env"` 내 `HINDSIGHT_API_TENANT_API_KEY`가 `47c66a7f...`로 설정됨
 - `secrets/shared/pub.enc.yaml:1-2` — `HINDSIGHT_API_URL=https://hindsight.deopjib.site`, `HINDSIGHT_API_TOKEN=47c66a7f...`. **플러그인 토큰이 homelab tenant key와 이미 일치 → cutover 후 재설정 불필요**
 - `files/workspace/.config/mise/config.toml:152-155` — `HINDSIGHT_BANK_ID=my`, `HINDSIGHT_BANK_USER=hj`, `HINDSIGHT_API_KEY="$HINDSIGHT_API_TOKEN"` (mise env 주입)
@@ -281,7 +281,7 @@ flowchart LR
 - Modify: `systems/homelab/cloudflared.nix` (ingress 재구성, `hindsight-test.deopjib.site` 엔트리 정리)
 
 **Approach:**
-- `services.cloudflared.tunnels."a19003a7-...".ingress`에 `hindsight.deopjib.site` hostname 추가. VPS Caddyfile의 `/health`, `/version`, `/metrics`, `/v1/*` 경로를 동등 매핑으로 작성
+- `services.cloudflared.tunnels."<tunnel-uuid>".ingress`에 `hindsight.deopjib.site` hostname 추가. VPS Caddyfile의 `/health`, `/version`, `/metrics`, `/v1/*` 경로를 동등 매핑으로 작성
 - nixpkgs `services.cloudflared.tunnels.<id>.ingress`의 hostname + path 문법을 모듈 옵션 문서로 재확인 후 작성 (구현 시점 결정). 지원 형식이 제한적이면 "전 경로 → `http://localhost:8888`" 단일 매핑 + hindsight 자체 auth(`ApiKeyTenantExtension`)로 보호 + `/metrics`는 별도 Cloudflare Access 정책(선택) 구조로 대체
 - `hindsight-test.deopjib.site` 엔트리는 dry-run 완료 후 삭제 또는 그대로 유지(병행 사용은 비권장). cutover와 독립 정리
 - `default = "http_status:404"` 유지 — 9999 dashboard 대응 catch-all 없음
@@ -317,7 +317,7 @@ flowchart LR
 **Files:** 없음 (Cloudflare 대시보드 조작 + 동작 관찰). `docs/plans/smoke-tests/2026-04-17-hindsight-migration-preflight.md`에 post-cutover 결과 추가
 
 **Approach:**
-1. Cloudflare 대시보드: `hindsight.deopjib.site` DNS/Tunnel route를 기존 VPS Caddy 엔드포인트에서 homelab tunnel(ID `a19003a7-...`)로 재지정
+1. Cloudflare 대시보드: `hindsight.deopjib.site` DNS/Tunnel route를 기존 VPS Caddy 엔드포인트에서 homelab tunnel(ID `<tunnel-uuid>`)로 재지정
 2. 전파 대기(TTL 60s + 여유). `dig @1.1.1.1 hindsight.deopjib.site +short` 로 Cloudflare proxy IP 유지 확인
 3. 외부 검증: 다른 네트워크(모바일/테더링)에서 `curl -H "Authorization: Bearer $HINDSIGHT_API_TOKEN" https://hindsight.deopjib.site/v1/default/banks/my` → 200
 4. 플러그인 smoke test: Claude Code 새 세션 시작 → `hindsight-memory` SessionStart/UserPromptSubmit 훅 로그 확인(`~/.claude/plugins/data/hindsight-memory/state/` 활동 타임스탬프, 필요 시 `debug: true` 임시 활성)
@@ -349,7 +349,7 @@ flowchart LR
 
 **Goal:** 7일+ grace period 동안 homelab 단독 운영 안정성 확인. 롤백 조건 명확화.
 
-**Current observation (2026-04-27):** Unit 6 cannot be closed yet. Manual `boot` activation of comin generation 48 succeeded and homelab now reports `26.05.20260422.0726a0e` at `/run/current-system`. After `/run/current-system/activate`, decrypted secrets exist, `hindsight-db.service`, `hindsight.service`, `cloudflared-tunnel-a19003a7-293f-4872-b8a5-1db544878f45.service`, `llama-swap.service`, and `embed-prefix-proxy.service` are active, failed units are empty, and local `/health` returns 200. Remaining blocker is recall smoke: Hindsight rerank calls can return llama.cpp 400 when DB candidate text exceeds per-document limits. Follow-up fix: deploy the rerank input guard in `embed-prefix-proxy` and rerun recall.
+**Current observation (2026-04-27):** Unit 6 cannot be closed yet. Manual `boot` activation of comin generation 48 succeeded and homelab now reports `26.05.20260422.0726a0e` at `/run/current-system`. After `/run/current-system/activate`, decrypted secrets exist, `hindsight-db.service`, `hindsight.service`, `cloudflared-tunnel-<tunnel-uuid>.service`, `llama-swap.service`, and `embed-prefix-proxy.service` are active, failed units are empty, and local `/health` returns 200. Remaining blocker is recall smoke: Hindsight rerank calls can return llama.cpp 400 when DB candidate text exceeds per-document limits. Follow-up fix: deploy the rerank input guard in `embed-prefix-proxy` and rerun recall.
 
 **Requirements:** R7
 

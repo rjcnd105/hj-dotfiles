@@ -230,8 +230,31 @@ printf '%s\n' "$MSG"
 '''
 
 [tasks.install-claude]
-description = "Claude Code CLI 네이티브 스크립트로 설치"
-run = "curl -fsSL https://claude.ai/install.sh | bash"
+description = "Claude Code CLI 공식 바이너리를 버전·SHA-256 검증 후 설치"
+run = '''
+set -euo pipefail
+base="https://downloads.claude.ai/claude-code-releases"
+ver="${CLAUDE_VERSION:-$(curl -fsSL "$base/stable")}"
+os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+case "$(uname -m)" in
+  arm64|aarch64) arch="arm64" ;;
+  x86_64|amd64) arch="x64" ;;
+  *) echo "unsupported arch: $(uname -m)" >&2; exit 1 ;;
+esac
+platform="${os}-${arch}"
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+curl -fsSL "$base/$ver/manifest.json" -o "$tmp/manifest.json"
+curl -fsSL "$base/$ver/$platform/claude" -o "$tmp/claude"
+expected="$(jq -er --arg p "$platform" '.platforms[$p].checksum' "$tmp/manifest.json")"
+if command -v sha256sum >/dev/null 2>&1; then
+  printf '%s  %s\n' "$expected" "$tmp/claude" | sha256sum -c -
+else
+  printf '%s  %s\n' "$expected" "$tmp/claude" | shasum -a 256 -c -
+fi
+chmod +x "$tmp/claude"
+"$tmp/claude" install "$ver"
+'''
 
 [env]
 # `mise env --redacted` filters to redacted vars; it does not mask values.

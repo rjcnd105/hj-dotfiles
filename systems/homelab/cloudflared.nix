@@ -16,6 +16,23 @@ let
   conflictingRouteDomains = builtins.filter (domain: builtins.hasAttr domain staticIngress) (
     builtins.attrNames cfg.publicRoutes
   );
+  stagedCloudflaredConfig = {
+    tunnel = config.sops.placeholder.CLOUDFLARED_TUNNEL_ID;
+    credentials-file = config.sops.secrets."cloudflared-credentials".path;
+    ingress = [
+      {
+        hostname = config.sops.placeholder.HOMELAB_SSH_HOSTNAME;
+        service = "ssh://localhost:22";
+      }
+    ]
+    ++ lib.mapAttrsToList (hostname: _route: {
+      inherit hostname;
+      service = "http://localhost:${toString cfg.caddyPort}";
+    }) cfg.publicRoutes
+    ++ [
+      { service = "http_status:404"; }
+    ];
+  };
 in
 {
   options.homelab = {
@@ -99,9 +116,32 @@ in
       after = [ "sops-install-secrets.service" ];
     };
 
-    sops.secrets."cloudflared-credentials" = lib.mkIf cfg.cloudflared.enable {
-      format = "binary";
-      sopsFile = ../../secrets/homelab/cloudflared.json;
+    users.users.cloudflared = lib.mkIf cfg.cloudflared.enable {
+      isSystemUser = true;
+      group = "cloudflared";
+    };
+
+    users.groups.cloudflared = lib.mkIf cfg.cloudflared.enable { };
+
+    sops.secrets = lib.mkIf cfg.cloudflared.enable {
+      "cloudflared-credentials" = {
+        format = "binary";
+        sopsFile = ../../secrets/homelab/cloudflared.json;
+        owner = "cloudflared";
+        group = "cloudflared";
+        mode = "0400";
+      };
+      CLOUDFLARED_TUNNEL_ID.mode = "0400";
+      HOMELAB_SSH_HOSTNAME.mode = "0400";
+    };
+
+    # 1단계 컷오버 준비: 새 sops 시크릿·템플릿과 cloudflared 유저를 먼저 배포해
+    # /run/secrets/rendered/cloudflared-config.json 생성을 호스트에서 확인한 뒤
+    # 2단계에서 유닛을 전환한다.
+    sops.templates."cloudflared-config.json" = lib.mkIf cfg.cloudflared.enable {
+      content = builtins.toJSON stagedCloudflaredConfig;
+      owner = "cloudflared";
+      group = "cloudflared";
       mode = "0400";
     };
   };
