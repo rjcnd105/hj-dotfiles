@@ -58,7 +58,17 @@ in
     ./backup.nix
     ./beszel.nix
     ./hindsight.nix
+    ./tailscale-dns.nix
   ];
+
+  homelab.tailscaleDns = {
+    enable = true;
+    records = {
+      # Mac(hj) 로컬 개발 서버에 iPhone 등 tailnet 기기에서
+      # https://local.gentlemonster.com 그대로 접속(OAuth·CORS 포함)하기 위한 Split DNS.
+      "local.gentlemonster.com" = "100.108.225.30";
+    };
+  };
 
   homelab.hindsight = {
     enable = true;
