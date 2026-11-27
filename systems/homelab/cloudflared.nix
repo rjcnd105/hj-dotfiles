@@ -1,30 +1,25 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 let
   cfg = config.homelab;
   hasPublicRoutes = cfg.publicRoutes != { };
   allReservedPorts = cfg.reservedLoopbackPorts ++ lib.optional hasPublicRoutes cfg.caddyPort;
-  staticIngress = {
-    # SSH — 라우터 인바운드 포워딩 없이 원격 접속하는 유일한 경로.
-    # 클라이언트는 `cloudflared access ssh` ProxyCommand로 접속하며
-    # CF Access(이메일 OTP)가 SSH 핸드셰이크 전에 인증을 요구한다.
-    "ssh.deopjib.cc" = "ssh://localhost:22";
-  };
-  conflictingRouteDomains = builtins.filter (domain: builtins.hasAttr domain staticIngress) (
+  conflictingRouteDomains = builtins.filter (domain: builtins.hasAttr domain cfg.staticIngress) (
     builtins.attrNames cfg.publicRoutes
   );
-  stagedCloudflaredConfig = {
-    tunnel = config.sops.placeholder.CLOUDFLARED_TUNNEL_ID;
-    credentials-file = config.sops.secrets."cloudflared-credentials".path;
-    ingress = [
-      {
-        hostname = config.sops.placeholder.HOMELAB_SSH_HOSTNAME;
-        service = "ssh://localhost:22";
-      }
-    ]
+  ingressRules =
+    lib.optional cfg.cloudflared.sshIngress.enable {
+      # SSH — 라우터 인바운드 포워딩 없이 원격 접속하는 경로.
+      # 클라이언트는 `cloudflared access ssh` ProxyCommand로 접속하며
+      # CF Access가 SSH 핸드셰이크 전에 인증을 요구한다.
+      hostname = config.sops.placeholder.HOMELAB_SSH_HOSTNAME;
+      service = "ssh://localhost:22";
+    }
+    ++ lib.mapAttrsToList (hostname: service: { inherit hostname service; }) cfg.staticIngress
     ++ lib.mapAttrsToList (hostname: _route: {
       inherit hostname;
       service = "http://localhost:${toString cfg.caddyPort}";
@@ -32,20 +27,32 @@ let
     ++ [
       { service = "http_status:404"; }
     ];
+  cloudflaredConfig = {
+    tunnel = config.sops.placeholder.CLOUDFLARED_TUNNEL_ID;
+    credentials-file = config.sops.secrets."cloudflared-credentials".path;
+    ingress = ingressRules;
   };
 in
 {
   options.homelab = {
-    cloudflared.enable = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = "Enable Cloudflare Tunnel daemon and credentials secret.";
+    cloudflared = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Enable Cloudflare Tunnel daemon and sops-managed tunnel configuration.";
+      };
+
+      sshIngress.enable = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Expose loopback SSH (ssh://localhost:22) via sops-managed HOMELAB_SSH_HOSTNAME.";
+      };
     };
 
-    cloudflareTunnelId = lib.mkOption {
-      type = lib.types.str;
-      default = "a19003a7-293f-4872-b8a5-1db544878f45";
-      description = "Cloudflare Tunnel UUID for homelab ingress.";
+    staticIngress = lib.mkOption {
+      type = lib.types.attrsOf lib.types.str;
+      default = { };
+      description = "Non-secret static cloudflared ingress mappings (hostname -> backend service URL).";
     };
 
     caddyPort = lib.mkOption {
@@ -100,22 +107,6 @@ in
       ) cfg.publicRoutes;
     };
 
-    services.cloudflared = lib.mkIf cfg.cloudflared.enable {
-      enable = true;
-      tunnels.${cfg.cloudflareTunnelId} = {
-        credentialsFile = config.sops.secrets."cloudflared-credentials".path;
-        default = "http_status:404";
-        ingress =
-          staticIngress
-          // lib.mapAttrs (_domain: _route: "http://localhost:${toString cfg.caddyPort}") cfg.publicRoutes;
-      };
-    };
-
-    systemd.services."cloudflared-tunnel-${cfg.cloudflareTunnelId}" = lib.mkIf cfg.cloudflared.enable {
-      requires = [ "sops-install-secrets.service" ];
-      after = [ "sops-install-secrets.service" ];
-    };
-
     users.users.cloudflared = lib.mkIf cfg.cloudflared.enable {
       isSystemUser = true;
       group = "cloudflared";
@@ -123,26 +114,65 @@ in
 
     users.groups.cloudflared = lib.mkIf cfg.cloudflared.enable { };
 
-    sops.secrets = lib.mkIf cfg.cloudflared.enable {
-      "cloudflared-credentials" = {
-        format = "binary";
-        sopsFile = ../../secrets/homelab/cloudflared.json;
-        owner = "cloudflared";
-        group = "cloudflared";
-        mode = "0400";
-      };
-      CLOUDFLARED_TUNNEL_ID.mode = "0400";
-      HOMELAB_SSH_HOSTNAME.mode = "0400";
-    };
+    sops.secrets = lib.mkIf cfg.cloudflared.enable (
+      {
+        "cloudflared-credentials" = {
+          format = "binary";
+          sopsFile = ../../secrets/homelab/cloudflared.json;
+          owner = "cloudflared";
+          group = "cloudflared";
+          mode = "0400";
+          restartUnits = [ "homelab-cloudflared.service" ];
+        };
+        CLOUDFLARED_TUNNEL_ID.mode = "0400";
+      }
+      // lib.optionalAttrs cfg.cloudflared.sshIngress.enable {
+        HOMELAB_SSH_HOSTNAME.mode = "0400";
+      }
+    );
 
-    # 1단계 컷오버 준비: 새 sops 시크릿·템플릿과 cloudflared 유저를 먼저 배포해
-    # /run/secrets/rendered/cloudflared-config.json 생성을 호스트에서 확인한 뒤
-    # 2단계에서 유닛을 전환한다.
     sops.templates."cloudflared-config.json" = lib.mkIf cfg.cloudflared.enable {
-      content = builtins.toJSON stagedCloudflaredConfig;
+      content = builtins.toJSON cloudflaredConfig;
       owner = "cloudflared";
       group = "cloudflared";
       mode = "0400";
+      restartUnits = [ "homelab-cloudflared.service" ];
+    };
+
+    # sops 템플릿으로 터널 UUID와 SSH 호스트명을 런타임에만 복호화한다.
+    # wants: 다른 시크릿 변경으로 sops-install-secrets가 재실행될 때마다 터널이
+    # 불필요하게 끊기지 않도록 하고, 실제 터널 설정/자격 변경은 restartUnits로 반영한다.
+    systemd.services.homelab-cloudflared = lib.mkIf cfg.cloudflared.enable {
+      description = "Cloudflare Tunnel for homelab ingress";
+      wantedBy = [ "multi-user.target" ];
+      wants = [
+        "network.target"
+        "network-online.target"
+        "sops-install-secrets.service"
+      ];
+      after = [
+        "network.target"
+        "network-online.target"
+        "sops-install-secrets.service"
+      ];
+      environment = {
+        TUNNEL_EDGE_IP_VERSION = "4";
+        TUNNEL_TRANSPORT_PROTOCOL = "auto";
+      };
+      serviceConfig = {
+        Type = "simple";
+        User = "cloudflared";
+        Group = "cloudflared";
+        ExecStart = "${lib.getExe pkgs.cloudflared} tunnel --config=${
+          config.sops.templates."cloudflared-config.json".path
+        } --no-autoupdate run";
+        Restart = "on-failure";
+        RestartSec = "5s";
+        NoNewPrivileges = true;
+        PrivateTmp = true;
+        ProtectSystem = "strict";
+        ProtectHome = true;
+      };
     };
   };
 }

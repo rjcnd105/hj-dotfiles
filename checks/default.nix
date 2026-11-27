@@ -462,7 +462,33 @@ let
     assert evalFails [
       { homelab.apps.example.contract.release.channels.dev.migrate = lib.mkForce "manual"; }
     ];
-    assert evalFails [ { homelab.publicRoutes."ssh.deopjib.cc".extraConfig = "respond 200"; } ];
+    assert evalFails [
+      {
+        homelab.staticIngress."ssh.example.test" = "ssh://localhost:22";
+        homelab.publicRoutes."ssh.example.test".extraConfig = "respond 200";
+      }
+    ];
+    assert
+      !evalFails [
+        {
+          homelab.staticIngress."ssh.example.test" = "ssh://localhost:22";
+          homelab.publicRoutes."web.example.test".extraConfig = "respond 200";
+        }
+      ];
+    let
+      homelab = self.nixosConfigurations.homelab_hj.config;
+      cloudflaredCfg = builtins.fromJSON homelab.sops.templates."cloudflared-config.json".content;
+      sshRules = builtins.filter (r: (r.service or null) == "ssh://localhost:22") cloudflaredCfg.ingress;
+    in
+    assert homelab.systemd.services ? homelab-cloudflared;
+    assert
+      !(lib.any (name: lib.hasPrefix "cloudflared-tunnel-" name) (
+        builtins.attrNames homelab.systemd.services
+      ));
+    assert cloudflaredCfg.tunnel == homelab.sops.placeholder.CLOUDFLARED_TUNNEL_ID;
+    assert builtins.length sshRules == 1;
+    assert (builtins.head sshRules).hostname == homelab.sops.placeholder.HOMELAB_SSH_HOSTNAME;
+    assert lib.last cloudflaredCfg.ingress == { service = "http_status:404"; };
     pkgs.runCommand "homelab-contract-v2-invariants" { inherit fixtureToplevel; } ''
       touch "$out"
     '';
