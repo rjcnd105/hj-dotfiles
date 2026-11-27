@@ -176,9 +176,14 @@ in
             "127.0.0.1"
             "--port"
             (toString llamaPort)
-            # 슬롯 2개 × 8,192 토큰 (모델 최대 입력 길이).
+            # 슬롯 2개 × 8,192 토큰 (모델 최대 입력 길이). 비인과 인코더는 단일 입력을
+            # ubatch로 쪼갤 수 없어 기본값(512)이면 긴 observation 임베딩이 HTTP 500으로 실패한다.
             "--ctx-size"
             "16384"
+            "--batch-size"
+            "8192"
+            "--ubatch-size"
+            "8192"
             "--parallel"
             "2"
           ];

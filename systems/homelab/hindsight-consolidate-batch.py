@@ -144,6 +144,14 @@ def main() -> int:
                     print(f"ERROR {msg}", file=sys.stderr)
                     failures.append(msg)
                     break
+                if op.get("next_retry_at"):
+                    msg = (
+                        f"{bank_id}: op={op_id} retry-deferred until {op.get('next_retry_at')}: "
+                        f"{op.get('error_message')}"
+                    )
+                    print(f"ERROR {msg}", file=sys.stderr)
+                    failures.append(msg)
+                    break
                 if status in ("completed", "cancelled"):
                     stats = request_json(api_key, "GET", f"/v1/default/banks/{encoded}/stats")
                     rem_pending = int(stats.get("pending_consolidation") or 0)
