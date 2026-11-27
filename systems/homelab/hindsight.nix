@@ -444,7 +444,11 @@ in
           Type = "oneshot";
           ExecStart = "${pkgs.python3}/bin/python3 ${./hindsight-consolidate-batch.py}";
           DynamicUser = true;
-          LoadCredential = [ "hindsight-api-key:${config.sops.secrets.HINDSIGHT_API_KEY.path}" ];
+          LoadCredential = [
+            "hindsight-api-key:${config.sops.secrets.HINDSIGHT_API_KEY.path}"
+            "telegram-bot-token:${config.sops.secrets.TELEGRAM_BOT_TOKEN.path}"
+            "telegram-chat-id:${config.sops.secrets.TELEGRAM_CHAT_ID.path}"
+          ];
           RuntimeMaxSec = "90min";
           ProtectSystem = "strict";
           ProtectHome = true;
